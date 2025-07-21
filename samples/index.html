@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英単語学習アプリ</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+</head>
+<body>
+    <div id="app">
+        <!-- ヘッダー -->
+        <header id="header">
+            <div class="nav-container">
+                <h1 class="app-title"><a href="index.html">英単語帳</a></h1>
+                <div class="nav-controls">
+                    <button class="nav-btn icon-only" id="theme-toggle-btn" title="テーマ切り替え">
+                        <span class="theme-icon">☀️</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main id="main-content">
+            <!-- ホーム画面 -->
+            <div class="screen active" id="home-screen">
+                <div class="screen-container">
+                    <div class="screen-header">
+                        <!-- <div class="welcome-section">
+                            <h2>英単語学習へようこそ</h2>
+                            <p>効率的な学習でボキャブラリーを増やしましょう</p>
+                        </div> -->
+                    </div>
+                    <div class="screen-content">
+                        <div class="stats-section">
+                            <div class="stat-card">
+                                <div class="stat-icon">📚</div>
+                                <div class="stat-number" id="total-words">0</div>
+                                <div class="stat-label">総単語数</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">✅</div>
+                                <div class="stat-number" id="studied-words">0</div>
+                                <div class="stat-label">学習済み</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">🏆</div>
+                                <div class="stat-number" id="mastered-words">0</div>
+                                <div class="stat-label">習得済み</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">⏱️</div>
+                                <div class="stat-number" id="study-time">0</div>
+                                <div class="stat-label">学習時間（分）</div>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="primary-btn" id="start-study-btn">
+                                学習を開始
+                            </button>
+                            <button class="secondary-btn" id="browse-words-btn">
+                                単語を閲覧
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- カテゴリー選択画面 -->
+            <div class="screen" id="category-screen">
+                <div class="screen-container">
+                    <div class="screen-header">
+                        <h2>カテゴリーを選択</h2>
+                        <p>学習したいカテゴリーを選んでください</p>
+                    </div>
+                    <div class="screen-content">
+                        <div class="category-grid" id="category-grid">
+                            <!-- カテゴリーカードが動的に生成される -->
+                        </div>
+                        <div class="review-section">
+                            <div class="category-card review-card" data-category="復習" data-pos="R">
+                                <div class="category-name">復習</div>
+                                <div class="category-count" id="review-count">0個の単語</div>
+                                <div class="category-description">やり直しに追加した単語を復習</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 学習モード選択画面 -->
+            <div class="screen" id="mode-screen">
+                <div class="screen-container">
+                    <div class="screen-header">
+                        <div class="selected-category" id="selected-category">
+                            <h3>選択中のカテゴリー: <span id="current-category"></span></h3>
+                            <p><span id="category-word-count">0</span>個の単語</p>
+                        </div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="mode-grid">
+                            <div class="mode-card" data-mode="flashcard">
+                                <div class="mode-icon">CARD</div>
+                                <h3>フラッシュカード</h3>
+                                <p>カード形式で効率的に学習</p>
+                            </div>
+                            <div class="mode-card" data-mode="quiz">
+                                <div class="mode-icon">QUIZ</div>
+                                <h3>クイズ</h3>
+                                <p>4択問題で理解度をチェック</p>
+                            </div>
+                            <div class="mode-card" data-mode="list">
+                                <div class="mode-icon">LIST</div>
+                                <h3>一覧表示</h3>
+                                <p>すべての単語を一覧で確認</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- フラッシュカード画面 -->
+            <div class="screen" id="flashcard-screen">
+                <div class="screen-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="flashcard-progress"></div>
+                    </div>
+                    
+                    <div class="flashcard-container">
+                        <div class="flashcard" id="flashcard">
+                            <div class="card-header">
+                                <div class="progress-info">
+                                    <span id="current-position">1</span> / <span id="total-cards">10</span>
+                                </div>
+                                <div class="card-controls">
+                                    <button class="control-btn" id="speed-btn" title="再生速度">1x</button>
+                                    <div class="volume-control">
+                                        <span class="volume-icon">🔊</span>
+                                        <input type="range" min="0" max="100" step="1" value="100" class="volume-slider" id="volume-slider">
+                                        <span class="volume-value" id="volume-value">100%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="word-display" id="word-display">Loading...</div>
+                            <div class="phonetic-display" id="phonetic-display"></div>
+                            <div class="japanese-display" id="japanese-display">Loading...</div>
+                            <button class="audio-btn" id="audio-btn">
+                                <div class="audio-wave"></div>
+                                発音を聞く
+                            </button>
+                            <div class="examples-display" id="examples-display">
+                                <!-- 例文が動的に生成される -->
+                            </div>
+                            <button class="mastered-btn" id="mastered-btn" style="display: none;">
+                                習得済み
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flashcard-footer">
+                        <div class="flashcard-navigation">
+                            <button class="secondary-btn" id="prev-card-btn">
+                                ◀
+                            </button>
+                            <button class="retry-btn" id="retry-btn">
+                                復習
+                            </button>
+                            <button class="secondary-btn" id="next-card-btn">
+                                ▶
+                            </button>
+                        </div>
+                    </div>
+                    
+
+                </div>
+            </div>
+
+            <!-- クイズ画面 -->
+            <div class="screen" id="quiz-screen">
+                <div class="screen-container">
+                    <div class="quiz-header">
+                        <div class="progress-info">
+                            問題 <span id="quiz-current">1</span> / <span id="quiz-total">10</span>
+                        </div>
+                        <div class="quiz-score">
+                            スコア: <span id="quiz-score">0</span>/<span id="quiz-answered">0</span>
+                        </div>
+                        <div class="quiz-timer" id="quiz-timer">30</div>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="quiz-progress"></div>
+                    </div>
+                    
+                    <div class="quiz-question" id="quiz-question">
+                        <div>Loading...</div>
+                    </div>
+                    
+                    <div class="quiz-options" id="quiz-options">
+                        <!-- 選択肢が動的に生成される -->
+                    </div>
+                    
+                    <div class="quiz-feedback" id="quiz-feedback" style="display: none;">
+                        <!-- フィードバックが動的に表示される -->
+                    </div>
+                    
+                    <div class="quiz-navigation">
+                        <button class="primary-btn" id="next-question-btn" style="display: none;">
+                            次の問題
+                        </button>
+                        <button class="primary-btn" id="finish-quiz-btn" style="display: none;">
+                            クイズを終了
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 単語一覧画面 -->
+            <div class="screen" id="list-screen">
+                <div class="screen-container">
+                    <div class="list-header">
+                        <h2>単語一覧</h2>
+                        <div class="search-container">
+                            <input type="text" id="search-input" placeholder="単語を検索...">
+                            <button class="search-btn" id="search-btn">
+                                検索
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-controls">
+                        <select id="category-filter">
+                            <option value="all">すべてのカテゴリー</option>
+                        </select>
+                        <select id="mastery-filter">
+                            <option value="all">すべての習得度</option>
+                            <option value="mastered">習得済み</option>
+                            <option value="studying">学習中</option>
+                            <option value="new">未学習</option>
+                        </select>
+                        <select id="favorite-filter">
+                            <option value="all">すべて</option>
+                            <option value="favorite">お気に入りのみ</option>
+                        </select>
+                    </div>
+                    
+                    <div class="word-list" id="word-list">
+                        <!-- 単語アイテムが動的に生成される -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 単語詳細画面 -->
+            <div class="screen" id="detail-screen">
+                <div class="screen-container">
+                    <div class="word-detail">
+                        <div class="word-header">
+                            <h2 id="detail-word">Loading...</h2>
+                            <button class="favorite-btn" id="favorite-btn">
+                                ★
+                            </button>
+                        </div>
+                        
+                        <div class="word-info">
+                            <div class="phonetic" id="detail-phonetic"></div>
+                            <button class="audio-btn" id="detail-audio-btn">
+                                <div class="audio-wave"></div>
+                                発音を聞く
+                            </button>
+                        </div>
+                        
+                        <div class="japanese-meaning" id="detail-japanese"></div>
+                        
+                        <div class="examples-section">
+                            <h3>例文</h3>
+                            <div id="detail-examples">
+                                <!-- 例文が動的に生成される -->
+                            </div>
+                        </div>
+                        
+                        <div class="study-stats">
+                            <div class="stat">
+                                <div class="label">学習回数</div>
+                                <div class="value" id="study-count">0</div>
+                            </div>
+                            <div class="stat">
+                                <div class="label">正答率</div>
+                                <div class="value" id="accuracy-rate">0%</div>
+                            </div>
+                            <div class="stat">
+                                <div class="label">最終学習日</div>
+                                <div class="value" id="last-studied">未学習</div>
+                            </div>
+                            <div class="stat">
+                                <div class="label">習得度</div>
+                                <div class="value" id="mastery-level">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </main>
+
+        <!-- フッター -->
+        <footer id="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 英単語帳. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- モーダル -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="modal-title">タイトル</h3>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- モーダル内容が動的に生成される -->
+            </div>
+            <div class="modal-footer">
+                <div class="left-buttons">
+                    <!-- 左側のボタン（キャンセルなど）が動的に追加される -->
+                </div>
+                <div class="right-buttons">
+                    <!-- 右側のボタン（ホームに戻るなど）が動的に追加される -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 隠しオーディオ要素 -->
+    <audio id="audio-player" preload="none"></audio>
+    
+    <!-- 隠しファイル入力 -->
+    <input type="file" id="file-input" accept=".json,.csv" style="display: none;">
+
+    <script src="main.js"></script>
+</body>
+</html>

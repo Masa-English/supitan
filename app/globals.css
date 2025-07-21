@@ -4,57 +4,59 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    /* サンプルファイルのクリーム色ベース配色に合わせて更新 */
+    --background: 60 9% 98%; /* #fefefe に近い */
+    --foreground: 210 11% 41%; /* #5a6c7d に近い */
+    --card: 60 9% 98%; /* #fefefe に近い */
+    --card-foreground: 210 11% 41%; /* #5a6c7d に近い */
+    --popover: 60 9% 98%; /* #fefefe に近い */
+    --popover-foreground: 210 11% 41%; /* #5a6c7d に近い */
+    --primary: 210 11% 41%; /* #5a6c7d に近い */
+    --primary-foreground: 60 9% 98%; /* #fefefe に近い */
+    --secondary: 60 9% 95%; /* #fdf6e3 に近い */
+    --secondary-foreground: 210 11% 41%; /* #5a6c7d に近い */
+    --muted: 60 9% 95%; /* #fdf6e3 に近い */
+    --muted-foreground: 210 16% 56%; /* #7a8a9b に近い */
+    --accent: 35 25% 65%; /* #c4a484 に近い */
+    --accent-foreground: 60 9% 98%; /* #fefefe に近い */
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --destructive-foreground: 60 9% 98%; /* #fefefe に近い */
+    --border: 60 9% 88%; /* #e8e0c0 に近い */
+    --input: 60 9% 88%; /* #e8e0c0 に近い */
+    --ring: 35 25% 65%; /* #c4a484 に近い */
+    --chart-1: 35 25% 65%; /* #c4a484 に近い */
+    --chart-2: 38 25% 65%; /* #c4a484 の変形 */
+    --chart-3: 32 25% 65%; /* #c4a484 の変形 */
+    --chart-4: 35 30% 70%; /* #c4a484 の明るい版 */
+    --chart-5: 35 20% 60%; /* #c4a484 の暗い版 */
     --radius: 0.5rem;
   }
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    /* ダークモードも温かみのある配色に調整 */
+    --background: 220 13% 18%; /* より温かみのあるダークグレー */
+    --foreground: 60 9% 95%; /* クリーム色に近い */
+    --card: 220 13% 18%; /* より温かみのあるダークグレー */
+    --card-foreground: 60 9% 95%; /* クリーム色に近い */
+    --popover: 220 13% 18%; /* より温かみのあるダークグレー */
+    --popover-foreground: 60 9% 95%; /* クリーム色に近い */
+    --primary: 60 9% 95%; /* クリーム色に近い */
+    --primary-foreground: 220 13% 18%; /* より温かみのあるダークグレー */
+    --secondary: 220 13% 22%; /* より温かみのあるダークグレー */
+    --secondary-foreground: 60 9% 95%; /* クリーム色に近い */
+    --muted: 220 13% 22%; /* より温かみのあるダークグレー */
+    --muted-foreground: 210 16% 56%; /* #7a8a9b に近い */
+    --accent: 35 25% 65%; /* #c4a484 に近い */
+    --accent-foreground: 220 13% 18%; /* より温かみのあるダークグレー */
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --destructive-foreground: 60 9% 95%; /* クリーム色に近い */
+    --border: 220 13% 22%; /* より温かみのあるダークグレー */
+    --input: 220 13% 22%; /* より温かみのあるダークグレー */
+    --ring: 35 25% 65%; /* #c4a484 に近い */
+    --chart-1: 35 25% 65%; /* #c4a484 に近い */
+    --chart-2: 38 25% 65%; /* #c4a484 の変形 */
+    --chart-3: 32 25% 65%; /* #c4a484 の変形 */
+    --chart-4: 35 30% 70%; /* #c4a484 の明るい版 */
+    --chart-5: 35 20% 60%; /* #c4a484 の暗い版 */
   }
 }
 

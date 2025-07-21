@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -51,6 +52,36 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        // サンプルファイルの配色に合わせたカスタムカラー
+        cream: {
+          50: "#fefefe",
+          100: "#fdf6e3",
+          200: "#f7f0d9",
+          300: "#e8e0c0",
+          400: "#d4b494",
+          500: "#c4a484",
+          600: "#b39474",
+          700: "#a28464",
+          800: "#917454",
+          900: "#806444",
+        },
+        warm: {
+          50: "#fefefe",
+          100: "#fdf6e3",
+          200: "#f7f0d9",
+          300: "#e8e0c0",
+          400: "#d4b494",
+          500: "#c4a484",
+          600: "#b39474",
+          700: "#a28464",
+          800: "#917454",
+          900: "#806444",
+        },
+        text: {
+          primary: "#5a6c7d",
+          secondary: "#7a8a9b",
+          muted: "#7a8a9b",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -59,5 +90,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;
