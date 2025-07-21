@@ -52,17 +52,6 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <LoginForm />
-            <div className="mt-6 text-center">
-              <p className="text-sm text-amber-600 dark:text-amber-400">
-                アカウントをお持ちでないですか？{' '}
-                <Link 
-                  href="/auth/sign-up" 
-                  className="font-medium text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200 underline"
-                >
-                  新規登録
-                </Link>
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>
