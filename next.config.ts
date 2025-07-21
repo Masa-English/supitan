@@ -39,6 +39,9 @@ const nextConfig: NextConfig = {
   // 静的エクスポートの最適化
   trailingSlash: false,
   
+  // 出力設定 - Vercel環境での最適化
+  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
+  
   // コンパイル最適化
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
@@ -55,6 +58,11 @@ const nextConfig: NextConfig = {
     }
     
     return config;
+  },
+
+  // 環境変数の検証
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
 };
 
