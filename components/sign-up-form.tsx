@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Mail, Lock, LockKeyhole } from "lucide-react";
+import { getRedirectUrl } from "@/lib/utils";
 
 export function SignUpForm({
   className,
@@ -34,7 +36,13 @@ export function SignUpForm({
     setError(null);
 
     if (password !== repeatPassword) {
-      setError("Passwords do not match");
+      setError("パスワードが一致しません");
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("パスワードは6文字以上で入力してください");
       setIsLoading(false);
       return;
     }
@@ -44,13 +52,13 @@ export function SignUpForm({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/protected`,
+          emailRedirectTo: getRedirectUrl("/protected"),
         },
       });
       if (error) throw error;
       router.push("/auth/sign-up-success");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      setError(error instanceof Error ? error.message : "エラーが発生しました");
     } finally {
       setIsLoading(false);
     }
@@ -58,58 +66,81 @@ export function SignUpForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>Create a new account</CardDescription>
+      <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-amber-200 dark:border-amber-700 shadow-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl text-amber-800 dark:text-amber-200">新規登録</CardTitle>
+          <CardDescription className="text-amber-700 dark:text-amber-300">
+            新しいアカウントを作成してください
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  メールアドレス
+                </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="example@email.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="border-amber-300 focus:border-amber-500 focus:ring-amber-500 dark:border-amber-600 dark:focus:border-amber-400"
                 />
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                </div>
+                <Label htmlFor="password" className="text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                  <Lock className="h-4 w-4" />
+                  パスワード
+                </Label>
                 <Input
                   id="password"
                   type="password"
+                  placeholder="6文字以上"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="border-amber-300 focus:border-amber-500 focus:ring-amber-500 dark:border-amber-600 dark:focus:border-amber-400"
                 />
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="repeat-password">Repeat Password</Label>
-                </div>
+                <Label htmlFor="repeat-password" className="text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                  <LockKeyhole className="h-4 w-4" />
+                  パスワード（確認）
+                </Label>
                 <Input
                   id="repeat-password"
                   type="password"
+                  placeholder="パスワードを再入力"
                   required
                   value={repeatPassword}
                   onChange={(e) => setRepeatPassword(e.target.value)}
+                  className="border-amber-300 focus:border-amber-500 focus:ring-amber-500 dark:border-amber-600 dark:focus:border-amber-400"
                 />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating an account..." : "Sign up"}
+              {error && (
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-700">
+                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                </div>
+              )}
+              <Button 
+                type="submit" 
+                className="w-full bg-amber-600 hover:bg-amber-700 text-white" 
+                disabled={isLoading}
+              >
+                {isLoading ? "アカウント作成中..." : "アカウントを作成"}
               </Button>
             </div>
-            <div className="mt-4 text-center text-sm">
-              Already have an account?{" "}
-              <Link href="/auth/login" className="underline underline-offset-4">
-                Login
+            <div className="mt-6 text-center text-sm">
+              <span className="text-amber-700 dark:text-amber-300">すでにアカウントをお持ちですか？</span>{" "}
+              <Link 
+                href="/auth/login" 
+                className="text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 underline underline-offset-4 font-medium"
+              >
+                ログイン
               </Link>
             </div>
           </form>

@@ -7,9 +7,29 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
-  // If the env vars are not set, skip middleware check. You can remove this
-  // once you setup the project.
+  // Allow access to public pages even without env vars
+  const publicPaths = [
+    "/landing",
+    "/auth/login",
+    "/auth/sign-up",
+    "/auth/forgot-password",
+    "/auth/sign-up-success",
+    "/auth/update-password",
+    "/auth/confirm",
+    "/auth/error"
+  ];
+
+  const isPublicPath = publicPaths.some(path => 
+    request.nextUrl.pathname.startsWith(path)
+  );
+
+  // If the env vars are not set, only allow public paths
   if (!hasEnvVars) {
+    if (!isPublicPath && request.nextUrl.pathname !== "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/landing";
+      return NextResponse.redirect(url);
+    }
     return supabaseResponse;
   }
 
@@ -50,8 +70,7 @@ export async function updateSession(request: NextRequest) {
   if (
     request.nextUrl.pathname !== "/" &&
     !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth")
+    !isPublicPath
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
