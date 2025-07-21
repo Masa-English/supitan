@@ -20,28 +20,40 @@ export interface StaticData {
 // SSG用のデータベースサービス
 class StaticDatabaseService {
   private async getSupabaseClient() {
-    // SSG時はサーバーサイドクライアントを使用
-    const cookieStore = await cookies();
-    return createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options),
-              );
-            } catch {
-              // SSG時は無視
-            }
+    // 環境変数の存在確認を強化
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Supabase environment variables are not configured');
+    }
+
+    try {
+      const cookieStore = await cookies();
+      return createServerClient(
+        supabaseUrl,
+        supabaseKey,
+        {
+          cookies: {
+            getAll() {
+              return cookieStore.getAll();
+            },
+            setAll(cookiesToSet) {
+              try {
+                cookiesToSet.forEach(({ name, value, options }) =>
+                  cookieStore.set(name, value, options),
+                );
+              } catch {
+                // SSG時は無視
+              }
+            },
           },
         },
-      },
-    );
+      );
+    } catch (error) {
+      console.error('Supabase client creation error:', error);
+      throw error;
+    }
   }
 
   async getWords(): Promise<Word[]> {

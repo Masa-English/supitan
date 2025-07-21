@@ -1,0 +1,19 @@
+{
+  "name": "Masa Flash - 効率的な英語学習アプリ",
+  "short_name": "Masa Flash",
+  "description": "フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fef7e3",
+  "theme_color": "#d97706",
+  "orientation": "portrait-primary",
+  "categories": ["education", "productivity"],
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+} 

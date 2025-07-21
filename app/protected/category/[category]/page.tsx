@@ -36,7 +36,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
   try {
     const words = await getStaticDataForCategory(decodedCategory);
 
-    // データが空の場合の処理
+    // データが空の場合の処理を改善
     if (words.length === 0) {
       return (
         <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
@@ -55,6 +55,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                 <h1 className="text-4xl font-bold text-amber-800 dark:text-amber-200 mb-2">
                   {decodedCategory}
                 </h1>
+                <p className="text-amber-600 dark:text-amber-400">
+                  カテゴリー: {decodedCategory}
+                </p>
               </div>
             </div>
           </header>
@@ -70,11 +73,25 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
               <p className="text-amber-700 dark:text-amber-300 mb-6">
                 {decodedCategory}カテゴリーの単語データを準備しています。しばらくお待ちください。
               </p>
-              <Link href="/protected">
-                <Button className="bg-amber-600 hover:bg-amber-700 text-white">
-                  ダッシュボードに戻る
-                </Button>
-              </Link>
+              <div className="space-y-4">
+                <p className="text-sm text-amber-600 dark:text-amber-400">
+                  問題が続く場合は、以下をお試しください：
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link href="/protected">
+                    <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+                      ダッシュボードに戻る
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="outline" 
+                    className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                    onClick={() => window.location.reload()}
+                  >
+                    ページを再読み込み
+                  </Button>
+                </div>
+              </div>
             </div>
           </main>
         </div>

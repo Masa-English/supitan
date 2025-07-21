@@ -46,16 +46,15 @@ export const metadata: Metadata = {
     description: "フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。",
     images: ["/og-image.png"],
   },
+  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
+  themeColor: "#d97706",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f59e0b" },
-    { media: "(prefers-color-scheme: dark)", color: "#d97706" },
-  ],
+  userScalable: false,
 };
 
 const geistSans = Geist({
@@ -73,7 +72,6 @@ export default function RootLayout({
     <html lang="ja" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={`${geistSans.className} antialiased h-full`}>
