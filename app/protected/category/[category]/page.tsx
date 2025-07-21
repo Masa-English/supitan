@@ -58,6 +58,27 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* 単語一覧 */}
+          <Link href={`/protected/category/${encodeURIComponent(decodedCategory)}/browse`}>
+            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-amber-200 dark:border-amber-700">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+                  <BookOpen className="h-6 w-6 text-amber-600" />
+                  単語一覧
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-amber-700 dark:text-amber-300 mb-4">
+                  すべての単語を確認しましょう
+                </p>
+                <Button className="w-full bg-amber-600 hover:bg-amber-700 text-white">
+                  <Play className="h-4 w-4 mr-2" />
+                  表示
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+          
           {/* フラッシュカード */}
           <Link href={`/protected/category/${encodeURIComponent(decodedCategory)}/flashcard`}>
             <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-amber-200 dark:border-amber-700">
@@ -100,26 +121,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
             </Card>
           </Link>
 
-          {/* 単語一覧 */}
-          <Link href={`/protected/category/${encodeURIComponent(decodedCategory)}/browse`}>
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-amber-200 dark:border-amber-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
-                  <BookOpen className="h-6 w-6 text-amber-600" />
-                  単語一覧
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-amber-700 dark:text-amber-300 mb-4">
-                  すべての単語を確認しましょう
-                </p>
-                <Button className="w-full bg-amber-600 hover:bg-amber-700 text-white">
-                  <Play className="h-4 w-4 mr-2" />
-                  表示
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
+          
         </div>
 
         {/* 単語プレビュー */}
