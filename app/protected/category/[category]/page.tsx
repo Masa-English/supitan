@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ReloadButton } from '@/components/reload-button';
 import { BookOpen, Brain, Play, ArrowLeft, Users, Target, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -83,13 +84,12 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                       ダッシュボードに戻る
                     </Button>
                   </Link>
-                  <Button 
+                  <ReloadButton 
                     variant="outline" 
                     className="border-amber-300 text-amber-700 hover:bg-amber-50"
-                    onClick={() => window.location.reload()}
                   >
                     ページを再読み込み
-                  </Button>
+                  </ReloadButton>
                 </div>
               </div>
             </div>
