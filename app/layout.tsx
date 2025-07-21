@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AudioProvider } from "@/components/audio-provider";
@@ -46,11 +46,12 @@ export const metadata: Metadata = {
     description: "フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。",
     images: ["/og-image.png"],
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f59e0b" },
     { media: "(prefers-color-scheme: dark)", color: "#d97706" },
@@ -75,7 +76,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <body className={`${geistSans.className} antialiased`}>
+      <body className={`${geistSans.className} antialiased h-full`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -84,8 +85,8 @@ export default function RootLayout({
         >
           <ToastProvider>
             <AudioProvider>
-              <div className="min-h-screen flex flex-col">
-                <main className="flex-1">
+              <div className="h-full flex flex-col">
+                <main className="flex-1 min-h-0">
                   {children}
                 </main>
               </div>

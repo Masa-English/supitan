@@ -11,6 +11,11 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        '3xl': '1600px',
+        '4xl': '1920px',
+        '5xl': '2560px',
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

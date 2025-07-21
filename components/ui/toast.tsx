@@ -14,14 +14,32 @@ interface ToastProps {
 }
 
 export function Toast({ isOpen, onClose, title, message, type = 'info', duration = 3000 }: ToastProps) {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const [shouldRender, setShouldRender] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      const timer = setTimeout(() => setIsVisible(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+      const timer = setTimeout(() => setShouldRender(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   React.useEffect(() => {
     if (isOpen && duration > 0) {
-      const timer = setTimeout(onClose, duration);
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+        setTimeout(onClose, 300);
+      }, duration);
       return () => clearTimeout(timer);
     }
   }, [isOpen, duration, onClose]);
 
-  if (!isOpen) return null;
+  if (!shouldRender) return null;
 
   const getIcon = () => {
     switch (type) {
@@ -45,31 +63,37 @@ export function Toast({ isOpen, onClose, title, message, type = 'info', duration
     }
   };
 
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(onClose, 300);
+  };
+
   return (
-    <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2 duration-300">
-      <div className={cn(
-        "max-w-sm w-full bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-4",
-        getStyles()
-      )}>
-        <div className="flex items-start gap-3">
-          {getIcon()}
-          <div className="flex-1 min-w-0">
-            {title && (
-              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                {title}
-              </p>
-            )}
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              {message}
+    <div className={cn(
+      "max-w-sm w-full bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-4 transition-all duration-300 transform",
+      getStyles(),
+      isVisible 
+        ? "opacity-100 translate-x-0 scale-100" 
+        : "opacity-0 translate-x-full scale-95"
+    )}>
+      <div className="flex items-start gap-3">
+        {getIcon()}
+        <div className="flex-1 min-w-0">
+          {title && (
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
+              {title}
             </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          )}
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            {message}
+          </p>
         </div>
+        <button
+          onClick={handleClose}
+          className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
     </div>
   );
@@ -89,6 +113,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     title?: string;
     type: 'success' | 'error' | 'info';
     duration: number;
+    isOpen: boolean;
   }>>([]);
 
   const showToast = React.useCallback((
@@ -101,40 +126,42 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       message,
       title: options.title,
       type: options.type || 'info',
-      duration: options.duration || 3000
+      duration: options.duration || 3000,
+      isOpen: true
     };
     
     setToasts(prev => [...prev, toast]);
     
-    // Auto remove after duration
+    // Auto remove after duration + animation time
     setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
+      setToasts(prev => prev.map(t => t.id === id ? { ...t, isOpen: false } : t));
+      setTimeout(() => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+      }, 300);
     }, toast.duration);
   }, []);
 
   const removeToast = React.useCallback((id: string) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
+    setToasts(prev => prev.map(t => t.id === id ? { ...t, isOpen: false } : t));
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 300);
   }, []);
 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
       <div className="fixed top-4 right-4 z-50 space-y-2">
-        {toasts.map((toast, index) => (
-          <div
+        {toasts.map((toast) => (
+          <Toast
             key={toast.id}
-            className="animate-in slide-in-from-top-2 duration-300"
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
-            <Toast
-              isOpen={true}
-              onClose={() => removeToast(toast.id)}
-              title={toast.title}
-              message={toast.message}
-              type={toast.type}
-              duration={0} // Handled by provider
-            />
-          </div>
+            isOpen={toast.isOpen}
+            onClose={() => removeToast(toast.id)}
+            title={toast.title}
+            message={toast.message}
+            type={toast.type}
+            duration={0} // Handled by provider
+          />
         ))}
       </div>
     </ToastContext.Provider>

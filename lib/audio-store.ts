@@ -12,6 +12,7 @@ interface AudioState {
   speechSynthesis: SpeechSynthesis | null;
   currentUtterance: SpeechSynthesisUtterance | null;
   selectedVoice: SpeechSynthesisVoice | null;
+  isInitialized: boolean;
   
   // アクション
   initialize: () => void;
@@ -42,6 +43,7 @@ export const useAudioStore = create<AudioState>()(
       speechSynthesis: null,
       currentUtterance: null,
       selectedVoice: null,
+      isInitialized: false,
 
       // 初期化
       initialize: () => {
@@ -49,67 +51,101 @@ export const useAudioStore = create<AudioState>()(
           const speechSynthesis = window.speechSynthesis;
           set({ speechSynthesis });
           
-          // 音声リストが読み込まれるまで待機
-          if (speechSynthesis.getVoices().length === 0) {
-            speechSynthesis.addEventListener('voiceschanged', () => {
-              const voices = speechSynthesis.getVoices();
+          const setupVoices = () => {
+            const voices = speechSynthesis.getVoices();
+            if (voices.length > 0) {
               // 日本語音声を優先的に選択
               const japaneseVoice = voices.find(voice => 
                 voice.lang.includes('ja') || voice.lang.includes('JP')
               );
-              const defaultVoice = voices.find(voice => 
+              const englishVoice = voices.find(voice => 
                 voice.lang.includes('en') || voice.default
               );
-              set({ selectedVoice: japaneseVoice || defaultVoice || voices[0] });
-            });
+              const selectedVoice = japaneseVoice || englishVoice || voices[0];
+              
+              set({ 
+                selectedVoice,
+                isInitialized: true 
+              });
+            }
+          };
+
+          // 音声リストが既に利用可能な場合
+          if (speechSynthesis.getVoices().length > 0) {
+            setupVoices();
           } else {
-            const voices = speechSynthesis.getVoices();
-            const japaneseVoice = voices.find(voice => 
-              voice.lang.includes('ja') || voice.lang.includes('JP')
-            );
-            const defaultVoice = voices.find(voice => 
-              voice.lang.includes('en') || voice.default
-            );
-            set({ selectedVoice: japaneseVoice || defaultVoice || voices[0] });
+            // 音声リストが読み込まれるまで待機
+            const handleVoicesChanged = () => {
+              setupVoices();
+              speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged);
+            };
+            speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
           }
+        } else {
+          console.warn('Speech Synthesis API is not supported in this browser');
+          set({ isEnabled: false });
         }
       },
 
       // 音声再生
       speak: (text: string, options = {}) => {
-        const { speechSynthesis, selectedVoice, isEnabled, volume, rate, pitch } = get();
+        const { speechSynthesis, selectedVoice, isEnabled, volume, rate, pitch, isInitialized } = get();
         
-        if (!isEnabled || !speechSynthesis) return;
+        if (!isEnabled || !speechSynthesis || !isInitialized) {
+          console.warn('Audio is disabled or not initialized');
+          return;
+        }
 
-        // 現在の音声を停止
-        get().stop();
+        try {
+          // 現在の音声を停止
+          get().stop();
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.voice = selectedVoice;
-        utterance.volume = options.volume ?? volume;
-        utterance.rate = options.rate ?? rate;
-        utterance.pitch = options.pitch ?? pitch;
-        utterance.lang = selectedVoice?.lang || 'en-US';
+          const utterance = new SpeechSynthesisUtterance(text);
+          
+          // 音声設定
+          if (selectedVoice) {
+            utterance.voice = selectedVoice;
+            utterance.lang = selectedVoice.lang;
+          } else {
+            utterance.lang = 'en-US';
+          }
+          
+          utterance.volume = Math.max(0, Math.min(1, options.volume ?? volume));
+          utterance.rate = Math.max(0.1, Math.min(10, options.rate ?? rate));
+          utterance.pitch = Math.max(0, Math.min(2, options.pitch ?? pitch));
 
-        // イベントリスナー
-        utterance.onend = () => {
+          // イベントリスナー
+          utterance.onstart = () => {
+            console.log('Speech started');
+          };
+
+          utterance.onend = () => {
+            console.log('Speech ended');
+            set({ currentUtterance: null });
+          };
+
+          utterance.onerror = (event) => {
+            console.error('Speech error:', event.error);
+            set({ currentUtterance: null });
+          };
+
+          set({ currentUtterance: utterance });
+          speechSynthesis.speak(utterance);
+        } catch (error) {
+          console.error('Failed to speak:', error);
           set({ currentUtterance: null });
-        };
-
-        utterance.onerror = (event) => {
-          console.error('音声再生エラー:', event);
-          set({ currentUtterance: null });
-        };
-
-        set({ currentUtterance: utterance });
-        speechSynthesis.speak(utterance);
+        }
       },
 
       // 音声停止
       stop: () => {
         const { speechSynthesis } = get();
         if (speechSynthesis) {
-          speechSynthesis.cancel();
+          try {
+            speechSynthesis.cancel();
+          } catch (error) {
+            console.error('Failed to stop speech:', error);
+          }
         }
         set({ currentUtterance: null });
       },
@@ -118,7 +154,11 @@ export const useAudioStore = create<AudioState>()(
       pause: () => {
         const { speechSynthesis } = get();
         if (speechSynthesis) {
-          speechSynthesis.pause();
+          try {
+            speechSynthesis.pause();
+          } catch (error) {
+            console.error('Failed to pause speech:', error);
+          }
         }
       },
 
@@ -126,7 +166,11 @@ export const useAudioStore = create<AudioState>()(
       resume: () => {
         const { speechSynthesis } = get();
         if (speechSynthesis) {
-          speechSynthesis.resume();
+          try {
+            speechSynthesis.resume();
+          } catch (error) {
+            console.error('Failed to resume speech:', error);
+          }
         }
       },
 

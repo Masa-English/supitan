@@ -53,9 +53,11 @@ export default function FlashcardPage() {
     getUser();
   }, [loadData, router, supabase.auth]);
 
-  const handleComplete = async (results: { wordId: string; correct: boolean }[]) => {
+  const handleComplete = async () => {
     if (!user) return;
 
+    // フラッシュカード完了時は全て正解として扱う
+    const results = words.map(word => ({ wordId: word.id, correct: true }));
     setSessionResults(results);
     setShowCompletionModal(true);
 
@@ -67,7 +69,7 @@ export default function FlashcardPage() {
         mode: 'flashcard',
         total_words: words.length,
         completed_words: words.length,
-        correct_answers: results.filter(r => r.correct).length,
+        correct_answers: words.length, // フラッシュカードは全て正解扱い
         start_time: new Date().toISOString(),
         end_time: new Date().toISOString()
       });
@@ -88,8 +90,8 @@ export default function FlashcardPage() {
   };
 
   const handleRetry = () => {
-    setSessionResults([]);
-    setShowCompletionModal(false);
+    // ページをリロードして完全にリセット
+    window.location.reload();
   };
 
   const handleBackToCategory = () => {
@@ -122,7 +124,7 @@ export default function FlashcardPage() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+    <div className="h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 flex flex-col">
       <Header 
         title={`${category} - フラッシュカード`}
         showBackButton={true}
@@ -130,7 +132,7 @@ export default function FlashcardPage() {
         showUserInfo={false}
       />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4 min-h-0">
         <Flashcard
           words={words}
           onComplete={handleComplete}

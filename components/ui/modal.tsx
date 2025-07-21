@@ -14,6 +14,23 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children, className }: ModalProps) {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const [shouldRender, setShouldRender] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      // 少し遅延させてアニメーションを開始
+      const timer = setTimeout(() => setIsVisible(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+      // アニメーション完了後にレンダリングを停止
+      const timer = setTimeout(() => setShouldRender(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -32,19 +49,25 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!shouldRender) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* オーバーレイ */}
       <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        className={cn(
+          "fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300",
+          isVisible ? "opacity-100" : "opacity-0"
+        )}
         onClick={onClose}
       />
       
       {/* モーダルコンテンツ */}
       <div className={cn(
-        "relative z-50 w-full max-w-md mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700",
+        "relative z-50 w-full max-w-md mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 transform",
+        isVisible 
+          ? "opacity-100 scale-100 translate-y-0" 
+          : "opacity-0 scale-95 translate-y-4",
         className
       )}>
         {/* ヘッダー */}

@@ -141,7 +141,7 @@ export function CompletionModal({
             className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20 py-3"
           >
             <RotateCcw className="h-5 w-5 mr-2" />
-            もう一度挑戦
+            最初からやり直す
           </Button>
           <Button
             variant="outline"

@@ -121,8 +121,8 @@ export default function QuizPage() {
   };
 
   const handleRetry = () => {
-    setSessionComplete(false);
-    setSessionResults([]);
+    // ページをリロードして完全にリセット
+    window.location.reload();
   };
 
   const handleBackToCategory = () => {
@@ -227,7 +227,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+    <div className="h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 flex flex-col">
       <Header 
         title={`${category} - クイズ`}
         showBackButton={true}
@@ -235,7 +235,7 @@ export default function QuizPage() {
         showUserInfo={false}
       />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4 min-h-0">
         <Quiz
           words={words}
           onComplete={handleComplete}

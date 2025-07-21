@@ -142,10 +142,10 @@ export function Quiz({
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="h-full flex flex-col">
       {/* 進捗表示 */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-3">
+      <div className="mb-4 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
           <div className="flex items-center gap-4">
             <span className="text-lg font-medium text-amber-800 dark:text-amber-200">
               問題 {currentIndex + 1} / {questions.length}
@@ -176,112 +176,118 @@ export function Quiz({
       </div>
 
       {/* 問題カード */}
-      <Card className="bg-gradient-to-br from-white to-amber-50 dark:from-gray-800 dark:to-gray-700 mb-8 border-amber-200 dark:border-amber-700 shadow-lg">
-        <CardContent className="p-8">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <h2 className="text-4xl font-bold text-amber-800 dark:text-amber-200">
-                {currentQuestion.word.word}
-              </h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={playAudio}
-                className="text-amber-600 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/20"
-              >
-                <Volume2 className="h-6 w-6" />
-              </Button>
-            </div>
-            <p className="text-lg text-amber-600 dark:text-amber-400 mb-6">
-              {currentQuestion.word.phonetic}
-            </p>
-          </div>
-
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-amber-800 dark:text-amber-200 mb-6 text-center">
-              {currentQuestion.type === 'meaning' 
-                ? 'この単語の意味を選んでください'
-                : 'この単語を使った例文の日本語訳を選んでください'
-              }
-            </h3>
-            {currentQuestion.type === 'example' && (
-              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 mb-6 border border-amber-200 dark:border-amber-600">
-                <p className="text-amber-800 dark:text-amber-200 text-center italic text-lg">
-                  &ldquo;{currentQuestion.word.example1}&rdquo;
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* 選択肢 */}
-          <div className="grid gap-4">
-            {currentQuestion.options.map((option, index) => {
-              const isSelected = selectedAnswer === option;
-              const isCorrectOption = option === currentQuestion.correct_answer;
-              const isWrongSelected = showResult && isSelected && !isCorrectOption;
-              
-              return (
+      <div className="flex-1 min-h-0 mb-4">
+        <Card className="bg-gradient-to-br from-white to-amber-50 dark:from-gray-800 dark:to-gray-700 border-amber-200 dark:border-amber-700 shadow-lg h-full">
+          <CardContent className="p-4 sm:p-6 h-full flex flex-col overflow-y-auto">
+            {/* 問題文セクション */}
+            <div className="text-center mb-6 lg:mb-8">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-amber-800 dark:text-amber-200">
+                  {currentQuestion.word.word}
+                </h2>
                 <Button
-                  key={index}
-                  variant="outline"
-                  className={`w-full justify-start text-left h-auto p-6 text-base transition-all duration-200 ${
-                    showResult
-                      ? isCorrectOption
-                        ? 'bg-green-100 border-green-500 text-green-800 dark:bg-green-900/20 dark:border-green-400 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-900/20'
-                        : isWrongSelected
-                        ? 'bg-red-100 border-red-500 text-red-800 dark:bg-red-900/20 dark:border-red-400 dark:text-red-200 hover:bg-red-100 dark:hover:bg-red-900/20'
-                        : 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300'
-                      : isSelected
-                      ? 'bg-amber-100 border-amber-500 text-amber-800 dark:bg-amber-900/20 dark:border-amber-400 dark:text-amber-200'
-                      : 'hover:bg-amber-50 dark:hover:bg-amber-900/10 border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200'
-                  }`}
-                  onClick={() => handleAnswerSelect(option)}
-                  disabled={showResult}
+                  variant="ghost"
+                  size="sm"
+                  onClick={playAudio}
+                  className="text-amber-600 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/20"
                 >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="flex-1">{option}</span>
-                    {showResult && (
-                      <div className="flex items-center gap-2 ml-4">
-                        {isCorrectOption && (
-                          <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                            <Check className="h-5 w-5" />
-                            <span className="text-sm font-medium">正解</span>
-                          </div>
-                        )}
-                        {isWrongSelected && (
-                          <div className="flex items-center gap-1 text-red-600 dark:text-red-400">
-                            <X className="h-5 w-5" />
-                            <span className="text-sm font-medium">不正解</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  <Volume2 className="h-5 w-5" />
                 </Button>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+              </div>
+              <p className="text-lg sm:text-xl text-amber-600 dark:text-amber-400 mb-6">
+                {currentQuestion.word.phonetic}
+              </p>
+              
+              <h3 className="text-lg sm:text-xl font-semibold text-amber-800 dark:text-amber-200 mb-4">
+                {currentQuestion.type === 'meaning' 
+                  ? 'この単語の意味を選んでください'
+                  : 'この単語を使った例文の日本語訳を選んでください'
+                }
+              </h3>
+              
+              {currentQuestion.type === 'example' && (
+                <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 mb-6 border border-amber-200 dark:border-amber-600 max-w-4xl mx-auto">
+                  <p className="text-amber-800 dark:text-amber-200 text-center italic text-base sm:text-lg">
+                    &ldquo;{currentQuestion.word.example1}&rdquo;
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* 選択肢セクション - 自動レイアウト */}
+            <div className="flex-1 flex items-center justify-center">
+              <div className="w-full max-w-6xl">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4 lg:gap-6">
+                  {currentQuestion.options.map((option, index) => {
+                    const isSelected = selectedAnswer === option;
+                    const isCorrectOption = option === currentQuestion.correct_answer;
+                    const isWrongSelected = showResult && isSelected && !isCorrectOption;
+                    
+                    return (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        className={`w-full justify-start text-left h-auto p-4 sm:p-6 text-sm sm:text-base transition-all duration-200 min-h-[80px] ${
+                          showResult
+                            ? isCorrectOption
+                              ? 'bg-green-100 border-green-500 text-green-800 dark:bg-green-900/20 dark:border-green-400 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-900/20'
+                              : isWrongSelected
+                              ? 'bg-red-100 border-red-500 text-red-800 dark:bg-red-900/20 dark:border-red-400 dark:text-red-200 hover:bg-red-100 dark:hover:bg-red-900/20'
+                              : 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300'
+                            : isSelected
+                            ? 'bg-amber-100 border-amber-500 text-amber-800 dark:bg-amber-900/20 dark:border-amber-400 dark:text-amber-200'
+                            : 'hover:bg-amber-50 dark:hover:bg-amber-900/10 border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200'
+                        }`}
+                        onClick={() => handleAnswerSelect(option)}
+                        disabled={showResult}
+                      >
+                        <div className="flex items-start justify-between w-full gap-3">
+                          <span className="flex-1 text-left break-words leading-relaxed">{option}</span>
+                          {showResult && (
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              {isCorrectOption && (
+                                <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                                  <Check className="h-4 w-4 sm:h-5 sm:w-5" />
+                                  <span className="text-sm font-medium hidden sm:inline">正解</span>
+                                </div>
+                              )}
+                              {isWrongSelected && (
+                                <div className="flex items-center gap-1 text-red-600 dark:text-red-400">
+                                  <X className="h-4 w-4 sm:h-5 sm:w-5" />
+                                  <span className="text-sm font-medium hidden sm:inline">不正解</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* 結果表示 */}
       {showResult && (
-        <Card className={`mb-8 ${
+        <Card className={`mb-4 flex-shrink-0 max-w-4xl mx-auto w-full ${
           isCorrect 
             ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700' 
             : 'bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 border-red-200 dark:border-red-700'
         }`}>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="text-center">
-              <div className="text-3xl mb-4">
+              <div className="text-2xl sm:text-3xl mb-3 sm:mb-4">
                 {isCorrect ? '🎉 正解！' : '😅 不正解'}
               </div>
-              <div className="mb-4">
-                <p className="text-lg font-medium text-amber-800 dark:text-amber-200 mb-2">
+              <div className="mb-3 sm:mb-4">
+                <p className="text-base sm:text-lg font-medium text-amber-800 dark:text-amber-200 mb-2">
                   正解: <span className="text-amber-600 dark:text-amber-400">{currentQuestion.correct_answer}</span>
                 </p>
                 {!isCorrect && (
-                  <p className="text-amber-700 dark:text-amber-300">
+                  <p className="text-amber-700 dark:text-amber-300 text-sm sm:text-base">
                     あなたの回答: <span className="text-red-600 dark:text-red-400">{selectedAnswer}</span>
                   </p>
                 )}
@@ -303,10 +309,10 @@ export function Quiz({
 
       {/* 次へボタン */}
       {showResult && (
-        <div className="text-center">
+        <div className="text-center flex-shrink-0">
           <Button
             onClick={handleNext}
-            className="px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white text-lg"
+            className="w-full sm:w-auto px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white text-lg"
           >
             {currentIndex < questions.length - 1 ? '次の問題' : '結果を見る'}
           </Button>
