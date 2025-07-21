@@ -36,6 +36,28 @@ class StaticDatabaseService {
     }
   }
 
+  // ヘルスチェック機能を追加
+  async checkConnection(): Promise<boolean> {
+    try {
+      const supabase = this.getSupabaseClient();
+      const { error } = await supabase
+        .from('words')
+        .select('id')
+        .limit(1);
+
+      if (error) {
+        console.error('Database connection check failed:', error);
+        return false;
+      }
+      
+      console.log('Database connection check successful');
+      return true;
+    } catch (error) {
+      console.error('Database connection check error:', error);
+      return false;
+    }
+  }
+
   async getWords(): Promise<Word[]> {
     try {
       const supabase = this.getSupabaseClient();
@@ -57,6 +79,13 @@ class StaticDatabaseService {
 
   async getWordsByCategory(category: string): Promise<Word[]> {
     try {
+      // 接続チェックを先に実行
+      const isConnected = await this.checkConnection();
+      if (!isConnected) {
+        console.error('Database connection failed for category:', category);
+        return [];
+      }
+
       const supabase = this.getSupabaseClient();
       const { data, error } = await supabase
         .from('words')
@@ -172,6 +201,8 @@ const getCachedStaticDataInternal = unstable_cache(
 // カテゴリー別データのキャッシュ
 const getCachedCategoryData = unstable_cache(
   async (category: string): Promise<Word[]> => {
+    console.log(`カテゴリー別データ取得開始: ${category}`);
+    
     try {
       // 環境変数チェック
       if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -179,9 +210,31 @@ const getCachedCategoryData = unstable_cache(
         return [];
       }
 
+      // リトライ機能付きでデータ取得
       const db = new StaticDatabaseService();
-      const words = await db.getWordsByCategory(category);
-      return words;
+      let lastError: Error | null = null;
+      const maxRetries = 3;
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`データ取得試行 ${attempt}/${maxRetries} for category: ${category}`);
+          const words = await db.getWordsByCategory(category);
+          console.log(`データ取得成功: ${category}, 単語数: ${words.length}`);
+          return words;
+        } catch (error) {
+          lastError = error instanceof Error ? error : new Error('Unknown error');
+          console.error(`データ取得試行 ${attempt} 失敗:`, lastError.message);
+          
+          // 最後の試行でない場合は少し待つ
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+        }
+      }
+      
+      // すべてのリトライが失敗した場合
+      console.error(`カテゴリー別データ取得が最終的に失敗: ${category}`, lastError);
+      return [];
     } catch (error) {
       console.error('カテゴリー別静的データの取得エラー:', error);
       return [];

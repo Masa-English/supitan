@@ -1,11 +1,11 @@
 import { getStaticDataForCategory } from '@/lib/static-data';
-import { notFound } from 'next/navigation';
 import { Word } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Volume2, Heart, Search, ArrowLeft, Users, Target, LucideIcon } from 'lucide-react';
+import { Volume2, Heart, Search, ArrowLeft, Users, Target, LucideIcon, AlertCircle, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import { ReloadButton } from '@/components/reload-button';
 
 // 静的生成の設定
 export const revalidate = 1800; // 30分ごとに再生成
@@ -14,13 +14,23 @@ export const revalidate = 1800; // 30分ごとに再生成
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;
   const decodedCategory = decodeURIComponent(category);
-  const words = await getStaticDataForCategory(decodedCategory);
   
-  return {
-    title: `${decodedCategory}の単語一覧 - Masa Flash`,
-    description: `${decodedCategory}カテゴリーの${words.length}個の単語を一覧で確認。意味や例文をじっくり学習しましょう。`,
-    keywords: ['英語学習', '単語一覧', decodedCategory, '英単語', '意味', '例文'],
-  };
+  try {
+    const words = await getStaticDataForCategory(decodedCategory);
+    
+    return {
+      title: `${decodedCategory}の単語一覧 - Masa Flash`,
+      description: `${decodedCategory}カテゴリーの${words.length}個の単語を一覧で確認。意味や例文をじっくり学習しましょう。`,
+      keywords: ['英語学習', '単語一覧', decodedCategory, '英単語', '意味', '例文'],
+    };
+  } catch (error) {
+    console.error('Metadata generation error:', error);
+    return {
+      title: `${decodedCategory}の単語一覧 - Masa Flash`,
+      description: `${decodedCategory}カテゴリーの単語を学習しましょう。`,
+      keywords: ['英語学習', '単語一覧', decodedCategory, '英単語'],
+    };
+  }
 }
 
 // 静的パス生成
@@ -91,6 +101,82 @@ function StatCard({ icon: Icon, label, value }: { icon: LucideIcon, label: strin
   );
 }
 
+// エラー状態コンポーネント
+function ErrorState({ category, error }: { category: string, error?: string }) {
+  return (
+    <div className="h-screen flex flex-col bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+      {/* ヘッダー */}
+      <header className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-amber-200 dark:border-amber-700 flex-shrink-0">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4">
+          <div className="flex items-center gap-4 mb-4">
+            <Link href={`/protected/category/${encodeURIComponent(category)}`}>
+              <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                カテゴリーに戻る
+              </Button>
+            </Link>
+          </div>
+          <div className="text-center">
+            <h1 className="text-3xl sm:text-4xl font-bold text-amber-800 dark:text-amber-200 mb-2">
+              {category}の単語一覧
+            </h1>
+            <div className="flex items-center justify-center gap-4 text-amber-600 dark:text-amber-400">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5" />
+                <span>データを読み込み中</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-amber-800 dark:text-amber-200 mb-4">
+            データを読み込み中です
+          </h2>
+          <p className="text-amber-700 dark:text-amber-300 mb-6">
+            {category}カテゴリーの単語データを準備しています。初回アクセス時は少し時間がかかる場合があります。
+          </p>
+          {error && (
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4 mb-6">
+              <p className="text-sm text-amber-700 dark:text-amber-300">
+                エラー詳細: {error}
+              </p>
+            </div>
+          )}
+          <div className="space-y-4">
+            <p className="text-sm text-amber-600 dark:text-amber-400">
+              問題が続く場合は、以下をお試しください：
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <ReloadButton 
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                ページを再読み込み
+              </ReloadButton>
+              <Link href={`/protected/category/${encodeURIComponent(category)}`}>
+                <Button variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20">
+                  カテゴリーページに戻る
+                </Button>
+              </Link>
+            </div>
+            <div className="mt-6">
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                このページは自動的に更新されます。しばらくお待ちください。
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
 export default async function BrowsePage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;
   const decodedCategory = decodeURIComponent(category);
@@ -98,8 +184,9 @@ export default async function BrowsePage({ params }: { params: Promise<{ categor
   try {
     const words = await getStaticDataForCategory(decodedCategory);
 
+    // データが空の場合はエラー状態を表示（notFound()は呼ばない）
     if (words.length === 0) {
-      notFound();
+      return <ErrorState category={decodedCategory} />;
     }
 
     // 統計データの計算
@@ -184,6 +271,10 @@ export default async function BrowsePage({ params }: { params: Promise<{ categor
     );
   } catch (error) {
     console.error('Browse page error:', error);
-    notFound();
+    // エラー時もnotFound()ではなくエラー状態を表示
+    return <ErrorState 
+      category={decodedCategory} 
+      error={error instanceof Error ? error.message : 'データの取得に失敗しました'}
+    />;
   }
 }
