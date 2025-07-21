@@ -1,6 +1,5 @@
 import { Word } from '@/lib/types';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 import { unstable_cache } from 'next/cache';
 
 export interface StaticData {
@@ -19,7 +18,7 @@ export interface StaticData {
 
 // SSG用のデータベースサービス
 class StaticDatabaseService {
-  private async getSupabaseClient() {
+  private getSupabaseClient() {
     // 環境変数の存在確認を強化
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -29,27 +28,8 @@ class StaticDatabaseService {
     }
 
     try {
-      const cookieStore = await cookies();
-      return createServerClient(
-        supabaseUrl,
-        supabaseKey,
-        {
-          cookies: {
-            getAll() {
-              return cookieStore.getAll();
-            },
-            setAll(cookiesToSet) {
-              try {
-                cookiesToSet.forEach(({ name, value, options }) =>
-                  cookieStore.set(name, value, options),
-                );
-              } catch {
-                // SSG時は無視
-              }
-            },
-          },
-        },
-      );
+      // 静的生成用のシンプルなクライアント（認証なし）
+      return createClient(supabaseUrl, supabaseKey);
     } catch (error) {
       console.error('Supabase client creation error:', error);
       throw error;
@@ -58,7 +38,7 @@ class StaticDatabaseService {
 
   async getWords(): Promise<Word[]> {
     try {
-      const supabase = await this.getSupabaseClient();
+      const supabase = this.getSupabaseClient();
       const { data, error } = await supabase
         .from('words')
         .select('*')
@@ -77,7 +57,7 @@ class StaticDatabaseService {
 
   async getWordsByCategory(category: string): Promise<Word[]> {
     try {
-      const supabase = await this.getSupabaseClient();
+      const supabase = this.getSupabaseClient();
       const { data, error } = await supabase
         .from('words')
         .select('*')
@@ -97,7 +77,7 @@ class StaticDatabaseService {
 
   async getCategories(): Promise<{ category: string; count: number }[]> {
     try {
-      const supabase = await this.getSupabaseClient();
+      const supabase = this.getSupabaseClient();
       const { data, error } = await supabase
         .from('words')
         .select('category')
@@ -108,7 +88,7 @@ class StaticDatabaseService {
         return [];
       }
 
-      const categoryCounts = data?.reduce((acc, word) => {
+      const categoryCounts = data?.reduce((acc: Record<string, number>, word: { category: string }) => {
         acc[word.category] = (acc[word.category] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);

@@ -56,12 +56,12 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // 静的エクスポートの最適化
+  // 静的生成の最適化
   trailingSlash: false,
   
-  // 出力設定 - Vercel環境での最適化
-  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
-  
+  // 出力設定 - ISR対応
+  // output: 'export', // APIルートがある場合は静的エクスポートは使用しない
+
   // コンパイル最適化
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',

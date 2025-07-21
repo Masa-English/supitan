@@ -1,5 +1,5 @@
 import { LoginForm } from '@/components/login-form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -39,17 +39,6 @@ export default function LoginPage() {
         </div>
 
         <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-amber-200 dark:border-amber-700 shadow-xl">
-          <CardHeader className="text-center pb-4">
-            <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">M</span>
-            </div>
-            <CardTitle className="text-2xl font-bold text-amber-800 dark:text-amber-200">
-              Masa Flash
-            </CardTitle>
-            <p className="text-amber-600 dark:text-amber-400 mt-2">
-              アカウントにログインしてください
-            </p>
-          </CardHeader>
           <CardContent>
             <LoginForm />
           </CardContent>

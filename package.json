@@ -3,6 +3,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:export": "next build",
     "start": "next start",
     "lint": "next lint",
     "revalidate": "node scripts/revalidate-on-change.js"
