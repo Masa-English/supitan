@@ -41,7 +41,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 # アプリケーション設定
+# 開発環境でのみ必要（Vercel環境では自動的にVERCEL_URLが設定される）
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# Vercel環境での自動URL取得について
+# 本アプリケーションは、Vercel環境では自動的にVERCEL_URL環境変数を使用して
+# デプロイURLを取得します。そのため、Vercelでのデプロイ時には
+# NEXT_PUBLIC_BASE_URLの設定は不要です。
 
 # ISR再検証用トークン（セキュリティのため強力なトークンを使用）
 REVALIDATION_TOKEN=your_secure_revalidation_token_here

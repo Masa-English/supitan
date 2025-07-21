@@ -4,7 +4,19 @@ const { createClient } = require('@supabase/supabase-js');
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const revalidationToken = process.env.REVALIDATION_TOKEN;
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+// ベースURLを取得する関数
+function getBaseUrl() {
+  // Vercel環境では自動的に提供される環境変数を使用
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  
+  // 開発環境では従来の環境変数またはデフォルト値を使用
+  return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+}
+
+const baseUrl = getBaseUrl();
 
 if (!supabaseUrl || !supabaseServiceKey || !revalidationToken) {
   console.error('必要な環境変数が設定されていません');

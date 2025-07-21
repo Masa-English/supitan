@@ -1,4 +1,5 @@
 import { Word } from '@/lib/types';
+import { getBaseUrl } from '@/lib/utils';
 
 export interface StaticData {
   categories: {
@@ -59,7 +60,7 @@ export async function getStaticData(): Promise<StaticData> {
       };
     } else {
       // 開発時はAPIから取得
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+      const baseUrl = getBaseUrl();
       const response = await fetch(`${baseUrl}/api/static-data`, {
         next: { 
           revalidate: 3600, // 1時間ごとに再検証
