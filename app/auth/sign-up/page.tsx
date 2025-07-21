@@ -1,3 +1,5 @@
+'use client';
+
 import { SignUpForm } from "@/components/sign-up-form";
 import { BookOpen } from "lucide-react";
 import Link from "next/link";

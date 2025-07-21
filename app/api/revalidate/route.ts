@@ -23,8 +23,12 @@ export async function POST(request: NextRequest) {
       revalidatePath('/protected/category/[category]');
     }
 
-    // 静的データのキャッシュをクリア
+    // 統一キャッシュシステムのキャッシュをクリア
     revalidateTag('static-data');
+    revalidateTag('words-by-category');
+    revalidateTag('all-words');
+    revalidateTag('categories');
+    revalidateTag('user-progress');
 
     return NextResponse.json({
       revalidated: true,

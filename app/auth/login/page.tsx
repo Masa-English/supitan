@@ -1,28 +1,10 @@
+'use client';
+
 import { LoginForm } from '@/components/login-form';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-
-// 静的生成の設定 - 認証ページは頻繁に変更されないため長めのキャッシュ
-export const revalidate = 86400; // 24時間ごとに再生成
-
-// メタデータ最適化
-export async function generateMetadata() {
-  return {
-    title: 'ログイン - Masa Flash',
-    description: 'Masa Flashにログインして英語学習を続けましょう。',
-    robots: {
-      index: true,
-      follow: true,
-    },
-  };
-}
-
-// 静的パラメータ生成
-export async function generateStaticParams() {
-  return [{}];
-}
 
 export default function LoginPage() {
   return (

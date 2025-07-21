@@ -67,6 +67,16 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
+  // TypeScript設定の強化
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+
+  // ESLint設定の強化
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+
   // バンドル分析
   webpack: (config, { isServer }) => {
     if (!isServer) {
