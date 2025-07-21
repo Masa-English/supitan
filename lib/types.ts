@@ -46,6 +46,21 @@ export interface ReviewWord {
   user_id: string;
   word_id: string;
   added_at: string;
+  review_count: number;
+  last_reviewed?: string;
+  next_review?: string;
+  difficulty_level: number; // 1-5の値
+}
+
+export interface ReviewSession {
+  id: string;
+  user_id: string;
+  total_words: number;
+  completed_words: number;
+  correct_answers: number;
+  start_time: string;
+  end_time?: string;
+  created_at: string;
 }
 
 export interface Category {

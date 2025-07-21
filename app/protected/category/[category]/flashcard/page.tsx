@@ -203,6 +203,7 @@ export default function FlashcardPage() {
           words={words}
           onComplete={handleComplete}
           onAddToReview={handleAddToReview}
+          category={category}
         />
       </main>
     </div>

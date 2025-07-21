@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Volume2, VolumeX, Settings, Play, Pause, Square } from 'lucide-react';
+import { Volume2, VolumeX, Settings, Play, Pause, Square, Volume1, Volume } from 'lucide-react';
 import { useAudioStore } from '@/lib/audio-store';
 
 interface AudioControlsProps {
   className?: string;
+  showQuickControls?: boolean;
 }
 
-export function AudioControls({ className = '' }: AudioControlsProps) {
+export function AudioControls({ className = '', showQuickControls = true }: AudioControlsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   
@@ -62,6 +63,15 @@ export function AudioControls({ className = '' }: AudioControlsProps) {
 
   const isPlaying = currentUtterance !== null;
 
+  // 音量アイコンの選択
+  const getVolumeIcon = () => {
+    if (!isEnabled) return <VolumeX className="h-4 w-4" />;
+    if (volume === 0) return <VolumeX className="h-4 w-4" />;
+    if (volume < 0.3) return <Volume className="h-4 w-4" />;
+    if (volume < 0.7) return <Volume1 className="h-4 w-4" />;
+    return <Volume2 className="h-4 w-4" />;
+  };
+
   return (
     <div className={`relative ${className}`}>
       {/* メインボタン */}
@@ -72,7 +82,7 @@ export function AudioControls({ className = '' }: AudioControlsProps) {
           onClick={() => setEnabled(!isEnabled)}
           className={`${isEnabled ? 'text-green-600' : 'text-gray-400'} hover:bg-green-50 dark:hover:bg-green-900/20`}
         >
-          {isEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+          {getVolumeIcon()}
         </Button>
 
         {isEnabled && (
@@ -108,6 +118,43 @@ export function AudioControls({ className = '' }: AudioControlsProps) {
           <Settings className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* クイックコントロール */}
+      {showQuickControls && isEnabled && (
+        <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-gray-500 dark:text-gray-400">音量</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={volume}
+              onChange={handleVolumeChange}
+              className="w-16 h-1 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+            />
+            <span className="text-xs text-gray-500 dark:text-gray-400 w-8">
+              {Math.round(volume * 100)}%
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-gray-500 dark:text-gray-400">速度</span>
+            <input
+              type="range"
+              min="0.5"
+              max="2"
+              step="0.1"
+              value={rate}
+              onChange={handleRateChange}
+              className="w-16 h-1 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+            />
+            <span className="text-xs text-gray-500 dark:text-gray-400 w-8">
+              {rate}x
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* 設定パネル */}
       {isOpen && (

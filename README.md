@@ -1,6 +1,6 @@
 # 英単語学習アプリケーション
 
-Next.jsとSupabaseを使用したモダンな英単語学習アプリケーションです。
+Next.jsとSupabaseを使用したモダンな英単語学習アプリケーションです。SSG（Static Site Generation）とISR（Incremental Static Regeneration）を活用して、高速なパフォーマンスと定期的なデータ更新を実現しています。
 
 ## 機能
 
@@ -20,6 +20,7 @@ Next.jsとSupabaseを使用したモダンな英単語学習アプリケーシ�
 - **UI コンポーネント**: Radix UI, Lucide React
 - **バックエンド**: Supabase (PostgreSQL, Auth, Real-time)
 - **認証**: Supabase Auth
+- **パフォーマンス**: SSG, ISR, キャッシュ戦略
 
 ## セットアップ
 
@@ -34,8 +35,16 @@ npm install
 `.env.local`ファイルを作成し、以下の環境変数を設定してください：
 
 ```env
+# Supabase設定
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# アプリケーション設定
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# ISR再検証用トークン（セキュリティのため強力なトークンを使用）
+REVALIDATION_TOKEN=your_secure_revalidation_token_here
 ```
 
 ### 3. Supabaseデータベースの設定
@@ -220,6 +229,19 @@ INSERT INTO words (category, word, japanese, example1, example2, example3, examp
 npm run dev
 ```
 
+### 5. ISR監視スクリプトの起動（オプション）
+
+データベースの変更を監視して自動的にISRをトリガーするスクリプトを起動できます：
+
+```bash
+npm run revalidate
+```
+
+このスクリプトは以下の機能を提供します：
+- データベースの変更をリアルタイムで監視
+- 変更検出時に自動的にISRをトリガー
+- 24時間ごとの定期再検証（バックアップ）
+
 ## 使用方法
 
 1. アプリケーションにアクセス
@@ -250,6 +272,23 @@ npm run dev
 - お気に入り機能
 - 復習に追加機能
 
+## SSG/ISR機能
+
+### 静的サイト生成（SSG）
+- **ランディングページ**: ビルド時に静的HTMLを生成
+- **カテゴリーページ**: 各カテゴリーの静的ページを事前生成
+- **メタデータ**: 動的にメタデータを生成
+
+### インクリメンタル静的再生成（ISR）
+- **再検証間隔**: 1時間ごとに自動再検証
+- **データ更新**: データベース変更時に自動更新
+- **キャッシュ戦略**: 効率的なキャッシュ管理
+
+### パフォーマンス最適化
+- **静的データAPI**: `/api/static-data`でデータを事前生成
+- **キャッシュタグ**: 効率的なキャッシュ無効化
+- **Webhook**: データベース変更時の自動再検証
+
 ## 開発
 
 ### ディレクトリ構造
@@ -257,7 +296,11 @@ npm run dev
 ```
 ├── app/                    # Next.js App Router
 │   ├── auth/              # 認証関連ページ
+│   ├── landing/           # 静的ランディングページ
 │   ├── protected/         # 保護されたページ
+│   ├── api/               # APIルート
+│   │   ├── static-data/   # 静的データAPI
+│   │   └── revalidate/    # ISR再検証API
 │   └── layout.tsx         # ルートレイアウト
 ├── components/            # React コンポーネント
 │   ├── ui/               # UI コンポーネント
@@ -265,8 +308,11 @@ npm run dev
 │   └── quiz.tsx          # クイズコンポーネント
 ├── lib/                  # ユーティリティ
 │   ├── database.ts       # データベース操作
+│   ├── static-data.ts    # 静的データ管理
 │   ├── types.ts          # TypeScript型定義
 │   └── supabase/         # Supabase設定
+├── scripts/              # スクリプト
+│   └── revalidate-on-change.js  # ISR監視スクリプト
 ├── samples/              # サンプルデータ
 │   └── chunks.csv        # CSVサンプルデータ
 ├── database-schema.sql   # データベーススキーマ
