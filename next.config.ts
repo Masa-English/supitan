@@ -33,6 +33,26 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // 静的アセットの長期キャッシュ
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // APIルートの短期キャッシュ
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=300, stale-while-revalidate=600',
+          },
+        ],
+      },
     ];
   },
 
@@ -63,6 +83,17 @@ const nextConfig: NextConfig = {
   // 環境変数の検証
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
+
+  // ISRの設定
+  async rewrites() {
+    return [
+      // ISR用のリライト設定
+      {
+        source: '/static-data/:path*',
+        destination: '/api/static-data/:path*',
+      },
+    ];
   },
 };
 
