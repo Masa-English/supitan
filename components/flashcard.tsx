@@ -38,8 +38,17 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // 仮実装：実際のお気に入り機能は後で実装
-        setFavorites(new Set());
+        // データベースからお気に入り状態を取得
+        const { data, error } = await supabase
+          .from('user_progress')
+          .select('word_id')
+          .eq('user_id', user.id)
+          .eq('is_favorite', true);
+
+        if (error) throw error;
+
+        const favoriteIds = new Set(data?.map(item => item.word_id) || []);
+        setFavorites(favoriteIds);
       } catch (error) {
         console.error('お気に入りの読み込みエラー:', error);
       }
@@ -89,7 +98,24 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // 仮実装：お気に入り状態をローカルで管理
+      // データベースでお気に入り状態を更新
+      const { error } = await supabase
+        .from('user_progress')
+        .upsert({
+          user_id: user.id,
+          word_id: currentWord.id,
+          is_favorite: !isFavorite,
+          mastery_level: 0,
+          study_count: 0,
+          correct_count: 0,
+          incorrect_count: 0,
+          last_studied: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+
+      // ローカル状態を更新
       if (isFavorite) {
         setFavorites(prev => {
           const newSet = new Set(prev);

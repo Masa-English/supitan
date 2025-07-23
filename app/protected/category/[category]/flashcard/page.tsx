@@ -73,20 +73,58 @@ export default function FlashcardPage() {
         start_time: new Date().toISOString(),
         end_time: new Date().toISOString()
       });
+
+      // 各単語のプログレスを更新（フラッシュカードは学習したとして記録）
+      for (const word of words) {
+        try {
+          // 既存の進捗を取得
+          const existingProgress = await db.getWordProgress(user.id, word.id);
+          
+          const studyCount = (existingProgress?.study_count || 0) + 1;
+          const correctCount = (existingProgress?.correct_count || 0) + 1;
+          const incorrectCount = existingProgress?.incorrect_count || 0;
+          
+          // マスタリーレベルの計算（学習回数に基づいて徐々に上昇）
+          const masteryLevel = Math.min(1, studyCount * 0.15);
+
+          await db.upsertProgress({
+            user_id: user.id,
+            word_id: word.id,
+            mastery_level: masteryLevel,
+            study_count: studyCount,
+            correct_count: correctCount,
+            incorrect_count: incorrectCount,
+            is_favorite: existingProgress?.is_favorite || false,
+            last_studied: new Date().toISOString()
+          });
+        } catch (error) {
+          console.error(`単語 ${word.word} の進捗更新に失敗しました:`, error);
+        }
+      }
     } catch (error) {
       console.error('学習セッションの保存に失敗しました:', error);
     }
   };
 
   const handleAddToReview = async (wordId: string) => {
-    const word = words.find(w => w.id === wordId);
-    if (!word) return;
-    
-    showToast(`「${word.word}」を復習リストに追加しました`, {
-      type: 'success',
-      title: '復習リストに追加',
-      duration: 3000
-    });
+    if (!user) return;
+
+    try {
+      await db.addToReview(user.id, wordId);
+      
+      const word = words.find(w => w.id === wordId);
+      showToast(`「${word?.word || '単語'}」を復習リストに追加しました`, {
+        type: 'success',
+        title: '復習リストに追加',
+        duration: 3000
+      });
+    } catch (error) {
+      console.error('復習リストへの追加に失敗しました:', error);
+      showToast('復習リストへの追加に失敗しました', {
+        type: 'error',
+        duration: 3000
+      });
+    }
   };
 
   const handleRetry = () => {

@@ -134,11 +134,23 @@ export function Quiz({
     setIsCorrect(correct);
     setShowResult(true);
 
-    // 正解音・不正解音の再生（実装予定）
+    // 正解音・不正解音の再生
     if (correct) {
-      console.log('正解音再生');
+      // 正解音を再生（高い音）
+      const correctSound = new SpeechSynthesisUtterance('Correct!');
+      correctSound.lang = 'en-US';
+      correctSound.rate = 1.2;
+      correctSound.pitch = 1.5;
+      correctSound.volume = 0.7;
+      speechSynthesis.speak(correctSound);
     } else {
-      console.log('不正解音再生');
+      // 不正解音を再生（低い音）
+      const incorrectSound = new SpeechSynthesisUtterance('Try again');
+      incorrectSound.lang = 'en-US';
+      incorrectSound.rate = 0.8;
+      incorrectSound.pitch = 0.7;
+      incorrectSound.volume = 0.7;
+      speechSynthesis.speak(incorrectSound);
     }
   };
 
@@ -159,7 +171,14 @@ export function Quiz({
   };
 
   const playAudio = () => {
-    console.log('音声再生:', currentQuestion.word.word);
+    if (currentQuestion?.word?.word) {
+      // Web Speech APIを使用して音声を再生
+      const utterance = new SpeechSynthesisUtterance(currentQuestion.word.word);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      speechSynthesis.speak(utterance);
+    }
   };
 
   if (!currentQuestion) {
