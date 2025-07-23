@@ -44,39 +44,67 @@ export async function generateStaticParams() {
 
 // 単語カードコンポーネント
 function WordCard({ word }: { word: Word }) {
+  const playAudio = () => {
+    if (word.word) {
+      const utterance = new SpeechSynthesisUtterance(word.word);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      speechSynthesis.speak(utterance);
+    }
+  };
+
   return (
-    <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700 hover:shadow-lg transition-all duration-200 hover:scale-105 h-full">
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between">
+    <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-amber-200 dark:border-amber-700 hover:shadow-lg transition-all duration-200 hover:scale-[1.02] h-full min-h-[320px]">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0">
-            <h3 className="text-xl font-bold text-amber-800 dark:text-amber-200 mb-1 truncate">
+            <h3 className="text-2xl font-bold text-amber-800 dark:text-amber-200 mb-2 leading-tight">
               {word.word}
             </h3>
-            <Badge variant="outline" className="text-xs border-amber-300 text-amber-700 dark:border-amber-600 dark:text-amber-300 mb-2">
+            <Badge variant="outline" className="text-sm border-amber-300 text-amber-700 dark:border-amber-600 dark:text-amber-300 px-2 py-1">
               {word.phonetic}
             </Badge>
           </div>
           <Button
             variant="ghost"
             size="sm"
-            className="text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20 flex-shrink-0 ml-2"
+            onClick={playAudio}
+            className="text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20 flex-shrink-0 ml-2 h-8 w-8"
+            title="発音を聞く"
           >
-            <Volume2 className="h-3 w-3" />
+            <Volume2 className="h-4 w-4" />
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
-        <p className="text-amber-700 dark:text-amber-300 text-sm mb-3 font-medium">
-          {word.japanese}
-        </p>
+      <CardContent className="pt-0 space-y-4">
+        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3">
+          <p className="text-amber-800 dark:text-amber-200 text-lg font-semibold text-center">
+            {word.japanese}
+          </p>
+        </div>
+        
         {word.example1 && (
-          <div className="space-y-2">
-            <p className="text-xs text-amber-600 dark:text-amber-400 italic">
-              &ldquo;{word.example1}&rdquo;
-            </p>
-            <p className="text-xs text-amber-600 dark:text-amber-400">
-              {word.example1_jp}
-            </p>
+          <div className="space-y-3">
+            <div className="bg-gradient-to-r from-amber-25 to-orange-25 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg p-3 border border-amber-100 dark:border-amber-800">
+              <p className="text-sm text-amber-700 dark:text-amber-300 italic mb-2 leading-relaxed">
+                &ldquo;{word.example1}&rdquo;
+              </p>
+              <p className="text-sm text-amber-600 dark:text-amber-400 leading-relaxed">
+                {word.example1_jp}
+              </p>
+            </div>
+            
+            {word.example2 && (
+              <div className="bg-gradient-to-r from-amber-25 to-orange-25 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg p-3 border border-amber-100 dark:border-amber-800">
+                <p className="text-sm text-amber-700 dark:text-amber-300 italic mb-2 leading-relaxed">
+                  &ldquo;{word.example2}&rdquo;
+                </p>
+                <p className="text-sm text-amber-600 dark:text-amber-400 leading-relaxed">
+                  {word.example2_jp}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
@@ -87,13 +115,13 @@ function WordCard({ word }: { word: Word }) {
 // 統計カードコンポーネント
 function StatCard({ icon: Icon, label, value }: { icon: LucideIcon, label: string, value: string | number }) {
   return (
-    <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
-      <CardContent className="p-3">
-        <div className="flex items-center gap-2">
-          <Icon className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+    <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-amber-200 dark:border-amber-700 shadow-md">
+      <CardContent className="p-4">
+        <div className="flex flex-col items-center text-center gap-2">
+          <Icon className="h-6 w-6 text-amber-600 dark:text-amber-400" />
           <div>
-            <p className="text-xs text-amber-600 dark:text-amber-400">{label}</p>
-            <p className="text-xl font-bold text-amber-800 dark:text-amber-200">{value}</p>
+            <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">{label}</p>
+            <p className="text-2xl font-bold text-amber-800 dark:text-amber-200">{value}</p>
           </div>
         </div>
       </CardContent>
@@ -227,8 +255,8 @@ export default async function BrowsePage({ params }: { params: Promise<{ categor
 
         <main className="flex-1 flex flex-col w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4 min-h-0">
           {/* 統計セクション */}
-          <div className="flex-shrink-0 mb-4">
-            <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-4 3xl:grid-cols-8 gap-3 max-w-screen-2xl mx-auto">
+          <div className="flex-shrink-0 mb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto">
               <StatCard icon={Users} label="総単語数" value={totalWords} />
               <StatCard icon={Target} label="平均文字数" value={avgLength} />
               <StatCard icon={Heart} label="例文付き" value={withExamples} />
@@ -237,21 +265,19 @@ export default async function BrowsePage({ params }: { params: Promise<{ categor
           </div>
 
           {/* 学習モードリンク */}
-          <div className="flex-shrink-0 mb-4">
-            <div className="max-w-screen-2xl mx-auto">
-              <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-                <div className="flex-1 flex gap-2">
-                  <Link href={`/protected/category/${encodeURIComponent(decodedCategory)}/flashcard`} className="flex-1">
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white touch-friendly">
-                      フラッシュカード学習
-                    </Button>
-                  </Link>
-                  <Link href={`/protected/category/${encodeURIComponent(decodedCategory)}/quiz`} className="flex-1">
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white touch-friendly">
-                      クイズに挑戦
-                    </Button>
-                  </Link>
-                </div>
+          <div className="flex-shrink-0 mb-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href={`/protected/category/${encodeURIComponent(decodedCategory)}/flashcard`} className="flex-1">
+                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+                    📚 フラッシュカード学習
+                  </Button>
+                </Link>
+                <Link href={`/protected/category/${encodeURIComponent(decodedCategory)}/quiz`} className="flex-1">
+                  <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+                    🧠 クイズに挑戦
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -259,7 +285,7 @@ export default async function BrowsePage({ params }: { params: Promise<{ categor
           {/* 単語リスト */}
           <div className="flex-1 min-h-0">
             <div className="h-full scroll-container mobile-scroll pr-2 -mr-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-8 4xl:grid-cols-10 5xl:grid-cols-12 gap-3 pb-4 max-w-screen-2xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 pb-4 max-w-screen-2xl mx-auto">
                 {words.map((word) => (
                   <WordCard key={word.id} word={word} />
                 ))}
