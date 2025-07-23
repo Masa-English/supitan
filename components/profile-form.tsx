@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,11 +37,7 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
   const supabase = createClient();
   const { showToast } = useToast();
 
-  useEffect(() => {
-    loadProfile();
-  }, [userId]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -76,7 +72,11 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, userEmail, supabase, showToast]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { 
@@ -28,14 +28,34 @@ export function StatisticsDashboard({ userId }: StatisticsProps) {
   const [reviewSessions, setReviewSessions] = useState<ReviewSession[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const db = new DatabaseService();
+  const db = useMemo(() => new DatabaseService(), []);
   const supabase = createClient();
 
-  useEffect(() => {
-    loadStatistics();
-  }, [userId]);
+  const getRecentStudySessions = useCallback(async (): Promise<StudySession[]> => {
+    const { data, error } = await supabase
+      .from('study_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(5);
 
-  const loadStatistics = async () => {
+    if (error) throw error;
+    return data || [];
+  }, [supabase, userId]);
+
+  const getRecentReviewSessions = useCallback(async (): Promise<ReviewSession[]> => {
+    const { data, error } = await supabase
+      .from('review_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    if (error) throw error;
+    return data || [];
+  }, [supabase, userId]);
+
+  const loadStatistics = useCallback(async () => {
     try {
       const [appStats, studySessions, reviewSessionsData] = await Promise.all([
         db.getAppStats(userId),
@@ -51,31 +71,11 @@ export function StatisticsDashboard({ userId }: StatisticsProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, db, getRecentStudySessions, getRecentReviewSessions]);
 
-  const getRecentStudySessions = async (): Promise<StudySession[]> => {
-    const { data, error } = await supabase
-      .from('study_sessions')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(5);
-
-    if (error) throw error;
-    return data || [];
-  };
-
-  const getRecentReviewSessions = async (): Promise<ReviewSession[]> => {
-    const { data, error } = await supabase
-      .from('review_sessions')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(5);
-
-    if (error) throw error;
-    return data || [];
-  };
+  useEffect(() => {
+    loadStatistics();
+  }, [loadStatistics]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ja-JP', {

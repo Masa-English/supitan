@@ -77,7 +77,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: false,
   },
 
-  // バンドル分析
+  // バンドル分析とwebpack最適化
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -86,6 +86,18 @@ const nextConfig: NextConfig = {
         tls: false,
       };
     }
+    
+    // キャッシュ最適化でwebpack警告を解消
+    if (config.cache && typeof config.cache === 'object') {
+      config.cache.maxMemoryGenerations = 1;
+    }
+    
+    // パフォーマンス警告の閾値を調整
+    config.performance = {
+      ...config.performance,
+      maxAssetSize: 250000,
+      maxEntrypointSize: 250000,
+    };
     
     return config;
   },

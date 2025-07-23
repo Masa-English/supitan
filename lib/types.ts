@@ -104,5 +104,33 @@ export interface AppStats {
   review_count: number;
 }
 
+export interface Trivia {
+  id: string;
+  word_id?: string;
+  category: string;
+  title: string;
+  content: string;
+  content_jp: string;
+  difficulty_level: number; // 1-3の値
+  tags?: string[];
+  is_featured: boolean;
+  view_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserTriviaProgress {
+  id: string;
+  user_id: string;
+  trivia_id: string;
+  is_read: boolean;
+  is_bookmarked: boolean;
+  read_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export type StudyMode = 'flashcard' | 'quiz';
-export type MasteryFilter = 'all' | 'new' | 'studying' | 'mastered'; 
+export type MasteryFilter = 'all' | 'new' | 'studying' | 'mastered';
+export type TriviaFilter = 'all' | 'unread' | 'bookmarked' | 'featured';
+export type TriviaDifficulty = 1 | 2 | 3; 

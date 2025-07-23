@@ -5,17 +5,7 @@
     "build": "next build",
     "build:export": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "revalidate": "node scripts/revalidate-on-change.js",
-    "db:init": "node scripts/migrate.js init",
-    "db:link": "node scripts/migrate.js link",
-    "db:pull": "node scripts/migrate.js pull",
-    "db:generate": "node scripts/migrate.js generate",
-    "db:migrate": "node scripts/migrate.js apply remote",
-    "db:migrate:local": "node scripts/migrate.js apply local",
-    "db:reset": "node scripts/migrate.js reset",
-    "db:status": "node scripts/migrate.js status",
-    "db:apply": "node scripts/migrate.js apply"
+    "lint": "next lint"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.1",

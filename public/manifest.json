@@ -3,7 +3,6 @@
   "short_name": "Masa Flash",
   "description": "フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。",
   "start_url": "/",
-  "display": "standalone",
   "background_color": "#fef7e3",
   "theme_color": "#d97706",
   "orientation": "portrait-primary",
