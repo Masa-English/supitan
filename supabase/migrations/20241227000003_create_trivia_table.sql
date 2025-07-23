@@ -93,9 +93,12 @@ CREATE TRIGGER update_user_trivia_progress_updated_at
 CREATE OR REPLACE FUNCTION increment_trivia_view_count()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE trivia 
-    SET view_count = view_count + 1 
-    WHERE id = NEW.trivia_id;
+    -- INSERTの場合、またはUPDATEでis_readがfalseからtrueに変わった場合のみ実行
+    IF NEW.is_read = true AND (TG_OP = 'INSERT' OR OLD.is_read = false) THEN
+        UPDATE trivia 
+        SET view_count = view_count + 1 
+        WHERE id = NEW.trivia_id;
+    END IF;
     RETURN NEW;
 END;
 $$ language 'plpgsql';
@@ -105,7 +108,6 @@ DROP TRIGGER IF EXISTS increment_view_count_on_read ON user_trivia_progress;
 CREATE TRIGGER increment_view_count_on_read
     AFTER INSERT OR UPDATE OF is_read ON user_trivia_progress
     FOR EACH ROW
-    WHEN (NEW.is_read = true AND (TG_OP = 'INSERT' OR OLD.is_read = false))
     EXECUTE FUNCTION increment_trivia_view_count();
 
 -- コメントの追加
