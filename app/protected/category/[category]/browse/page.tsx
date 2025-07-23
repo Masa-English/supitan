@@ -1,14 +1,27 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
+
 import { DatabaseService } from '@/lib/database';
 import { Word } from '@/lib/types';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Volume2, Heart, Search, ArrowLeft, Users, Target, LucideIcon, AlertCircle, RefreshCw } from 'lucide-react';
-import Link from 'next/link';
+
+import { 
+  Volume2, 
+  Heart, 
+  Search, 
+  ArrowLeft, 
+  Users, 
+  Target, 
+  LucideIcon, 
+  AlertCircle, 
+  RefreshCw 
+} from 'lucide-react';
 
 // 単語カードコンポーネント
 function WordCard({ word }: { word: Word }) {
@@ -201,7 +214,7 @@ export default function BrowsePage() {
   const db = useMemo(() => new DatabaseService(), []);
   const category = decodeURIComponent(params.category as string);
 
-  const loadWords = async () => {
+  const loadWords = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -213,11 +226,11 @@ export default function BrowsePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [db, category]);
 
   useEffect(() => {
     loadWords();
-  }, [category]);
+  }, [loadWords]);
 
   if (loading) {
     return <LoadingState category={category} />;
