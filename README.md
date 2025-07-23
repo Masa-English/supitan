@@ -24,6 +24,7 @@
 - [🔍 トラブルシューティング](#-トラブルシューティング)
 - [📈 モニタリング](#-モニタリング)
 - [🔄 メンテナンス](#-メンテナンス)
+- [🗄️ データベースマイグレーション](#️-データベースマイグレーション)
 
 ## 🎯 プロジェクト概要
 
@@ -1015,6 +1016,126 @@ export async function GET(request: NextRequest) {
 }
 ```
 
+## 🗄️ データベースマイグレーション
+
+### Supabaseマイグレーション管理
+
+このプロジェクトでは、Supabase CLIを使用してデータベースの変更をマイグレーションファイルで管理しています。
+
+#### 📋 前提条件
+
+```bash
+# Supabase CLIのインストール
+npm install -g supabase
+# または
+brew install supabase/tap/supabase
+```
+
+#### 🚀 基本的な使用方法
+
+```bash
+# 1. Supabaseプロジェクトの初期化
+npm run db:init
+
+# 2. リモートプロジェクトにリンク
+npm run db:link YOUR_PROJECT_REF
+
+# 3. 既存スキーマの同期（初回のみ）
+npm run db:pull
+
+# 4. 新しいマイグレーションファイルの生成
+npm run db:generate create_user_profiles
+
+# 5. リモート環境にマイグレーションを適用
+npm run db:migrate
+
+# 6. ローカル環境でテスト（オプション）
+npm run db:migrate:local
+
+# 7. データベースの状態確認
+npm run db:status
+```
+
+#### 📁 マイグレーションファイルの構造
+
+```
+supabase/
+├── config.toml              # Supabase設定ファイル
+└── migrations/
+    ├── 20241227000001_create_user_profiles.sql
+    └── [timestamp]_[description].sql
+```
+
+#### 📝 マイグレーションファイルの作成例
+
+```sql
+-- Migration: Create user_profiles table
+-- Created at: 2024-12-27 00:00:01
+
+-- Create user_profiles table
+CREATE TABLE IF NOT EXISTS user_profiles (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+    display_name TEXT,
+    avatar_url TEXT,
+    bio TEXT,
+    study_goal INTEGER DEFAULT 10,
+    preferred_language TEXT DEFAULT 'ja' CHECK (preferred_language IN ('ja', 'en')),
+    timezone TEXT DEFAULT 'Asia/Tokyo',
+    notification_settings JSONB DEFAULT '{"daily_reminder": true, "achievement": true, "review_reminder": true}'::jsonb,
+    study_streak INTEGER DEFAULT 0,
+    last_study_date DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes
+CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON user_profiles(user_id);
+
+-- Enable RLS
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies
+CREATE POLICY "Users can view own profile" ON user_profiles
+    FOR SELECT USING (auth.uid() = user_id);
+```
+
+#### 🔧 本番環境でのマイグレーション
+
+```bash
+# 本番データベースへの接続設定
+supabase link --project-ref your-project-ref
+
+# 本番環境にマイグレーションを適用
+supabase db push --linked
+```
+
+#### ⚠️ 注意事項
+
+- **リモート環境中心**: このプロジェクトはリモートSupabase環境をメインとして開発します
+- **バックアップ**: 本番環境でマイグレーションを実行する前に必ずデータベースのバックアップを取ってください
+- **テスト**: 新しいマイグレーションはローカル環境で十分にテストしてから本番環境に適用してください
+- **RLS**: Row Level Securityポリシーを必ず設定して、データアクセスを適切に制限してください
+- **インデックス**: パフォーマンスを考慮して適切なインデックスを作成してください
+- **マイグレーション履歴**: 適用済みのマイグレーションファイルは直接編集せず、新しいマイグレーションで修正してください
+
+詳細な開発ワークフローは [docs/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT_WORKFLOW.md) を参照してください。
+
+#### 🛠️ トラブルシューティング
+
+```bash
+# ローカルSupabaseが起動しない場合
+supabase stop
+supabase start
+
+# マイグレーションが失敗した場合
+supabase db reset  # ローカル環境のみ
+npm run db:migrate
+
+# 接続エラーが発生した場合
+supabase status  # サービスの状態確認
+```
+
 ## 🔄 メンテナンス
 
 ### 定期メンテナンス
@@ -1090,3 +1211,56 @@ MIT License - 詳細は [LICENSE](LICENSE) ファイルを参照
 ---
 
 **🎓 Masa Flash** - *効率的な英語学習のための次世代プラットフォーム*
+
+## データベース管理
+
+このプロジェクトはSupabaseマイグレーションを使用してデータベースを管理しています。
+
+### 初期セットアップ
+
+```bash
+# 1. Supabase CLIがローカルにインストール済み（package.jsonに含まれています）
+npm install
+
+# 2. Supabaseプロジェクトにリンク（初回のみ）
+npx supabase link --project-ref YOUR_PROJECT_REF
+
+# 3. 現在の状態を確認
+npm run db:status
+```
+
+### 基本コマンド
+
+```bash
+# プロジェクトの状態確認
+npm run db:status
+
+# リモートスキーマをローカルに同期
+npm run db:pull
+
+# 新しいマイグレーションファイル生成
+npm run db:generate <migration_name>
+
+# マイグレーションをリモートに適用
+npm run db:apply
+```
+
+### マイグレーションファイル
+
+- `supabase/migrations/` フォルダにマイグレーションファイルが格納されています
+- `20241227000001_create_user_profiles.sql` - ユーザープロフィールテーブル
+- `20241227000002_complete_schema.sql` - 完全なデータベーススキーマ
+
+### 開発ワークフロー
+
+1. `npm run db:status` で現在の状態を確認
+2. `npm run db:pull` でリモートスキーマを同期
+3. `npm run db:generate new_feature` で新しいマイグレーションを作成
+4. SQLファイルを編集
+5. `npm run db:apply` でリモートに適用
+
+### トラブルシューティング
+
+- **プロジェクトがリンクされていない場合**: `npx supabase link --project-ref YOUR_PROJECT_REF`
+- **データベースパスワードが必要な場合**: Supabaseダッシュボードで確認
+- **設定ファイルエラー**: `supabase/config.toml` の設定を確認

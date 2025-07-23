@@ -42,14 +42,31 @@ export function Quiz({
   }, [words]);
 
   const generateExampleOptions = useCallback((correctWord: Word): string[] => {
-    const options = [correctWord.example1_jp];
+    // 利用可能な例文から1つをランダムに選択
+    const availableExamples = [
+      correctWord.example1_jp,
+      correctWord.example2_jp,
+      correctWord.example3_jp
+    ].filter((example): example is string => Boolean(example)); // 型ガードで正しく絞り込み
+    
+    const selectedExample = availableExamples[Math.floor(Math.random() * availableExamples.length)];
+    const options = [selectedExample];
     
     // 他の単語から3つの選択肢を追加
     const otherWords = words.filter(w => w.id !== correctWord.id);
     const shuffled = otherWords.sort(() => Math.random() - 0.5);
     
     for (let i = 0; i < 3 && i < shuffled.length; i++) {
-      options.push(shuffled[i].example1_jp);
+      const otherExamples = [
+        shuffled[i].example1_jp,
+        shuffled[i].example2_jp,
+        shuffled[i].example3_jp
+      ].filter((example): example is string => Boolean(example));
+      
+      if (otherExamples.length > 0) {
+        const randomExample = otherExamples[Math.floor(Math.random() * otherExamples.length)];
+        options.push(randomExample);
+      }
     }
 
     return options.sort(() => Math.random() - 0.5);
@@ -70,13 +87,28 @@ export function Quiz({
 
       // 例文を問う問題（ランダムに選択）
       if (Math.random() > 0.5) {
-        const exampleQuestion: QuizQuestion = {
-          word,
-          options: generateExampleOptions(word),
-          correct_answer: word.example1_jp,
-          type: 'example'
-        };
-        newQuestions.push(exampleQuestion);
+        // 利用可能な例文ペアから1つをランダムに選択
+        const examplePairs = [
+          { jp: word.example1_jp, en: word.example1 },
+          { jp: word.example2_jp, en: word.example2 },
+          { jp: word.example3_jp, en: word.example3 }
+        ].filter((pair): pair is { jp: string; en: string } => Boolean(pair.jp && pair.en));
+        
+        if (examplePairs.length > 0) {
+          const selectedPair = examplePairs[Math.floor(Math.random() * examplePairs.length)];
+          
+          const exampleQuestion: QuizQuestion = {
+            word: {
+              ...word,
+              example1: selectedPair.en, // 選択された英語例文を使用
+              example1_jp: selectedPair.jp // 選択された日本語例文を使用
+            },
+            options: generateExampleOptions(word),
+            correct_answer: selectedPair.jp,
+            type: 'example'
+          };
+          newQuestions.push(exampleQuestion);
+        }
       }
     });
 

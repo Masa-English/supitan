@@ -1,7 +1,7 @@
--- 英単語学習アプリケーション用データベーススキーマ
--- Supabase Table Editorで実行してください
+-- Migration: Complete database schema for English learning app
+-- Created at: 2024-12-27 00:00:02
 
--- 1. words テーブル（単語データ）
+-- 1. words テーブル（英単語データ）
 CREATE TABLE IF NOT EXISTS words (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   category TEXT NOT NULL,
@@ -74,27 +74,13 @@ CREATE TABLE IF NOT EXISTS review_sessions (
 );
 
 -- インデックスの作成（パフォーマンス向上のため）
--- 既存のインデックスを削除してから再作成
-DROP INDEX IF EXISTS idx_words_category;
-CREATE INDEX idx_words_category ON words(category);
-
-DROP INDEX IF EXISTS idx_user_progress_user_id;
-CREATE INDEX idx_user_progress_user_id ON user_progress(user_id);
-
-DROP INDEX IF EXISTS idx_user_progress_word_id;
-CREATE INDEX idx_user_progress_word_id ON user_progress(word_id);
-
-DROP INDEX IF EXISTS idx_study_sessions_user_id;
-CREATE INDEX idx_study_sessions_user_id ON study_sessions(user_id);
-
-DROP INDEX IF EXISTS idx_review_words_user_id;
-CREATE INDEX idx_review_words_user_id ON review_words(user_id);
-
-DROP INDEX IF EXISTS idx_review_words_next_review;
-CREATE INDEX idx_review_words_next_review ON review_words(next_review);
-
-DROP INDEX IF EXISTS idx_review_sessions_user_id;
-CREATE INDEX idx_review_sessions_user_id ON review_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_words_category ON words(category);
+CREATE INDEX IF NOT EXISTS idx_user_progress_user_id ON user_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_progress_word_id ON user_progress(word_id);
+CREATE INDEX IF NOT EXISTS idx_study_sessions_user_id ON study_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_review_words_user_id ON review_words(user_id);
+CREATE INDEX IF NOT EXISTS idx_review_words_next_review ON review_words(next_review);
+CREATE INDEX IF NOT EXISTS idx_review_sessions_user_id ON review_sessions(user_id);
 
 -- RLS（Row Level Security）の有効化
 ALTER TABLE words ENABLE ROW LEVEL SECURITY;
@@ -104,7 +90,8 @@ ALTER TABLE review_words ENABLE ROW LEVEL SECURITY;
 ALTER TABLE review_sessions ENABLE ROW LEVEL SECURITY;
 
 -- RLSポリシーの設定
--- 既存のポリシーを削除してから再作成
+
+-- words テーブル：すべてのユーザーが閲覧可能
 DROP POLICY IF EXISTS "Words are viewable by everyone" ON words;
 CREATE POLICY "Words are viewable by everyone" ON words
   FOR SELECT USING (true);

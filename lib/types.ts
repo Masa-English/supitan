@@ -1,3 +1,23 @@
+export interface UserProfile {
+  id: string;
+  user_id: string;
+  display_name?: string;
+  avatar_url?: string;
+  bio?: string;
+  study_goal: number;
+  preferred_language: 'ja' | 'en';
+  timezone: string;
+  notification_settings: {
+    daily_reminder: boolean;
+    achievement: boolean;
+    review_reminder: boolean;
+  };
+  study_streak: number;
+  last_study_date?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Word {
   id: string;
   category: string;
@@ -5,12 +25,12 @@ export interface Word {
   japanese: string;
   example1: string;
   example2: string;
-  example3: string;
+  example3?: string;
   example1_jp: string;
   example2_jp: string;
-  example3_jp: string;
-  audio_file: string;
-  phonetic: string;
+  example3_jp?: string;
+  audio_file?: string;
+  phonetic?: string;
   created_at?: string;
 }
 

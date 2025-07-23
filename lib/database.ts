@@ -1,5 +1,5 @@
 import { createClient } from './supabase/client';
-import { Word, UserProgress, StudySession, ReviewWord, ReviewSession, AppStats } from './types';
+import { Word, UserProgress, StudySession, ReviewWord, ReviewSession, AppStats, UserProfile } from './types';
 
 export class DatabaseService {
   private supabase = createClient();
@@ -256,5 +256,50 @@ export class DatabaseService {
       study_time_minutes: studyTimeMinutes,
       review_count: reviewCount
     };
+  }
+
+  // プロフィール関連
+  async getUserProfile(userId: string): Promise<UserProfile | null> {
+    const { data, error } = await this.supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+      throw error;
+    }
+
+    return data || null;
+  }
+
+  async createUserProfile(profile: Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>): Promise<UserProfile> {
+    const { data, error } = await this.supabase
+      .from('user_profiles')
+      .insert({
+        ...profile,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async updateUserProfile(userId: string, updates: Partial<Omit<UserProfile, 'id' | 'user_id' | 'created_at'>>): Promise<UserProfile> {
+    const { data, error } = await this.supabase
+      .from('user_profiles')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 } 

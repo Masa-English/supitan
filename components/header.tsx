@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { BookOpen, ArrowLeft, User, LogOut, Settings } from 'lucide-react';
+import { BookOpen, ArrowLeft, User, LogOut, Settings, UserCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import {
@@ -87,28 +87,54 @@ export function Header({
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-900/20 transition-colors"
+                      className="text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-900/20 transition-colors border border-amber-200 dark:border-amber-700 hover:border-amber-300 dark:hover:border-amber-600"
                     >
-                      <User className="h-4 w-4 mr-2" />
-                      <span className="hidden sm:inline">{userEmail.split('@')[0]}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center">
+                          <User className="h-3 w-3 text-white" />
+                        </div>
+                        <span className="hidden sm:inline font-medium">
+                          {userEmail?.split('@')[0] || 'ユーザー'}
+                        </span>
+                      </div>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem disabled>
-                      <User className="h-4 w-4 mr-2" />
-                      {userEmail}
+                  <DropdownMenuContent align="end" className="w-64 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border border-amber-200 dark:border-amber-700 shadow-lg">
+                    <div className="px-3 py-2">
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                        {userEmail?.split('@')[0] || 'ユーザー'}
+                      </p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 truncate">
+                        {userEmail}
+                      </p>
+                    </div>
+                    <DropdownMenuSeparator className="bg-amber-200 dark:bg-amber-700" />
+                    <DropdownMenuItem 
+                      onClick={() => router.push('/protected/profile')}
+                      className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 focus:bg-amber-50 dark:focus:bg-amber-900/20"
+                    >
+                      <UserCircle className="h-4 w-4 mr-2" />
+                      プロフィール設定
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => router.push('/protected/review')}>
+                    <DropdownMenuItem 
+                      onClick={() => router.push('/protected/review')}
+                      className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 focus:bg-amber-50 dark:focus:bg-amber-900/20"
+                    >
                       <BookOpen className="h-4 w-4 mr-2" />
                       復習
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push('/protected')}>
+                    <DropdownMenuItem 
+                      onClick={() => router.push('/protected')}
+                      className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 focus:bg-amber-50 dark:focus:bg-amber-900/20"
+                    >
                       <Settings className="h-4 w-4 mr-2" />
                       ダッシュボード
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={onSignOut} className="text-red-600 dark:text-red-400">
+                    <DropdownMenuSeparator className="bg-amber-200 dark:bg-amber-700" />
+                    <DropdownMenuItem 
+                      onClick={onSignOut} 
+                      className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:bg-red-50 dark:focus:bg-red-900/20"
+                    >
                       <LogOut className="h-4 w-4 mr-2" />
                       ログアウト
                     </DropdownMenuItem>

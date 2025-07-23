@@ -1,7 +1,6 @@
 'use client';
 
 import { LoginForm } from '@/components/login-form';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -19,12 +18,7 @@ export default function LoginPage() {
             </Button>
           </Link>
         </div>
-
-        <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-amber-200 dark:border-amber-700 shadow-xl">
-          <CardContent>
-            <LoginForm />
-          </CardContent>
-        </Card>
+        <LoginForm />
       </div>
     </div>
   );

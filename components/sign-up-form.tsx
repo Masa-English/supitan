@@ -14,8 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Mail, Lock, LockKeyhole } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Mail, Lock, LockKeyhole, Eye, EyeOff } from "lucide-react";
 import { getRedirectUrl } from "@/lib/utils";
 
 export function SignUpForm({
@@ -25,9 +25,16 @@ export function SignUpForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,30 +103,64 @@ export function SignUpForm({
                   <Lock className="h-4 w-4" />
                   パスワード
                 </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="6文字以上"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="border-amber-300 focus:border-amber-500 focus:ring-amber-500 dark:border-amber-600 dark:focus:border-amber-400"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={isMounted && showPassword ? "text" : "password"}
+                    placeholder="6文字以上"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="border-amber-300 focus:border-amber-500 focus:ring-amber-500 dark:border-amber-600 dark:focus:border-amber-400 pr-10"
+                  />
+                  {isMounted && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      )}
+                    </Button>
+                  )}
+                </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="repeat-password" className="text-amber-800 dark:text-amber-200 flex items-center gap-2">
                   <LockKeyhole className="h-4 w-4" />
                   パスワード（確認）
                 </Label>
-                <Input
-                  id="repeat-password"
-                  type="password"
-                  placeholder="パスワードを再入力"
-                  required
-                  value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
-                  className="border-amber-300 focus:border-amber-500 focus:ring-amber-500 dark:border-amber-600 dark:focus:border-amber-400"
-                />
+                <div className="relative">
+                  <Input
+                    id="repeat-password"
+                    type={isMounted && showRepeatPassword ? "text" : "password"}
+                    placeholder="パスワードを再入力"
+                    required
+                    value={repeatPassword}
+                    onChange={(e) => setRepeatPassword(e.target.value)}
+                    className="border-amber-300 focus:border-amber-500 focus:ring-amber-500 dark:border-amber-600 dark:focus:border-amber-400 pr-10"
+                  />
+                  {isMounted && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowRepeatPassword(!showRepeatPassword)}
+                    >
+                      {showRepeatPassword ? (
+                        <EyeOff className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      )}
+                    </Button>
+                  )}
+                </div>
               </div>
               {error && (
                 <div className="p-3 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-700">
