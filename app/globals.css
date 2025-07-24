@@ -3,138 +3,84 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* サンプルファイルのクリーム色ベース配色に合わせて更新 */
-    --background: 60 9% 98%; /* #fefefe に近い */
-    --foreground: 210 11% 41%; /* #5a6c7d に近い */
-    --card: 60 9% 98%; /* #fefefe に近い */
-    --card-foreground: 210 11% 41%; /* #5a6c7d に近い */
-    --popover: 60 9% 98%; /* #fefefe に近い */
-    --popover-foreground: 210 11% 41%; /* #5a6c7d に近い */
-    --primary: 210 11% 41%; /* #5a6c7d に近い */
-    --primary-foreground: 60 9% 98%; /* #fefefe に近い */
-    --secondary: 60 9% 93%; /* より濃い色に調整 */
-    --secondary-foreground: 210 11% 35%; /* より濃い色に調整 */
-    --muted: 60 9% 90%; /* より濃い色に調整 */
-    --muted-foreground: 210 16% 50%; /* より濃い色に調整 */
-    --accent: 35 25% 60%; /* より濃い色に調整 */
-    --accent-foreground: 60 9% 95%; /* より明るい色に調整 */
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 60 9% 98%; /* #fefefe に近い */
-    --border: 60 9% 85%; /* より濃い色に調整 */
-    --input: 60 9% 85%; /* より濃い色に調整 */
-    --ring: 35 25% 60%; /* より濃い色に調整 */
-    --chart-1: 35 25% 60%; /* より濃い色に調整 */
-    --chart-2: 38 25% 60%; /* より濃い色に調整 */
-    --chart-3: 32 25% 60%; /* より濃い色に調整 */
-    --chart-4: 35 30% 65%; /* より濃い色に調整 */
-    --chart-5: 35 20% 55%; /* より濃い色に調整 */
-    --radius: 0.5rem;
-  }
-  .dark {
-    /* ダークモードも温かみのある配色に調整 */
-    --background: 220 13% 18%; /* より温かみのあるダークグレー */
-    --foreground: 60 9% 95%; /* クリーム色に近い */
-    --card: 220 13% 18%; /* より温かみのあるダークグレー */
-    --card-foreground: 60 9% 95%; /* クリーム色に近い */
-    --popover: 220 13% 18%; /* より温かみのあるダークグレー */
-    --popover-foreground: 60 9% 95%; /* クリーム色に近い */
-    --primary: 60 9% 95%; /* クリーム色に近い */
-    --primary-foreground: 220 13% 18%; /* より温かみのあるダークグレー */
-    --secondary: 220 13% 25%; /* より明るい色に調整 */
-    --secondary-foreground: 60 9% 90%; /* より明るい色に調整 */
-    --muted: 220 13% 25%; /* より明るい色に調整 */
-    --muted-foreground: 210 16% 60%; /* より明るい色に調整 */
-    --accent: 35 25% 70%; /* より明るい色に調整 */
-    --accent-foreground: 220 13% 15%; /* より濃い色に調整 */
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 60 9% 95%; /* クリーム色に近い */
-    --border: 220 13% 25%; /* より明るい色に調整 */
-    --input: 220 13% 25%; /* より明るい色に調整 */
-    --ring: 35 25% 70%; /* より明るい色に調整 */
-    --chart-1: 35 25% 70%; /* より明るい色に調整 */
-    --chart-2: 38 25% 70%; /* より明るい色に調整 */
-    --chart-3: 32 25% 70%; /* より明るい色に調整 */
-    --chart-4: 35 30% 75%; /* より明るい色に調整 */
-    --chart-5: 35 20% 65%; /* より明るい色に調整 */
-  }
-  
-  .monochrome {
-    /* モノクロームテーマ - 灰色、白、黒のスタイリッシュな配色 */
-    --background: 0 0% 98%; /* 純白に近い */
-    --foreground: 0 0% 15%; /* 濃いグレー（ほぼ黒） */
-    --card: 0 0% 96%; /* 薄いグレー */
-    --card-foreground: 0 0% 15%; /* 濃いグレー */
-    --popover: 0 0% 98%; /* 純白に近い */
-    --popover-foreground: 0 0% 15%; /* 濃いグレー */
-    --primary: 0 0% 20%; /* ダークグレー */
-    --primary-foreground: 0 0% 98%; /* 純白 */
-    --secondary: 0 0% 90%; /* ライトグレー */
-    --secondary-foreground: 0 0% 25%; /* ミディアムダークグレー */
-    --muted: 0 0% 93%; /* 薄いグレー */
-    --muted-foreground: 0 0% 45%; /* ミディアムグレー */
-    --accent: 0 0% 85%; /* アクセント用ライトグレー */
-    --accent-foreground: 0 0% 15%; /* 濃いグレー */
-    --destructive: 0 70% 50%; /* 赤色（エラー用） */
-    --destructive-foreground: 0 0% 98%; /* 純白 */
-    --border: 0 0% 88%; /* ボーダー用グレー */
-    --input: 0 0% 92%; /* インプット背景 */
-    --ring: 0 0% 60%; /* フォーカスリング */
-    --chart-1: 0 0% 30%; /* チャート色1 */
-    --chart-2: 0 0% 40%; /* チャート色2 */
-    --chart-3: 0 0% 50%; /* チャート色3 */
-    --chart-4: 0 0% 60%; /* チャート色4 */
-    --chart-5: 0 0% 70%; /* チャート色5 */
-  }
-  
-  /* モノクロームテーマのダークバリエーション */
-  .monochrome.dark {
-    --background: 0 0% 8%; /* 濃いグレー */
-    --foreground: 0 0% 92%; /* 明るいグレー */
-    --card: 0 0% 12%; /* ダークグレー */
-    --card-foreground: 0 0% 92%; /* 明るいグレー */
-    --popover: 0 0% 8%; /* 濃いグレー */
-    --popover-foreground: 0 0% 92%; /* 明るいグレー */
-    --primary: 0 0% 85%; /* ライトグレー */
-    --primary-foreground: 0 0% 8%; /* 濃いグレー */
-    --secondary: 0 0% 18%; /* ミディアムダークグレー */
-    --secondary-foreground: 0 0% 85%; /* ライトグレー */
-    --muted: 0 0% 15%; /* ダークグレー */
-    --muted-foreground: 0 0% 65%; /* ミディアムグレー */
-    --accent: 0 0% 25%; /* アクセント用ダークグレー */
-    --accent-foreground: 0 0% 92%; /* 明るいグレー */
-    --destructive: 0 70% 60%; /* 赤色（エラー用） */
-    --destructive-foreground: 0 0% 92%; /* 明るいグレー */
-    --border: 0 0% 22%; /* ボーダー用ダークグレー */
-    --input: 0 0% 18%; /* インプット背景 */
-    --ring: 0 0% 50%; /* フォーカスリング */
-    --chart-1: 0 0% 70%; /* チャート色1 */
-    --chart-2: 0 0% 60%; /* チャート色2 */
-    --chart-3: 0 0% 50%; /* チャート色3 */
-    --chart-4: 0 0% 40%; /* チャート色4 */
-    --chart-5: 0 0% 30%; /* チャート色5 */
-  }
-}
-
-@layer base {
+  /* 基本設定を最初に読み込み */
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   
-  /* ビューポート高さベースのレイアウト設定 */
   html, body {
     height: 100%;
   }
   
-  /* スクロール最適化 */
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* CSS変数定義 - ライトテーマ */
+  :root {
+    /* ライトテーマ - クリーンなニュートラルグレー配色 */
+    --background: 0 0% 100%; /* 純白 #ffffff */
+    --foreground: 222.2 84% 4.9%; /* ダークグレー #020817 */
+    --card: 0 0% 100%; /* 純白 #ffffff */
+    --card-foreground: 222.2 84% 4.9%; /* ダークグレー #020817 */
+    --popover: 0 0% 100%; /* 純白 #ffffff */
+    --popover-foreground: 222.2 84% 4.9%; /* ダークグレー #020817 */
+    --primary: 221.2 83.2% 53.3%; /* ブランドブルー #3b82f6 */
+    --primary-foreground: 210 40% 98%; /* ほぼ白 #f8fafc */
+    --secondary: 210 40% 96%; /* 薄いグレー #f1f5f9 */
+    --secondary-foreground: 222.2 84% 4.9%; /* ダークグレー #020817 */
+    --muted: 210 40% 96%; /* 薄いグレー #f1f5f9 */
+    --muted-foreground: 215.4 16.3% 46.9%; /* ミディアムグレー #64748b */
+    --accent: 210 40% 94%; /* アクセント薄いグレー #e2e8f0 */
+    --accent-foreground: 222.2 84% 4.9%; /* ダークグレー #020817 */
+    --destructive: 0 84.2% 60.2%; /* レッド #ef4444 */
+    --destructive-foreground: 210 40% 98%; /* ほぼ白 #f8fafc */
+    --border: 214.3 31.8% 91.4%; /* ボーダーグレー #e2e8f0 */
+    --input: 214.3 31.8% 91.4%; /* インプットグレー #e2e8f0 */
+    --ring: 221.2 83.2% 53.3%; /* フォーカスブルー #3b82f6 */
+    --chart-1: 221.2 83.2% 53.3%; /* チャート1 ブルー */
+    --chart-2: 142.1 76.2% 36.3%; /* チャート2 グリーン */
+    --chart-3: 262.1 83.3% 57.8%; /* チャート3 パープル */
+    --chart-4: 346.8 77.2% 49.8%; /* チャート4 ピンク */
+    --chart-5: 24.6 95% 53.1%; /* チャート5 オレンジ */
+    --radius: 0.5rem;
+  }
+  
+  /* ダークテーマ */
+  .dark {
+    /* ダークテーマ - 深いダークグレー系プロフェッショナル配色 */
+    --background: 222.2 84% 4.9%; /* ダークブルーグレー #020817 */
+    --foreground: 210 40% 98%; /* ほぼ白 #f8fafc */
+    --card: 222.2 84% 4.9%; /* ダークブルーグレー #020817 */
+    --card-foreground: 210 40% 98%; /* ほぼ白 #f8fafc */
+    --popover: 222.2 84% 4.9%; /* ダークブルーグレー #020817 */
+    --popover-foreground: 210 40% 98%; /* ほぼ白 #f8fafc */
+    --primary: 217.2 91.2% 59.8%; /* ブライトブルー #3b82f6 */
+    --primary-foreground: 222.2 84% 4.9%; /* ダークブルーグレー #020817 */
+    --secondary: 217.2 32.6% 17.5%; /* ダークブルーグレー #1e293b */
+    --secondary-foreground: 210 40% 98%; /* ほぼ白 #f8fafc */
+    --muted: 217.2 32.6% 17.5%; /* ダークブルーグレー #1e293b */
+    --muted-foreground: 215 20.2% 65.1%; /* ミディアムグレー #94a3b8 */
+    --accent: 217.2 32.6% 17.5%; /* ダークブルーグレー #1e293b */
+    --accent-foreground: 210 40% 98%; /* ほぼ白 #f8fafc */
+    --destructive: 0 62.8% 30.6%; /* ダークレッド #7f1d1d */
+    --destructive-foreground: 210 40% 98%; /* ほぼ白 #f8fafc */
+    --border: 217.2 32.6% 17.5%; /* ダークブルーグレー #1e293b */
+    --input: 217.2 32.6% 17.5%; /* ダークブルーグレー #1e293b */
+    --ring: 217.2 91.2% 59.8%; /* ブライトブルー #3b82f6 */
+    --chart-1: 217.2 91.2% 59.8%; /* チャート1 ブルー */
+    --chart-2: 142.1 70.6% 45.3%; /* チャート2 グリーン */
+    --chart-3: 262.1 83.3% 57.8%; /* チャート3 パープル */
+    --chart-4: 346.8 77.2% 49.8%; /* チャート4 ピンク */
+    --chart-5: 24.6 95% 53.1%; /* チャート5 オレンジ */
+  }
+  
+  /* スクロール最適化 - テーマに対応 */
   .scroll-container {
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
-    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
   }
   
   .scroll-container::-webkit-scrollbar {
@@ -146,13 +92,25 @@
   }
   
   .scroll-container::-webkit-scrollbar-thumb {
-    background-color: rgba(156, 163, 175, 0.5);
+    background-color: hsl(var(--muted-foreground) / 0.3);
     border-radius: 3px;
+    transition: background-color 0.2s ease;
   }
   
   .scroll-container::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(156, 163, 175, 0.8);
+    background-color: hsl(var(--muted-foreground) / 0.5);
   }
+  
+  /* ダークテーマでのスクロールバー調整 */
+  .dark .scroll-container::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.4);
+  }
+  
+  .dark .scroll-container::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.6);
+  }
+  
+
 }
 
 @layer components {
@@ -228,15 +186,23 @@
     height: 300px;
   }
   
-  /* ボタンのホバー効果を改善 */
+  /* ボタンのホバー効果を改善 - テーマ対応 */
   .btn-hover-fix {
     transition: all 0.2s ease-in-out;
   }
   
   .btn-hover-fix:hover {
     filter: brightness(0.9);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px hsl(var(--foreground) / 0.1);
   }
+  
+  /* ダークテーマでのボタンホバー調整 */
+  .dark .btn-hover-fix:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 8px hsl(var(--background) / 0.3);
+  }
+  
+
   
   /* テキスト切り詰めユーティリティ */
   .line-clamp-1 {

@@ -76,11 +76,13 @@ export default function RootLayout({
       </head>
       <body className={`${geistSans.className} antialiased h-full`}>
         <ThemeProvider
-          attribute="class"
+          attribute="data-theme"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
-          themes={["light", "dark", "monochrome", "system"]}
+          disableTransitionOnChange={false}
+          themes={["light", "dark"]}
+          storageKey="masa-flash-theme"
+          enableColorScheme={false}
         >
           <ToastProvider>
             <AudioProvider>

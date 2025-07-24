@@ -9,11 +9,14 @@ export default function ProtectedLayout({
     <main className="min-h-screen flex flex-col">
       {children}
       
-      <footer className="w-full flex items-center justify-center border-t border-amber-200 dark:border-amber-700 mx-auto text-center text-xs gap-8 py-8 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-        <p className="text-amber-700 dark:text-amber-300">
-          
+      <footer className="w-full flex items-center justify-between border-t border-border mx-auto text-center text-xs gap-8 py-6 px-4 bg-background/80 backdrop-blur-sm">
+        <p className="text-foreground flex-1 text-left">
+          © 2024 Masa Flash - 効率的な英語学習
         </p>
-        <ThemeSwitcher />
+        <div className="flex items-center gap-3">
+          <span className="text-muted-foreground text-xs">テーマ:</span>
+          <ThemeSwitcher inline />
+        </div>
       </footer>
     </main>
   );
