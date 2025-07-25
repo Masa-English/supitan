@@ -1,21 +1,19 @@
+import type { Json } from './database.types';
+
 export interface UserProfile {
   id: string;
-  user_id: string;
-  display_name?: string;
-  avatar_url?: string;
-  bio?: string;
-  study_goal: number;
-  preferred_language: 'ja' | 'en';
-  timezone: string;
-  notification_settings: {
-    daily_reminder: boolean;
-    achievement: boolean;
-    review_reminder: boolean;
-  };
-  study_streak: number;
-  last_study_date?: string;
-  created_at: string;
-  updated_at: string;
+  user_id: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  study_goal: number | null;
+  preferred_language: string | null;
+  timezone: string | null;
+  notification_settings: Json | null;
+  study_streak: number | null;
+  last_study_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface Word {
@@ -25,62 +23,71 @@ export interface Word {
   japanese: string;
   example1: string;
   example2: string;
-  example3?: string;
+  example3: string | null;
   example1_jp: string;
   example2_jp: string;
-  example3_jp?: string;
-  audio_file?: string;
-  phonetic?: string;
-  created_at?: string;
+  example3_jp: string | null;
+  audio_file: string | null;
+  audio_file_id: string | null;
+  phonetic: string | null;
+  category_id: string | null;
+  created_by: string | null;
+  difficulty_level: number | null;
+  is_active: boolean | null;
+  tags: string[] | null;
+  trivia_content: string | null;
+  trivia_content_jp: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface UserProgress {
   id: string;
-  user_id: string;
-  word_id: string;
-  mastery_level: number; // 0-1の値
-  study_count: number;
-  correct_count: number;
-  incorrect_count: number;
-  last_studied: string;
-  is_favorite: boolean;
-  created_at: string;
-  updated_at: string;
+  user_id: string | null;
+  word_id: string | null;
+  mastery_level: number | null;
+  study_count: number | null;
+  correct_count: number | null;
+  incorrect_count: number | null;
+  last_studied: string | null;
+  is_favorite: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface StudySession {
   id: string;
-  user_id: string;
+  user_id: string | null;
   category: string;
-  mode: 'flashcard' | 'quiz';
+  mode: string;
   total_words: number;
   completed_words: number;
   correct_answers: number;
   start_time: string;
-  end_time?: string;
-  created_at: string;
+  end_time: string | null;
+  created_at: string | null;
 }
 
 export interface ReviewWord {
   id: string;
-  user_id: string;
-  word_id: string;
-  added_at: string;
-  review_count: number;
-  last_reviewed?: string;
-  next_review?: string;
-  difficulty_level: number; // 1-5の値
+  user_id: string | null;
+  word_id: string | null;
+  added_at: string | null;
+  review_count: number | null;
+  last_reviewed: string | null;
+  next_review: string | null;
+  difficulty_level: number | null;
 }
 
 export interface ReviewSession {
   id: string;
-  user_id: string;
+  user_id: string | null;
   total_words: number;
   completed_words: number;
   correct_answers: number;
   start_time: string;
-  end_time?: string;
-  created_at: string;
+  end_time: string | null;
+  created_at: string | null;
 }
 
 export interface Category {

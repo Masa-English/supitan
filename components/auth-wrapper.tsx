@@ -1,71 +1,67 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Header } from '@/components/header';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
 }
 
 export function AuthWrapper({ children }: AuthWrapperProps) {
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    const getUser = async () => {
+    const checkAuth = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          router.push('/auth/login');
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        if (error || !user) {
+          router.push('/landing');
           return;
         }
-        setUser(user);
+        
+        setIsAuthenticated(true);
       } catch (error) {
-        console.error('認証エラー:', error);
-        router.push('/auth/login');
+        console.error('認証チェックエラー:', error);
+        router.push('/landing');
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    getUser();
+    checkAuth();
+
+    // 認証状態の変更を監視
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_OUT' || !session) {
+          router.push('/landing');
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, [router, supabase.auth]);
 
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      router.push('/auth/login');
-    } catch (error) {
-      console.error('サインアウトエラー:', error);
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
-          <p className="mt-4 text-amber-700 dark:text-amber-300">認証を確認中...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-amber-600 dark:text-amber-400 mx-auto mb-4" />
+          <p className="text-amber-700 dark:text-amber-300">認証を確認中...</p>
         </div>
       </div>
     );
   }
 
-  if (!user) {
-    return null; // リダイレクト中
+  if (!isAuthenticated) {
+    return null;
   }
 
-  return (
-    <>
-      <Header 
-        userEmail={user.email}
-        onSignOut={handleSignOut}
-      />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 } 

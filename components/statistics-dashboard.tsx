@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatsCardSkeleton, ProgressBarSkeleton, SessionHistorySkeleton } from '@/components/ui/skeleton';
 
 import { 
   BookOpen, 
@@ -18,20 +19,28 @@ import { DatabaseService } from '@/lib/database';
 import { createClient } from '@/lib/supabase/client';
 import { AppStats, StudySession, ReviewSession } from '@/lib/types';
 
-interface StatisticsProps {
-  userId: string;
-}
-
-export function StatisticsDashboard({ userId }: StatisticsProps) {
+export function StatisticsDashboard() {
   const [stats, setStats] = useState<AppStats | null>(null);
   const [recentSessions, setRecentSessions] = useState<StudySession[]>([]);
   const [reviewSessions, setReviewSessions] = useState<ReviewSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const db = useMemo(() => new DatabaseService(), []);
   const supabase = createClient();
 
+  // ユーザーIDを取得
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    getUser();
+  }, [supabase.auth]);
+
   const getRecentStudySessions = useCallback(async (): Promise<StudySession[]> => {
+    if (!userId) return [];
+    
     const { data, error } = await supabase
       .from('study_sessions')
       .select('*')
@@ -44,6 +53,8 @@ export function StatisticsDashboard({ userId }: StatisticsProps) {
   }, [supabase, userId]);
 
   const getRecentReviewSessions = useCallback(async (): Promise<ReviewSession[]> => {
+    if (!userId) return [];
+    
     const { data, error } = await supabase
       .from('review_sessions')
       .select('*')
@@ -56,6 +67,8 @@ export function StatisticsDashboard({ userId }: StatisticsProps) {
   }, [supabase, userId]);
 
   const loadStatistics = useCallback(async () => {
+    if (!userId) return;
+    
     try {
       const [appStats, studySessions, reviewSessionsData] = await Promise.all([
         db.getAppStats(userId),
@@ -74,8 +87,10 @@ export function StatisticsDashboard({ userId }: StatisticsProps) {
   }, [userId, db, getRecentStudySessions, getRecentReviewSessions]);
 
   useEffect(() => {
-    loadStatistics();
-  }, [loadStatistics]);
+    if (userId) {
+      loadStatistics();
+    }
+  }, [loadStatistics, userId]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ja-JP', {
@@ -108,19 +123,55 @@ export function StatisticsDashboard({ userId }: StatisticsProps) {
     }
   };
 
-  if (loading) {
+  if (loading || !userId) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[...Array(4)].map((_, i) => (
-          <Card key={i} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-            <CardContent className="p-6">
-              <div className="animate-pulse">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-              </div>
+      <div className="space-y-6">
+        {/* メイン統計カードのスケルトン */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {[...Array(5)].map((_, i) => (
+            <StatsCardSkeleton key={i} />
+          ))}
+        </div>
+
+        {/* 進捗バーのスケルトン */}
+        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+              <TrendingUp className="h-5 w-5" />
+              学習進捗
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProgressBarSkeleton />
+          </CardContent>
+        </Card>
+
+        {/* セッション履歴のスケルトン */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+                <Calendar className="h-5 w-5" />
+                最近の学習
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SessionHistorySkeleton />
             </CardContent>
           </Card>
-        ))}
+
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+                <RotateCcw className="h-5 w-5" />
+                最近の復習
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SessionHistorySkeleton />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -305,7 +356,7 @@ export function StatisticsDashboard({ userId }: StatisticsProps) {
                         {Math.round((session.correct_answers / session.total_words) * 100)}%
                       </div>
                       <p className="text-xs text-amber-600 dark:text-amber-400">
-                        {formatDate(session.created_at)}
+                        {formatDate(session.created_at || new Date().toISOString())}
                       </p>
                     </div>
                   </div>
@@ -350,7 +401,7 @@ export function StatisticsDashboard({ userId }: StatisticsProps) {
                         {Math.round((session.correct_answers / session.total_words) * 100)}%
                       </div>
                       <p className="text-xs text-orange-600 dark:text-orange-400">
-                        {formatDate(session.created_at)}
+                        {formatDate(session.created_at || new Date().toISOString())}
                       </p>
                     </div>
                   </div>

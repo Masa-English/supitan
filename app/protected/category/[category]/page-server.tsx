@@ -73,8 +73,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
     // 進捗統計の計算
     const stats = {
       total: words.length,
-      studied: userProgress.filter(p => p.study_count > 0).length,
-      mastered: userProgress.filter(p => p.mastery_level >= 0.8).length,
+      studied: userProgress.filter(p => (p.study_count || 0) > 0).length,
+      mastered: userProgress.filter(p => (p.mastery_level || 0) >= 0.8).length,
     };
 
     return (

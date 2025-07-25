@@ -54,10 +54,14 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
         setFormData({
           display_name: data.display_name || '',
           bio: data.bio || '',
-          study_goal: data.study_goal,
-          preferred_language: data.preferred_language,
-          timezone: data.timezone,
-          notification_settings: data.notification_settings,
+          study_goal: data.study_goal || 10,
+          preferred_language: (data.preferred_language || 'ja') as 'ja' | 'en',
+          timezone: data.timezone || 'Asia/Tokyo',
+          notification_settings: (data.notification_settings || {
+            daily_reminder: true,
+            achievement: true,
+            review_reminder: true
+          }) as { daily_reminder: boolean; achievement: boolean; review_reminder: boolean; },
         });
       } else {
         // プロフィールが存在しない場合は初期値を設定

@@ -1,8 +1,9 @@
-import { getStaticData } from '@/lib/static-data';
+import { Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Target, Trophy, Clock, RotateCcw } from 'lucide-react';
+import { StatsCardSkeleton, CategoryCardSkeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
 // 静的生成の設定 - より頻繁な更新で最新情報を提供
@@ -15,6 +16,7 @@ export async function generateStaticParams() {
 
 // メタデータ最適化
 export async function generateMetadata() {
+  const { getStaticData } = await import('@/lib/static-data');
   const staticData = await getStaticData();
   return {
     title: 'Masa Flash - 効率的な英語学習アプリ',
@@ -28,9 +30,138 @@ export async function generateMetadata() {
   };
 }
 
-export default async function LandingPage() {
+// 非同期で統計データを取得するコンポーネント
+async function StatisticsSection() {
+  const { getStaticData } = await import('@/lib/static-data');
   const staticData = await getStaticData();
 
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            総単語数
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
+            {staticData.totalWords}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            カテゴリー
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
+            {staticData.categories.length}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
+            <Trophy className="h-4 w-4" />
+            学習モード
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
+            3
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            最終更新
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm text-amber-800 dark:text-amber-200">
+            {new Date(staticData.lastUpdated).toLocaleDateString('ja-JP')}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// 非同期でカテゴリーデータを取得するコンポーネント
+async function CategoriesSection() {
+  const { getStaticData } = await import('@/lib/static-data');
+  const staticData = await getStaticData();
+
+  return (
+    <div className="mb-12">
+      <h2 className="text-3xl font-bold text-amber-800 dark:text-amber-200 mb-8 text-center">
+        学習カテゴリー
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {staticData.categories.map((category) => (
+          <Card key={category.name} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700 hover:shadow-lg transition-all duration-200 hover:scale-105">
+            <CardHeader className="text-center pb-4">
+              <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Badge variant="outline" className="text-lg font-bold border-amber-300 text-amber-700 dark:border-amber-600 dark:text-amber-300">
+                  {category.pos}
+                </Badge>
+              </div>
+              <CardTitle className="text-xl text-amber-800 dark:text-amber-200">
+                {category.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-amber-700 dark:text-amber-300 mb-4">
+                {category.count}個の単語
+              </p>
+              <Link href="/auth/sign-up">
+                <Button variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20">
+                  学習開始
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// 統計セクションのスケルトン
+function StatisticsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      {[...Array(4)].map((_, i) => (
+        <StatsCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
+// カテゴリーセクションのスケルトン
+function CategoriesSkeleton() {
+  return (
+    <div className="mb-12">
+      <div className="h-8 w-64 bg-amber-200 dark:bg-amber-700 rounded mx-auto mb-8 animate-pulse"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {[...Array(4)].map((_, i) => (
+          <CategoryCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
       {/* ヘッダー */}
@@ -63,7 +194,7 @@ export default async function LandingPage() {
             効率的な英語学習を始めましょう
           </h2>
           <p className="text-xl text-amber-700 dark:text-amber-300 mb-8">
-            {staticData.totalWords}個の単語で、あなたの英語力を向上させます
+            単語数読み込み中...個の単語で、あなたの英語力を向上させます
           </p>
           <Link href="/auth/sign-up">
             <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white text-lg px-8 py-3">
@@ -72,97 +203,15 @@ export default async function LandingPage() {
           </Link>
         </div>
 
-        {/* 統計カード */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                総単語数
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
-                {staticData.totalWords}
-              </div>
-            </CardContent>
-          </Card>
+        {/* 統計カード - Suspense対応 */}
+        <Suspense fallback={<StatisticsSkeleton />}>
+          <StatisticsSection />
+        </Suspense>
 
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                カテゴリー
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
-                {staticData.categories.length}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
-                <Trophy className="h-4 w-4" />
-                学習モード
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
-                3
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                最終更新
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-amber-800 dark:text-amber-200">
-                {new Date(staticData.lastUpdated).toLocaleDateString('ja-JP')}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* カテゴリー一覧 */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold text-amber-800 dark:text-amber-200 mb-8 text-center">
-            学習カテゴリー
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {staticData.categories.map((category) => (
-              <Card key={category.name} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700 hover:shadow-lg transition-all duration-200 hover:scale-105">
-                <CardHeader className="text-center pb-4">
-                  <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Badge variant="outline" className="text-lg font-bold border-amber-300 text-amber-700 dark:border-amber-600 dark:text-amber-300">
-                      {category.pos}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-xl text-amber-800 dark:text-amber-200">
-                    {category.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <p className="text-amber-700 dark:text-amber-300 mb-4">
-                    {category.count}個の単語
-                  </p>
-                  <Link href="/auth/sign-up">
-                    <Button variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20">
-                      学習開始
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+        {/* カテゴリー一覧 - Suspense対応 */}
+        <Suspense fallback={<CategoriesSkeleton />}>
+          <CategoriesSection />
+        </Suspense>
 
         {/* 機能紹介 */}
         <div className="mb-12">

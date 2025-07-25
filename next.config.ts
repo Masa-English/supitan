@@ -1,9 +1,23 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // 実験的機能の最適化
   experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-dropdown-menu'],
+    optimizePackageImports: [
+      'lucide-react', 
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-checkbox',
+      '@radix-ui/react-label'
+    ],
+    // 画像最適化の強化
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
   
   // 画像最適化
@@ -11,6 +25,7 @@ const nextConfig: NextConfig = {
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 86400, // 24時間
   },
 
   // セキュリティヘッダー
@@ -30,6 +45,10 @@ const nextConfig: NextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
           },
         ],
       },
@@ -53,18 +72,27 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      // 静的ページのキャッシュ
+      {
+        source: '/(protected|landing)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, stale-while-revalidate=7200',
+          },
+        ],
+      },
     ];
   },
 
   // 静的生成の最適化
   trailingSlash: false,
   
-  // 出力設定 - ISR対応
-  // output: 'export', // APIルートがある場合は静的エクスポートは使用しない
-
   // コンパイル最適化
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn']
+    } : false,
   },
 
   // TypeScript設定の強化
@@ -87,7 +115,7 @@ const nextConfig: NextConfig = {
       };
     }
     
-    // キャッシュ最適化でwebpack警告を解消
+    // キャッシュ最適化
     if (config.cache && typeof config.cache === 'object') {
       config.cache.maxMemoryGenerations = 1;
     }
@@ -117,6 +145,9 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  // 出力設定の最適化
+  output: 'standalone', // 本番環境での最適化
 };
 
 export default nextConfig;

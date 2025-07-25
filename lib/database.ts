@@ -245,8 +245,8 @@ export class DatabaseService {
 
     const totalWords = words.length;
     const studiedWords = progress.length;
-    const masteredWords = progress.filter(p => p.mastery_level >= 0.8).length;
-    const studyTimeMinutes = progress.reduce((total, p) => total + (p.study_count * 2), 0); // 仮の計算
+    const masteredWords = progress.filter(p => (p.mastery_level || 0) >= 0.8).length;
+    const studyTimeMinutes = progress.reduce((total, p) => total + ((p.study_count || 0) * 2), 0); // 仮の計算
     const reviewCount = reviewWords.length;
 
     return {

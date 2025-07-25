@@ -47,7 +47,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
 
         if (error) throw error;
 
-        const favoriteIds = new Set(data?.map(item => item.word_id) || []);
+        const favoriteIds = new Set(data?.map(item => item.word_id).filter((id): id is string => id !== null) || []);
         setFavorites(favoriteIds);
       } catch (error) {
         console.error('お気に入りの読み込みエラー:', error);

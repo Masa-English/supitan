@@ -64,7 +64,9 @@ export function usePageData(options: UsePageDataOptions): UsePageDataReturn {
         if (options.prefetchedData.userProgress) {
           const progressMap: Record<string, UserProgress> = {};
           options.prefetchedData.userProgress.forEach(progress => {
-            progressMap[progress.word_id] = progress;
+            if (progress.word_id) {
+              progressMap[progress.word_id] = progress;
+            }
           });
           setUserProgress(progressMap);
         }
@@ -99,7 +101,9 @@ export function usePageData(options: UsePageDataOptions): UsePageDataReturn {
         const progressData = await db.getUserProgress(user.id);
         const progressMap: Record<string, UserProgress> = {};
         progressData.forEach((progress: UserProgress) => {
-          progressMap[progress.word_id] = progress;
+          if (progress.word_id) {
+            progressMap[progress.word_id] = progress;
+          }
         });
         setUserProgress(progressMap);
       }

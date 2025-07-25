@@ -37,10 +37,12 @@ export default function QuizPage() {
       // プログレスデータをマップ形式に変換
       const progressMap: Record<string, { mastery_level: number; is_favorite: boolean }> = {};
       progressData.forEach(progress => {
-        progressMap[progress.word_id] = {
-          mastery_level: progress.mastery_level,
-          is_favorite: progress.is_favorite
-        };
+        if (progress.word_id) {
+          progressMap[progress.word_id] = {
+            mastery_level: progress.mastery_level || 0,
+            is_favorite: progress.is_favorite || false
+          };
+        }
       });
       setUserProgress(progressMap);
     } catch (error) {

@@ -16,10 +16,17 @@ export interface StaticData {
   lastUpdated: string;
 }
 
+// 統一キャッシュ設定
+const CACHE_CONFIG = {
+  SHORT: { revalidate: 300 }, // 5分
+  MEDIUM: { revalidate: 900 }, // 15分
+  LONG: { revalidate: 3600 }, // 1時間
+  STATIC: { revalidate: 86400 }, // 24時間
+} as const;
+
 // SSG用のデータベースサービス
 class StaticDatabaseService {
   private getSupabaseClient() {
-    // 環境変数の存在確認を強化
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
@@ -28,7 +35,6 @@ class StaticDatabaseService {
     }
 
     try {
-      // 静的生成用のシンプルなクライアント（認証なし）
       return createClient(supabaseUrl, supabaseKey);
     } catch (error) {
       console.error('Supabase client creation error:', error);
@@ -36,7 +42,6 @@ class StaticDatabaseService {
     }
   }
 
-  // ヘルスチェック機能を追加
   async checkConnection(): Promise<boolean> {
     try {
       const supabase = this.getSupabaseClient();
@@ -50,7 +55,6 @@ class StaticDatabaseService {
         return false;
       }
       
-      console.log('Database connection check successful');
       return true;
     } catch (error) {
       console.error('Database connection check error:', error);
@@ -79,7 +83,6 @@ class StaticDatabaseService {
 
   async getWordsByCategory(category: string): Promise<Word[]> {
     try {
-      // 接続チェックを先に実行
       const isConnected = await this.checkConnection();
       if (!isConnected) {
         console.error('Database connection failed for category:', category);
@@ -133,11 +136,10 @@ class StaticDatabaseService {
   }
 }
 
-// キャッシュされた静的データ取得（Next.js 15のunstable_cache使用）
+// 統一キャッシュされた静的データ取得
 const getCachedStaticDataInternal = unstable_cache(
   async (): Promise<StaticData> => {
     try {
-      // 環境変数チェック
       if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
         console.warn('Supabase環境変数が設定されていません。デフォルトデータを返します。');
         return getDefaultStaticData();
@@ -145,44 +147,38 @@ const getCachedStaticDataInternal = unstable_cache(
 
       const db = new StaticDatabaseService();
       
-      // カテゴリー一覧を取得
-      const categories = await db.getCategories();
+      // 並列実行で高速化
+      const [categories, allWords] = await Promise.all([
+        db.getCategories(),
+        db.getWords()
+      ]);
       
       if (categories.length === 0) {
         console.warn('カテゴリーが取得できませんでした。デフォルトデータを返します。');
         return getDefaultStaticData();
       }
       
-      // 各カテゴリーの単語数を取得（並列実行で高速化）
-      const categoryStats = await Promise.all(
-        categories.map(async (cat) => {
-          const words = await db.getWordsByCategory(cat.category);
-          return {
-            name: cat.category,
-            count: words.length,
-            pos: getPosSymbol(cat.category)
-          };
-        })
-      );
+      // カテゴリー統計の計算
+      const categoryStats = categories.map((cat) => ({
+        name: cat.category,
+        count: cat.count,
+        pos: getPosSymbol(cat.category)
+      }));
 
-      // 全体的な統計情報
-      const allWords = await db.getWords();
-      const totalWords = allWords.length;
-      
       // カテゴリー別の単語データ（最初の10個のみ）
       const categoryWords = await Promise.all(
         categories.map(async (cat) => {
           const words = await db.getWordsByCategory(cat.category);
           return {
             category: cat.category,
-            words: words.slice(0, 10) // 最初の10個のみ
+            words: words.slice(0, 10)
           };
         })
       );
 
       return {
         categories: categoryStats,
-        totalWords,
+        totalWords: allWords.length,
         categoryWords,
         lastUpdated: new Date().toISOString()
       };
@@ -194,47 +190,22 @@ const getCachedStaticDataInternal = unstable_cache(
   ['static-data'],
   {
     tags: ['static-data', 'words', 'categories'],
-    revalidate: 900, // 15分キャッシュ
+    ...CACHE_CONFIG.MEDIUM, // 15分キャッシュ
   }
 );
 
 // カテゴリー別データのキャッシュ
 const getCachedCategoryData = unstable_cache(
   async (category: string): Promise<Word[]> => {
-    console.log(`カテゴリー別データ取得開始: ${category}`);
-    
     try {
-      // 環境変数チェック
       if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
         console.warn('Supabase環境変数が設定されていません。空の配列を返します。');
         return [];
       }
 
-      // リトライ機能付きでデータ取得
       const db = new StaticDatabaseService();
-      let lastError: Error | null = null;
-      const maxRetries = 3;
-      
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-          console.log(`データ取得試行 ${attempt}/${maxRetries} for category: ${category}`);
-          const words = await db.getWordsByCategory(category);
-          console.log(`データ取得成功: ${category}, 単語数: ${words.length}`);
-          return words;
-        } catch (error) {
-          lastError = error instanceof Error ? error : new Error('Unknown error');
-          console.error(`データ取得試行 ${attempt} 失敗:`, lastError.message);
-          
-          // 最後の試行でない場合は少し待つ
-          if (attempt < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-          }
-        }
-      }
-      
-      // すべてのリトライが失敗した場合
-      console.error(`カテゴリー別データ取得が最終的に失敗: ${category}`, lastError);
-      return [];
+      const words = await db.getWordsByCategory(category);
+      return words;
     } catch (error) {
       console.error('カテゴリー別静的データの取得エラー:', error);
       return [];
@@ -243,7 +214,7 @@ const getCachedCategoryData = unstable_cache(
   ['category-data'],
   {
     tags: ['category-data', 'words'],
-    revalidate: 1800, // 30分キャッシュ
+    ...CACHE_CONFIG.LONG, // 1時間キャッシュ
   }
 );
 
@@ -282,27 +253,9 @@ function getPosSymbol(category: string): string {
   return posMap[category] || '';
 }
 
-// レガシーキャッシュ管理（後方互換性のため残す）
-let cachedStaticData: StaticData | null = null;
-let cacheTimestamp: number = 0;
-const CACHE_DURATION = 900000; // 15分
-
-export async function getCachedStaticData(): Promise<StaticData> {
-  const now = Date.now();
-  
-  if (cachedStaticData && (now - cacheTimestamp) < CACHE_DURATION) {
-    return cachedStaticData;
-  }
-  
-  const data = await getStaticData();
-  cachedStaticData = data;
-  cacheTimestamp = now;
-  
-  return data;
-}
-
-// キャッシュクリア用の関数
-export function clearStaticDataCache() {
-  cachedStaticData = null;
-  cacheTimestamp = 0;
+// キャッシュ管理
+export async function revalidateStaticData() {
+  const { revalidateTag } = await import('next/cache');
+  revalidateTag('static-data');
+  revalidateTag('category-data');
 } 

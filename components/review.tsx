@@ -57,10 +57,11 @@ export function Review({ onComplete }: ReviewProps) {
       if (user && !sessionId) {
         const newSessionId = await db.createReviewSession({
           user_id: user.id,
-          total_words: reviewWords.length,
+          total_words: words.length,
           completed_words: 0,
           correct_answers: 0,
-          start_time: new Date().toISOString()
+          start_time: new Date().toISOString(),
+          end_time: null
         });
         setSessionId(newSessionId);
       }
@@ -96,7 +97,7 @@ export function Review({ onComplete }: ReviewProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         // 復習結果を更新
-        const newReviewCount = currentReviewWord.review_count + 1;
+        const newReviewCount = (currentReviewWord.review_count || 0) + 1;
         const nextReview = db.calculateNextReview(difficulty, newReviewCount);
 
         await db.updateReviewWord(user.id, currentWord.id, {
