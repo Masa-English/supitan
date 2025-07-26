@@ -4,14 +4,14 @@
 
 ## 実装済みテーマ
 
-### 1. **Atlassian Blue Theme** (推奨)
-**ブランチ**: `color-themes/atlassian-blue`
+### 1. **Warm Orange Theme** (mainブランチ・推奨)
+**ブランチ**: `main`
 
-- **プライマリ**: Atlassian Blue (#0052CC)
-- **セカンダリ**: Neutral Gray (#DFE1E6)
-- **アクセント**: Green (#36B37E)
-- **背景**: Light Gray (#F4F5F7)
-- **特徴**: プロフェッショナルで信頼性の高い配色。企業向けアプリケーションに最適
+- **プライマリ**: Orange (#FF8B00)
+- **セカンダリ**: Light Orange (#FFF7ED)
+- **アクセント**: Light Orange (#FFF4E6)
+- **背景**: Off White (#FDFBF7)
+- **特徴**: 温かみのある柔らかいオレンジ系配色。親しみやすく、学習アプリケーションに最適
 
 ### 2. **Modern Purple Theme**
 **ブランチ**: `color-themes/modern-purple`
@@ -31,14 +31,14 @@
 - **背景**: Mint (#E3FCEF)
 - **特徴**: 自然で落ち着いた配色。学習アプリケーションに最適
 
-### 4. **Warm Orange Theme**
-**ブランチ**: `color-themes/warm-orange`
+### 4. **Atlassian Blue Theme**
+**ブランチ**: `color-themes/atlassian-blue`
 
-- **プライマリ**: Orange (#FF8B00)
-- **セカンダリ**: Warm Gray (#FFF7ED)
-- **アクセント**: Red (#FF5630)
-- **背景**: Cream (#FFF8F0)
-- **特徴**: 温かみのある配色。親しみやすいアプリケーションに適している
+- **プライマリ**: Atlassian Blue (#0052CC)
+- **セカンダリ**: Neutral Gray (#DFE1E6)
+- **アクセント**: Green (#36B37E)
+- **背景**: Light Gray (#F4F5F7)
+- **特徴**: プロフェッショナルで信頼性の高い配色。企業向けアプリケーションに最適
 
 ### 5. **Professional Gray Theme**
 **ブランチ**: `color-themes/professional-gray`
@@ -53,8 +53,8 @@
 
 ### 1. ブランチの切り替え
 ```bash
-# Atlassian Blue Themeに切り替え
-git checkout color-themes/atlassian-blue
+# Warm Orange Theme (mainブランチ)に切り替え
+git checkout main
 
 # Modern Purple Themeに切り替え
 git checkout color-themes/modern-purple
@@ -62,8 +62,8 @@ git checkout color-themes/modern-purple
 # Nature Green Themeに切り替え
 git checkout color-themes/nature-green
 
-# Warm Orange Themeに切り替え
-git checkout color-themes/warm-orange
+# Atlassian Blue Themeに切り替え
+git checkout color-themes/atlassian-blue
 
 # Professional Gray Themeに切り替え
 git checkout color-themes/professional-gray
@@ -98,10 +98,10 @@ Atlassian Design Systemの色パレットを使用し、一貫性のあるデザ
 
 ## 推奨使用場面
 
-- **Atlassian Blue**: 企業向け、プロフェッショナルな印象
+- **Warm Orange (main)**: 学習アプリケーション、親しみやすい、温かい印象
 - **Modern Purple**: クリエイティブ、モダンな印象
 - **Nature Green**: 学習、教育、自然な印象
-- **Warm Orange**: 親しみやすい、温かい印象
+- **Atlassian Blue**: 企業向け、プロフェッショナルな印象
 - **Professional Gray**: ビジネス、シンプルな印象
 
 ## カスタマイズ
@@ -130,10 +130,10 @@ Atlassian Design Systemの色パレットを使用し、一貫性のあるデザ
 git branch -a | grep color-themes
 ```
 
-- `color-themes/atlassian-blue`
+- `main` (Warm Orange Theme)
 - `color-themes/modern-purple`
 - `color-themes/nature-green`
-- `color-themes/warm-orange`
+- `color-themes/atlassian-blue`
 - `color-themes/professional-gray`
 
 ## 確認方法
