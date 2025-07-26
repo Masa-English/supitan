@@ -57,7 +57,13 @@ export function Header({
     if (onBackClick) {
       onBackClick();
     } else {
-      router.back();
+      // カテゴリーページからはダッシュボードに戻る
+      const currentPath = window.location.pathname;
+      if (currentPath.match(/^\/protected\/category\/[^\/]+$/)) {
+        router.push('/protected');
+      } else {
+        router.back();
+      }
     }
   };
 

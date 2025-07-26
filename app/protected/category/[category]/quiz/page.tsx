@@ -25,7 +25,7 @@ export default function QuizPage() {
   const params = useParams();
   const router = useRouter();
   const [words, setWords] = useState<Word[]>([]);
-  const [userProgress, setUserProgress] = useState<Record<string, { mastery_level: number; is_favorite: boolean }>>({});
+
   const [loading, setLoading] = useState(true);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
@@ -54,7 +54,7 @@ export default function QuizPage() {
           };
         }
       });
-      setUserProgress(progressMap);
+
     } catch (error) {
       console.error('データの読み込みに失敗しました:', error);
     } finally {
@@ -161,10 +161,6 @@ export default function QuizPage() {
     window.location.reload();
   };
 
-  const handleBackToCategory = () => {
-    router.push(`/protected/category/${encodeURIComponent(category)}`);
-  };
-
   const handleBackToHome = () => {
     router.push('/protected');
   };
@@ -189,7 +185,7 @@ export default function QuizPage() {
         <Header 
           title="クイズ完了"
           showBackButton={true}
-          onBackClick={handleBackToCategory}
+          onBackClick={handleBackToHome}
           showUserInfo={false}
         />
 
@@ -240,10 +236,10 @@ export default function QuizPage() {
                   もう一度
                 </Button>
                 <Button
-                  onClick={handleBackToCategory}
+                  onClick={handleBackToHome}
                   className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  カテゴリーに戻る
+                  ホームに戻る
                 </Button>
               </div>
 
@@ -267,7 +263,7 @@ export default function QuizPage() {
       <Header 
         title={`${category} - クイズ`}
         showBackButton={true}
-        onBackClick={handleBackToCategory}
+        onBackClick={handleBackToHome}
         showUserInfo={false}
       />
 

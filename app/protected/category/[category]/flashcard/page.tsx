@@ -167,10 +167,6 @@ export default function FlashcardPage() {
     window.location.reload();
   };
 
-  const handleBackToCategory = () => {
-    router.push(`/protected/category/${encodeURIComponent(category)}`);
-  };
-
   const handleBackToHome = () => {
     router.push('/protected');
   };
@@ -201,7 +197,7 @@ export default function FlashcardPage() {
       <Header 
         title={`${category} - フラッシュカード`}
         showBackButton={true}
-        onBackClick={handleBackToCategory}
+        onBackClick={handleBackToHome}
         showUserInfo={false}
       />
 
@@ -227,7 +223,7 @@ export default function FlashcardPage() {
         onGoToReview={handleGoToReview}
         onBackToHome={handleBackToHome}
         onRetry={handleRetry}
-        onBackToCategory={handleBackToCategory}
+        onBackToCategory={handleBackToHome}
       />
 
 
