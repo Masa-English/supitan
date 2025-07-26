@@ -8,7 +8,7 @@ interface ProtectedLayoutProps {
 
 export function ProtectedLayout({ children }: ProtectedLayoutProps) {
   return (
-    <BaseLayout className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+    <BaseLayout className="bg-background">
       {children}
       <Footer />
     </BaseLayout>

@@ -11,11 +11,7 @@ interface FooterProps {
 }
 
 export function Footer({ variant = 'default', showThemeSwitcher = true }: FooterProps) {
-  const [currentYear, setCurrentYear] = useState<number>(2024);
-
-  useEffect(() => {
-    setCurrentYear(new Date().getFullYear());
-  }, []);
+  const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
 
   if (variant === 'minimal') {
     return (
