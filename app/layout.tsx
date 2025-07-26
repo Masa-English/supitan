@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { AudioProvider } from "@/components/audio-provider";
+import { AudioProvider } from "@/components/common/audio-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 
@@ -74,7 +74,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <body className={`${geistSans.className} antialiased h-full`}>
+      <body className={`${geistSans.className} antialiased`}>
         <ThemeProvider
           attribute="data-theme"
           defaultTheme="system"
@@ -86,11 +86,7 @@ export default function RootLayout({
         >
           <ToastProvider>
             <AudioProvider>
-              <div className="h-full flex flex-col">
-                <main className="flex-1 min-h-0">
-                  {children}
-                </main>
-              </div>
+              {children}
             </AudioProvider>
           </ToastProvider>
         </ThemeProvider>

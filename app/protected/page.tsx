@@ -1,9 +1,16 @@
 import { Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AuthWrapper } from '@/components/auth-wrapper';
-import { StatisticsDashboard } from '@/components/statistics-dashboard';
+import { AuthWrapper } from '@/components/auth';
+import { Header } from '@/components/common';
+import dynamic from 'next/dynamic';
 import { CategoryCardSkeleton, StatsCardSkeleton } from '@/components/ui/skeleton';
+
+// 動的インポートでバンドルサイズを最適化
+const StatisticsDashboard = dynamic(() => import('@/components/learning/statistics-dashboard').then(mod => ({ default: mod.StatisticsDashboard })), {
+  loading: () => <StatisticsSkeleton />,
+  ssr: true
+});
 import Link from 'next/link';
 
 // ISR設定 - 1時間ごとに再生成
@@ -33,9 +40,14 @@ async function CategoriesSection() {
             <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-amber-200 dark:border-amber-700">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span className="text-lg font-semibold text-amber-800 dark:text-amber-200">
-                    {category.name}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-lg font-semibold text-amber-800 dark:text-amber-200">
+                      {category.name}
+                    </span>
+                    <span className="text-sm text-amber-600 dark:text-amber-400">
+                      {category.englishName}
+                    </span>
+                  </div>
                   <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
                     {category.pos}
                   </Badge>
@@ -108,21 +120,25 @@ function CategoriesSkeleton() {
 export default function ProtectedPage() {
   return (
     <AuthWrapper>
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* 統計ダッシュボード - Suspense対応 */}
-          <Suspense fallback={<StatisticsSkeleton />}>
-            <div className="mb-8">
-              <StatisticsDashboard />
-            </div>
-          </Suspense>
+      {/* ヘッダー */}
+      <Header 
+        title="ダッシュボード"
+        showUserInfo={true}
+      />
+      
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 統計ダッシュボード - Suspense対応 */}
+        <Suspense fallback={<StatisticsSkeleton />}>
+          <div className="mb-8">
+            <StatisticsDashboard />
+          </div>
+        </Suspense>
 
-          {/* カテゴリー選択 - Suspense対応 */}
-          <Suspense fallback={<CategoriesSkeleton />}>
-            <CategoriesSection />
-          </Suspense>
-        </main>
-      </div>
+        {/* カテゴリー選択 - Suspense対応 */}
+        <Suspense fallback={<CategoriesSkeleton />}>
+          <CategoriesSection />
+        </Suspense>
+      </main>
     </AuthWrapper>
   );
 }

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Volume2, Check, X, Clock } from 'lucide-react';
 import { useAudioStore } from '@/lib/audio-store';
-import { AudioControls } from '@/components/audio-controls';
+import { AudioControls } from '@/components/common/audio-controls';
 import { DatabaseService } from '@/lib/database';
 import { createClient } from '@/lib/supabase/client';
 
@@ -68,7 +68,7 @@ export function Review({ onComplete }: ReviewProps) {
     } catch (error) {
       console.error('復習セッション初期化エラー:', error);
     }
-  }, [sessionId, reviewWords.length, supabase, db]);
+  }, [sessionId, words.length, supabase, db]);
 
   useEffect(() => {
     loadReviewWords();

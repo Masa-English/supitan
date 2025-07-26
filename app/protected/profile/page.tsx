@@ -3,8 +3,18 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { ProfileForm } from '@/components/profile-form';
-import { Header } from '@/components/header';
+import dynamic from 'next/dynamic';
+import { Header } from '@/components/common';
+
+// 動的インポートでバンドルサイズを最適化
+const ProfileForm = dynamic(() => import('@/components/auth/profile-form').then(mod => ({ default: mod.ProfileForm })), {
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+    </div>
+  ),
+  ssr: false
+});
 
 export default function ProfilePage() {
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
@@ -57,7 +67,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+    <>
       <Header 
         title="プロフィール設定"
         userEmail={user.email}
@@ -74,6 +84,6 @@ export default function ProfilePage() {
           }}
         />
       </main>
-    </div>
+    </>
   );
 } 

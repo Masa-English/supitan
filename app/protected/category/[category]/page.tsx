@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ReloadButton } from '@/components/reload-button';
-import { BookOpen, Brain, Play, ArrowLeft, Users, Target, AlertCircle } from 'lucide-react';
+import { ReloadButton, Header } from '@/components/common';
+import { BookOpen, Brain, Play, AlertCircle } from 'lucide-react';
 import { LearningModeCardSkeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
@@ -209,45 +209,23 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
   const decodedCategory = decodeURIComponent(category);
   
   try {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-        {/* ヘッダー */}
-        <header className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-amber-200 dark:border-amber-700 sticky top-0 z-40">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex items-center gap-4 mb-4">
-              <Link href="/protected">
-                <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  ダッシュボードに戻る
-                </Button>
-              </Link>
-            </div>
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-amber-800 dark:text-amber-200 mb-2">
-                {decodedCategory}
-              </h1>
-              <div className="flex items-center justify-center gap-4 text-amber-600 dark:text-amber-400">
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  <span>単語数読み込み中...</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  <span>3つの学習モード</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
+      return (
+    <>
+      {/* ヘッダー */}
+      <Header 
+        title={decodedCategory}
+        showBackButton={true}
+        showUserInfo={true}
+      />
 
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* 学習モード選択 - Suspense対応 */}
-          <Suspense fallback={<LearningModesSkeleton />}>
-            <WordsSection category={decodedCategory} />
-          </Suspense>
-        </main>
-      </div>
-    );
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 学習モード選択 - Suspense対応 */}
+        <Suspense fallback={<LearningModesSkeleton />}>
+          <WordsSection category={decodedCategory} />
+        </Suspense>
+      </main>
+    </>
+  );
   } catch (error) {
     console.error('Category page error:', error);
     notFound();

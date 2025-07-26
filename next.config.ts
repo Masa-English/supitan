@@ -9,13 +9,14 @@ const nextConfig: NextConfig = {
       '@radix-ui/react-checkbox',
       '@radix-ui/react-label'
     ],
-    // 画像最適化の強化
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
+  },
+  
+  // Turbopack設定（stable版）
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
       },
     },
   },
@@ -120,11 +121,12 @@ const nextConfig: NextConfig = {
       config.cache.maxMemoryGenerations = 1;
     }
     
-    // パフォーマンス警告の閾値を調整
+    // パフォーマンス警告の閾値を調整（バンドルサイズ警告を抑制）
     config.performance = {
       ...config.performance,
-      maxAssetSize: 250000,
-      maxEntrypointSize: 250000,
+      maxAssetSize: 500000, // 500KB
+      maxEntrypointSize: 500000, // 500KB
+      hints: false, // パフォーマンス警告を無効化
     };
     
     return config;

@@ -3,11 +3,21 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Review } from '@/components/review';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Clock, Trophy, Target, Star } from 'lucide-react';
-import { Header } from '@/components/header';
+import { Header } from '@/components/common';
+
+// 動的インポートでバンドルサイズを最適化
+const Review = dynamic(() => import('@/components/learning/review').then(mod => ({ default: mod.Review })), {
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+    </div>
+  ),
+  ssr: false
+});
 
 export default function ReviewPage() {
   const [isCompleted, setIsCompleted] = useState(false);
@@ -69,7 +79,7 @@ export default function ReviewPage() {
     const performance = getPerformanceMessage();
 
     return (
-      <div className="h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 flex flex-col">
+      <div className="h-screen flex flex-col">
         <Header
           title="復習完了"
           showBackButton={false}
@@ -192,7 +202,7 @@ export default function ReviewPage() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 flex flex-col">
+    <div className="h-screen flex flex-col">
       <Header
         title="復習モード"
         showBackButton={false}

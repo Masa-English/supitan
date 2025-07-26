@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { User } from '@supabase/supabase-js';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ interface AuthWrapperProps {
 export function AuthWrapper({ children }: AuthWrapperProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const supabase = createClient();
 
@@ -25,6 +27,7 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
           return;
         }
         
+        setUser(user);
         setIsAuthenticated(true);
       } catch (error) {
         console.error('認証チェックエラー:', error);
@@ -63,5 +66,9 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <div className="auth-context" data-user-email={user?.email || ''}>
+      {children}
+    </div>
+  );
 } 

@@ -5,6 +5,7 @@ import { unstable_cache } from 'next/cache';
 export interface StaticData {
   categories: {
     name: string;
+    englishName: string;
     count: number;
     pos: string;
   }[];
@@ -161,6 +162,7 @@ const getCachedStaticDataInternal = unstable_cache(
       // カテゴリー統計の計算
       const categoryStats = categories.map((cat) => ({
         name: cat.category,
+        englishName: getEnglishName(cat.category),
         count: cat.count,
         pos: getPosSymbol(cat.category)
       }));
@@ -227,10 +229,11 @@ export async function getStaticDataForCategory(category: string): Promise<Word[]
 }
 
 function getDefaultStaticData(): StaticData {
-  const defaultCategories = ['動詞', '形容詞', '副詞', '名詞'];
+  const defaultCategories = ['動詞', '形容詞', '副詞', '名詞', '代名詞', '前置詞', '助動詞', '感嘆詞', '接続詞'];
   return {
     categories: defaultCategories.map(name => ({
       name,
+      englishName: getEnglishName(name),
       count: 0,
       pos: getPosSymbol(name)
     })),
@@ -243,12 +246,32 @@ function getDefaultStaticData(): StaticData {
   };
 }
 
+function getEnglishName(category: string): string {
+  const englishMap: Record<string, string> = {
+    '動詞': 'Verb',
+    '形容詞': 'Adjective',
+    '副詞': 'Adverb',
+    '名詞': 'Noun',
+    '代名詞': 'Pronoun',
+    '前置詞': 'Preposition',
+    '助動詞': 'Auxiliary Verb',
+    '感嘆詞': 'Interjection',
+    '接続詞': 'Conjunction'
+  };
+  return englishMap[category] || category;
+}
+
 function getPosSymbol(category: string): string {
   const posMap: Record<string, string> = {
     '動詞': 'V',
     '形容詞': 'Adj',
     '副詞': 'Adv',
-    '名詞': 'N'
+    '名詞': 'N',
+    '代名詞': 'Pron',
+    '前置詞': 'Prep',
+    '助動詞': 'Aux',
+    '感嘆詞': 'Int',
+    '接続詞': 'Conj'
   };
   return posMap[category] || '';
 }

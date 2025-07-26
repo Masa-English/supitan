@@ -5,11 +5,21 @@ import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { DatabaseService } from '@/lib/database';
 import { Word } from '@/lib/types';
-import { Quiz } from '@/components/quiz';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RotateCcw, Home } from 'lucide-react';
-import { Header } from '@/components/header';
+import { Header } from '@/components/common';
+
+// 動的インポートでバンドルサイズを最適化
+const Quiz = dynamic(() => import('@/components/learning').then(mod => ({ default: mod.Quiz })), {
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+    </div>
+  ),
+  ssr: false
+});
 
 export default function QuizPage() {
   const params = useParams();

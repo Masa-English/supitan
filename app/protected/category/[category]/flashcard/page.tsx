@@ -5,10 +5,19 @@ import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { DatabaseService } from '@/lib/database';
 import { Word } from '@/lib/types';
-import { Flashcard } from '@/components/flashcard';
+import dynamic from 'next/dynamic';
+import { Header } from '@/components/common';
+import { CompletionModal } from '@/components/learning';
 
-import { Header } from '@/components/header';
-import { CompletionModal } from '@/components/completion-modal';
+// 動的インポートでバンドルサイズを最適化
+const Flashcard = dynamic(() => import('@/components/learning').then(mod => ({ default: mod.Flashcard })), {
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+    </div>
+  ),
+  ssr: false
+});
 import { useToast } from '@/components/ui/toast';
 
 export default function FlashcardPage() {

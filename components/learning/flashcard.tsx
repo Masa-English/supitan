@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, RotateCcw, Volume2, Star, StarOff, CheckCircle } from 'lucide-react';
 import { useAudioStore } from '@/lib/audio-store';
-import { AudioControls } from '@/components/audio-controls';
+import { AudioControls } from '@/components/common/audio-controls';
 import { createClient } from '@/lib/supabase/client';
 
 interface FlashcardProps {

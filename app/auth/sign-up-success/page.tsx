@@ -6,24 +6,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Mail, CheckCircle } from "lucide-react";
+import { Mail, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* 戻るボタン */}
-        <div className="mb-6">
-          <Link href="/auth/login">
-            <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              ログインページに戻る
-            </Button>
-          </Link>
-        </div>
-
-        <Card className="border-amber-200 dark:border-amber-800 bg-white/80 dark:bg-amber-950/20 backdrop-blur-sm">
+    <div className="w-full max-w-md">
+      <Card className="border-amber-200 dark:border-amber-800 bg-white/80 dark:bg-amber-950/20 backdrop-blur-sm">
           <CardHeader className="text-center">
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
@@ -64,7 +53,6 @@ export default function Page() {
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Target, Trophy, Clock, RotateCcw } from 'lucide-react';
 import { StatsCardSkeleton, CategoryCardSkeleton } from '@/components/ui/skeleton';
+import { LandingLayout } from '@/components/layouts/landing-layout';
 import Link from 'next/link';
 
 // 静的生成の設定 - より頻繁な更新で最新情報を提供
@@ -118,6 +119,9 @@ async function CategoriesSection() {
               <CardTitle className="text-xl text-amber-800 dark:text-amber-200">
                 {category.name}
               </CardTitle>
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                {category.englishName}
+              </p>
             </CardHeader>
             <CardContent className="text-center">
               <p className="text-amber-700 dark:text-amber-300 mb-4">
@@ -163,32 +167,8 @@ function CategoriesSkeleton() {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-      {/* ヘッダー */}
-      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-amber-200 dark:border-amber-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-amber-800 dark:text-amber-200">
-              Masa Flash
-            </h1>
-            <div className="flex gap-4">
-              <Link href="/auth/login">
-                <Button variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20">
-                  ログイン
-                </Button>
-              </Link>
-              <Link href="/auth/sign-up">
-                <Button className="bg-amber-600 hover:bg-amber-700 text-white">
-                  新規登録
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* ヒーローセクション */}
+    <LandingLayout>
+      {/* ヒーローセクション */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-amber-800 dark:text-amber-200 mb-4">
             効率的な英語学習を始めましょう
@@ -283,7 +263,6 @@ export default function LandingPage() {
             </Button>
           </Link>
         </div>
-      </main>
-    </div>
+    </LandingLayout>
   );
 } 
