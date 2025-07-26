@@ -92,7 +92,23 @@ export function StatisticsDashboard() {
     }
   }, [loadStatistics, userId]);
 
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const formatDate = (dateString: string) => {
+    if (!isClient) {
+      // サーバーサイドでは固定フォーマットを使用
+      const date = new Date(dateString);
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const hour = date.getHours().toString().padStart(2, '0');
+      const minute = date.getMinutes().toString().padStart(2, '0');
+      return `${month}/${day} ${hour}:${minute}`;
+    }
+    
     return new Date(dateString).toLocaleDateString('ja-JP', {
       month: 'short',
       day: 'numeric',

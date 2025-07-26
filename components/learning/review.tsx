@@ -299,10 +299,18 @@ export function Review({ onComplete }: ReviewProps) {
           <div className="text-sm lg:text-base text-gray-600 dark:text-gray-400 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>復習回数: {currentReviewWord.review_count}回</div>
             {currentReviewWord.last_reviewed && (
-              <div>前回復習: {new Date(currentReviewWord.last_reviewed).toLocaleDateString('ja-JP')}</div>
+              <div>前回復習: {new Date(currentReviewWord.last_reviewed).toLocaleDateString('ja-JP', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              })}</div>
             )}
             {currentReviewWord.next_review && (
-              <div>次回復習予定: {new Date(currentReviewWord.next_review).toLocaleDateString('ja-JP')}</div>
+              <div>次回復習予定: {new Date(currentReviewWord.next_review).toLocaleDateString('ja-JP', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              })}</div>
             )}
           </div>
         </div>

@@ -89,7 +89,11 @@ async function StatisticsSection() {
         </CardHeader>
         <CardContent>
           <div className="text-sm text-primary">
-            {new Date(staticData.lastUpdated).toLocaleDateString('ja-JP')}
+            {new Date(staticData.lastUpdated).toLocaleDateString('ja-JP', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
           </div>
         </CardContent>
       </Card>

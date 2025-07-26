@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ThemeSwitcher } from "@/components/common/theme-switcher";
 import { Heart, Github, Mail, ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -10,7 +11,11 @@ interface FooterProps {
 }
 
 export function Footer({ variant = 'default', showThemeSwitcher = true }: FooterProps) {
-  const currentYear = new Date().getFullYear();
+  const [currentYear, setCurrentYear] = useState<number>(2024);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   if (variant === 'minimal') {
     return (

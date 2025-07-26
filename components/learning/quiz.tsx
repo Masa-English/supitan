@@ -118,8 +118,13 @@ export function Quiz({
   }, [words, generateMeaningOptions, generateExampleOptions]);
 
   useEffect(() => {
-    generateQuestions();
-  }, [generateQuestions]);
+    if (words.length > 0) {
+      // クライアントサイドでのみ問題を生成
+      if (typeof window !== 'undefined') {
+        generateQuestions();
+      }
+    }
+  }, [generateQuestions, words.length]);
 
   useEffect(() => {
     setSelectedAnswer(null);
