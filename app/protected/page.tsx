@@ -28,7 +28,7 @@ async function CategoriesSection() {
 
   return (
     <div className="mb-8">
-      <h2 className="text-2xl font-bold text-amber-800 dark:text-amber-200 mb-6">
+      <h2 className="text-2xl font-bold text-foreground mb-6">
         カテゴリーを選択
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -37,24 +37,24 @@ async function CategoriesSection() {
             key={category.name}
             href={`/protected/category/${encodeURIComponent(category.name)}`}
           >
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-amber-200 dark:border-amber-700">
+            <Card className="bg-card/80 backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex flex-col">
-                    <span className="text-lg font-semibold text-amber-800 dark:text-amber-200">
+                    <span className="text-lg font-semibold text-foreground">
                       {category.name}
                     </span>
-                    <span className="text-sm text-amber-600 dark:text-amber-400">
+                    <span className="text-sm text-muted-foreground">
                       {category.englishName}
                     </span>
                   </div>
-                  <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                  <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
                     {category.pos}
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-amber-700 dark:text-amber-300">
+                <p className="text-muted-foreground">
                   {category.count}個の単語
                 </p>
               </CardContent>
@@ -64,22 +64,22 @@ async function CategoriesSection() {
 
         {/* 復習カード */}
         <Link href="/protected/review">
-          <Card className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-orange-200 dark:border-orange-700">
+          <Card className="bg-gradient-to-r from-primary/5 to-primary/10 backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-primary/20">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span className="text-lg font-semibold text-orange-800 dark:text-orange-200">
+                <span className="text-lg font-semibold text-foreground">
                   復習
                 </span>
-                <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
                   復習
                 </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-orange-600 dark:text-orange-400">
+              <p className="text-muted-foreground">
                 復習待ちの単語を学習
               </p>
-              <p className="text-sm text-orange-500 dark:text-orange-300 mt-1">
+              <p className="text-sm text-muted-foreground/80 mt-1">
                 間隔反復アルゴリズムで効率的に復習
               </p>
             </CardContent>
@@ -107,7 +107,7 @@ function StatisticsSkeleton() {
 function CategoriesSkeleton() {
   return (
     <div className="mb-8">
-      <div className="h-8 w-64 bg-amber-200 dark:bg-amber-700 rounded mb-6 animate-pulse"></div>
+      <div className="h-8 w-64 bg-muted rounded mb-6 animate-pulse"></div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[...Array(6)].map((_, i) => (
           <CategoryCardSkeleton key={i} />

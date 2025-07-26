@@ -134,9 +134,9 @@ export function StatisticsDashboard() {
         </div>
 
         {/* 進捗バーのスケルトン */}
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <Card className="bg-card/80 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <TrendingUp className="h-5 w-5" />
               学習進捗
             </CardTitle>
@@ -148,9 +148,9 @@ export function StatisticsDashboard() {
 
         {/* セッション履歴のスケルトン */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+          <Card className="bg-card/80 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <Calendar className="h-5 w-5" />
                 最近の学習
               </CardTitle>
@@ -160,9 +160,9 @@ export function StatisticsDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+          <Card className="bg-card/80 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <RotateCcw className="h-5 w-5" />
                 最近の復習
               </CardTitle>
@@ -178,9 +178,9 @@ export function StatisticsDashboard() {
 
   if (!stats) {
     return (
-      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+      <Card className="bg-card/80 backdrop-blur-sm">
         <CardContent className="p-6 text-center">
-          <p className="text-amber-700 dark:text-amber-300">統計データを読み込めませんでした</p>
+          <p className="text-muted-foreground">統計データを読み込めませんでした</p>
         </CardContent>
       </Card>
     );
@@ -193,83 +193,83 @@ export function StatisticsDashboard() {
     <div className="space-y-6">
       {/* メイン統計カード */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+        <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
+            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               総単語数
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
+            <div className="text-2xl font-bold text-primary">
               {stats.total_words}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-blue-200 dark:border-blue-700">
+        <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-2">
+            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
               <Target className="h-4 w-4" />
               学習済み
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-800 dark:text-blue-200">
+            <div className="text-2xl font-bold text-primary">
               {stats.studied_words}
             </div>
-            <div className="text-xs text-blue-600 dark:text-blue-400">
+            <div className="text-xs text-muted-foreground">
               {progressPercentage}% 完了
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-green-200 dark:border-green-700">
+        <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300 flex items-center gap-2">
+            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
               <Trophy className="h-4 w-4" />
               習得済み
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-800 dark:text-green-200">
+            <div className="text-2xl font-bold text-primary">
               {stats.mastered_words}
             </div>
-            <div className="text-xs text-green-600 dark:text-green-400">
+            <div className="text-xs text-muted-foreground">
               {masteryPercentage}% 習得率
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-purple-200 dark:border-purple-700">
+        <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-purple-700 dark:text-purple-300 flex items-center gap-2">
+            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
               <Clock className="h-4 w-4" />
               学習時間
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-800 dark:text-purple-200">
+            <div className="text-2xl font-bold text-primary">
               {Math.round(stats.study_time_minutes / 60)}h
             </div>
-            <div className="text-xs text-purple-600 dark:text-purple-400">
+            <div className="text-xs text-muted-foreground">
               {stats.study_time_minutes}分
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-orange-200 dark:border-orange-700">
+        <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-orange-700 dark:text-orange-300 flex items-center gap-2">
+            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
               <RotateCcw className="h-4 w-4" />
               復習待ち
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-800 dark:text-orange-200">
+            <div className="text-2xl font-bold text-primary">
               {stats.review_count}
             </div>
-            <div className="text-xs text-orange-600 dark:text-orange-400">
+            <div className="text-xs text-muted-foreground">
               単語
             </div>
           </CardContent>
@@ -277,9 +277,9 @@ export function StatisticsDashboard() {
       </div>
 
       {/* 進捗バー */}
-      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+      <Card className="bg-card/80 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+          <CardTitle className="flex items-center gap-2 text-foreground">
             <TrendingUp className="h-5 w-5" />
             学習進捗
           </CardTitle>
@@ -288,16 +288,16 @@ export function StatisticsDashboard() {
           <div className="space-y-4">
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                <span className="text-sm font-medium text-foreground">
                   全体の学習進捗
                 </span>
-                <span className="text-sm text-amber-600 dark:text-amber-400">
+                <span className="text-sm text-muted-foreground">
                   {stats.studied_words} / {stats.total_words} ({progressPercentage}%)
                 </span>
               </div>
-              <div className="w-full bg-amber-200 dark:bg-amber-700 rounded-full h-3">
+              <div className="w-full bg-muted rounded-full h-3">
                 <div
-                  className="bg-gradient-to-r from-amber-500 to-amber-600 h-3 rounded-full transition-all duration-500"
+                  className="bg-primary h-3 rounded-full transition-all duration-500"
                   style={{ width: `${progressPercentage}%` }}
                 />
               </div>
@@ -305,16 +305,16 @@ export function StatisticsDashboard() {
             
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                <span className="text-sm font-medium text-foreground">
                   習得進捗
                 </span>
-                <span className="text-sm text-green-600 dark:text-green-400">
+                <span className="text-sm text-muted-foreground">
                   {stats.mastered_words} / {stats.studied_words} ({masteryPercentage}%)
                 </span>
               </div>
-              <div className="w-full bg-green-200 dark:bg-green-700 rounded-full h-3">
+              <div className="w-full bg-muted rounded-full h-3">
                 <div
-                  className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
+                  className="bg-primary h-3 rounded-full transition-all duration-500"
                   style={{ width: `${masteryPercentage}%` }}
                 />
               </div>
@@ -325,9 +325,9 @@ export function StatisticsDashboard() {
 
       {/* 最近の学習セッション */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <Card className="bg-card/80 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <Calendar className="h-5 w-5" />
               最近の学習
             </CardTitle>
@@ -336,26 +336,26 @@ export function StatisticsDashboard() {
             {recentSessions.length > 0 ? (
               <div className="space-y-3">
                 {recentSessions.map((session) => (
-                  <div key={session.id} className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                  <div key={session.id} className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-full">
+                      <div className="p-2 bg-primary/10 rounded-full">
                         {getModeIcon(session.mode)}
                       </div>
                       <div>
-                        <p className="font-medium text-amber-800 dark:text-amber-200">
+                        <p className="font-medium text-foreground">
                           {session.category}
                         </p>
-                        <p className="text-sm text-amber-600 dark:text-amber-400">
+                        <p className="text-sm text-muted-foreground">
                           {getModeLabel(session.mode)} • {session.completed_words}語
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
+                      <div className="flex items-center gap-1 text-sm text-primary">
                         <CheckCircle className="h-4 w-4" />
                         {Math.round((session.correct_answers / session.total_words) * 100)}%
                       </div>
-                      <p className="text-xs text-amber-600 dark:text-amber-400">
+                      <p className="text-xs text-muted-foreground">
                         {formatDate(session.created_at || new Date().toISOString())}
                       </p>
                     </div>
@@ -363,16 +363,16 @@ export function StatisticsDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-amber-600 dark:text-amber-400 text-center py-4">
+              <p className="text-muted-foreground text-center py-4">
                 まだ学習セッションがありません
               </p>
             )}
           </CardContent>
         </Card>
 
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <Card className="bg-card/80 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <RotateCcw className="h-5 w-5" />
               最近の復習
             </CardTitle>
@@ -381,26 +381,26 @@ export function StatisticsDashboard() {
             {reviewSessions.length > 0 ? (
               <div className="space-y-3">
                 {reviewSessions.map((session) => (
-                  <div key={session.id} className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                  <div key={session.id} className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-full">
+                      <div className="p-2 bg-primary/10 rounded-full">
                         <RotateCcw className="h-4 w-4" />
                       </div>
                       <div>
-                        <p className="font-medium text-orange-800 dark:text-orange-200">
+                        <p className="font-medium text-foreground">
                           復習セッション
                         </p>
-                        <p className="text-sm text-orange-600 dark:text-orange-400">
+                        <p className="text-sm text-muted-foreground">
                           {session.completed_words}語復習
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
+                      <div className="flex items-center gap-1 text-sm text-primary">
                         <CheckCircle className="h-4 w-4" />
                         {Math.round((session.correct_answers / session.total_words) * 100)}%
                       </div>
-                      <p className="text-xs text-orange-600 dark:text-orange-400">
+                      <p className="text-xs text-muted-foreground">
                         {formatDate(session.created_at || new Date().toISOString())}
                       </p>
                     </div>
@@ -408,7 +408,7 @@ export function StatisticsDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-orange-600 dark:text-orange-400 text-center py-4">
+              <p className="text-muted-foreground text-center py-4">
                 まだ復習セッションがありません
               </p>
             )}
