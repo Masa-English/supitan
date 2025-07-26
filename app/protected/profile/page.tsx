@@ -10,7 +10,7 @@ import { Header } from '@/components/common';
 const ProfileForm = dynamic(() => import('@/components/auth/profile-form').then(mod => ({ default: mod.ProfileForm })), {
   loading: () => (
     <div className="flex items-center justify-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
   ),
   ssr: false
@@ -55,8 +55,8 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
-          <p className="mt-4 text-amber-700 dark:text-amber-300">認証を確認中...</p>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+        <p className="mt-4 text-muted-foreground">認証を確認中...</p>
         </div>
       </div>
     );

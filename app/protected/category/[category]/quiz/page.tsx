@@ -15,7 +15,7 @@ import { Header } from '@/components/common';
 const Quiz = dynamic(() => import('@/components/learning').then(mod => ({ default: mod.Quiz })), {
   loading: () => (
     <div className="flex items-center justify-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
   ),
   ssr: false
@@ -147,10 +147,10 @@ export default function QuizPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
-          <p className="mt-4 text-amber-700 dark:text-amber-300">読み込み中...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">読み込み中...</p>
         </div>
       </div>
     );
@@ -161,7 +161,7 @@ export default function QuizPage() {
     const accuracy = Math.round((correctCount / sessionResults.length) * 100);
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+      <div className="min-h-screen bg-background">
         <Header 
           title="クイズ完了"
           showBackButton={true}
@@ -170,19 +170,19 @@ export default function QuizPage() {
         />
 
         <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+          <Card className="bg-card/80 backdrop-blur-sm border-border">
             <CardHeader>
-              <CardTitle className="text-center text-2xl font-bold text-amber-800 dark:text-amber-200">
+              <CardTitle className="text-center text-2xl font-bold text-foreground">
                 クイズ完了！
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
               <div className="mb-6">
                 <div className="text-6xl mb-4">🧠</div>
-                <h3 className="text-xl font-semibold text-amber-800 dark:text-amber-200 mb-2">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   {category}のクイズが完了しました
                 </h3>
-                <p className="text-amber-700 dark:text-amber-300">
+                <p className="text-muted-foreground">
                   {sessionResults.length}問に挑戦しました
                 </p>
               </div>
@@ -196,11 +196,11 @@ export default function QuizPage() {
                     正解
                   </div>
                 </div>
-                <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                <div className="bg-accent p-4 rounded-lg border border-border">
+                  <div className="text-2xl font-bold text-primary">
                     {accuracy}%
                   </div>
-                  <div className="text-sm text-amber-600 dark:text-amber-400">
+                  <div className="text-sm text-primary">
                     正答率
                   </div>
                 </div>
@@ -210,14 +210,14 @@ export default function QuizPage() {
                 <Button
                   variant="outline"
                   onClick={handleRetry}
-                  className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20"
+                  className="flex-1 border-border text-foreground hover:bg-accent"
                 >
                   <RotateCcw className="h-4 w-4 mr-2" />
                   もう一度
                 </Button>
                 <Button
                   onClick={handleBackToCategory}
-                  className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   カテゴリーに戻る
                 </Button>
@@ -226,7 +226,7 @@ export default function QuizPage() {
               <Button
                 variant="ghost"
                 onClick={handleBackToHome}
-                className="mt-4 text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-900/20"
+                className="mt-4 text-primary hover:bg-accent"
               >
                 <Home className="h-4 w-4 mr-2" />
                 ホームに戻る
@@ -239,7 +239,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 flex flex-col">
+    <div className="h-screen bg-background flex flex-col">
       <Header 
         title={`${category} - クイズ`}
         showBackButton={true}

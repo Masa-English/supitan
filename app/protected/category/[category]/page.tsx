@@ -39,10 +39,10 @@ async function WordsSection({ category }: { category: string }) {
   if (words.length === 0) {
     return (
       <div className="text-center">
-        <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <AlertCircle className="h-8 w-8 text-primary" />
         </div>
-        <h2 className="text-2xl font-bold text-amber-800 dark:text-amber-200 mb-4">
+        <h2 className="text-2xl font-bold text-foreground mb-4">
           データを読み込み中です
         </h2>
         <p className="text-amber-700 dark:text-amber-300 mb-6">
