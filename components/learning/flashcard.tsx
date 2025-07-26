@@ -168,19 +168,19 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
       <div className="mb-4 flex-shrink-0">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
           <div className="flex items-center gap-4">
-            <span className="text-lg font-medium text-amber-800 dark:text-amber-200">
+            <span className="text-lg font-medium text-foreground">
               {currentIndex + 1} / {words.length}
             </span>
-            <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+            <div className="flex items-center gap-2 text-sm text-primary">
               <CheckCircle className="h-4 w-4" />
               {Math.round(progress)}% 完了
             </div>
           </div>
           <AudioControls showQuickControls={true} />
         </div>
-        <div className="w-full bg-amber-200 dark:bg-amber-700 rounded-full h-3 overflow-hidden">
+        <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-amber-500 to-amber-600 h-3 rounded-full progress-bar"
+            className="bg-primary h-3 rounded-full progress-bar"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -188,14 +188,14 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
 
       {/* Flashcard */}
       <div className="flex-1 min-h-0 mb-4">
-        <Card className="bg-gradient-to-br from-white to-amber-50 dark:from-gray-800 dark:to-gray-700 hover:shadow-xl border-amber-200 dark:border-amber-700 transition-all duration-300 h-full smooth-hover">
+        <Card className="bg-card hover:shadow-xl border-border transition-all duration-300 h-full smooth-hover">
           <CardContent className="p-4 sm:p-6 lg:p-8 h-full flex flex-col justify-center relative overflow-y-auto">
             {/* Favorite Button */}
             <Button
               variant="ghost"
               size="sm"
               onClick={handleToggleFavorite}
-              className={`absolute top-3 right-3 sm:top-4 sm:right-4 lg:top-6 lg:right-6 ${isFavorite ? 'text-yellow-500' : 'text-amber-400'} hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors z-10`}
+              className={`absolute top-3 right-3 sm:top-4 sm:right-4 lg:top-6 lg:right-6 ${isFavorite ? 'text-primary' : 'text-muted-foreground'} hover:bg-accent transition-colors z-10`}
             >
               {isFavorite ? <Star className="h-5 w-5 sm:h-6 sm:w-6 fill-current" /> : <StarOff className="h-5 w-5 sm:h-6 sm:w-6" />}
             </Button>
@@ -206,16 +206,16 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
               <div className="xl:flex-1 flex flex-col justify-center text-center xl:text-left">
                 {/* 英単語セクション */}
                 <div className="mb-6 lg:mb-8">
-                  <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-amber-800 dark:text-amber-200 mb-3 lg:mb-4">
+                  <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-3 lg:mb-4">
                     {currentWord.word}
                   </h2>
-                  <p className="text-lg sm:text-xl lg:text-2xl text-amber-600 dark:text-amber-400 mb-4 lg:mb-6">
+                  <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground mb-4 lg:mb-6">
                     {currentWord.phonetic}
                   </p>
                   <Button
                     variant="outline"
                     onClick={playWordAudio}
-                    className="bg-amber-100 border-amber-300 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/20 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/30 transition-all px-6 py-3"
+                    className="bg-primary/10 border-primary text-primary hover:bg-primary/20 transition-all px-6 py-3"
                   >
                     <Volume2 className="h-5 w-5 mr-2" />
                     発音を聞く
@@ -224,7 +224,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
 
                 {/* 日本語の意味 */}
                 <div className="mb-6 lg:mb-8">
-                  <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-amber-800 dark:text-amber-200">
+                  <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground">
                     {currentWord.japanese}
                   </h3>
                 </div>
@@ -235,11 +235,11 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
                 <div className="space-y-3 lg:space-y-4 max-w-3xl mx-auto xl:mx-0 w-full">
                   {currentWord.example1 && (
                     <div 
-                      className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 lg:p-5 border border-amber-200 dark:border-amber-600 cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-all"
+                      className="bg-accent rounded-xl p-4 lg:p-5 border border-border cursor-pointer hover:bg-accent/80 transition-all"
                       onClick={() => handleExampleClick('example1')}
                     >
                       <div className="flex items-start justify-between mb-3">
-                        <p className="text-amber-800 dark:text-amber-200 font-medium text-base lg:text-lg flex-1 pr-3 leading-relaxed">
+                        <p className="text-foreground font-medium text-base lg:text-lg flex-1 pr-3 leading-relaxed">
                           {flippedExamples.has('example1') ? currentWord.example1 : currentWord.example1_jp}
                         </p>
                         <Button
@@ -249,12 +249,12 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
                             e.stopPropagation();
                             playExampleAudio(currentWord.example1!);
                           }}
-                          className="text-amber-600 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/20 h-8 w-8 p-0 flex-shrink-0"
+                          className="text-primary hover:bg-accent h-8 w-8 p-0 flex-shrink-0"
                         >
                           <Volume2 className="h-4 w-4" />
                         </Button>
                       </div>
-                      <p className="text-amber-600 dark:text-amber-400 text-sm lg:text-base">
+                      <p className="text-muted-foreground text-sm lg:text-base">
                         {flippedExamples.has('example1') ? currentWord.example1_jp : 'クリックして英語を表示'}
                       </p>
                     </div>
@@ -262,11 +262,11 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
                   
                   {currentWord.example2 && (
                     <div 
-                      className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 lg:p-5 border border-amber-200 dark:border-amber-600 cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-all"
+                      className="bg-accent rounded-xl p-4 lg:p-5 border border-border cursor-pointer hover:bg-accent/80 transition-all"
                       onClick={() => handleExampleClick('example2')}
                     >
                       <div className="flex items-start justify-between mb-3">
-                        <p className="text-amber-800 dark:text-amber-200 font-medium text-base lg:text-lg flex-1 pr-3 leading-relaxed">
+                        <p className="text-foreground font-medium text-base lg:text-lg flex-1 pr-3 leading-relaxed">
                           {flippedExamples.has('example2') ? currentWord.example2 : currentWord.example2_jp}
                         </p>
                         <Button
@@ -276,12 +276,12 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
                             e.stopPropagation();
                             playExampleAudio(currentWord.example2!);
                           }}
-                          className="text-amber-600 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/20 h-8 w-8 p-0 flex-shrink-0"
+                          className="text-primary hover:bg-accent h-8 w-8 p-0 flex-shrink-0"
                         >
                           <Volume2 className="h-4 w-4" />
                         </Button>
                       </div>
-                      <p className="text-amber-600 dark:text-amber-400 text-sm lg:text-base">
+                      <p className="text-muted-foreground text-sm lg:text-base">
                         {flippedExamples.has('example2') ? currentWord.example2_jp : 'クリックして英語を表示'}
                       </p>
                     </div>
@@ -289,11 +289,11 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
                   
                   {currentWord.example3 && (
                     <div 
-                      className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 lg:p-5 border border-amber-200 dark:border-amber-600 cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-all"
+                      className="bg-accent rounded-xl p-4 lg:p-5 border border-border cursor-pointer hover:bg-accent/80 transition-all"
                       onClick={() => handleExampleClick('example3')}
                     >
                       <div className="flex items-start justify-between mb-3">
-                        <p className="text-amber-800 dark:text-amber-200 font-medium text-base lg:text-lg flex-1 pr-3 leading-relaxed">
+                        <p className="text-foreground font-medium text-base lg:text-lg flex-1 pr-3 leading-relaxed">
                           {flippedExamples.has('example3') ? currentWord.example3 : currentWord.example3_jp}
                         </p>
                         <Button
@@ -303,12 +303,12 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
                             e.stopPropagation();
                             playExampleAudio(currentWord.example3!);
                           }}
-                          className="text-amber-600 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/20 h-8 w-8 p-0 flex-shrink-0"
+                          className="text-primary hover:bg-accent h-8 w-8 p-0 flex-shrink-0"
                         >
                           <Volume2 className="h-4 w-4" />
                         </Button>
                       </div>
-                      <p className="text-amber-600 dark:text-amber-400 text-sm lg:text-base">
+                      <p className="text-muted-foreground text-sm lg:text-base">
                         {flippedExamples.has('example3') ? currentWord.example3_jp : 'クリックして英語を表示'}
                       </p>
                     </div>
@@ -326,7 +326,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
           variant="outline" 
           onClick={handlePrevious} 
           disabled={currentIndex === 0} 
-          className="w-full sm:w-auto border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20 px-6 py-3"
+          className="w-full sm:w-auto border-border text-foreground hover:bg-accent px-6 py-3"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           前の単語
@@ -339,8 +339,8 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
             className={`px-6 py-3 transition-all ripple ${
               isAddedToReview 
                 ? 'bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800' 
-                : 'bg-orange-600 hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-800'
-            } text-white`}
+                : 'bg-primary hover:bg-primary/90'
+            } text-primary-foreground`}
           >
             <RotateCcw className="h-4 w-4 mr-2" />
             {isLoading ? '追加中...' : isAddedToReview ? '追加済み' : '復習リストに追加'}
@@ -349,7 +349,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
         
         <Button 
           onClick={handleNext} 
-          className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 ripple"
+          className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 ripple"
         >
           {currentIndex === words.length - 1 ? '完了' : '次の単語'}
           <ArrowRight className="h-4 w-4 ml-2" />

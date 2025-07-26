@@ -210,17 +210,17 @@ export function Quiz({
             variant="outline" 
             className={`px-3 py-1 ${
               currentQuestion.type === 'meaning' 
-                ? 'border-blue-300 text-blue-700 bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:bg-blue-900/20'
-                : 'border-purple-300 text-purple-700 bg-purple-50 dark:border-purple-600 dark:text-purple-300 dark:bg-purple-900/20'
+                ? 'border-primary text-primary bg-primary/10'
+                : 'border-primary text-primary bg-primary/10'
             }`}
           >
             <Brain className="h-4 w-4 mr-1" />
             {currentQuestion.type === 'meaning' ? '意味問題' : '例文問題'}
           </Badge>
         </div>
-        <div className="w-full bg-amber-200 dark:bg-amber-700 rounded-full h-3 overflow-hidden">
+        <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-amber-500 to-amber-600 h-3 rounded-full transition-all duration-500 ease-out"
+            className="bg-primary h-3 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -228,28 +228,28 @@ export function Quiz({
 
       {/* 問題カード */}
       <div className="flex-1 min-h-0 mb-4">
-        <Card className="bg-gradient-to-br from-white to-amber-50 dark:from-gray-800 dark:to-gray-700 border-amber-200 dark:border-amber-700 shadow-lg h-full">
+        <Card className="bg-card border-border shadow-lg h-full">
           <CardContent className="p-4 sm:p-6 h-full flex flex-col overflow-y-auto">
             {/* 問題文セクション */}
             <div className="text-center mb-6 lg:mb-8">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-amber-800 dark:text-amber-200">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
                   {currentQuestion.word.word}
                 </h2>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={playAudio}
-                  className="text-amber-600 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/20"
+                  className="text-primary hover:bg-accent"
                 >
                   <Volume2 className="h-5 w-5" />
                 </Button>
               </div>
-              <p className="text-lg sm:text-xl text-amber-600 dark:text-amber-400 mb-6">
+              <p className="text-lg sm:text-xl text-muted-foreground mb-6">
                 {currentQuestion.word.phonetic}
               </p>
               
-              <h3 className="text-lg sm:text-xl font-semibold text-amber-800 dark:text-amber-200 mb-4">
+              <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-4">
                 {currentQuestion.type === 'meaning' 
                   ? 'この単語の意味を選んでください'
                   : 'この単語を使った例文の日本語訳を選んでください'
@@ -257,8 +257,8 @@ export function Quiz({
               </h3>
               
               {currentQuestion.type === 'example' && (
-                <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 mb-6 border border-amber-200 dark:border-amber-600 max-w-4xl mx-auto">
-                  <p className="text-amber-800 dark:text-amber-200 text-center italic text-base sm:text-lg">
+                <div className="bg-accent rounded-xl p-4 mb-6 border border-border max-w-4xl mx-auto">
+                  <p className="text-foreground text-center italic text-base sm:text-lg">
                     &ldquo;{currentQuestion.word.example1}&rdquo;
                   </p>
                 </div>
@@ -284,10 +284,10 @@ export function Quiz({
                               ? 'bg-green-100 border-green-500 text-green-800 dark:bg-green-900/20 dark:border-green-400 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-900/20'
                               : isWrongSelected
                               ? 'bg-red-100 border-red-500 text-red-800 dark:bg-red-900/20 dark:border-red-400 dark:text-red-200 hover:bg-red-100 dark:hover:bg-red-900/20'
-                              : 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300'
+                              : 'bg-accent border-border text-foreground'
                             : isSelected
-                            ? 'bg-amber-100 border-amber-500 text-amber-800 dark:bg-amber-900/20 dark:border-amber-400 dark:text-amber-200'
-                            : 'hover:bg-amber-50 dark:hover:bg-amber-900/10 border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200'
+                            ? 'bg-primary/20 border-primary text-primary'
+                            : 'hover:bg-accent border-border text-foreground'
                         }`}
                         onClick={() => handleAnswerSelect(option)}
                         disabled={showResult}
@@ -334,11 +334,11 @@ export function Quiz({
                 {isCorrect ? '🎉 正解！' : '😅 不正解'}
               </div>
               <div className="mb-3 sm:mb-4">
-                <p className="text-base sm:text-lg font-medium text-amber-800 dark:text-amber-200 mb-2">
-                  正解: <span className="text-amber-600 dark:text-amber-400">{currentQuestion.correct_answer}</span>
+                <p className="text-base sm:text-lg font-medium text-foreground mb-2">
+                  正解: <span className="text-primary">{currentQuestion.correct_answer}</span>
                 </p>
                 {!isCorrect && (
-                  <p className="text-amber-700 dark:text-amber-300 text-sm sm:text-base">
+                  <p className="text-muted-foreground text-sm sm:text-base">
                     あなたの回答: <span className="text-red-600 dark:text-red-400">{selectedAnswer}</span>
                   </p>
                 )}
@@ -348,7 +348,7 @@ export function Quiz({
                   variant="outline"
                   size="sm"
                   onClick={handleAddToReview}
-                  className="border-orange-300 text-orange-700 hover:bg-orange-50 dark:border-orange-600 dark:text-orange-400 dark:hover:bg-orange-900/20"
+                  className="border-primary text-primary hover:bg-primary/10"
                 >
                   復習リストに追加
                 </Button>
@@ -363,7 +363,7 @@ export function Quiz({
         <div className="text-center flex-shrink-0">
           <Button
             onClick={handleNext}
-            className="w-full sm:w-auto px-8 py-3 bg-amber-600 hover:bg-amber-700 text-white text-lg"
+            className="w-full sm:w-auto px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground text-lg"
           >
             {currentIndex < questions.length - 1 ? '次の問題' : '結果を見る'}
           </Button>

@@ -15,7 +15,7 @@ function Skeleton({
 // カード用スケルトン
 export function CardSkeleton() {
   return (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700 rounded-lg p-6">
+    <div className="bg-card/80 backdrop-blur-sm border-border rounded-lg p-6">
       <div className="space-y-3">
         <Skeleton className="h-4 w-3/4" />
         <Skeleton className="h-8 w-1/2" />
@@ -27,7 +27,7 @@ export function CardSkeleton() {
 // 統計カード用スケルトン
 export function StatsCardSkeleton() {
   return (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700 rounded-lg p-4">
+    <div className="bg-card/80 backdrop-blur-sm border-border rounded-lg p-4">
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <Skeleton className="h-4 w-4 rounded-full" />
@@ -43,7 +43,7 @@ export function StatsCardSkeleton() {
 // カテゴリーカード用スケルトン
 export function CategoryCardSkeleton() {
   return (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700 rounded-lg p-6 hover:shadow-lg transition-all duration-200">
+    <div className="bg-card/80 backdrop-blur-sm border-border rounded-lg p-6 hover:shadow-lg transition-all duration-200">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <Skeleton className="h-6 w-24" />
@@ -58,7 +58,7 @@ export function CategoryCardSkeleton() {
 // 単語カード用スケルトン
 export function WordCardSkeleton() {
   return (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700 rounded-lg p-6">
+    <div className="bg-card/80 backdrop-blur-sm border-border rounded-lg p-6">
       <div className="text-center space-y-3">
         <Skeleton className="h-6 w-20 mx-auto" />
         <Skeleton className="h-4 w-16 mx-auto rounded-full" />
@@ -71,9 +71,9 @@ export function WordCardSkeleton() {
 // 学習モードカード用スケルトン
 export function LearningModeCardSkeleton() {
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg p-6 hover:shadow-xl transition-all duration-300 h-full">
+    <div className="bg-card rounded-lg p-6 hover:shadow-xl transition-all duration-300 h-full">
       <div className="text-center space-y-4">
-        <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto">
+        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
           <Skeleton className="h-8 w-8 rounded" />
         </div>
         <Skeleton className="h-6 w-24 mx-auto" />
@@ -103,7 +103,7 @@ export function SessionHistorySkeleton() {
   return (
     <div className="space-y-3">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+        <div key={i} className="flex items-center justify-between p-3 bg-accent rounded-lg">
           <div className="flex items-center gap-3">
             <Skeleton className="h-8 w-8 rounded-full" />
             <div className="space-y-2">
