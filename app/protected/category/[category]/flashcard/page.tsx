@@ -94,9 +94,10 @@ export default function FlashcardPage() {
       // 各単語のプログレスを更新（フラッシュカードは学習したとして記録）
       for (const word of words) {
         try {
-          // 既存の進捗を取得
+          // 既存の進捗を取得（お気に入り状態の保持のため）
           const existingProgress = await db.getWordProgress(user.id, word.id);
           
+          // 新しい進捗値を計算
           const studyCount = (existingProgress?.study_count || 0) + 1;
           const correctCount = (existingProgress?.correct_count || 0) + 1;
           const incorrectCount = existingProgress?.incorrect_count || 0;
@@ -112,7 +113,7 @@ export default function FlashcardPage() {
             correctCount,
             incorrectCount,
             masteryLevel,
-            existingProgress
+            existingProgress: existingProgress ? 'exists' : 'new'
           });
 
           await db.upsertProgress({
@@ -125,6 +126,8 @@ export default function FlashcardPage() {
             is_favorite: existingProgress?.is_favorite || false,
             last_studied: new Date().toISOString()
           });
+
+          console.log(`単語 ${word.word} の進捗更新が完了しました`);
         } catch (error) {
           console.error(`単語 ${word.word} の進捗更新に失敗しました:`, {
             error,

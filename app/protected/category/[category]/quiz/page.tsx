@@ -97,24 +97,48 @@ export default function QuizPage() {
 
       // 各単語のプログレスを更新
       for (const result of results) {
-        const currentProgress = userProgress[result.wordId];
-        const studyCount = (currentProgress?.mastery_level || 0) + 1;
-        const correctCount = result.correct ? 1 : 0;
-        const incorrectCount = result.correct ? 0 : 1;
-        
-        // マスタリーレベルの計算（簡易版）
-        const masteryLevel = Math.min(1, (correctCount / studyCount) * 0.8 + (studyCount * 0.1));
+        try {
+          // 既存の進捗を取得（お気に入り状態の保持のため）
+          const existingProgress = await db.getWordProgress(user.id, result.wordId);
+          
+          // 新しい進捗値を計算
+          const studyCount = (existingProgress?.study_count || 0) + 1;
+          const correctCount = (existingProgress?.correct_count || 0) + (result.correct ? 1 : 0);
+          const incorrectCount = (existingProgress?.incorrect_count || 0) + (result.correct ? 0 : 1);
+          
+          // マスタリーレベルの計算（簡易版）
+          const masteryLevel = Math.min(1, (correctCount / studyCount) * 0.8 + (studyCount * 0.1));
 
-        await db.upsertProgress({
-          user_id: user.id,
-          word_id: result.wordId,
-          mastery_level: masteryLevel,
-          study_count: studyCount,
-          correct_count: correctCount,
-          incorrect_count: incorrectCount,
-          is_favorite: currentProgress?.is_favorite || false,
-          last_studied: new Date().toISOString()
-        });
+          console.log('Updating quiz progress for word:', {
+            wordId: result.wordId,
+            userId: user.id,
+            studyCount,
+            correctCount,
+            incorrectCount,
+            masteryLevel,
+            isCorrect: result.correct,
+            existingProgress: existingProgress ? 'exists' : 'new'
+          });
+
+          await db.upsertProgress({
+            user_id: user.id,
+            word_id: result.wordId,
+            mastery_level: masteryLevel,
+            study_count: studyCount,
+            correct_count: correctCount,
+            incorrect_count: incorrectCount,
+            is_favorite: existingProgress?.is_favorite || false,
+            last_studied: new Date().toISOString()
+          });
+
+          console.log(`クイズ結果 ${result.wordId} の進捗更新が完了しました`);
+        } catch (error) {
+          console.error(`クイズ結果 ${result.wordId} の進捗更新に失敗しました:`, {
+            error,
+            message: error instanceof Error ? error.message : 'Unknown error',
+            details: error
+          });
+        }
       }
     } catch (error) {
       console.error('セッション結果の保存に失敗しました:', error);

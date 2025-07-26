@@ -100,23 +100,61 @@ export class DatabaseService {
       throw new Error('incorrect_count must be non-negative');
     }
 
-    const { error } = await this.supabase
+    // 既存のレコードを確認
+    const { data: existingProgress, error: selectError } = await this.supabase
       .from('user_progress')
-      .upsert({
-        ...progress,
-        updated_at: new Date().toISOString()
-      });
+      .select('*')
+      .eq('user_id', progress.user_id)
+      .eq('word_id', progress.word_id)
+      .single();
 
-    if (error) {
-      console.error('upsertProgress error:', {
-        error,
-        progress,
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      });
-      throw error;
+    if (selectError && selectError.code !== 'PGRST116') {
+      console.error('Error checking existing progress:', selectError);
+      throw selectError;
+    }
+
+    if (existingProgress) {
+      // 既存レコードがある場合は更新
+      const { error: updateError } = await this.supabase
+        .from('user_progress')
+        .update({
+          ...progress,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', progress.user_id)
+        .eq('word_id', progress.word_id);
+
+      if (updateError) {
+        console.error('updateProgress error:', {
+          error: updateError,
+          progress,
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint,
+          code: updateError.code
+        });
+        throw updateError;
+      }
+    } else {
+      // 既存レコードがない場合は挿入
+      const { error: insertError } = await this.supabase
+        .from('user_progress')
+        .insert({
+          ...progress,
+          updated_at: new Date().toISOString()
+        });
+
+      if (insertError) {
+        console.error('insertProgress error:', {
+          error: insertError,
+          progress,
+          message: insertError.message,
+          details: insertError.details,
+          hint: insertError.hint,
+          code: insertError.code
+        });
+        throw insertError;
+      }
     }
   }
 
