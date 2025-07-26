@@ -63,7 +63,15 @@ export default function FlashcardPage() {
   }, [loadData, router, supabase.auth]);
 
   const handleComplete = async () => {
-    if (!user) return;
+    if (!user) {
+      console.error('User not authenticated');
+      return;
+    }
+
+    console.log('User authenticated:', {
+      userId: user.id,
+      email: user.email
+    });
 
     // フラッシュカード完了時は全て正解として扱う
     const results = words.map(word => ({ wordId: word.id, correct: true }));
@@ -96,6 +104,17 @@ export default function FlashcardPage() {
           // マスタリーレベルの計算（学習回数に基づいて徐々に上昇）
           const masteryLevel = Math.min(1, studyCount * 0.15);
 
+          console.log('Updating progress for word:', {
+            word: word.word,
+            userId: user.id,
+            wordId: word.id,
+            studyCount,
+            correctCount,
+            incorrectCount,
+            masteryLevel,
+            existingProgress
+          });
+
           await db.upsertProgress({
             user_id: user.id,
             word_id: word.id,
@@ -107,7 +126,11 @@ export default function FlashcardPage() {
             last_studied: new Date().toISOString()
           });
         } catch (error) {
-          console.error(`単語 ${word.word} の進捗更新に失敗しました:`, error);
+          console.error(`単語 ${word.word} の進捗更新に失敗しました:`, {
+            error,
+            message: error instanceof Error ? error.message : 'Unknown error',
+            details: error
+          });
         }
       }
     } catch (error) {

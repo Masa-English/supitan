@@ -64,11 +64,42 @@ export class DatabaseService {
       .eq('word_id', wordId)
       .single();
 
-    if (error && error.code !== 'PGRST116') throw error;
+    if (error && error.code !== 'PGRST116') {
+      console.error('getWordProgress error:', {
+        error,
+        userId,
+        wordId,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
+      throw error;
+    }
     return data;
   }
 
   async upsertProgress(progress: Omit<UserProgress, 'id' | 'created_at' | 'updated_at'>): Promise<void> {
+    // データの整合性チェック
+    if (!progress.user_id || !progress.word_id) {
+      throw new Error('user_id and word_id are required');
+    }
+
+    if (progress.mastery_level !== null && (progress.mastery_level < 0 || progress.mastery_level > 1)) {
+      throw new Error('mastery_level must be between 0 and 1');
+    }
+
+    if (progress.study_count !== null && progress.study_count < 0) {
+      throw new Error('study_count must be non-negative');
+    }
+
+    if (progress.correct_count !== null && progress.correct_count < 0) {
+      throw new Error('correct_count must be non-negative');
+    }
+
+    if (progress.incorrect_count !== null && progress.incorrect_count < 0) {
+      throw new Error('incorrect_count must be non-negative');
+    }
+
     const { error } = await this.supabase
       .from('user_progress')
       .upsert({
@@ -76,7 +107,17 @@ export class DatabaseService {
         updated_at: new Date().toISOString()
       });
 
-    if (error) throw error;
+    if (error) {
+      console.error('upsertProgress error:', {
+        error,
+        progress,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      throw error;
+    }
   }
 
   async updateProgress(userId: string, wordId: string, updates: Partial<UserProgress>): Promise<void> {
