@@ -16,7 +16,7 @@ export default function ContactPage() {
           <h1 className="text-4xl font-bold text-foreground mb-4">
             お問い合わせ
           </h1>
-          <p className="text-lg text-muted-foreground max-w-7xl mx-auto">
+          <p className="text-lg text-muted-foreground mx-auto">
             Masa Flashへのご質問、ご要望、バグ報告などございましたら、お気軽にお問い合わせください。
             迅速かつ丁寧にご対応いたします。
           </p>
