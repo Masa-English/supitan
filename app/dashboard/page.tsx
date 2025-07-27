@@ -15,8 +15,7 @@ import {
   User,
   Heart,
   TrendingUp,
-  Award,
-  X
+  Award
 } from 'lucide-react';
 import Link from 'next/link';
 

@@ -38,7 +38,6 @@ export function Header({
 }: HeaderProps) {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<SupabaseUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
@@ -54,7 +53,7 @@ export function Header({
       } catch (error) {
         console.error('ユーザー取得エラー:', error);
       } finally {
-        setIsLoading(false);
+
       }
     };
 

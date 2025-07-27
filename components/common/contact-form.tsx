@@ -166,8 +166,8 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
             <span className="ml-2 text-muted-foreground">読み込み中...</span>
           </div>
         ) : !isSubmitted ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit} className="space-y-4 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">
                   お名前 *
@@ -179,7 +179,7 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   placeholder="山田太郎"
                   required
-                  className="border-border focus:border-primary"
+                  className="border-border focus:border-primary w-full"
                 />
               </div>
               <div className="space-y-2">
@@ -196,7 +196,7 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
                   placeholder="example@email.com"
                   required
                   disabled={isLoggedIn}
-                  className={`border-border focus:border-primary ${isLoggedIn ? 'bg-muted cursor-not-allowed' : ''}`}
+                  className={`border-border focus:border-primary w-full ${isLoggedIn ? 'bg-muted cursor-not-allowed' : ''}`}
                 />
                 {isLoggedIn && (
                   <p className="text-xs text-muted-foreground">
@@ -294,7 +294,7 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
   }
 
   return (
-    <Card className={className}>
+    <Card className={`${className} w-full`}>
       <CardHeader>
         {showTitle && (
           <>
@@ -308,15 +308,15 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
           </>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="w-full">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <span className="ml-3 text-muted-foreground">読み込み中...</span>
           </div>
         ) : !isSubmitted ? (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit} className="space-y-6 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium flex items-center gap-2">
                   <User className="h-4 w-4" />
@@ -329,7 +329,7 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   placeholder="山田太郎"
                   required
-                  className="border-border focus:border-primary focus:ring-primary"
+                  className="border-border focus:border-primary focus:ring-primary w-full"
                 />
               </div>
               <div className="space-y-2">
@@ -346,7 +346,7 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
                   placeholder="example@email.com"
                   required
                   disabled={isLoggedIn}
-                  className={`border-border focus:border-primary focus:ring-primary ${isLoggedIn ? 'bg-muted cursor-not-allowed' : ''}`}
+                  className={`border-border focus:border-primary focus:ring-primary w-full ${isLoggedIn ? 'bg-muted cursor-not-allowed' : ''}`}
                 />
                 {isLoggedIn && (
                   <p className="text-xs text-muted-foreground">
