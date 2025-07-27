@@ -6,7 +6,6 @@ import { createClient } from '@/lib/supabase/client';
 import { DatabaseService } from '@/lib/database';
 import { Word } from '@/lib/types';
 import dynamic from 'next/dynamic';
-import { Header } from '@/components/common';
 import { CompletionModal } from '@/components/learning';
 
 // 動的インポートでバンドルサイズを最適化
@@ -154,12 +153,6 @@ export default function QuizPage() {
   if (loading) {
     return (
       <div className="h-screen flex flex-col">
-        <Header
-          title={`${category} - クイズ`}
-          showBackButton={true}
-          userEmail={user?.email}
-        />
-        
         <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -175,12 +168,6 @@ export default function QuizPage() {
   if (words.length === 0) {
     return (
       <div className="h-screen flex flex-col">
-        <Header
-          title={`${category} - クイズ`}
-          showBackButton={true}
-          userEmail={user?.email}
-        />
-        
         <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-md">
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
@@ -220,12 +207,6 @@ export default function QuizPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <Header
-        title={`${category} - クイズ`}
-        showBackButton={true}
-        userEmail={user?.email}
-      />
-      
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <Quiz
           words={words}

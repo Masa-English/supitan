@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
-import { Header } from '@/components/common';
 
 // 動的インポートでバンドルサイズを最適化
 const Review = dynamic(() => import('@/components/learning/review').then(mod => ({ default: mod.Review })), {
@@ -18,7 +17,7 @@ const Review = dynamic(() => import('@/components/learning/review').then(mod => 
 
 export default function ReviewPage() {
   const [isCompleted, setIsCompleted] = useState(false);
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
+  const [, setUser] = useState<{ id: string; email?: string } | null>(null);
   const router = useRouter();
   const supabase = createClient();
 
@@ -39,21 +38,9 @@ export default function ReviewPage() {
     setIsCompleted(true);
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/landing');
-  };
-
   if (isCompleted) {
     return (
       <div className="h-screen flex flex-col">
-        <Header
-          title="復習完了"
-          showBackButton={false}
-          userEmail={user?.email}
-          onSignOut={handleSignOut}
-        />
-
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-y-auto">
           <div className="max-w-4xl mx-auto h-full">
             <Review onComplete={handleComplete} />
@@ -65,13 +52,6 @@ export default function ReviewPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <Header
-        title="復習"
-        showBackButton={true}
-        userEmail={user?.email}
-        onSignOut={handleSignOut}
-      />
-      
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-y-auto">
         <Review
           onComplete={handleComplete}

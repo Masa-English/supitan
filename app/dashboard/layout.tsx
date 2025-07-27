@@ -1,9 +1,15 @@
-import { ProtectedLayout } from "@/components/layouts/protected-layout";
+import { ReactNode } from 'react';
+import { Header } from '@/components/common/header';
+import { Footer } from '@/components/common';
 
-export default function ProtectedLayoutWrapper({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <ProtectedLayout>{children}</ProtectedLayout>;
+export default function DashboardLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="bg-background min-h-screen flex flex-col">
+      <Header />
+      <div className="flex-1 flex flex-col">
+        {children}
+      </div>
+      <Footer />
+    </div>
+  );
 }

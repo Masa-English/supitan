@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Header } from '@/components/common/header';
 import { ArrowLeft, HelpCircle, BookOpen, Settings, Shield, Users, Brain, Target } from 'lucide-react';
 import Link from 'next/link';
 
@@ -91,7 +90,6 @@ const faqByCategory = faqData.reduce((acc, faq) => {
 export default function FAQPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <Header />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* ヘッダー */}
         <div className="mb-8">

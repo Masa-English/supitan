@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
-import { Header } from '@/components/common';
 
 // 動的インポートでバンドルサイズを最適化
 const ProfileForm = dynamic(() => import('@/components/auth/profile-form').then(mod => ({ default: mod.ProfileForm })), {
@@ -42,15 +41,6 @@ export default function ProfilePage() {
     getUser();
   }, [router, supabase.auth]);
 
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      router.push('/auth/login');
-    } catch (error) {
-      console.error('サインアウトエラー:', error);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center">
@@ -67,23 +57,14 @@ export default function ProfilePage() {
   }
 
   return (
-    <>
-      <Header 
-        title="プロフィール設定"
-        userEmail={user.email}
-        onSignOut={handleSignOut}
-        showBackButton={true}
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <ProfileForm 
+        userId={user.id}
+        userEmail={user.email || ''}
+        onProfileUpdate={(profile) => {
+          console.log('プロフィールが更新されました:', profile);
+        }}
       />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ProfileForm 
-          userId={user.id}
-          userEmail={user.email || ''}
-          onProfileUpdate={(profile) => {
-            console.log('プロフィールが更新されました:', profile);
-          }}
-        />
-      </main>
-    </>
+    </main>
   );
 } 

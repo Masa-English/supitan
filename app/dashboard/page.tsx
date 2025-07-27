@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AuthWrapper } from '@/components/auth';
-import { Header } from '@/components/common';
+import { TutorialWrapper } from '../../components/common';
 import { 
   Play, 
   RotateCcw, 
@@ -16,11 +16,9 @@ import {
   Heart,
   TrendingUp,
   Award,
-  Menu,
   X
 } from 'lucide-react';
 import Link from 'next/link';
-import { TutorialWrapper } from '../../components/common';
 
 // サイドメニューコンポーネント
 function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -333,14 +331,6 @@ export default function ProtectedPage() {
     <AuthWrapper>
       <TutorialWrapper>
         <div className="min-h-screen bg-background">
-          {/* ヘッダー */}
-          <Header 
-            title="ダッシュボード"
-            showUserInfo={true}
-            showMobileMenu={true}
-            onMobileMenuToggle={() => setIsSideMenuOpen(true)}
-          />
-          
           <div className="flex">
             {/* サイドメニュー */}
             <SideMenu 

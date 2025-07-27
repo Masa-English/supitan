@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Brain, Play, ArrowLeft, Users, Target } from 'lucide-react';
+import { BookOpen, Brain, Play, Users, Target } from 'lucide-react';
 import { Word, UserProgress, Category } from '@/lib/types';
 import Link from 'next/link';
 
@@ -82,13 +82,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* ヘッダー */}
           <div className="mb-8">
-            <Link href="/dashboard">
-              <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 mb-4">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                カテゴリー一覧に戻る
-              </Button>
-            </Link>
-            
             <div className="flex items-center gap-4 mb-6">
               <h1 className="text-3xl font-bold text-amber-800 dark:text-amber-200">
                 {decodedCategory}

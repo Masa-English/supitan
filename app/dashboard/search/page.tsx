@@ -7,20 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Header } from '@/components/common';
-import { 
-  Search, 
-  Filter, 
-  Volume2, 
-  Heart, 
-  ArrowLeft, 
-  X,
-  BookOpen,
-  Star,
-  ChevronDown,
-  ChevronUp
-} from 'lucide-react';
-import Link from 'next/link';
+import { Search, Filter, Volume2, Heart, X, BookOpen, Star, ChevronDown, ChevronUp } from 'lucide-react';
 
 // 単語カードコンポーネント
 function WordCard({ word }: { word: Word }) {
@@ -369,10 +356,6 @@ export default function SearchPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header 
-          title="単語検索"
-          showBackButton={true}
-        />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -386,10 +369,6 @@ export default function SearchPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-background">
-        <Header 
-          title="単語検索"
-          showBackButton={true}
-        />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="text-center">
             <p className="text-destructive mb-4">{error}</p>
@@ -404,22 +383,10 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header 
-        title="単語検索"
-        showBackButton={true}
-      />
-      
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           {/* ヘッダー */}
           <div className="mb-6 sm:mb-8">
-            <Link href="/dashboard">
-              <Button variant="ghost" className="text-muted-foreground hover:bg-accent mb-3 sm:mb-4">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                ダッシュボードに戻る
-              </Button>
-            </Link>
-            
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                 単語検索・フィルター

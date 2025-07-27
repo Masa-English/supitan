@@ -8,21 +8,18 @@ import { AppStats, StudySession, ReviewSession } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Header } from '@/components/common';
 import { 
-  ArrowLeft, 
+  BarChart3, 
   BookOpen, 
   Target, 
-  Trophy, 
-  Clock, 
-  RotateCcw, 
-  TrendingUp,
-  Brain,
+  TrendingUp, 
+  Clock,
   CheckCircle,
-  BarChart3,
+  Brain,
+  RotateCcw,
+  Trophy,
   Activity
 } from 'lucide-react';
-import Link from 'next/link';
 
 // 統計カードコンポーネント
 function StatCard({ 
@@ -208,10 +205,6 @@ export default function StatisticsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-        <Header 
-          title="学習統計"
-          showBackButton={true}
-        />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
@@ -225,10 +218,6 @@ export default function StatisticsPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-        <Header 
-          title="学習統計"
-          showBackButton={true}
-        />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
@@ -244,10 +233,6 @@ export default function StatisticsPage() {
   if (!stats) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-        <Header 
-          title="学習統計"
-          showBackButton={true}
-        />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <p className="text-muted-foreground">統計データを読み込めませんでした</p>
@@ -262,21 +247,9 @@ export default function StatisticsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-      <Header 
-        title="学習統計"
-        showBackButton={true}
-      />
-      
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* ヘッダー */}
         <div className="mb-8">
-          <Link href="/dashboard">
-            <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 mb-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              ダッシュボードに戻る
-            </Button>
-          </Link>
-          
           <div className="flex items-center gap-4 mb-6">
             <h1 className="text-3xl font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
               <BarChart3 className="h-8 w-8 text-amber-600" />

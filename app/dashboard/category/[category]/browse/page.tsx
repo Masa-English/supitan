@@ -116,14 +116,6 @@ function LoadingState({ category }: { category: string }) {
     <div className="h-screen flex flex-col bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
       <header className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-amber-200 dark:border-amber-700 flex-shrink-0">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4">
-          <div className="flex items-center gap-4 mb-4">
-            <Link href={`/protected/category/${encodeURIComponent(category)}`}>
-              <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                カテゴリーに戻る
-              </Button>
-            </Link>
-          </div>
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl font-bold text-amber-800 dark:text-amber-200 mb-2">
               {category}の単語一覧
@@ -254,14 +246,6 @@ export default function BrowsePage() {
       {/* ヘッダー */}
       <header className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-amber-200 dark:border-amber-700 flex-shrink-0">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4">
-          <div className="flex items-center gap-4 mb-4">
-            <Link href={`/protected/category/${encodeURIComponent(category)}`}>
-              <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                カテゴリーに戻る
-              </Button>
-            </Link>
-          </div>
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl font-bold text-amber-800 dark:text-amber-200 mb-2">
               {category}の単語一覧

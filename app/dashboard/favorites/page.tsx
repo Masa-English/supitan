@@ -8,7 +8,6 @@ import { Word, UserProgress } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Header } from '@/components/common';
 import { 
   Volume2, 
   ArrowLeft, 
@@ -156,10 +155,6 @@ export default function FavoritesPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-        <Header 
-          title="お気に入り単語"
-          showBackButton={true}
-        />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
@@ -173,10 +168,6 @@ export default function FavoritesPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-        <Header 
-          title="お気に入り単語"
-          showBackButton={true}
-        />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
@@ -191,11 +182,6 @@ export default function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-      <Header 
-        title="お気に入り単語"
-        showBackButton={true}
-      />
-      
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* ヘッダー */}
         <div className="mb-8">
