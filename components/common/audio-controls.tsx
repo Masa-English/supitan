@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Volume2, VolumeX, Volume1 } from 'lucide-react';
+import { Volume2, VolumeX, Volume1, AlertCircle } from 'lucide-react';
 import { useAudioStore } from '@/lib/audio-store';
 
 interface AudioControlsProps {
@@ -45,49 +45,45 @@ export function AudioControls({ className = '' }: AudioControlsProps) {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className={`flex items-center gap-2 text-sm text-muted-foreground ${className}`}>
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+        <span>音声初期化中...</span>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className={`flex items-center gap-2 text-sm text-muted-foreground ${className}`}>
-        <VolumeX className="h-4 w-4" />
-        <span>音声無効</span>
+        <AlertCircle className="h-4 w-4 text-yellow-500" />
+        <span>Web Speech API使用中</span>
       </div>
     );
   }
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {/* ミュートボタン */}
       <Button
         variant="ghost"
         size="sm"
         onClick={toggleMute}
-        disabled={isLoading}
-        className="p-2 h-auto"
-        title={isMuted ? '音声を有効にする' : '音声を無効にする'}
+        className="p-1 h-8 w-8 text-muted-foreground hover:text-foreground transition-colors"
       >
         {getVolumeIcon()}
       </Button>
-
-      {/* 音量スライダー */}
+      
       {!isMuted && (
-        <div className="flex items-center gap-2 min-w-[80px]">
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.1"
-            value={volume}
-            onChange={handleVolumeChange}
-            disabled={isLoading}
-            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer slider"
-            title={`音量: ${Math.round(volume * 100)}%`}
-          />
-        </div>
-      )}
-
-      {/* ローディング表示 */}
-      {isLoading && (
-        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.1"
+          value={volume}
+          onChange={handleVolumeChange}
+          className="w-16 h-1 bg-muted rounded-lg appearance-none cursor-pointer slider"
+        />
       )}
     </div>
   );

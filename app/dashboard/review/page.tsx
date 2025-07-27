@@ -18,7 +18,6 @@ const Review = dynamic(() => import('@/components/learning/review').then(mod => 
 
 export default function ReviewPage() {
   const [isCompleted, setIsCompleted] = useState(false);
-  const [results, setResults] = useState<{ wordId: string; correct: boolean; difficulty: number }[]>([]);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const router = useRouter();
   const supabase = createClient();
@@ -36,8 +35,7 @@ export default function ReviewPage() {
     getUser();
   }, [router, supabase.auth]);
 
-  const handleComplete = (reviewResults: { wordId: string; correct: boolean; difficulty: number }[]) => {
-    setResults(reviewResults);
+  const handleComplete = () => {
     setIsCompleted(true);
   };
 

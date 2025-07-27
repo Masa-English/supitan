@@ -1,245 +1,227 @@
-import { Suspense } from 'react';
+import { dataProvider } from '@/lib/data-provider';
+import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ReloadButton, Header } from '@/components/common';
-import { BookOpen, Brain, Play, AlertCircle } from 'lucide-react';
-import { LearningModeCardSkeleton } from '@/components/ui/skeleton';
+import { BookOpen, Brain, Play, ArrowLeft, Users, Target } from 'lucide-react';
+import { Word, UserProgress, Category } from '@/lib/types';
 import Link from 'next/link';
 
-// プリロード機能
-function preloadLearningMode(category: string, mode: string) {
-  const link = document.createElement('link');
-  link.rel = 'prefetch';
-  link.href = `/dashboard/category/${encodeURIComponent(category)}/${mode}`;
-  document.head.appendChild(link);
-}
+// 統一されたISR設定
+export const revalidate = 900; // 15分
 
-// 静的生成の設定
-export const revalidate = 3600; // 1時間ごとに再生成
-
-// 動的メタデータ生成
-export async function generateMetadata({ params }: { params: Promise<{ category: string }> }) {
-  const { category } = await params;
-  const decodedCategory = decodeURIComponent(category);
-  return {
-    title: `${decodedCategory} - Masa Flash`,
-    description: `${decodedCategory}カテゴリーの単語を学習しましょう`,
-  };
-}
-
-// 静的パス生成
+// 動的パラメータの生成
 export async function generateStaticParams() {
-  // カテゴリー一覧を取得して静的パスを生成
-  const categories = ['動詞', '形容詞', '副詞', '名詞'];
-  
+  const categories = await dataProvider.getCategories();
   return categories.map((category) => ({
-    category: encodeURIComponent(category),
+    category: encodeURIComponent(category.name),
   }));
 }
 
-// 非同期で単語データを取得するコンポーネント
-async function WordsSection({ category }: { category: string }) {
-  const { getStaticDataForCategory } = await import('@/lib/static-data');
-  const words = await getStaticDataForCategory(category);
-
-  if (words.length === 0) {
-    return (
-      <div className="text-center">
-        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="h-8 w-8 text-primary" />
-        </div>
-        <h2 className="text-2xl font-bold text-foreground mb-4">
-          データを読み込み中です
-        </h2>
-        <p className="text-amber-700 dark:text-amber-300 mb-6">
-          {category}カテゴリーの単語データを準備しています。しばらくお待ちください。
-        </p>
-        <div className="space-y-4">
-          <p className="text-sm text-amber-600 dark:text-amber-400">
-            問題が続く場合は、以下をお試しください：
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/dashboard">
-              <Button className="bg-amber-600 hover:bg-amber-700 text-white">
-                ダッシュボードに戻る
-              </Button>
-            </Link>
-            <ReloadButton 
-              variant="outline" 
-              className="border-amber-300 text-amber-700 hover:bg-amber-50"
-            >
-              ページを再読み込み
-            </ReloadButton>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      {/* 学習モード選択 */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-amber-800 dark:text-amber-200 mb-6 text-center">
-          学習モードを選択してください
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* 単語一覧 */}
-          <Link href={`/protected/category/${encodeURIComponent(category)}/browse`}>
-            <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 border-blue-200 dark:border-blue-700 h-full">
-              <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BookOpen className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                </div>
-                <CardTitle className="text-xl text-blue-800 dark:text-blue-200">
-                  単語一覧
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-blue-700 dark:text-blue-300 mb-6">
-                  すべての単語を一覧で確認できます。意味や例文をじっくり学習しましょう。
-                </p>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                  <Play className="h-4 w-4 mr-2" />
-                  単語を見る
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-          
-          {/* フラッシュカード */}
-          <Link 
-            href={`/dashboard/category/${encodeURIComponent(category)}/flashcard`}
-            onMouseEnter={() => preloadLearningMode(category, 'flashcard')}
-          >
-            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 border-green-200 dark:border-green-700 h-full">
-              <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BookOpen className="h-8 w-8 text-green-600 dark:text-green-400" />
-                </div>
-                <CardTitle className="text-xl text-green-800 dark:text-green-200">
-                  フラッシュカード
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-green-700 dark:text-green-300 mb-6">
-                  カードをめくって単語を学習します。音声機能付きで効率的に覚えられます。
-                </p>
-                <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                  <Play className="h-4 w-4 mr-2" />
-                  学習開始
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* クイズ */}
-          <Link 
-            href={`/dashboard/category/${encodeURIComponent(category)}/quiz`}
-            onMouseEnter={() => preloadLearningMode(category, 'quiz')}
-          >
-            <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 border-purple-200 dark:border-purple-700 h-full">
-              <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Brain className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-                </div>
-                <CardTitle className="text-xl text-purple-800 dark:text-purple-200">
-                  クイズ
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-purple-700 dark:text-purple-300 mb-6">
-                  選択問題で理解度を確認します。間違えた問題は自動で復習リストに追加されます。
-                </p>
-                <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-                  <Play className="h-4 w-4 mr-2" />
-                  クイズ開始
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-      </div>
-
-      {/* 単語プレビュー */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-amber-800 dark:text-amber-200 mb-6 text-center">
-          単語プレビュー
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {words.slice(0, 8).map((word) => (
-            <Card key={word.id} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700 hover:shadow-lg transition-all duration-200 hover:scale-105">
-              <CardContent className="p-6">
-                <div className="text-center">
-                  <h3 className="text-xl font-bold text-amber-800 dark:text-amber-200 mb-2">
-                    {word.word}
-                  </h3>
-                  <Badge variant="outline" className="text-xs border-amber-300 text-amber-700 dark:border-amber-600 dark:text-amber-300 mb-3">
-                    {word.phonetic}
-                  </Badge>
-                  <p className="text-amber-700 dark:text-amber-300 text-sm">
-                    {word.japanese}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        {words.length > 8 && (
-          <div className="text-center mt-8">
-            <p className="text-amber-600 dark:text-amber-400 text-lg">
-              他 {words.length - 8} 個の単語があります
-            </p>
-            <Link href={`/dashboard/category/${encodeURIComponent(category)}/browse`}>
-              <Button variant="outline" className="mt-4 border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20">
-                すべての単語を見る
-              </Button>
-            </Link>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
-
-// 学習モードセクションのスケルトン
-function LearningModesSkeleton() {
-  return (
-    <div className="mb-12">
-      <div className="h-8 w-80 bg-amber-200 dark:bg-amber-700 rounded mx-auto mb-6 animate-pulse"></div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {[...Array(3)].map((_, i) => (
-          <LearningModeCardSkeleton key={i} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
+// 動的メタデータの生成
+export async function generateMetadata({ params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;
   const decodedCategory = decodeURIComponent(category);
   
-  try {
-      return (
-    <>
-      {/* ヘッダー */}
-      <Header 
-        title={decodedCategory}
-        showBackButton={true}
-        showUserInfo={true}
-      />
+  return {
+    title: `${decodedCategory} - 英単語学習 | Masa Flash`,
+    description: `${decodedCategory}の英単語を効率的に学習しましょう。フラッシュカードとクイズで習得度を向上させます。`,
+    openGraph: {
+      title: `${decodedCategory} - 英単語学習`,
+      description: `${decodedCategory}の英単語学習ページ`,
+    },
+  };
+}
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 学習モード選択 - Suspense対応 */}
-        <Suspense fallback={<LearningModesSkeleton />}>
-          <WordsSection category={decodedCategory} />
-        </Suspense>
-      </main>
-    </>
-  );
+interface PageData {
+  words: Word[];
+  categories: Category[];
+  user: { id: string; email?: string } | null;
+  userProgress: UserProgress[];
+}
+
+async function getPageData(category: string): Promise<PageData> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  // 統一データプロバイダーを使用してデータを一括取得
+  const pageData = await dataProvider.getPageData('category', {
+    category,
+    userId: user?.id,
+  });
+
+  return {
+    words: pageData.words,
+    categories: pageData.categories || [],
+    user,
+    userProgress: pageData.userProgress || [],
+  };
+}
+
+export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
+  try {
+    const { category } = await params;
+    const decodedCategory = decodeURIComponent(category);
+    
+    const { words, userProgress } = await getPageData(decodedCategory);
+
+    if (words.length === 0) {
+      notFound();
+    }
+
+    // 進捗統計の計算
+    const stats = {
+      total: words.length,
+      studied: userProgress.filter(p => (p.study_count || 0) > 0).length,
+      mastered: userProgress.filter(p => (p.mastery_level || 0) >= 0.8).length,
+    };
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* ヘッダー */}
+          <div className="mb-8">
+            <Link href="/dashboard">
+              <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 mb-4">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                カテゴリー一覧に戻る
+              </Button>
+            </Link>
+            
+            <div className="flex items-center gap-4 mb-6">
+              <h1 className="text-3xl font-bold text-amber-800 dark:text-amber-200">
+                {decodedCategory}
+              </h1>
+              <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                {stats.total}個の単語
+              </Badge>
+            </div>
+          </div>
+
+          {/* 統計カード */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  総単語数
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
+                  {stats.total}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  学習済み
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  {stats.studied}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  習得済み
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {stats.mastered}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* 学習モード選択 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/flashcard`}>
+              <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-blue-200 dark:border-blue-700">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3 text-blue-800 dark:text-blue-200">
+                    <BookOpen className="h-6 w-6" />
+                    フラッシュカード学習
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-blue-600 dark:text-blue-400 mb-4">
+                    単語カードをめくって意味を確認し、じっくりと学習できます。
+                  </p>
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                    <Play className="h-4 w-4 mr-2" />
+                    学習を開始
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/quiz`}>
+              <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-green-200 dark:border-green-700">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3 text-green-800 dark:text-green-200">
+                    <Brain className="h-6 w-6" />
+                    クイズ
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-green-600 dark:text-green-400 mb-4">
+                    4択クイズで理解度をテストし、知識を定着させます。
+                  </p>
+                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                    <Play className="h-4 w-4 mr-2" />
+                    クイズを開始
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+
+          {/* 単語一覧プレビュー */}
+          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+            <CardHeader>
+              <CardTitle className="text-amber-800 dark:text-amber-200">
+                単語一覧プレビュー（最初の10個）
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {words.slice(0, 10).map((word) => (
+                  <div
+                    key={word.id}
+                    className="p-4 rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-900/10"
+                  >
+                    <div className="font-semibold text-amber-800 dark:text-amber-200 mb-1">
+                      {word.word}
+                    </div>
+                    <div className="text-sm text-amber-600 dark:text-amber-400">
+                      {word.japanese}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {words.length > 10 && (
+                <div className="mt-4 text-center">
+                  <p className="text-amber-600 dark:text-amber-400">
+                    他 {words.length - 10} 個の単語があります
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
   } catch (error) {
     console.error('Category page error:', error);
     notFound();

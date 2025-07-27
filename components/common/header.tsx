@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { BookOpen, ArrowLeft, User, LogOut, Settings, UserCircle } from 'lucide-react';
+import { BookOpen, ArrowLeft, User, LogOut, Settings, UserCircle, Menu } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ThemeSwitcher } from '@/components/common/theme-switcher';
 import { createClient } from '@/lib/supabase/client';
@@ -21,6 +21,8 @@ interface HeaderProps {
   userEmail?: string;
   onSignOut?: () => void;
   showUserInfo?: boolean;
+  showMobileMenu?: boolean;
+  onMobileMenuToggle?: () => void;
 }
 
 export function Header({
@@ -29,7 +31,9 @@ export function Header({
   onBackClick,
   userEmail,
   onSignOut,
-  showUserInfo = true
+  showUserInfo = true,
+  showMobileMenu = false,
+  onMobileMenuToggle
 }: HeaderProps) {
   const router = useRouter();
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
@@ -86,31 +90,43 @@ export function Header({
 
   return (
     <header className="bg-card/95 backdrop-blur-md border-b border-border sticky top-0 z-40 w-full">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-        <div className="flex justify-between items-center h-14 sm:h-16">
-          <div className="flex items-center gap-2 sm:gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 sm:h-18">
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* モバイルメニューボタン */}
+            {showMobileMenu && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onMobileMenuToggle}
+                className="lg:hidden text-muted-foreground hover:bg-accent transition-colors p-2 touch-target"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            )}
+            
             {showBackButton && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleBackClick}
-                className="text-muted-foreground hover:bg-accent transition-colors px-2 sm:px-3 touch-target"
+                className="text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3 touch-target"
               >
-                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">戻る</span>
               </Button>
             )}
             <div 
-              className="flex items-center gap-1 sm:gap-2 cursor-pointer hover:opacity-80 transition-opacity touch-friendly"
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:opacity-80 transition-opacity touch-friendly"
               onClick={handleHomeClick}
             >
-              <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+              <BookOpen className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
               <div>
                 <h1 className="text-lg sm:text-xl font-bold text-foreground">
                   Masa Flash
                 </h1>
                 {title !== "英単語学習" && (
-                  <p className="text-xs sm:text-sm text-muted-foreground -mt-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground -mt-0.5">
                     {title}
                   </p>
                 )}
@@ -128,11 +144,11 @@ export function Header({
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="text-muted-foreground hover:bg-accent transition-colors border border-border hover:border-primary/50 px-2 sm:px-3 touch-target"
+                      className="text-muted-foreground hover:bg-accent transition-colors border border-border hover:border-primary/50 p-2 sm:px-3 touch-target"
                     >
-                      <div className="flex items-center gap-1 sm:gap-2">
-                        <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
-                          <User className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary-foreground" />
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
+                          <User className="h-3 w-3 text-primary-foreground" />
                         </div>
                         <span className="hidden sm:inline font-medium">
                           {(currentUserEmail || userEmail)?.split('@')[0] || 'ユーザー'}
@@ -186,9 +202,9 @@ export function Header({
                   variant="outline" 
                   size="sm"
                   onClick={onSignOut || handleSignOut} 
-                  className="border-border text-muted-foreground hover:bg-accent transition-colors px-2 sm:px-3 touch-target"
+                  className="border-border text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3 touch-target"
                 >
-                  <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <LogOut className="h-4 w-4 mr-1 sm:mr-2" />
                   <span className="hidden sm:inline">ログアウト</span>
                 </Button>
               )}

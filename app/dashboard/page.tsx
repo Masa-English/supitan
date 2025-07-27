@@ -62,30 +62,30 @@ function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
         lg:translate-x-0 lg:static lg:z-auto
         w-64
       `}>
-        <div className="p-6 h-full flex flex-col">
+        <div className="p-4 sm:p-6 h-full flex flex-col">
           {/* ヘッダー */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6 sm:mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-primary-foreground" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-lg flex items-center justify-center">
+                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
               </div>
-              <h1 className="text-xl font-bold text-foreground">MasaFlash</h1>
+              <h1 className="text-lg sm:text-xl font-bold text-foreground">MasaFlash</h1>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="lg:hidden"
+              className="lg:hidden p-2"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </div>
           
           {/* ナビゲーション */}
-          <nav className="flex-1 space-y-6">
+          <nav className="flex-1 space-y-4 sm:space-y-6">
             {menuItems.map((section) => (
               <div key={section.title}>
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 sm:mb-3">
                   {section.title}
                 </h3>
                 <ul className="space-y-1">
@@ -93,7 +93,7 @@ function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
                     <li key={item.label}>
                       <Link
                         href={item.href}
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                         onClick={() => {
                           // モバイルではメニューを閉じる
                           if (window.innerWidth < 1024) {
@@ -101,8 +101,8 @@ function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
                           }
                         }}
                       >
-                        <item.icon className={`w-5 h-5 ${item.color}`} />
-                        <span className="font-medium">{item.label}</span>
+                        <item.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.color}`} />
+                        <span className="font-medium text-sm sm:text-base">{item.label}</span>
                       </Link>
                     </li>
                   ))}
@@ -137,22 +137,22 @@ function MainActionCard({
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
       <Link href={href} className="block">
-        <CardContent className="p-6">
-          <div className="flex items-start justify-between mb-4">
-            <div className={`p-3 rounded-xl ${bgColor}`}>
-              <Icon className={`w-6 h-6 ${color}`} />
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-start justify-between mb-3 sm:mb-4">
+            <div className={`p-2 sm:p-3 rounded-xl ${bgColor}`}>
+              <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${color}`} />
             </div>
             {stats && (
               <div className="text-right">
-                <div className={`text-2xl font-bold ${color}`}>{stats.value}</div>
+                <div className={`text-xl sm:text-2xl font-bold ${color}`}>{stats.value}</div>
                 <div className="text-xs text-muted-foreground">{stats.label}</div>
               </div>
             )}
           </div>
-          <h3 className="text-lg font-semibold text-card-foreground mb-2">
+          <h3 className="text-base sm:text-lg font-semibold text-card-foreground mb-2">
             {title}
           </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
             {description}
           </p>
         </CardContent>
@@ -164,17 +164,17 @@ function MainActionCard({
 // クイックアクションセクション
 function QuickActionsSection() {
   return (
-    <section className="mb-8">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+    <section className="mb-6 sm:mb-8">
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
           クイックアクション
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-sm sm:text-base text-muted-foreground">
           学習を効率的に進めるための主要なアクション
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <MainActionCard
           title="学習開始"
           description="新しい単語をフラッシュカードとクイズで学習"
@@ -211,68 +211,68 @@ function QuickActionsSection() {
 // 今日の進捗セクション
 function TodayProgressSection() {
   return (
-    <section className="mb-8">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+    <section className="mb-6 sm:mb-8">
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
           今日の進捗
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-sm sm:text-base text-muted-foreground">
           今日の学習状況を確認しましょう
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card className="bg-card border-border">
-          <CardContent className="p-4">
+          <CardContent className="p-4 sm:p-5">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
-                <BookOpen className="w-5 h-5 text-primary" />
+                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-primary">0</div>
-                <div className="text-sm text-muted-foreground">学習済み</div>
+                <div className="text-xl sm:text-2xl font-bold text-primary">0</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">学習済み</div>
               </div>
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4">
+          <CardContent className="p-4 sm:p-5">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
-                <Target className="w-5 h-5 text-primary" />
+                <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-primary">0</div>
-                <div className="text-sm text-muted-foreground">正解率</div>
+                <div className="text-xl sm:text-2xl font-bold text-primary">0</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">正解率</div>
               </div>
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4">
+          <CardContent className="p-4 sm:p-5">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
-                <TrendingUp className="w-5 h-5 text-primary" />
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-primary">0</div>
-                <div className="text-sm text-muted-foreground">連続日数</div>
+                <div className="text-xl sm:text-2xl font-bold text-primary">0</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">連続日数</div>
               </div>
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4">
+          <CardContent className="p-4 sm:p-5">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
-                <Award className="w-5 h-5 text-primary" />
+                <Award className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-primary">0</div>
-                <div className="text-sm text-muted-foreground">達成数</div>
+                <div className="text-xl sm:text-2xl font-bold text-primary">0</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">達成数</div>
               </div>
             </div>
           </CardContent>
@@ -285,13 +285,13 @@ function TodayProgressSection() {
 // 最近の活動セクション
 function RecentActivitySection() {
   return (
-    <section className="mb-8">
-      <div className="flex items-center justify-between mb-6">
+    <section className="mb-6 sm:mb-8">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
             最近の活動
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             最近の学習履歴を確認
           </p>
         </div>
@@ -304,13 +304,13 @@ function RecentActivitySection() {
       </div>
       
       <Card className="border-border bg-card">
-        <CardContent className="p-6">
-          <div className="text-center py-8">
-            <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-card-foreground mb-2">
+        <CardContent className="p-4 sm:p-6">
+          <div className="text-center py-6 sm:py-8">
+            <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-card-foreground mb-2">
               まだ学習履歴がありません
             </h3>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               学習を開始して、あなたの進捗を追跡しましょう
             </p>
             <Link href="/dashboard/start-learning">
@@ -337,19 +337,9 @@ export default function ProtectedPage() {
           <Header 
             title="ダッシュボード"
             showUserInfo={true}
+            showMobileMenu={true}
+            onMobileMenuToggle={() => setIsSideMenuOpen(true)}
           />
-          
-          {/* モバイルメニューボタン */}
-          <div className="lg:hidden fixed top-4 left-4 z-50">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsSideMenuOpen(true)}
-              className="bg-background/95 backdrop-blur-md border border-border shadow-sm"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-          </div>
           
           <div className="flex">
             {/* サイドメニュー */}
@@ -360,7 +350,7 @@ export default function ProtectedPage() {
             
             {/* メインコンテンツ */}
             <div className="flex-1 lg:ml-0">
-              <main className="p-6 pt-8 lg:pt-12">
+              <main className="p-4 sm:p-6 lg:p-8">
                 {/* クイックアクション */}
                 <QuickActionsSection />
                 

@@ -38,8 +38,19 @@ export const useAudioStore = create<AudioState>((set, get) => ({
         .from('se')
         .download('error.mp3');
 
+      // 音声ファイルの取得に失敗した場合のフォールバック処理
       if (correctError || incorrectError) {
-        throw new Error('音声ファイルの取得に失敗しました');
+        console.warn('音声ファイルの取得に失敗しました。Web Speech APIを使用します。', {
+          correctError,
+          incorrectError
+        });
+        
+        // エラーを設定するが、アプリケーションは継続動作
+        set({
+          isLoading: false,
+          error: '音声ファイルの取得に失敗しました。Web Speech APIを使用します。'
+        });
+        return;
       }
 
       // BlobからAudioオブジェクトを作成
@@ -75,7 +86,19 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   },
 
   playCorrectSound: () => {
-    const { correctAudio, isMuted, volume } = get();
+    const { correctAudio, isMuted, volume, error } = get();
+    
+    // 音声ファイルが利用できない場合はWeb Speech APIを使用
+    if (!correctAudio && !error) {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance('Correct!');
+        utterance.lang = 'en-US';
+        utterance.volume = volume;
+        speechSynthesis.speak(utterance);
+      }
+      return;
+    }
+    
     if (correctAudio && !isMuted) {
       correctAudio.volume = volume;
       correctAudio.currentTime = 0;
@@ -86,7 +109,19 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   },
 
   playIncorrectSound: () => {
-    const { incorrectAudio, isMuted, volume } = get();
+    const { incorrectAudio, isMuted, volume, error } = get();
+    
+    // 音声ファイルが利用できない場合はWeb Speech APIを使用
+    if (!incorrectAudio && !error) {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance('Incorrect');
+        utterance.lang = 'en-US';
+        utterance.volume = volume;
+        speechSynthesis.speak(utterance);
+      }
+      return;
+    }
+    
     if (incorrectAudio && !isMuted) {
       incorrectAudio.volume = volume;
       incorrectAudio.currentTime = 0;
