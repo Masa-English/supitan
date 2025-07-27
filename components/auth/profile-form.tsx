@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { UserProfile } from '@/lib/types';
-import { User, Save } from 'lucide-react';
+import { User, Save, Bell, Target } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 
 interface ProfileFormProps {
@@ -160,47 +160,55 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
-          <User className="h-5 w-5" />
-          プロフィール設定
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 基本情報 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-amber-700 dark:text-amber-300">基本情報</h3>
-            
-            <div className="space-y-2">
-              <Label htmlFor="display_name">表示名</Label>
-              <Input
-                id="display_name"
-                value={formData.display_name}
-                onChange={(e) => handleInputChange('display_name', e.target.value)}
-                placeholder="表示名を入力してください"
-                className="border-amber-200 focus:border-amber-400"
-              />
-            </div>
+    <div className="space-y-6">
+      {/* 基本情報 */}
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+            <User className="h-5 w-5" />
+            基本情報
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="display_name">表示名</Label>
+                <Input
+                  id="display_name"
+                  value={formData.display_name}
+                  onChange={(e) => handleInputChange('display_name', e.target.value)}
+                  placeholder="表示名を入力してください"
+                  className="border-amber-200 focus:border-amber-400"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="bio">自己紹介</Label>
-              <textarea
-                id="bio"
-                value={formData.bio}
-                onChange={(e) => handleInputChange('bio', e.target.value)}
-                placeholder="自己紹介を入力してください"
-                rows={3}
-                className="w-full px-3 py-2 border border-amber-200 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 resize-none"
-              />
+              <div className="space-y-2">
+                <Label htmlFor="bio">自己紹介</Label>
+                <textarea
+                  id="bio"
+                  value={formData.bio}
+                  onChange={(e) => handleInputChange('bio', e.target.value)}
+                  placeholder="自己紹介を入力してください"
+                  rows={3}
+                  className="w-full px-3 py-2 border border-amber-200 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 resize-none"
+                />
+              </div>
             </div>
-          </div>
+          </form>
+        </CardContent>
+      </Card>
 
-          {/* 学習設定 */}
+      {/* 学習設定 */}
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+            <Target className="h-5 w-5" />
+            学習設定
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-amber-700 dark:text-amber-300">学習設定</h3>
-            
             <div className="space-y-2">
               <Label htmlFor="study_goal">1日の学習目標（単語数）</Label>
               <Input
@@ -212,6 +220,9 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
                 onChange={(e) => handleInputChange('study_goal', parseInt(e.target.value) || 10)}
                 className="border-amber-200 focus:border-amber-400"
               />
+              <p className="text-sm text-muted-foreground">
+                1日に学習する単語の目標数を設定します
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -225,13 +236,24 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
                 <option value="ja">日本語</option>
                 <option value="en">English</option>
               </select>
+              <p className="text-sm text-muted-foreground">
+                アプリの表示言語を設定します
+              </p>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          {/* 通知設定 */}
+      {/* 通知設定 */}
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+            <Bell className="h-5 w-5" />
+            通知設定
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-amber-700 dark:text-amber-300">通知設定</h3>
-            
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -241,6 +263,9 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
                 />
                 <Label htmlFor="daily_reminder">日次リマインダー</Label>
               </div>
+              <p className="text-sm text-muted-foreground ml-6">
+                毎日の学習を忘れないようリマインダーを送信します
+              </p>
 
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -250,6 +275,9 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
                 />
                 <Label htmlFor="achievement">達成通知</Label>
               </div>
+              <p className="text-sm text-muted-foreground ml-6">
+                学習目標達成時に通知を送信します
+              </p>
 
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -259,13 +287,20 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
                 />
                 <Label htmlFor="review_reminder">復習リマインダー</Label>
               </div>
+              <p className="text-sm text-muted-foreground ml-6">
+                復習が必要な単語がある場合に通知を送信します
+              </p>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          {/* 保存ボタン */}
-          <div className="flex justify-end pt-4">
+      {/* 保存ボタン */}
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardContent className="pt-6">
+          <div className="flex justify-end">
             <Button
-              type="submit"
+              onClick={handleSubmit}
               disabled={saving}
               className="bg-amber-600 hover:bg-amber-700 text-white"
             >
@@ -277,13 +312,13 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  保存
+                  設定を保存
                 </>
               )}
             </Button>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 } 

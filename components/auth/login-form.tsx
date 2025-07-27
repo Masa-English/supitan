@@ -45,7 +45,15 @@ export function LoginForm({
         password,
       });
       if (error) throw error;
-              router.push("/dashboard");
+      
+      // 保存されたリダイレクト先がある場合はそこに遷移、なければダッシュボード
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+      if (redirectPath) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        router.push(redirectPath);
+      } else {
+        router.push("/dashboard");
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "エラーが発生しました");
     } finally {

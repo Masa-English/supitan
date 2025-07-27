@@ -23,6 +23,11 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
         const { data: { user }, error } = await supabase.auth.getUser();
         
         if (error || !user) {
+          // 現在のページURLを保存してからリダイレクト
+          const currentPath = window.location.pathname;
+          if (currentPath !== '/landing' && currentPath !== '/auth/login' && currentPath !== '/auth/sign-up') {
+            sessionStorage.setItem('redirectAfterLogin', currentPath);
+          }
           router.push('/landing');
           return;
         }
@@ -31,6 +36,11 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
         setIsAuthenticated(true);
       } catch (error) {
         console.error('認証チェックエラー:', error);
+        // エラー時も現在のページURLを保存
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/landing' && currentPath !== '/auth/login' && currentPath !== '/auth/sign-up') {
+          sessionStorage.setItem('redirectAfterLogin', currentPath);
+        }
         router.push('/landing');
       } finally {
         setIsLoading(false);

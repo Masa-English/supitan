@@ -8,11 +8,11 @@ interface AudioProviderProps {
 }
 
 export function AudioProvider({ children }: AudioProviderProps) {
-  const { initialize } = useAudioStore();
+  const { initializeAudio } = useAudioStore();
 
   useEffect(() => {
-    initialize();
-  }, [initialize]);
+    initializeAudio();
+  }, [initializeAudio]);
 
   return <>{children}</>;
 } 

@@ -6,10 +6,9 @@ import { createClient } from '@/lib/supabase/client';
 import { DatabaseService } from '@/lib/database';
 import { Word } from '@/lib/types';
 import dynamic from 'next/dynamic';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RotateCcw, Home } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/common';
+import { CompletionModal } from '@/components/learning';
 
 // 動的インポートでバンドルサイズを最適化
 const Quiz = dynamic(() => import('@/components/learning').then(mod => ({ default: mod.Quiz })), {
@@ -27,9 +26,11 @@ export default function QuizPage() {
   const [words, setWords] = useState<Word[]>([]);
 
   const [loading, setLoading] = useState(true);
-  const [sessionComplete, setSessionComplete] = useState(false);
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
+  
+  // モーダル状態管理
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
   
   const supabase = createClient();
   const db = useMemo(() => new DatabaseService(), []);
@@ -80,7 +81,7 @@ export default function QuizPage() {
     if (!user) return;
 
     setSessionResults(results);
-    setSessionComplete(true);
+    setShowCompletionModal(true);
 
     // 結果をデータベースに保存
     try {
@@ -142,7 +143,7 @@ export default function QuizPage() {
   };
 
   const handleRetry = () => {
-    setSessionComplete(false);
+    setShowCompletionModal(false);
     setSessionResults([]);
     window.location.reload();
   };
@@ -204,80 +205,19 @@ export default function QuizPage() {
     );
   }
 
-  if (sessionComplete) {
-    const correctCount = sessionResults.filter(r => r.correct).length;
-    const accuracy = Math.round((correctCount / sessionResults.length) * 100);
 
-    return (
-      <div className="h-screen flex flex-col">
-        <Header
-          title={`${category} - クイズ完了`}
-          showBackButton={true}
-          userEmail={user?.email}
-        />
-        
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-          <div className="max-w-2xl mx-auto">
-            <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
-              <CardHeader className="text-center pb-4">
-                <CardTitle className="text-2xl sm:text-3xl font-bold text-foreground">
-                  クイズ完了！
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* 結果表示 */}
-                <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                  <div className="bg-green-50 dark:bg-green-900/20 p-3 sm:p-4 rounded-lg border border-green-200 dark:border-green-700 text-center">
-                    <div className="text-lg sm:text-2xl font-bold text-green-600 dark:text-green-400">
-                      {correctCount}
-                    </div>
-                    <div className="text-xs sm:text-sm text-green-600 dark:text-green-400">
-                      正解
-                    </div>
-                  </div>
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-3 sm:p-4 rounded-lg border border-blue-200 dark:border-blue-700 text-center">
-                    <div className="text-lg sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
-                      {sessionResults.length}
-                    </div>
-                    <div className="text-xs sm:text-sm text-blue-600 dark:text-blue-400">
-                      総問題
-                    </div>
-                  </div>
-                  <div className="bg-amber-50 dark:bg-amber-900/20 p-3 sm:p-4 rounded-lg border border-amber-200 dark:border-amber-700 text-center">
-                    <div className="text-lg sm:text-2xl font-bold text-amber-600 dark:text-amber-400">
-                      {accuracy}%
-                    </div>
-                    <div className="text-xs sm:text-sm text-amber-600 dark:text-amber-400">
-                      正答率
-                    </div>
-                  </div>
-                </div>
 
-                {/* ボタン */}
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                  <Button
-                    onClick={handleRetry}
-                    className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
-                  >
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    もう一度挑戦
-                  </Button>
-                  <Button
-                    onClick={handleBackToHome}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    <Home className="h-4 w-4 mr-2" />
-                    ダッシュボードに戻る
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </main>
-      </div>
-    );
-  }
+  const handleGoToReview = () => {
+    router.push('/dashboard/review');
+  };
+
+  const handleBackToCategory = () => {
+    router.push(`/dashboard/category/${encodeURIComponent(category)}`);
+  };
+
+  const closeAllModals = () => {
+    setShowCompletionModal(false);
+  };
 
   return (
     <div className="h-screen flex flex-col">
@@ -294,6 +234,24 @@ export default function QuizPage() {
           onAddToReview={handleAddToReview}
         />
       </main>
+
+      {/* 完了モーダル */}
+      {showCompletionModal && (
+        <CompletionModal
+          isOpen={showCompletionModal}
+          onClose={closeAllModals}
+          category={category}
+          results={{
+            totalWords: words.length,
+            correctCount: sessionResults.filter(r => r.correct).length,
+            accuracy: Math.round((sessionResults.filter(r => r.correct).length / Math.max(sessionResults.length, 1)) * 100)
+          }}
+          onRetry={handleRetry}
+          onBackToHome={handleBackToHome}
+          onGoToReview={handleGoToReview}
+          onBackToCategory={handleBackToCategory}
+        />
+      )}
     </div>
   );
 } 

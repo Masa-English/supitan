@@ -1,6 +1,5 @@
 import { Word } from '@/lib/types';
 import { createClient } from '@supabase/supabase-js';
-import { unstable_cache } from 'next/cache';
 
 export interface StaticData {
   categories: {
@@ -18,12 +17,12 @@ export interface StaticData {
 }
 
 // 統一キャッシュ設定
-const CACHE_CONFIG = {
-  SHORT: { revalidate: 300 }, // 5分
-  MEDIUM: { revalidate: 900 }, // 15分
-  LONG: { revalidate: 3600 }, // 1時間
-  STATIC: { revalidate: 86400 }, // 24時間
-} as const;
+// const CACHE_CONFIG = {
+//   SHORT: { revalidate: 300 }, // 5分
+//   MEDIUM: { revalidate: 900 }, // 15分
+//   LONG: { revalidate: 3600 }, // 1時間
+//   STATIC: { revalidate: 86400 }, // 24時間
+// } as const;
 
 // SSG用のデータベースサービス
 class StaticDatabaseService {
@@ -137,95 +136,81 @@ class StaticDatabaseService {
   }
 }
 
-// 統一キャッシュされた静的データ取得
-const getCachedStaticDataInternal = unstable_cache(
-  async (): Promise<StaticData> => {
-    try {
-      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-        console.warn('Supabase環境変数が設定されていません。デフォルトデータを返します。');
-        return getDefaultStaticData();
-      }
-
-      const db = new StaticDatabaseService();
-      
-      // 並列実行で高速化
-      const [categories, allWords] = await Promise.all([
-        db.getCategories(),
-        db.getWords()
-      ]);
-      
-      if (categories.length === 0) {
-        console.warn('カテゴリーが取得できませんでした。デフォルトデータを返します。');
-        return getDefaultStaticData();
-      }
-      
-      // カテゴリー統計の計算
-      const categoryStats = categories.map((cat) => ({
-        name: cat.category,
-        englishName: getEnglishName(cat.category),
-        count: cat.count,
-        pos: getPosSymbol(cat.category)
-      }));
-
-      // カテゴリー別の単語データ（最初の10個のみ）
-      const categoryWords = await Promise.all(
-        categories.map(async (cat) => {
-          const words = await db.getWordsByCategory(cat.category);
-          return {
-            category: cat.category,
-            words: words.slice(0, 10)
-          };
-        })
-      );
-
-      return {
-        categories: categoryStats,
-        totalWords: allWords.length,
-        categoryWords,
-        lastUpdated: new Date().toISOString()
-      };
-    } catch (error) {
-      console.error('静的データの取得エラー:', error);
+// 静的データ取得
+async function getStaticDataInternal(): Promise<StaticData> {
+  try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.warn('Supabase環境変数が設定されていません。デフォルトデータを返します。');
       return getDefaultStaticData();
     }
-  },
-  ['static-data'],
-  {
-    tags: ['static-data', 'words', 'categories'],
-    ...CACHE_CONFIG.MEDIUM, // 15分キャッシュ
+
+    const db = new StaticDatabaseService();
+    
+    // 並列実行で高速化
+    const [categories, allWords] = await Promise.all([
+      db.getCategories(),
+      db.getWords()
+    ]);
+    
+    if (categories.length === 0) {
+      console.warn('カテゴリーが取得できませんでした。デフォルトデータを返します。');
+      return getDefaultStaticData();
+    }
+    
+    // カテゴリー統計の計算
+    const categoryStats = categories.map((cat) => ({
+      name: cat.category,
+      englishName: getEnglishName(cat.category),
+      count: cat.count,
+      pos: getPosSymbol(cat.category)
+    }));
+
+    // カテゴリー別の単語データ（最初の10個のみ）
+    const categoryWords = await Promise.all(
+      categories.map(async (cat) => {
+        const words = await db.getWordsByCategory(cat.category);
+        return {
+          category: cat.category,
+          words: words.slice(0, 10)
+        };
+      })
+    );
+
+    return {
+      categories: categoryStats,
+      totalWords: allWords.length,
+      categoryWords,
+      lastUpdated: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('静的データの取得エラー:', error);
+    return getDefaultStaticData();
   }
-);
+}
 
-// カテゴリー別データのキャッシュ
-const getCachedCategoryData = unstable_cache(
-  async (category: string): Promise<Word[]> => {
-    try {
-      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-        console.warn('Supabase環境変数が設定されていません。空の配列を返します。');
-        return [];
-      }
-
-      const db = new StaticDatabaseService();
-      const words = await db.getWordsByCategory(category);
-      return words;
-    } catch (error) {
-      console.error('カテゴリー別静的データの取得エラー:', error);
+// カテゴリー別データ取得
+async function getCategoryDataInternal(category: string): Promise<Word[]> {
+  try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.warn('Supabase環境変数が設定されていません。空の配列を返します。');
       return [];
     }
-  },
-  ['category-data'],
-  {
-    tags: ['category-data', 'words'],
-    ...CACHE_CONFIG.LONG, // 1時間キャッシュ
+
+    const db = new StaticDatabaseService();
+    const words = await db.getWordsByCategory(category);
+    return words;
+  } catch (error) {
+    console.error('カテゴリー別静的データの取得エラー:', error);
+    return [];
   }
-);
+}
 
 export async function getStaticData(): Promise<StaticData> {
-  return getCachedStaticDataInternal();
+  return getStaticDataInternal();
 }
 
 export async function getStaticDataForCategory(category: string): Promise<Word[]> {
-  return getCachedCategoryData(category);
+  return getCategoryDataInternal(category);
 }
 
 function getDefaultStaticData(): StaticData {
@@ -276,9 +261,8 @@ function getPosSymbol(category: string): string {
   return posMap[category] || '';
 }
 
-// キャッシュ管理
+// キャッシュ管理（Next.js 15では不要）
 export async function revalidateStaticData() {
-  const { revalidateTag } = await import('next/cache');
-  revalidateTag('static-data');
-  revalidateTag('category-data');
+  // Next.js 15ではキャッシュ管理が変更されたため、この関数は現在使用されていません
+  console.log('revalidateStaticData: この関数は現在使用されていません');
 } 

@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Volume2, Check, X, CheckCircle, Brain } from 'lucide-react';
+import { useAudioStore } from '@/lib/audio-store';
+import { AudioControls } from '@/components/common/audio-controls';
 
 interface QuizProps {
   words: Word[];
@@ -24,6 +26,9 @@ export function Quiz({
   const [showResult, setShowResult] = useState(false);
   const [results, setResults] = useState<{ wordId: string; correct: boolean }[]>([]);
   const [isCorrect, setIsCorrect] = useState(false);
+  
+  // 音声ストア
+  const { playCorrectSound, playIncorrectSound } = useAudioStore();
 
   const currentQuestion = questions[currentIndex];
 
@@ -141,21 +146,9 @@ export function Quiz({
 
     // 正解音・不正解音の再生
     if (correct) {
-      // 正解音を再生（高い音）
-      const correctSound = new SpeechSynthesisUtterance('Correct!');
-      correctSound.lang = 'en-US';
-      correctSound.rate = 1.2;
-      correctSound.pitch = 1.5;
-      correctSound.volume = 0.7;
-      speechSynthesis.speak(correctSound);
+      playCorrectSound();
     } else {
-      // 不正解音を再生（低い音）
-      const incorrectSound = new SpeechSynthesisUtterance('Try again');
-      incorrectSound.lang = 'en-US';
-      incorrectSound.rate = 0.8;
-      incorrectSound.pitch = 0.7;
-      incorrectSound.volume = 0.7;
-      speechSynthesis.speak(incorrectSound);
+      playIncorrectSound();
     }
   };
 
@@ -189,8 +182,8 @@ export function Quiz({
   if (!currentQuestion) {
     return (
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
-        <p className="text-amber-700 dark:text-amber-300">問題を生成中...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">問題を生成中...</p>
       </div>
     );
   }
@@ -203,25 +196,25 @@ export function Quiz({
       <div className="mb-4 flex-shrink-0">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
           <div className="flex items-center gap-4">
-            <span className="text-lg font-medium text-amber-800 dark:text-amber-200">
+            <span className="text-lg font-medium text-foreground">
               問題 {currentIndex + 1} / {questions.length}
             </span>
-            <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CheckCircle className="h-4 w-4" />
               {Math.round(progress)}% 完了
             </div>
           </div>
-          <Badge 
-            variant="outline" 
-            className={`px-3 py-1 ${
-              currentQuestion.type === 'meaning' 
-                ? 'border-primary text-primary bg-primary/10'
-                : 'border-primary text-primary bg-primary/10'
-            }`}
-          >
-            <Brain className="h-4 w-4 mr-1" />
-            {currentQuestion.type === 'meaning' ? '意味問題' : '例文問題'}
-          </Badge>
+          <div className="flex items-center gap-4">
+            {/* 音声コントロール */}
+            <AudioControls />
+            <Badge 
+              variant="outline" 
+              className="px-3 py-1 border-primary text-primary bg-primary/10"
+            >
+              <Brain className="h-4 w-4 mr-1" />
+              {currentQuestion.type === 'meaning' ? '意味問題' : '例文問題'}
+            </Badge>
+          </div>
         </div>
         <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
           <div

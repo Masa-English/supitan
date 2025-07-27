@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { ContactForm } from '@/components/common/contact-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageSquare, Mail, Clock, Shield } from 'lucide-react';
+import { Header } from '@/components/common/header';
 
 export const metadata: Metadata = {
   title: 'お問い合わせ',
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <Header />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">
@@ -53,7 +55,7 @@ export default function ContactPage() {
                   <div>
                     <h4 className="font-medium text-foreground">返信方法</h4>
                     <p className="text-sm text-muted-foreground">
-                      ご入力いただいたメールアドレスに返信いたします
+                      運営で確認させていただき、必要に応じてご連絡いたします
                     </p>
                   </div>
                 </div>
@@ -69,7 +71,7 @@ export default function ContactPage() {
               </CardContent>
             </Card>
 
-            {/* よくある質問 */}
+            {/* よくある質問へのリンク */}
             <Card className="bg-card/90 backdrop-blur-sm border-primary/20">
               <CardHeader>
                 <CardTitle className="text-foreground">よくある質問</CardTitle>
@@ -77,31 +79,16 @@ export default function ContactPage() {
                   よくいただくご質問と回答
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-foreground text-sm">
-                    Q: アカウントの削除はできますか？
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    A: はい、設定画面からアカウントの削除が可能です。削除前にデータのバックアップをお勧めします。
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-foreground text-sm">
-                    Q: 学習データはどこに保存されますか？
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    A: 学習データはクラウドに安全に保存され、複数のデバイスからアクセスできます。
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-foreground text-sm">
-                    Q: 新しい単語カテゴリーの追加は可能ですか？
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    A: 現在は開発中です。機能リクエストとしてお送りいただければ、優先的に検討いたします。
-                  </p>
-                </div>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  よくいただくご質問と回答は別ページでご確認いただけます。
+                </p>
+                <a 
+                  href="/faq" 
+                  className="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
+                >
+                  よくある質問を見る
+                </a>
               </CardContent>
             </Card>
 

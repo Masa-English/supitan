@@ -10,6 +10,7 @@ export async function updateSession(request: NextRequest) {
   // Allow access to public pages even without env vars
   const publicPaths = [
     "/landing",
+    "/contact",
     "/auth/login",
     "/auth/sign-up",
     "/auth/forgot-password",

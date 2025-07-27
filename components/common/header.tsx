@@ -57,11 +57,24 @@ export function Header({
     if (onBackClick) {
       onBackClick();
     } else {
-      // カテゴリーページからはダッシュボードに戻る
+      // 現在のパスに基づいて適切な戻り先を決定
       const currentPath = window.location.pathname;
-          if (currentPath.match(/^\/dashboard\/category\/[^\/]+$/)) {
-      router.push('/dashboard');
-      } else {
+      
+      // 学習ページからはカテゴリーページに戻る
+      if (currentPath.match(/^\/dashboard\/category\/[^\/]+\/(flashcard|quiz|browse)$/)) {
+        const category = currentPath.split('/')[3];
+        router.push(`/dashboard/category/${category}`);
+      }
+      // カテゴリーページからはダッシュボードに戻る
+      else if (currentPath.match(/^\/dashboard\/category\/[^\/]+$/)) {
+        router.push('/dashboard');
+      }
+      // start-learningページからはダッシュボードに戻る
+      else if (currentPath === '/dashboard/start-learning') {
+        router.push('/dashboard');
+      }
+      // その他の場合は履歴に戻る
+      else {
         router.back();
       }
     }

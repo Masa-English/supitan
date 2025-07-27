@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/toast';
 import { createClient } from '@/lib/supabase/client';
-import { Mail, User, MessageSquare, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
+import { Mail, User, MessageSquare, AlertTriangle, CheckCircle, Loader2, Lock } from 'lucide-react';
 
 interface ContactFormProps {
   className?: string;
@@ -41,10 +41,39 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { showToast } = useToast();
   const supabase = createClient();
 
+  // ユーザーの認証状態を確認し、ログイン済みの場合はメールアドレスを自動入力
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setIsLoggedIn(true);
+          setFormData(prev => ({
+            ...prev,
+            email: user.email || '',
+            name: user.user_metadata?.full_name || user.user_metadata?.name || ''
+          }));
+        }
+      } catch (error) {
+        console.error('ユーザー情報の取得に失敗しました:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkUser();
+  }, [supabase.auth]);
+
   const handleInputChange = (field: keyof ContactFormData, value: string) => {
+    // ログイン済みユーザーの場合はメールアドレスを変更できないようにする
+    if (isLoggedIn && field === 'email') {
+      return;
+    }
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -131,7 +160,12 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
   if (variant === 'minimal') {
     return (
       <div className={className}>
-        {!isSubmitted ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">読み込み中...</span>
+          </div>
+        ) : !isSubmitted ? (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -149,8 +183,10 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
+                <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
                   メールアドレス *
+                  {isLoggedIn && <Lock className="h-3 w-3 text-muted-foreground" />}
                 </Label>
                 <Input
                   id="email"
@@ -159,8 +195,14 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   placeholder="example@email.com"
                   required
-                  className="border-border focus:border-primary"
+                  disabled={isLoggedIn}
+                  className={`border-border focus:border-primary ${isLoggedIn ? 'bg-muted cursor-not-allowed' : ''}`}
                 />
+                {isLoggedIn && (
+                  <p className="text-xs text-muted-foreground">
+                    ログイン済みのため、アカウントのメールアドレスが自動入力されています
+                  </p>
+                )}
               </div>
             </div>
             
@@ -267,7 +309,12 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
         )}
       </CardHeader>
       <CardContent>
-        {!isSubmitted ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-3 text-muted-foreground">読み込み中...</span>
+          </div>
+        ) : !isSubmitted ? (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -289,6 +336,7 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
                 <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   メールアドレス *
+                  {isLoggedIn && <Lock className="h-3 w-3 text-muted-foreground" />}
                 </Label>
                 <Input
                   id="email"
@@ -297,8 +345,14 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   placeholder="example@email.com"
                   required
-                  className="border-border focus:border-primary focus:ring-primary"
+                  disabled={isLoggedIn}
+                  className={`border-border focus:border-primary focus:ring-primary ${isLoggedIn ? 'bg-muted cursor-not-allowed' : ''}`}
                 />
+                {isLoggedIn && (
+                  <p className="text-xs text-muted-foreground">
+                    ログイン済みのため、アカウントのメールアドレスが自動入力されています
+                  </p>
+                )}
               </div>
             </div>
             

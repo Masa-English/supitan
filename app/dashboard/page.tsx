@@ -1,258 +1,379 @@
-import { Suspense } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+'use client';
+
+import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { AuthWrapper } from '@/components/auth';
 import { Header } from '@/components/common';
-import dynamic from 'next/dynamic';
-import { CategoryCardSkeleton, StatsCardSkeleton } from '@/components/ui/skeleton';
-import { Play, RotateCcw, BookOpen, Brain, Target } from 'lucide-react';
+import { 
+  Play, 
+  RotateCcw, 
+  BookOpen, 
+  Search, 
+  Target, 
+  BarChart3, 
+  User,
+  Heart,
+  TrendingUp,
+  Award,
+  Menu,
+  X
+} from 'lucide-react';
 import Link from 'next/link';
+import { TutorialWrapper } from '../../components/common';
 
-// 動的インポートでバンドルサイズを最適化
-const StatisticsDashboard = dynamic(() => import('@/components/learning/statistics-dashboard').then(mod => ({ default: mod.StatisticsDashboard })), {
-  loading: () => <StatisticsSkeleton />,
-  ssr: true
-});
+// サイドメニューコンポーネント
+function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const menuItems = [
+    {
+      title: '学習',
+      items: [
+        { label: '学習開始', href: '/dashboard/start-learning', icon: Play, color: 'text-primary' },
+        { label: '復習', href: '/dashboard/review', icon: RotateCcw, color: 'text-primary' },
+        { label: '単語一覧', href: '/dashboard/category', icon: BookOpen, color: 'text-primary' },
+        { label: '検索', href: '/dashboard/search', icon: Search, color: 'text-primary' },
+      ]
+    },
+    {
+      title: '管理',
+      items: [
+        { label: 'お気に入り', href: '/dashboard/favorites', icon: Heart, color: 'text-primary' },
+        { label: '統計', href: '/dashboard/statistics', icon: BarChart3, color: 'text-primary' },
+        { label: 'プロフィール', href: '/dashboard/profile', icon: User, color: 'text-primary' },
+      ]
+    }
+  ];
 
-// ISR設定 - 1時間ごとに再生成
-export const revalidate = 3600;
-
-// 静的生成の最適化
-export async function generateStaticParams() {
-  return [{}]; // 単一ページの静的生成
-}
-
-// プライマリアクションセクション
-function PrimaryActionsSection() {
   return (
-    <section className="mb-12">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-            学習を始める
-          </h2>
-          <p className="text-muted-foreground">
-            効率的な学習で英語力を向上させましょう
-          </p>
+    <>
+      {/* オーバーレイ（モバイル用） */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* サイドメニュー */}
+      <div className={`
+        fixed top-0 left-0 h-full z-50 bg-background border-r border-border
+        transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:translate-x-0 lg:static lg:z-auto
+        w-64
+      `}>
+        <div className="p-6 h-full flex flex-col">
+          {/* ヘッダー */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <h1 className="text-xl font-bold text-foreground">MasaFlash</h1>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="lg:hidden"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+          
+          {/* ナビゲーション */}
+          <nav className="flex-1 space-y-6">
+            {menuItems.map((section) => (
+              <div key={section.title}>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                  {section.title}
+                </h3>
+                <ul className="space-y-1">
+                  {section.items.map((item) => (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                        onClick={() => {
+                          // モバイルではメニューを閉じる
+                          if (window.innerWidth < 1024) {
+                            onClose();
+                          }
+                        }}
+                      >
+                        <item.icon className={`w-5 h-5 ${item.color}`} />
+                        <span className="font-medium">{item.label}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
         </div>
       </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* 学習開始カード */}
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-primary/5 via-primary/8 to-primary/10 border-primary/20 hover:border-primary/40 hover:shadow-xl transition-all duration-300 cursor-pointer">
-          <Link href="/dashboard/start-learning" className="block">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <CardHeader className="relative pb-6">
-              <CardTitle className="flex items-start justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="p-4 bg-primary/15 rounded-2xl group-hover:bg-primary/25 group-hover:scale-110 transition-all duration-300">
-                    <Play className="h-7 w-7 text-primary" />
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-xl font-bold text-foreground">
-                      学習開始
-                    </span>
-                    <p className="text-sm text-muted-foreground">
-                      新しい単語を効率的に学習
-                    </p>
-                  </div>
-                </div>
-                <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
-                  推奨
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="relative">
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  フラッシュカードとクイズを組み合わせた効果的な学習システムで、新しい単語を確実に身につけましょう。
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full">
-                      <BookOpen className="h-3.5 w-3.5" />
-                      フラッシュカード
-                    </span>
-                    <span className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full">
-                      <Brain className="h-3.5 w-3.5" />
-                      クイズ
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-primary">44</div>
-                    <div className="text-xs text-muted-foreground">学習可能な単語</div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Link>
-        </Card>
-
-        {/* 復習カード */}
-        <Card className="group relative overflow-hidden bg-gradient-to-br from-emerald-500/5 via-emerald-600/8 to-emerald-700/10 border-emerald-500/20 hover:border-emerald-500/40 hover:shadow-xl transition-all duration-300 cursor-pointer">
-          <Link href="/dashboard/review" className="block">
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <CardHeader className="relative pb-6">
-              <CardTitle className="flex items-start justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="p-4 bg-emerald-500/15 rounded-2xl group-hover:bg-emerald-500/25 group-hover:scale-110 transition-all duration-300">
-                    <RotateCcw className="h-7 w-7 text-emerald-600" />
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-xl font-bold text-foreground">
-                      復習
-                    </span>
-                    <p className="text-sm text-muted-foreground">
-                      間隔反復で確実に定着
-                    </p>
-                  </div>
-                </div>
-                <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-600 border-emerald-500/30">
-                  復習
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="relative">
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  忘却曲線に基づく科学的な間隔反復システムで、学習した単語を長期的に記憶に定着させます。
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 rounded-full">
-                      <RotateCcw className="h-3.5 w-3.5" />
-                      間隔反復
-                    </span>
-                    <span className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 rounded-full">
-                      <Target className="h-3.5 w-3.5" />
-                      定着確認
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-emerald-600">0</div>
-                    <div className="text-xs text-muted-foreground">復習待ち単語</div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Link>
-        </Card>
-      </div>
-    </section>
+    </>
   );
 }
 
-// 非同期でカテゴリーデータを取得するコンポーネント
-async function CategoriesSection() {
-  const { getStaticData } = await import('@/lib/static-data');
-  const staticData = await getStaticData();
-
+// メインアクションカード
+function MainActionCard({ 
+  title, 
+  description, 
+  icon: Icon, 
+  href, 
+  color, 
+  bgColor, 
+  stats 
+}: {
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+  color: string;
+  bgColor: string;
+  stats?: { value: string; label: string };
+}) {
   return (
-    <section className="mb-12">
-      <div className="mb-8">
-        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-          カテゴリーを選択
+    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
+      <Link href={href} className="block">
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between mb-4">
+            <div className={`p-3 rounded-xl ${bgColor}`}>
+              <Icon className={`w-6 h-6 ${color}`} />
+            </div>
+            {stats && (
+              <div className="text-right">
+                <div className={`text-2xl font-bold ${color}`}>{stats.value}</div>
+                <div className="text-xs text-muted-foreground">{stats.label}</div>
+              </div>
+            )}
+          </div>
+          <h3 className="text-lg font-semibold text-card-foreground mb-2">
+            {title}
+          </h3>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {description}
+          </p>
+        </CardContent>
+      </Link>
+    </Card>
+  );
+}
+
+// クイックアクションセクション
+function QuickActionsSection() {
+  return (
+    <section className="mb-8">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          クイックアクション
         </h2>
         <p className="text-muted-foreground">
-          学習したい単語の種類を選んでください
+          学習を効率的に進めるための主要なアクション
         </p>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {staticData.categories.map((category) => (
-          <Link 
-            key={category.name}
-            href={`/dashboard/category/${encodeURIComponent(category.name)}`}
-          >
-            <Card className="group bg-card/80 backdrop-blur-sm hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer hover:scale-105 border-border hover:border-primary/20 touch-friendly">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <span className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                      {category.name}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {category.englishName}
-                    </span>
-                  </div>
-                  <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">
-                    {category.pos}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">
-                    {category.count}個の単語
-                  </p>
-                  <div className="w-2 h-2 bg-primary/30 rounded-full group-hover:bg-primary transition-colors"></div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <MainActionCard
+          title="学習開始"
+          description="新しい単語をフラッシュカードとクイズで学習"
+          icon={Play}
+          href="/dashboard/start-learning"
+          color="text-primary"
+          bgColor="bg-primary/10"
+          stats={{ value: "44", label: "学習可能" }}
+        />
+        
+        <MainActionCard
+          title="復習"
+          description="間隔反復で学習した単語を定着させる"
+          icon={RotateCcw}
+          href="/dashboard/review"
+          color="text-primary"
+          bgColor="bg-primary/10"
+          stats={{ value: "0", label: "復習待ち" }}
+        />
+        
+        <MainActionCard
+          title="単語検索"
+          description="条件を指定して単語を検索・フィルタリング"
+          icon={Search}
+          href="/dashboard/search"
+          color="text-primary"
+          bgColor="bg-primary/10"
+        />
       </div>
     </section>
   );
 }
 
-// 統計ダッシュボードのスケルトン
-function StatisticsSkeleton() {
+// 今日の進捗セクション
+function TodayProgressSection() {
   return (
-    <section className="mb-12">
-      <div className="mb-8">
-        <div className="h-8 w-48 bg-muted rounded mb-2 animate-pulse"></div>
-        <div className="h-4 w-64 bg-muted rounded animate-pulse"></div>
+    <section className="mb-8">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          今日の進捗
+        </h2>
+        <p className="text-muted-foreground">
+          今日の学習状況を確認しましょう
+        </p>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        {[...Array(5)].map((_, i) => (
-          <StatsCardSkeleton key={i} />
-        ))}
+      
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-card border-border">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <BookOpen className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary">0</div>
+                <div className="text-sm text-muted-foreground">学習済み</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-card border-border">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Target className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary">0</div>
+                <div className="text-sm text-muted-foreground">正解率</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-card border-border">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary">0</div>
+                <div className="text-sm text-muted-foreground">連続日数</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-card border-border">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Award className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary">0</div>
+                <div className="text-sm text-muted-foreground">達成数</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </section>
   );
 }
 
-// カテゴリーセクションのスケルトン
-function CategoriesSkeleton() {
+// 最近の活動セクション
+function RecentActivitySection() {
   return (
-    <section className="mb-12">
-      <div className="mb-8">
-        <div className="h-8 w-48 bg-muted rounded mb-2 animate-pulse"></div>
-        <div className="h-4 w-64 bg-muted rounded animate-pulse"></div>
+    <section className="mb-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            最近の活動
+          </h2>
+          <p className="text-muted-foreground">
+            最近の学習履歴を確認
+          </p>
+        </div>
+        <Link href="/dashboard/statistics">
+          <Button variant="outline" size="sm">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            詳細を見る
+          </Button>
+        </Link>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {[...Array(8)].map((_, i) => (
-          <CategoryCardSkeleton key={i} />
-        ))}
-      </div>
+      
+      <Card className="border-border bg-card">
+        <CardContent className="p-6">
+          <div className="text-center py-8">
+            <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-card-foreground mb-2">
+              まだ学習履歴がありません
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              学習を開始して、あなたの進捗を追跡しましょう
+            </p>
+            <Link href="/dashboard/start-learning">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Play className="w-4 h-4 mr-2" />
+                学習を開始
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </section>
   );
 }
 
 export default function ProtectedPage() {
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+
   return (
     <AuthWrapper>
-      {/* ヘッダー */}
-      <Header 
-        title="ダッシュボード"
-        showUserInfo={true}
-      />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-        {/* プライマリアクション - 最上部に配置 */}
-        <PrimaryActionsSection />
-
-        {/* 統計ダッシュボード - Suspense対応 */}
-        <Suspense fallback={<StatisticsSkeleton />}>
-          <StatisticsDashboard />
-        </Suspense>
-
-        {/* カテゴリー選択 - Suspense対応 */}
-        <Suspense fallback={<CategoriesSkeleton />}>
-          <CategoriesSection />
-        </Suspense>
-      </main>
+      <TutorialWrapper>
+        <div className="min-h-screen bg-background">
+          {/* ヘッダー */}
+          <Header 
+            title="ダッシュボード"
+            showUserInfo={true}
+          />
+          
+          {/* モバイルメニューボタン */}
+          <div className="lg:hidden fixed top-4 left-4 z-50">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsSideMenuOpen(true)}
+              className="bg-background/95 backdrop-blur-md border border-border shadow-sm"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+          </div>
+          
+          <div className="flex">
+            {/* サイドメニュー */}
+            <SideMenu 
+              isOpen={isSideMenuOpen} 
+              onClose={() => setIsSideMenuOpen(false)} 
+            />
+            
+            {/* メインコンテンツ */}
+            <div className="flex-1 lg:ml-0">
+              <main className="p-6">
+                {/* クイックアクション */}
+                <QuickActionsSection />
+                
+                {/* 今日の進捗 */}
+                <TodayProgressSection />
+                
+                {/* 最近の活動 */}
+                <RecentActivitySection />
+              </main>
+            </div>
+          </div>
+        </div>
+      </TutorialWrapper>
     </AuthWrapper>
   );
 }

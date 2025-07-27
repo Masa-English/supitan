@@ -28,7 +28,6 @@ export function Review({ onComplete }: ReviewProps) {
 
   const currentWord = words[currentIndex];
   const currentReviewWord = reviewWords[currentIndex];
-  const { speak, isEnabled } = useAudioStore();
   const supabase = createClient();
   const db = useMemo(() => new DatabaseService(), []);
 
@@ -171,8 +170,13 @@ export function Review({ onComplete }: ReviewProps) {
   };
 
   const playWordAudio = () => {
-    if (isEnabled && currentWord) {
-      speak(currentWord.word);
+    if (currentWord) {
+      const utterance = new SpeechSynthesisUtterance(currentWord.word);
+      utterance.lang = 'ja-JP'; // 日本語の発音を指定
+      utterance.pitch = 1;
+      utterance.rate = 1;
+      utterance.volume = 1;
+      window.speechSynthesis.speak(utterance);
     }
   };
 
@@ -231,7 +235,7 @@ export function Review({ onComplete }: ReviewProps) {
               <Timer className="h-4 w-4" />
               {formatTime(sessionDuration)}
             </div>
-            <AudioControls showQuickControls={true} />
+            <AudioControls />
           </div>
         </div>
         

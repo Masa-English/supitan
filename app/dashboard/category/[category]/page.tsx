@@ -8,6 +8,14 @@ import { BookOpen, Brain, Play, AlertCircle } from 'lucide-react';
 import { LearningModeCardSkeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
+// プリロード機能
+function preloadLearningMode(category: string, mode: string) {
+  const link = document.createElement('link');
+  link.rel = 'prefetch';
+  link.href = `/dashboard/category/${encodeURIComponent(category)}/${mode}`;
+  document.head.appendChild(link);
+}
+
 // 静的生成の設定
 export const revalidate = 3600; // 1時間ごとに再生成
 
@@ -102,7 +110,10 @@ async function WordsSection({ category }: { category: string }) {
           </Link>
           
           {/* フラッシュカード */}
-                      <Link href={`/dashboard/category/${encodeURIComponent(category)}/flashcard`}>
+          <Link 
+            href={`/dashboard/category/${encodeURIComponent(category)}/flashcard`}
+            onMouseEnter={() => preloadLearningMode(category, 'flashcard')}
+          >
             <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 border-green-200 dark:border-green-700 h-full">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -125,7 +136,10 @@ async function WordsSection({ category }: { category: string }) {
           </Link>
 
           {/* クイズ */}
-                      <Link href={`/dashboard/category/${encodeURIComponent(category)}/quiz`}>
+          <Link 
+            href={`/dashboard/category/${encodeURIComponent(category)}/quiz`}
+            onMouseEnter={() => preloadLearningMode(category, 'quiz')}
+          >
             <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 border-purple-200 dark:border-purple-700 h-full">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">

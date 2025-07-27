@@ -40,6 +40,8 @@ export interface ButtonProps
   asChild?: boolean;
   loading?: boolean;
   "aria-describedby"?: string;
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -54,6 +56,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         aria-disabled={isDisabled}
         aria-busy={loading}
+        role="button"
+        tabIndex={isDisabled ? -1 : 0}
         {...props}
       >
         {loading && (

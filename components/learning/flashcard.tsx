@@ -5,7 +5,6 @@ import { Word } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, RotateCcw, Volume2, Star, StarOff, CheckCircle } from 'lucide-react';
-import { useAudioStore } from '@/lib/audio-store';
 import { AudioControls } from '@/components/common/audio-controls';
 import { createClient } from '@/lib/supabase/client';
 
@@ -23,7 +22,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
   const [addedToReview, setAddedToReview] = useState<Set<string>>(new Set());
   const [flippedExamples, setFlippedExamples] = useState<Set<string>>(new Set());
   
-  const { speak, isEnabled } = useAudioStore();
+  // 音声機能は新しいAudioControlsコンポーネントで管理
   
   const currentWord = words[currentIndex];
   const progress = ((currentIndex + 1) / words.length) * 100;
@@ -131,16 +130,22 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
   }, [currentWord, isFavorite]);
 
   const playWordAudio = useCallback(() => {
-    if (currentWord && isEnabled) {
-      speak(currentWord.word);
+    if (currentWord?.word) {
+      const utterance = new SpeechSynthesisUtterance(currentWord.word);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      speechSynthesis.speak(utterance);
     }
-  }, [currentWord, speak, isEnabled]);
+  }, [currentWord]);
 
   const playExampleAudio = useCallback((text: string) => {
-    if (isEnabled) {
-      speak(text);
-    }
-  }, [speak, isEnabled]);
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    utterance.rate = 0.8;
+    utterance.pitch = 1.0;
+    speechSynthesis.speak(utterance);
+  }, []);
 
   const handleExampleClick = useCallback((exampleKey: string) => {
     setFlippedExamples(prev => {
@@ -157,7 +162,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
   if (!currentWord) {
     return (
       <div className="text-center">
-        <p className="text-amber-700 dark:text-amber-300">単語が見つかりません</p>
+        <p className="text-muted-foreground">単語が見つかりません</p>
       </div>
     );
   }
@@ -176,7 +181,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
               {Math.round(progress)}% 完了
             </div>
           </div>
-          <AudioControls showQuickControls={true} />
+          <AudioControls />
         </div>
         <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
           <div
