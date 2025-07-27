@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, RotateCcw, Volume2, Star, StarOff, CheckCircle } from 'lucide-react';
 import { AudioControls } from '@/components/common/audio-controls';
 import { createClient } from '@/lib/supabase/client';
+import { AudioInitializer } from './audio-initializer';
 
 interface FlashcardProps {
   words: Word[];
@@ -168,7 +169,8 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
   }
 
   return (
-    <div className="h-full flex flex-col footer-safe">
+    <AudioInitializer>
+      <div className="h-full flex flex-col footer-safe">
       {/* Progress Bar */}
       <div className="mb-4 flex-shrink-0">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
@@ -471,6 +473,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </AudioInitializer>
   );
 } 

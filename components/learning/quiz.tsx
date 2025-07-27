@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Volume2, Check, X, CheckCircle, Brain } from 'lucide-react';
 import { useAudioStore } from '@/lib/audio-store';
 import { AudioControls } from '@/components/common/audio-controls';
+import { AudioInitializer } from './audio-initializer';
 
 interface QuizProps {
   words: Word[];
@@ -191,7 +192,8 @@ export function Quiz({
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="h-full flex flex-col footer-safe">
+    <AudioInitializer>
+      <div className="h-full flex flex-col footer-safe">
       {/* 進捗表示 */}
       <div className="mb-4 flex-shrink-0">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
@@ -367,6 +369,7 @@ export function Quiz({
           </Button>
         </div>
       )}
-    </div>
+      </div>
+    </AudioInitializer>
   );
 } 

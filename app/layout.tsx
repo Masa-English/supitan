@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { AudioProvider } from "@/components/common/audio-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 
@@ -86,9 +85,7 @@ export default function RootLayout({
           enableColorScheme={false}
         >
           <ToastProvider>
-            <AudioProvider>
-              {children}
-            </AudioProvider>
+            {children}
           </ToastProvider>
         </ThemeProvider>
       </body>

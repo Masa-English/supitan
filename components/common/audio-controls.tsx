@@ -15,20 +15,9 @@ export function AudioControls({ className = '' }: AudioControlsProps) {
     volume, 
     isLoading, 
     error, 
-    initializeAudio, 
     toggleMute, 
     setVolume 
   } = useAudioStore();
-
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  useEffect(() => {
-    // コンポーネントマウント時に音声を初期化
-    if (!isInitialized) {
-      initializeAudio();
-      setIsInitialized(true);
-    }
-  }, [initializeAudio, isInitialized]);
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
