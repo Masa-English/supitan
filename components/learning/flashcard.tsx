@@ -163,7 +163,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col footer-safe">
       {/* Progress Bar */}
       <div className="mb-4 flex-shrink-0">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
@@ -321,39 +321,150 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
       </div>
 
       {/* Control Buttons */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 flex-shrink-0 max-w-7xl mx-auto w-full">
-        <Button 
-          variant="outline" 
-          onClick={handlePrevious} 
-          disabled={currentIndex === 0} 
-          className="w-full sm:w-auto border-border text-foreground px-6 py-3"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          前の単語
-        </Button>
-        
-        <div className="w-full sm:w-auto flex justify-center">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 flex-shrink-0 max-w-7xl mx-auto w-full px-4 sm:px-0 relative z-20">
+        {/* Mobile: Stack buttons vertically */}
+        <div className="sm:hidden w-full space-y-3">
+          {/* Previous Button - Mobile */}
+          <Button 
+            variant="outline" 
+            onClick={handlePrevious} 
+            disabled={currentIndex === 0} 
+            className={`
+              w-full px-6 py-4 h-14
+              border-2 border-muted-foreground/20 text-muted-foreground
+              hover:border-primary/30 hover:text-primary hover:bg-primary/5
+              disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all duration-200 ease-in-out
+              group relative overflow-hidden touch-target
+              ${currentIndex === 0 ? 'opacity-50' : 'hover:shadow-md'}
+            `}
+          >
+            <ArrowLeft className="h-6 w-6 mr-3 transition-transform group-hover:-translate-x-1" />
+            <span className="font-medium text-base">前の単語</span>
+          </Button>
+          
+          {/* Add to Review Button - Mobile */}
           <Button 
             onClick={handleAddToReview} 
             disabled={isLoading || isAddedToReview} 
-            className={`px-6 py-3 ${
-              isAddedToReview 
-                ? 'bg-green-600 dark:bg-green-700' 
-                : 'bg-primary'
-            } text-primary-foreground`}
+            className={`
+              w-full px-8 py-4 h-14 font-medium text-base
+              transition-all duration-300 ease-in-out
+              relative overflow-hidden group touch-target
+              ${isAddedToReview 
+                ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl' 
+                : 'bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-md hover:shadow-lg'
+              }
+              ${isLoading ? 'animate-pulse' : ''}
+              disabled:opacity-70 disabled:cursor-not-allowed
+            `}
           >
-            <RotateCcw className="h-4 w-4 mr-2" />
-            {isLoading ? '追加中...' : isAddedToReview ? '追加済み' : '復習リストに追加'}
+            <RotateCcw className={`h-6 w-6 mr-3 transition-transform ${isLoading ? 'animate-spin' : 'group-hover:rotate-180'}`} />
+            <span>{isLoading ? '追加中...' : isAddedToReview ? '追加済み ✓' : '復習リストに追加'}</span>
+          </Button>
+          
+          {/* Next Button - Mobile */}
+          <Button 
+            onClick={handleNext} 
+            className={`
+              w-full px-8 py-4 h-14 font-medium text-base
+              bg-gradient-to-r from-primary to-primary/90 
+              hover:from-primary/90 hover:to-primary
+              text-primary-foreground shadow-lg hover:shadow-xl
+              transition-all duration-200 ease-in-out
+              group relative overflow-hidden touch-target
+              ${currentIndex === words.length - 1 
+                ? 'from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
+                : ''
+              }
+            `}
+          >
+            <span className="font-medium">
+              {currentIndex === words.length - 1 ? '完了' : '次の単語'}
+            </span>
+            <ArrowRight className={`h-6 w-6 ml-3 transition-transform group-hover:translate-x-1 ${currentIndex === words.length - 1 ? 'hidden' : ''}`} />
+            {currentIndex === words.length - 1 && (
+              <CheckCircle className="h-6 w-6 ml-3" />
+            )}
           </Button>
         </div>
         
-        <Button 
-          onClick={handleNext} 
-          className="w-full sm:w-auto bg-primary text-primary-foreground px-6 py-3"
-        >
-          {currentIndex === words.length - 1 ? '完了' : '次の単語'}
-          <ArrowRight className="h-4 w-4 ml-2" />
-        </Button>
+        {/* Desktop: Horizontal layout */}
+        <div className="hidden sm:flex flex-row justify-between items-center gap-4 w-full">
+          {/* Previous Button */}
+          <Button 
+            variant="outline" 
+            onClick={handlePrevious} 
+            disabled={currentIndex === 0} 
+            className={`
+              w-full sm:w-auto px-6 py-3 h-12
+              border-2 border-muted-foreground/20 text-muted-foreground
+              hover:border-primary/30 hover:text-primary hover:bg-primary/5
+              disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all duration-200 ease-in-out
+              group relative overflow-hidden
+              ${currentIndex === 0 ? 'opacity-50' : 'hover:shadow-md'}
+            `}
+          >
+            <ArrowLeft className="h-5 w-5 mr-2 transition-transform group-hover:-translate-x-1" />
+            <span className="font-medium">前の単語</span>
+            {/* Hover effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-out" />
+          </Button>
+          
+          {/* Add to Review Button */}
+          <div className="w-full sm:w-auto flex justify-center">
+            <Button 
+              onClick={handleAddToReview} 
+              disabled={isLoading || isAddedToReview} 
+              className={`
+                px-8 py-3 h-12 font-medium
+                transition-all duration-300 ease-in-out
+                relative overflow-hidden group
+                ${isAddedToReview 
+                  ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl' 
+                  : 'bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground shadow-md hover:shadow-lg'
+                }
+                ${isLoading ? 'animate-pulse' : ''}
+                disabled:opacity-70 disabled:cursor-not-allowed
+              `}
+            >
+              <RotateCcw className={`h-5 w-5 mr-2 transition-transform ${isLoading ? 'animate-spin' : 'group-hover:rotate-180'}`} />
+              <span>{isLoading ? '追加中...' : isAddedToReview ? '追加済み ✓' : '復習リストに追加'}</span>
+              {/* Success animation */}
+              {isAddedToReview && (
+                <div className="absolute inset-0 bg-green-400/20 animate-ping rounded-md" />
+              )}
+            </Button>
+          </div>
+          
+          {/* Next Button */}
+          <Button 
+            onClick={handleNext} 
+            className={`
+              w-full sm:w-auto px-8 py-3 h-12 font-medium
+              bg-gradient-to-r from-primary to-primary/90 
+              hover:from-primary/90 hover:to-primary
+              text-primary-foreground shadow-lg hover:shadow-xl
+              transition-all duration-200 ease-in-out
+              group relative overflow-hidden
+              ${currentIndex === words.length - 1 
+                ? 'from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' 
+                : ''
+              }
+            `}
+          >
+            <span className="font-medium">
+              {currentIndex === words.length - 1 ? '完了' : '次の単語'}
+            </span>
+            <ArrowRight className={`h-5 w-5 ml-2 transition-transform group-hover:translate-x-1 ${currentIndex === words.length - 1 ? 'hidden' : ''}`} />
+            {currentIndex === words.length - 1 && (
+              <CheckCircle className="h-5 w-5 ml-2" />
+            )}
+            {/* Hover effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-out" />
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -198,7 +198,7 @@ export function Quiz({
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col footer-safe">
       {/* 進捗表示 */}
       <div className="mb-4 flex-shrink-0">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
@@ -365,7 +365,7 @@ export function Quiz({
 
       {/* 次へボタン */}
       {showResult && (
-        <div className="text-center flex-shrink-0">
+        <div className="text-center flex-shrink-0 relative z-20">
           <Button
             onClick={handleNext}
             className="w-full sm:w-auto px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground text-lg"

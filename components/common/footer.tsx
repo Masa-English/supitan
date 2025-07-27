@@ -2,7 +2,7 @@
 
 
 import { ThemeSwitcher } from "@/components/common/theme-switcher";
-import { Heart, Github, Mail, ExternalLink } from "lucide-react";
+import { Heart, Mail } from "lucide-react";
 import Link from "next/link";
 
 interface FooterProps {
@@ -13,9 +13,11 @@ interface FooterProps {
 export function Footer({ variant = 'default', showThemeSwitcher = true }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
+
+
   if (variant === 'minimal') {
     return (
-      <footer className="w-full border-t border-border bg-card/95 backdrop-blur-md">
+      <footer className="w-full border-t border-border bg-card/95 backdrop-blur-md relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
@@ -45,7 +47,7 @@ export function Footer({ variant = 'default', showThemeSwitcher = true }: Footer
   }
 
   return (
-    <footer className="w-full border-t border-border bg-card/95 backdrop-blur-md">
+    <footer className="w-full border-t border-border bg-card/95 backdrop-blur-md relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* アプリ情報 */}
@@ -95,41 +97,31 @@ export function Footer({ variant = 'default', showThemeSwitcher = true }: Footer
 
           {/* リンク */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-slate-800 dark:text-slate-200">
+            <h4 className="font-semibold text-foreground">
               リンク
             </h4>
             <div className="flex flex-col gap-3">
+              {/* お問い合わせ */}
               <Link 
-                href="https://github.com" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors group"
-              >
-                <Github className="h-4 w-4" />
-                <span>GitHub</span>
-                <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Link>
-              <Link 
-                href="mailto:support@masaflash.com" 
-                className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors group"
+                href="/contact" 
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group touch-target py-1"
               >
                 <Mail className="h-4 w-4" />
                 <span>お問い合わせ</span>
-                <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
               </Link>
             </div>
             
             {showThemeSwitcher && (
               <div className="flex items-center gap-3 pt-4">
-                <span className="text-xs text-slate-500 dark:text-slate-400">テーマ:</span>
+                <span className="text-xs text-muted-foreground">テーマ:</span>
                 <ThemeSwitcher inline />
               </div>
             )}
           </div>
         </div>
         
-        <div className="border-t border-slate-200 dark:border-slate-700 mt-8 pt-6">
-          <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+        <div className="border-t border-border mt-8 pt-6">
+          <p className="text-center text-xs text-muted-foreground">
             © {currentYear} Masa Flash - 効率的な英語学習
           </p>
         </div>

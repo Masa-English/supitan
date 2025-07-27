@@ -55,10 +55,10 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-amber-200 dark:border-amber-700 shadow-lg">
+      <Card className="bg-card/90 backdrop-blur-sm border-primary/20 shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl text-amber-800 dark:text-amber-200">ログイン</CardTitle>
-          <CardDescription className="text-amber-700 dark:text-amber-300">
+          <CardTitle className="text-2xl text-foreground">ログイン</CardTitle>
+          <CardDescription className="text-muted-foreground">
             アカウントにログインしてください
           </CardDescription>
         </CardHeader>
@@ -66,7 +66,7 @@ export function LoginForm({
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email" className="text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                <Label htmlFor="email" className="text-foreground flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   メールアドレス
                 </Label>
@@ -77,18 +77,18 @@ export function LoginForm({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="border-amber-300 focus:border-amber-500 focus:ring-amber-500 dark:border-amber-600 dark:focus:border-amber-400"
+                  className="border-border focus:border-primary focus:ring-primary touch-target"
                 />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                  <Label htmlFor="password" className="text-foreground flex items-center gap-2">
                     <Lock className="h-4 w-4" />
                     パスワード
                   </Label>
                   <Link
                     href="/auth/forgot-password"
-                    className="text-sm text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 underline-offset-4 hover:underline"
+                    className="text-sm text-primary hover:text-primary/80 underline-offset-4 hover:underline touch-target"
                   >
                     パスワードを忘れましたか？
                   </Link>
@@ -100,43 +100,43 @@ export function LoginForm({
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="border-amber-300 focus:border-amber-500 focus:ring-amber-500 dark:border-amber-600 dark:focus:border-amber-400 pr-10"
+                    className="border-border focus:border-primary focus:ring-primary pr-10 touch-target"
                   />
                   {isMounted && (
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent touch-target"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <EyeOff className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
                       ) : (
-                        <Eye className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        <Eye className="h-4 w-4 text-muted-foreground" />
                       )}
                     </Button>
                   )}
                 </div>
               </div>
               {error && (
-                <div className="p-3 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-700">
-                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                  <p className="text-sm text-destructive">{error}</p>
                 </div>
               )}
               <Button 
                 type="submit" 
-                className="w-full bg-amber-600 hover:bg-amber-700 text-white" 
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground touch-target py-3" 
                 disabled={isLoading}
               >
                 {isLoading ? "ログイン中..." : "ログイン"}
               </Button>
             </div>
             <div className="mt-6 text-center text-sm">
-              <span className="text-amber-700 dark:text-amber-300">アカウントをお持ちでないですか？</span>{" "}
+              <span className="text-muted-foreground">アカウントをお持ちでないですか？</span>{" "}
               <Link
                 href="/auth/sign-up"
-                className="text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 underline underline-offset-4 font-medium"
+                className="text-primary hover:text-primary/80 underline underline-offset-4 font-medium touch-target"
               >
                 新規登録
               </Link>

@@ -26,7 +26,29 @@ const ThemeSwitcher = ({ inline = false }: ThemeSwitcherProps) => {
   }, []);
 
   if (!mounted) {
-    return null;
+    // マウント前はダークテーマのアイコンを表示（デフォルト）
+    return (
+      <div className="flex items-center gap-1 bg-muted/50 rounded-md p-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 touch-target"
+          title="ライトテーマ"
+          disabled
+        >
+          <Sun size={14} />
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="h-8 w-8 p-0 touch-target"
+          title="ダークテーマ"
+          disabled
+        >
+          <Moon size={14} />
+        </Button>
+      </div>
+    );
   }
 
   const ICON_SIZE = 16;
@@ -48,7 +70,7 @@ const ThemeSwitcher = ({ inline = false }: ThemeSwitcherProps) => {
           variant={theme === "light" ? "secondary" : "ghost"}
           size="sm"
           onClick={() => setTheme("light")}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 touch-target"
           title="ライトテーマ"
         >
           <Sun size={14} />
@@ -57,7 +79,7 @@ const ThemeSwitcher = ({ inline = false }: ThemeSwitcherProps) => {
           variant={theme === "dark" ? "secondary" : "ghost"}
           size="sm"
           onClick={() => setTheme("dark")}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 touch-target"
           title="ダークテーマ"
         >
           <Moon size={14} />
@@ -70,17 +92,17 @@ const ThemeSwitcher = ({ inline = false }: ThemeSwitcherProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="w-9 h-9" title="テーマを変更">
+        <Button variant="ghost" size="sm" className="w-9 h-9 touch-target" title="テーマを変更">
           {getThemeIcon()}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-content" align="start">
-        <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-          <DropdownMenuRadioItem className="flex gap-2" value="light">
+        <DropdownMenuRadioGroup value={theme || "dark"} onValueChange={setTheme}>
+          <DropdownMenuRadioItem className="flex gap-2 touch-target" value="light">
             <Sun size={ICON_SIZE} className="text-muted-foreground" />
             <span>ライト</span>
           </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem className="flex gap-2" value="dark">
+          <DropdownMenuRadioItem className="flex gap-2 touch-target" value="dark">
             <Moon size={ICON_SIZE} className="text-muted-foreground" />
             <span>ダーク</span>
           </DropdownMenuRadioItem>

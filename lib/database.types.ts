@@ -277,6 +277,54 @@ export type Database = {
           },
         ]
       }
+      contact_inquiries: {
+        Row: {
+          category: string
+          created_at: string | null
+          email: string
+          id: string
+          ip_address: unknown | null
+          message: string
+          name: string
+          priority: string
+          status: string
+          subject: string
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          email: string
+          id?: string
+          ip_address?: unknown | null
+          message: string
+          name: string
+          priority?: string
+          status?: string
+          subject: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          ip_address?: unknown | null
+          message?: string
+          name?: string
+          priority?: string
+          status?: string
+          subject?: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       learning_records: {
         Row: {
           created_at: string | null
@@ -703,7 +751,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      contact_inquiries_summary: {
+        Row: {
+          category: string | null
+          count: number | null
+          last_24h: number | null
+          last_30d: number | null
+          last_7d: number | null
+          priority: string | null
+          status: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       is_admin: {

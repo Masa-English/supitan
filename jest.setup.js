@@ -40,7 +40,7 @@ jest.mock('@/lib/supabase/client', () => ({
       single: jest.fn(),
     })),
   })),
-}))
+}), { virtual: true })
 
 // Mock Web Speech API
 Object.defineProperty(window, 'speechSynthesis', {

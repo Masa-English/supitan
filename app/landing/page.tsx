@@ -38,7 +38,7 @@ async function StatisticsSection() {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-12">
-      <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
+      <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-md transition-all duration-200">
         <CardHeader className="pb-2 px-3 sm:px-6">
           <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
             <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -53,7 +53,7 @@ async function StatisticsSection() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
+      <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-md transition-all duration-200">
         <CardHeader className="pb-2 px-3 sm:px-6">
           <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
             <Target className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -68,7 +68,7 @@ async function StatisticsSection() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
+      <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-md transition-all duration-200">
         <CardHeader className="pb-2 px-3 sm:px-6">
           <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
             <Trophy className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -83,7 +83,7 @@ async function StatisticsSection() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
+      <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-md transition-all duration-200">
         <CardHeader className="pb-2 px-3 sm:px-6">
           <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
             <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -136,7 +136,10 @@ async function CategoriesSection() {
                 {category.count}個の単語
               </p>
               <Link href="/auth/sign-up">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/10 text-xs sm:text-sm px-3 sm:px-4 py-2">
+                <Button 
+                  variant="outline" 
+                  className="border-primary text-primary hover:bg-primary/10 text-xs sm:text-sm px-3 sm:px-4 py-2 touch-target w-full sm:w-auto"
+                >
                   学習開始
                 </Button>
               </Link>
@@ -178,14 +181,17 @@ export default function LandingPage() {
     <LandingLayout>
       {/* ヒーローセクション */}
         <div className="text-center mb-8 sm:mb-12 px-4 sm:px-0">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4 leading-tight">
             効率的な英語学習を始めましょう
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8">
+          <p className="text-sm sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 leading-relaxed">
             単語数読み込み中...個の単語で、あなたの英語力を向上させます
           </p>
           <Link href="/auth/sign-up">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-lg px-6 sm:px-8 py-2 sm:py-3">
+            <Button 
+              size="lg" 
+              className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-lg px-6 sm:px-8 py-3 sm:py-4 touch-target shadow-lg hover:shadow-xl transition-all duration-200"
+            >
               無料で始める
             </Button>
           </Link>
@@ -207,7 +213,7 @@ export default function LandingPage() {
             学習機能
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-lg transition-all duration-200 hover:scale-105">
               <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -223,7 +229,7 @@ export default function LandingPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-lg transition-all duration-200 hover:scale-105">
               <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <Target className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -239,7 +245,7 @@ export default function LandingPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-lg transition-all duration-200 hover:scale-105">
               <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <RotateCcw className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -266,7 +272,10 @@ export default function LandingPage() {
             無料でアカウントを作成して、効率的な英語学習を体験してください。
           </p>
           <Link href="/auth/sign-up">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-lg px-8 sm:px-12 py-2 sm:py-4">
+            <Button 
+              size="lg" 
+              className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-lg px-8 sm:px-12 py-3 sm:py-4 touch-target shadow-lg hover:shadow-xl transition-all duration-200"
+            >
               無料で始める
             </Button>
           </Link>

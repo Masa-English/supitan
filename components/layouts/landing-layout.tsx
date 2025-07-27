@@ -12,20 +12,29 @@ export function LandingLayout({ children }: LandingLayoutProps) {
   return (
     <BaseLayout className="bg-gradient-to-br from-background to-background/80">
       {/* ヘッダー */}
-      <header className="bg-card/80 backdrop-blur-sm border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <header className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-foreground">
-              Masa Flash
-            </h1>
-            <div className="flex gap-4">
+            <Link href="/landing" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+                Masa Flash
+              </h1>
+            </Link>
+            <div className="flex gap-2 sm:gap-4">
               <Link href="/auth/login">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-primary text-primary hover:bg-primary/10 text-xs sm:text-sm px-3 sm:px-4 py-2 touch-target"
+                >
                   ログイン
                 </Button>
               </Link>
               <Link href="/auth/sign-up">
-                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Button 
+                  size="sm"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm px-3 sm:px-4 py-2 touch-target"
+                >
                   新規登録
                 </Button>
               </Link>
@@ -35,7 +44,7 @@ export function LandingLayout({ children }: LandingLayoutProps) {
       </header>
 
       {/* メインコンテンツ */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {children}
       </main>
 

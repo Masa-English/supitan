@@ -189,8 +189,8 @@ export function StatisticsDashboard() {
           </Card>
         </div>
       </div>
-    );
-  }
+  );
+}
 
   if (!stats) {
     return (
@@ -206,9 +206,19 @@ export function StatisticsDashboard() {
   const masteryPercentage = stats.studied_words > 0 ? Math.round((stats.mastered_words / stats.studied_words) * 100) : 0;
 
   return (
-    <div className="space-y-6">
-      {/* メイン統計カード */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+    <section className="space-y-8">
+      {/* セクションヘッダー */}
+      <div className="mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+          学習統計
+        </h2>
+        <p className="text-muted-foreground">
+          あなたの学習進捗と成果を確認しましょう
+        </p>
+      </div>
+
+      {/* メイン統計カード - よりコンパクトに */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
         <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
@@ -292,15 +302,15 @@ export function StatisticsDashboard() {
         </Card>
       </div>
 
-      {/* 進捗バー */}
+            {/* 進捗バー - よりコンパクトに */}
       <Card className="bg-card/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-foreground">
-            <TrendingUp className="h-5 w-5" />
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-foreground text-base">
+            <TrendingUp className="h-4 w-4" />
             学習進捗
           </CardTitle>
         </CardHeader>
-        <CardContent>
+                <CardContent className="pt-0">
           <div className="space-y-4">
             <div>
               <div className="flex justify-between items-center mb-2">
@@ -339,8 +349,8 @@ export function StatisticsDashboard() {
         </CardContent>
       </Card>
 
-      {/* 最近の学習セッション */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* 最近の学習セッション - よりコンパクトに */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="bg-card/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-foreground">
@@ -431,6 +441,6 @@ export function StatisticsDashboard() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </section>
   );
 } 

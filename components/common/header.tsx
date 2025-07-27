@@ -81,14 +81,14 @@ export function Header({
                 variant="ghost"
                 size="sm"
                 onClick={handleBackClick}
-                className="text-muted-foreground hover:bg-accent transition-colors px-2 sm:px-3"
+                className="text-muted-foreground hover:bg-accent transition-colors px-2 sm:px-3 touch-target"
               >
                 <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">戻る</span>
               </Button>
             )}
             <div 
-              className="flex items-center gap-1 sm:gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+              className="flex items-center gap-1 sm:gap-2 cursor-pointer hover:opacity-80 transition-opacity touch-friendly"
               onClick={handleHomeClick}
             >
               <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -115,7 +115,7 @@ export function Header({
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="text-muted-foreground hover:bg-accent transition-colors border border-border hover:border-primary/50 px-2 sm:px-3"
+                      className="text-muted-foreground hover:bg-accent transition-colors border border-border hover:border-primary/50 px-2 sm:px-3 touch-target"
                     >
                       <div className="flex items-center gap-1 sm:gap-2">
                         <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
@@ -139,21 +139,21 @@ export function Header({
                     <DropdownMenuSeparator className="bg-border" />
                     <DropdownMenuItem 
                       onClick={() => router.push('/dashboard/profile')}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent"
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
                     >
                       <UserCircle className="h-4 w-4 mr-2" />
                       プロフィール設定
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => router.push('/dashboard/review')}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent"
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
                     >
                       <BookOpen className="h-4 w-4 mr-2" />
                       復習
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => router.push('/dashboard')}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent"
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
                     >
                       <Settings className="h-4 w-4 mr-2" />
                       ダッシュボード
@@ -161,7 +161,7 @@ export function Header({
                     <DropdownMenuSeparator className="bg-border" />
                     <DropdownMenuItem 
                       onClick={onSignOut || handleSignOut} 
-                      className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
+                      className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 touch-target"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
                       ログアウト
@@ -173,7 +173,7 @@ export function Header({
                   variant="outline" 
                   size="sm"
                   onClick={onSignOut || handleSignOut} 
-                  className="border-border text-muted-foreground hover:bg-accent transition-colors px-2 sm:px-3"
+                  className="border-border text-muted-foreground hover:bg-accent transition-colors px-2 sm:px-3 touch-target"
                 >
                   <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   <span className="hidden sm:inline">ログアウト</span>

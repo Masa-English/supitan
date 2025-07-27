@@ -1,4 +1,7 @@
 {
+  "name": "masa-flash-with-quiz",
+  "version": "1.0.0",
+  "description": "効率的な英語学習をサポートするフラッシュカードアプリ",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,6 +15,8 @@
     "test:e2e": "playwright test",
     "sync-types": "supabase gen types typescript --project-id yuzoaegfjjxoptytqtzq --schema public > lib/database.types.ts",
     "type-check": "tsc --noEmit",
+    "quality-check": "node scripts/quality-check.mjs",
+    "pre-deploy": "node scripts/pre-deploy.mjs",
     "db:init": "supabase init",
     "db:link": "supabase link",
     "db:pull": "supabase db pull",
