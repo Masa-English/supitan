@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX, Volume1, AlertCircle } from 'lucide-react';
 import { useAudioStore } from '@/lib/audio-store';
