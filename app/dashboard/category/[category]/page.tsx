@@ -1,81 +1,63 @@
 import { dataProvider } from '@/lib/data-provider';
-import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Brain, Play, Users, Target } from 'lucide-react';
-import { Word, UserProgress, Category } from '@/lib/types';
+import { BookOpen, Brain, Play } from 'lucide-react';
+import { Word, Category } from '@/lib/types';
 import Link from 'next/link';
+import { Suspense } from 'react';
+import { UserProgressSection } from './user-progress-section';
 
 // 統一されたISR設定
 export const revalidate = 900; // 15分
 
-// 動的パラメータの生成
-export async function generateStaticParams() {
-  const categories = await dataProvider.getCategories();
-  return categories.map((category) => ({
-    category: encodeURIComponent(category.name),
-  }));
-}
+
 
 // 動的メタデータの生成
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;
-  const decodedCategory = decodeURIComponent(category);
   
   return {
-    title: `${decodedCategory} - 英単語学習 | Masa Flash`,
-    description: `${decodedCategory}の英単語を効率的に学習しましょう。フラッシュカードとクイズで習得度を向上させます。`,
+    title: `${category} - 英単語学習 | Masa Flash`,
+    description: `${category}の英単語を効率的に学習しましょう。フラッシュカードとクイズで習得度を向上させます。`,
     openGraph: {
-      title: `${decodedCategory} - 英単語学習`,
-      description: `${decodedCategory}の英単語学習ページ`,
+      title: `${category} - 英単語学習`,
+      description: `${category}の英単語学習ページ`,
     },
   };
 }
 
-interface PageData {
+// 静的データ取得（cookiesを使用しない）
+async function getStaticPageData(category: string): Promise<{
   words: Word[];
   categories: Category[];
-  user: { id: string; email?: string } | null;
-  userProgress: UserProgress[];
-}
-
-async function getPageData(category: string): Promise<PageData> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
+}> {
   // 統一データプロバイダーを使用してデータを一括取得
   const pageData = await dataProvider.getPageData('category', {
     category,
-    userId: user?.id,
   });
 
   return {
     words: pageData.words,
     categories: pageData.categories || [],
-    user,
-    userProgress: pageData.userProgress || [],
   };
 }
+
+
 
 export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
   try {
     const { category } = await params;
-    const decodedCategory = decodeURIComponent(category);
     
-    const { words, userProgress } = await getPageData(decodedCategory);
+    // 静的データを取得
+    const { words } = await getStaticPageData(category);
 
-    if (words.length === 0) {
+    // データが存在しない場合は404
+    if (!words || words.length === 0) {
+      console.log(`Category not found: ${category}`);
       notFound();
     }
-
-    // 進捗統計の計算
-    const stats = {
-      total: words.length,
-      studied: userProgress.filter(p => (p.study_count || 0) > 0).length,
-      mastered: userProgress.filter(p => (p.mastery_level || 0) >= 0.8).length,
-    };
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
@@ -84,62 +66,39 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-6">
               <h1 className="text-3xl font-bold text-amber-800 dark:text-amber-200">
-                {decodedCategory}
+                {category}
               </h1>
               <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-                {stats.total}個の単語
+                {words.length}個の単語
               </Badge>
             </div>
           </div>
 
-          {/* 統計カード */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
-                  <BookOpen className="h-4 w-4" />
-                  総単語数
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
-                  {stats.total}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
-                  <Target className="h-4 w-4" />
-                  学習済み
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {stats.studied}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  習得済み
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {stats.mastered}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* ユーザー進捗統計（動的レンダリング） */}
+          <Suspense fallback={
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                      読み込み中...
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
+                      -
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          }>
+            <UserProgressSection totalWords={words.length} />
+          </Suspense>
 
           {/* 学習モード選択 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/flashcard`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(category)}/flashcard`}>
               <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-blue-200 dark:border-blue-700">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-blue-800 dark:text-blue-200">
@@ -159,7 +118,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
               </Card>
             </Link>
 
-            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/quiz`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(category)}/quiz`}>
               <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-green-200 dark:border-green-700">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-green-800 dark:text-green-200">
