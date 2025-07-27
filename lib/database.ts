@@ -84,20 +84,26 @@ export class DatabaseService {
       throw new Error('user_id and word_id are required');
     }
 
+    // UUID形式の検証
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(progress.user_id) || !uuidRegex.test(progress.word_id)) {
+      throw new Error('Invalid UUID format');
+    }
+
     if (progress.mastery_level !== null && (progress.mastery_level < 0 || progress.mastery_level > 1)) {
       throw new Error('mastery_level must be between 0 and 1');
     }
 
-    if (progress.study_count !== null && progress.study_count < 0) {
-      throw new Error('study_count must be non-negative');
+    if (progress.study_count !== null && (progress.study_count < 0 || progress.study_count > 10000)) {
+      throw new Error('study_count must be between 0 and 10000');
     }
 
-    if (progress.correct_count !== null && progress.correct_count < 0) {
-      throw new Error('correct_count must be non-negative');
+    if (progress.correct_count !== null && (progress.correct_count < 0 || progress.correct_count > 10000)) {
+      throw new Error('correct_count must be between 0 and 10000');
     }
 
-    if (progress.incorrect_count !== null && progress.incorrect_count < 0) {
-      throw new Error('incorrect_count must be non-negative');
+    if (progress.incorrect_count !== null && (progress.incorrect_count < 0 || progress.incorrect_count > 10000)) {
+      throw new Error('incorrect_count must be between 0 and 10000');
     }
 
     // 既存のレコードを確認
@@ -109,8 +115,11 @@ export class DatabaseService {
       .single();
 
     if (selectError && selectError.code !== 'PGRST116') {
-      console.error('Error checking existing progress:', selectError);
-      throw selectError;
+      console.error('Error checking existing progress:', {
+        code: selectError.code,
+        message: selectError.message
+      });
+      throw new Error('Database operation failed');
     }
 
     if (existingProgress) {
@@ -126,14 +135,10 @@ export class DatabaseService {
 
       if (updateError) {
         console.error('updateProgress error:', {
-          error: updateError,
-          progress,
-          message: updateError.message,
-          details: updateError.details,
-          hint: updateError.hint,
-          code: updateError.code
+          code: updateError.code,
+          message: updateError.message
         });
-        throw updateError;
+        throw new Error('Database update failed');
       }
     } else {
       // 既存レコードがない場合は挿入
@@ -146,14 +151,10 @@ export class DatabaseService {
 
       if (insertError) {
         console.error('insertProgress error:', {
-          error: insertError,
-          progress,
-          message: insertError.message,
-          details: insertError.details,
-          hint: insertError.hint,
-          code: insertError.code
+          code: insertError.code,
+          message: insertError.message
         });
-        throw insertError;
+        throw new Error('Database insert failed');
       }
     }
   }

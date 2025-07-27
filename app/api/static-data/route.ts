@@ -29,9 +29,9 @@ export async function GET() {
 
     return NextResponse.json(staticData, {
       headers: {
-        'Cache-Control': 'public, max-age=900, stale-while-revalidate=1800',
-        'CDN-Cache-Control': 'public, max-age=900',
-        'Vercel-CDN-Cache-Control': 'public, max-age=900',
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+        'CDN-Cache-Control': 'public, max-age=300',
+        'Vercel-CDN-Cache-Control': 'public, max-age=300',
       },
     });
   } catch (error) {
@@ -44,9 +44,10 @@ export async function GET() {
     return NextResponse.json(
       { 
         error: '静的データの生成に失敗しました',
-        message: errorMessage,
-        timestamp: new Date().toISOString(),
-        ...(process.env.NODE_ENV === 'development' && { stack: errorStack })
+        ...(process.env.NODE_ENV === 'development' && { 
+          message: errorMessage,
+          stack: errorStack 
+        })
       },
       { status: 500 }
     );

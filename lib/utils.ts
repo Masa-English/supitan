@@ -11,7 +11,15 @@ export function getRedirectUrl(path: string): string {
     ? `https://${process.env.VERCEL_URL}`
     : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
   
-  return `${baseUrl}${path}`;
+  // パスの検証
+  if (!path || typeof path !== 'string') {
+    throw new Error('Invalid path parameter');
+  }
+  
+  // パスの正規化
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  
+  return `${baseUrl}${normalizedPath}`;
 }
 
 // パフォーマンス監視ユーティリティ
@@ -45,6 +53,7 @@ export class PerformanceMonitor {
       if (process.env.NODE_ENV === 'development') {
         console.log(`⏱️ ${label}: ${duration.toFixed(2)}ms`);
       }
+      // 本番環境ではログを出力しない
     };
   }
 
@@ -145,8 +154,8 @@ export function handleError(error: unknown, context: string = 'Unknown'): void {
   if (process.env.NODE_ENV === 'development') {
     console.error(`🚨 Error in ${context}:`, error);
   } else {
-    // 本番環境ではエラーをログサービスに送信
-    console.error(`Error in ${context}:`, error instanceof Error ? error.message : 'Unknown error');
+    // 本番環境ではエラーをログサービスに送信（詳細情報は含めない）
+    console.error(`Error in ${context}:`, 'Internal server error');
   }
 }
 
@@ -167,6 +176,7 @@ export function logMemoryUsage(label: string = 'Memory Usage'): void {
     if ('memory' in performance) {
       const memory = (performance as { memory?: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
       if (memory) {
+        // 開発環境でのみログ出力
         console.log(`🧠 ${label}:`, {
           used: `${Math.round(memory.usedJSHeapSize / 1024 / 1024)}MB`,
           total: `${Math.round(memory.totalJSHeapSize / 1024 / 1024)}MB`,
@@ -175,4 +185,5 @@ export function logMemoryUsage(label: string = 'Memory Usage'): void {
       }
     }
   }
+  // 本番環境では何もしない
 }

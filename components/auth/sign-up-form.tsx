@@ -59,7 +59,7 @@ export function SignUpForm({
         email,
         password,
         options: {
-          emailRedirectTo: getRedirectUrl("/protected"),
+          emailRedirectTo: getRedirectUrl("/dashboard"),
         },
       });
       if (error) throw error;

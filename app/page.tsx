@@ -9,5 +9,5 @@ export default async function HomePage() {
     redirect('/landing');
   }
 
-  redirect('/protected');
+  redirect('/dashboard');
 } 

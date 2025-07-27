@@ -122,7 +122,7 @@ export class UnifiedDataProvider {
       try {
         return await this.db.getWordsByCategory(category);
       } catch (error) {
-        console.error('カテゴリー別単語取得エラー:', error);
+        console.error('カテゴリー別単語取得エラー:', error instanceof Error ? error.message : 'Unknown error');
         return [];
       }
     },
@@ -138,7 +138,7 @@ export class UnifiedDataProvider {
       try {
         return await this.db.getWords();
       } catch (error) {
-        console.error('全単語取得エラー:', error);
+        console.error('全単語取得エラー:', error instanceof Error ? error.message : 'Unknown error');
         return [];
       }
     },
@@ -165,7 +165,7 @@ export class UnifiedDataProvider {
           pos: this.getPosSymbol(name)
         }));
       } catch (error) {
-        console.error('カテゴリー取得エラー:', error);
+        console.error('カテゴリー取得エラー:', error instanceof Error ? error.message : 'Unknown error');
         return [];
       }
     },
@@ -181,7 +181,7 @@ export class UnifiedDataProvider {
       try {
         return await this.db.getUserProgress(userId);
       } catch (error) {
-        console.error('ユーザー進捗取得エラー:', error);
+        console.error('ユーザー進捗取得エラー:', error instanceof Error ? error.message : 'Unknown error');
         return [];
       }
     },

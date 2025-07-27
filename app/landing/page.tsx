@@ -37,61 +37,65 @@ async function StatisticsSection() {
   const staticData = await getStaticData();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-12">
       <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
-            総単語数
+        <CardHeader className="pb-2 px-3 sm:px-6">
+          <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
+            <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">総単語数</span>
+            <span className="sm:hidden">単語数</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-primary">
+        <CardContent className="px-3 sm:px-6 pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-primary">
             {staticData.totalWords}
           </div>
         </CardContent>
       </Card>
 
       <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            カテゴリー
+        <CardHeader className="pb-2 px-3 sm:px-6">
+          <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
+            <Target className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">カテゴリー</span>
+            <span className="sm:hidden">カテゴリ</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-primary">
+        <CardContent className="px-3 sm:px-6 pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-primary">
             {staticData.categories.length}
           </div>
         </CardContent>
       </Card>
 
       <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
-            <Trophy className="h-4 w-4" />
-            学習モード
+        <CardHeader className="pb-2 px-3 sm:px-6">
+          <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
+            <Trophy className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">学習モード</span>
+            <span className="sm:hidden">モード</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-primary">
+        <CardContent className="px-3 sm:px-6 pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-primary">
             3
           </div>
         </CardContent>
       </Card>
 
       <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            最終更新
+        <CardHeader className="pb-2 px-3 sm:px-6">
+          <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">最終更新</span>
+            <span className="sm:hidden">更新</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-sm text-primary">
+        <CardContent className="px-3 sm:px-6 pt-0">
+          <div className="text-xs sm:text-sm text-primary">
             {new Date(staticData.lastUpdated).toLocaleDateString('ja-JP', {
               year: 'numeric',
-              month: 'long',
+              month: 'short',
               day: 'numeric'
             })}
           </div>
@@ -107,32 +111,32 @@ async function CategoriesSection() {
   const staticData = await getStaticData();
 
   return (
-    <div className="mb-12">
-      <h2 className="text-3xl font-bold text-foreground mb-8 text-center">
+    <div className="mb-8 sm:mb-12">
+      <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8 text-center">
         学習カテゴリー
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
         {staticData.categories.map((category) => (
           <Card key={category.name} className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-lg transition-all duration-200 hover:scale-105">
-            <CardHeader className="text-center pb-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Badge variant="outline" className="text-lg font-bold border-primary text-primary">
+            <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Badge variant="outline" className="text-sm sm:text-lg font-bold border-primary text-primary">
                   {category.pos}
                 </Badge>
               </div>
-              <CardTitle className="text-xl text-foreground">
+              <CardTitle className="text-lg sm:text-xl text-foreground">
                 {category.name}
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {category.englishName}
               </p>
             </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-muted-foreground mb-4">
+            <CardContent className="text-center px-4 sm:px-6">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                 {category.count}個の単語
               </p>
               <Link href="/auth/sign-up">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary/10 text-xs sm:text-sm px-3 sm:px-4 py-2">
                   学習開始
                 </Button>
               </Link>
@@ -147,7 +151,7 @@ async function CategoriesSection() {
 // 統計セクションのスケルトン
 function StatisticsSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-12">
       {[...Array(4)].map((_, i) => (
         <StatsCardSkeleton key={i} />
       ))}
@@ -158,9 +162,9 @@ function StatisticsSkeleton() {
 // カテゴリーセクションのスケルトン
 function CategoriesSkeleton() {
   return (
-    <div className="mb-12">
-      <div className="h-8 w-64 bg-muted rounded mx-auto mb-8 animate-pulse"></div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <div className="mb-8 sm:mb-12">
+      <div className="h-6 sm:h-8 w-48 sm:w-64 bg-muted rounded mx-auto mb-6 sm:mb-8 animate-pulse"></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
         {[...Array(4)].map((_, i) => (
           <CategoryCardSkeleton key={i} />
         ))}
@@ -173,15 +177,15 @@ export default function LandingPage() {
   return (
     <LandingLayout>
       {/* ヒーローセクション */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-foreground mb-4">
+        <div className="text-center mb-8 sm:mb-12 px-4 sm:px-0">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
             効率的な英語学習を始めましょう
           </h2>
-          <p className="text-xl text-muted-foreground mb-8">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8">
             単語数読み込み中...個の単語で、あなたの英語力を向上させます
           </p>
           <Link href="/auth/sign-up">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-3">
+            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-lg px-6 sm:px-8 py-2 sm:py-3">
               無料で始める
             </Button>
           </Link>
@@ -198,54 +202,54 @@ export default function LandingPage() {
         </Suspense>
 
         {/* 機能紹介 */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold text-foreground mb-8 text-center">
+        <div className="mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8 text-center">
             学習機能
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
             <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-              <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BookOpen className="h-8 w-8 text-primary" />
+              <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                 </div>
-                <CardTitle className="text-xl text-foreground">
+                <CardTitle className="text-lg sm:text-xl text-foreground">
                   フラッシュカード
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-muted-foreground">
+              <CardContent className="text-center px-4 sm:px-6">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   カードをめくって単語を学習。音声機能付きで発音も学べます。
                 </p>
               </CardContent>
             </Card>
 
             <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-              <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Target className="h-8 w-8 text-primary" />
+              <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Target className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                 </div>
-                <CardTitle className="text-xl text-foreground">
+                <CardTitle className="text-lg sm:text-xl text-foreground">
                   クイズ
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-muted-foreground">
+              <CardContent className="text-center px-4 sm:px-6">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   選択問題で理解度を確認。間違えた問題は復習リストに自動追加。
                 </p>
               </CardContent>
             </Card>
 
             <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-              <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <RotateCcw className="h-8 w-8 text-primary" />
+              <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <RotateCcw className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                 </div>
-                <CardTitle className="text-xl text-foreground">
+                <CardTitle className="text-lg sm:text-xl text-foreground">
                   復習システム
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-muted-foreground">
+              <CardContent className="text-center px-4 sm:px-6">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   忘却曲線に基づく効率的な復習で、長期記憶に定着させます。
                 </p>
               </CardContent>
@@ -254,15 +258,15 @@ export default function LandingPage() {
         </div>
 
         {/* CTA */}
-        <div className="text-center bg-gradient-to-r from-primary/5 to-primary/10 rounded-2xl p-12">
-          <h2 className="text-3xl font-bold text-foreground mb-4">
+        <div className="text-center bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl sm:rounded-2xl p-6 sm:p-12 mx-4 sm:mx-0">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 sm:mb-4">
             今すぐ英語学習を始めましょう
           </h2>
-          <p className="text-lg text-muted-foreground mb-8">
+          <p className="text-sm sm:text-lg text-muted-foreground mb-6 sm:mb-8">
             無料でアカウントを作成して、効率的な英語学習を体験してください。
           </p>
           <Link href="/auth/sign-up">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-12 py-4">
+            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-lg px-8 sm:px-12 py-2 sm:py-4">
               無料で始める
             </Button>
           </Link>

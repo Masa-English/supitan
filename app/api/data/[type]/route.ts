@@ -16,11 +16,19 @@ export async function GET(
 
     // 認証確認
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (authError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // ユーザーIDの検証
+    if (!user.id) {
+      return NextResponse.json(
+        { error: 'Invalid user' },
         { status: 401 }
       );
     }
@@ -29,9 +37,17 @@ export async function GET(
     const validTypes = ['category', 'quiz', 'flashcard', 'review'] as const;
     type ValidType = typeof validTypes[number];
     
-    if (!validTypes.includes(type as ValidType)) {
+    if (!type || !validTypes.includes(type as ValidType)) {
       return NextResponse.json(
         { error: 'Invalid data type' },
+        { status: 400 }
+      );
+    }
+
+    // カテゴリー名の検証（XSS対策）
+    if (category && (typeof category !== 'string' || category.length > 100)) {
+      return NextResponse.json(
+        { error: 'Invalid category parameter' },
         { status: 400 }
       );
     }
@@ -44,9 +60,9 @@ export async function GET(
 
     return NextResponse.json(data, {
       headers: {
-        'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
-        'CDN-Cache-Control': 'public, max-age=300',
-        'Vercel-CDN-Cache-Control': 'public, max-age=300',
+        'Cache-Control': 'private, max-age=60, stale-while-revalidate=120',
+        'CDN-Cache-Control': 'private, max-age=60',
+        'Vercel-CDN-Cache-Control': 'private, max-age=60',
       },
     });
   } catch (error) {

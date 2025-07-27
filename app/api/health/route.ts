@@ -35,7 +35,7 @@ export async function GET() {
       envVars: {
         hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
         hasSupabaseKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        hasServiceRoleKey: false, // セキュリティのため非表示
         hasVercelUrl: !!process.env.VERCEL_URL,
         hasBaseUrl: !!process.env.NEXT_PUBLIC_BASE_URL,
       },

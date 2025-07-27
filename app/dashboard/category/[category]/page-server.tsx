@@ -82,7 +82,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* ヘッダー */}
           <div className="mb-8">
-            <Link href="/protected">
+            <Link href="/dashboard">
               <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 mb-4">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 カテゴリー一覧に戻る
@@ -146,7 +146,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
           {/* 学習モード選択 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Link href={`/protected/category/${encodeURIComponent(decodedCategory)}/flashcard`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/flashcard`}>
               <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-blue-200 dark:border-blue-700">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-blue-800 dark:text-blue-200">
@@ -166,7 +166,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
               </Card>
             </Link>
 
-            <Link href={`/protected/category/${encodeURIComponent(decodedCategory)}/quiz`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/quiz`}>
               <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-green-200 dark:border-green-700">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-green-800 dark:text-green-200">

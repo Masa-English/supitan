@@ -53,7 +53,7 @@ async function WordsSection({ category }: { category: string }) {
             問題が続く場合は、以下をお試しください：
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/protected">
+            <Link href="/dashboard">
               <Button className="bg-amber-600 hover:bg-amber-700 text-white">
                 ダッシュボードに戻る
               </Button>
@@ -102,7 +102,7 @@ async function WordsSection({ category }: { category: string }) {
           </Link>
           
           {/* フラッシュカード */}
-          <Link href={`/protected/category/${encodeURIComponent(category)}/flashcard`}>
+                      <Link href={`/dashboard/category/${encodeURIComponent(category)}/flashcard`}>
             <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 border-green-200 dark:border-green-700 h-full">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -125,7 +125,7 @@ async function WordsSection({ category }: { category: string }) {
           </Link>
 
           {/* クイズ */}
-          <Link href={`/protected/category/${encodeURIComponent(category)}/quiz`}>
+                      <Link href={`/dashboard/category/${encodeURIComponent(category)}/quiz`}>
             <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-105 border-purple-200 dark:border-purple-700 h-full">
               <CardHeader className="text-center pb-4">
                 <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -178,7 +178,7 @@ async function WordsSection({ category }: { category: string }) {
             <p className="text-amber-600 dark:text-amber-400 text-lg">
               他 {words.length - 8} 個の単語があります
             </p>
-            <Link href={`/protected/category/${encodeURIComponent(category)}/browse`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(category)}/browse`}>
               <Button variant="outline" className="mt-4 border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20">
                 すべての単語を見る
               </Button>

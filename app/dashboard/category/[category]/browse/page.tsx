@@ -295,12 +295,12 @@ export default function BrowsePage() {
         <div className="flex-shrink-0 mb-6">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href={`/protected/category/${encodeURIComponent(category)}/flashcard`} className="flex-1">
+              <Link href={`/dashboard/category/${encodeURIComponent(category)}/flashcard`} className="flex-1">
                 <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
                   📚 フラッシュカード学習
                 </Button>
               </Link>
-              <Link href={`/protected/category/${encodeURIComponent(category)}/quiz`} className="flex-1">
+              <Link href={`/dashboard/category/${encodeURIComponent(category)}/quiz`} className="flex-1">
                 <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
                   🧠 クイズに挑戦
                 </Button>

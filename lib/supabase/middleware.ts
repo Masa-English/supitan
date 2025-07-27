@@ -16,7 +16,9 @@ export async function updateSession(request: NextRequest) {
     "/auth/sign-up-success",
     "/auth/update-password",
     "/auth/confirm",
-    "/auth/error"
+    "/auth/error",
+    "/api/health",
+    "/api/static-data"
   ];
 
   const isPublicPath = publicPaths.some(path => 
@@ -35,9 +37,18 @@ export async function updateSession(request: NextRequest) {
 
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/landing";
+    return NextResponse.redirect(url);
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         getAll() {

@@ -92,7 +92,7 @@ const nextConfig: NextConfig = {
   // コンパイル最適化
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn']
+      exclude: ['error']
     } : false,
   },
 
@@ -134,7 +134,7 @@ const nextConfig: NextConfig = {
 
   // 環境変数の検証
   env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
+    // セキュリティのため、機密性の高い環境変数は含めない
   },
 
   // ISRの設定
