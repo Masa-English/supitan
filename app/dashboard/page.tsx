@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AuthWrapper } from '@/components/auth';
 import { TutorialWrapper } from '../../components/common';
+import { useRouter } from 'next/navigation';
 import { 
   Play, 
   RotateCcw, 
@@ -311,30 +312,49 @@ export default function ProtectedPage() {
   return (
     <AuthWrapper>
       <TutorialWrapper>
-        <div className="min-h-screen bg-background">
-          <div className="flex">
-            {/* サイドメニュー */}
-            <SideMenu 
-              isOpen={isSideMenuOpen} 
-              onClose={() => setIsSideMenuOpen(false)} 
-            />
-            
-            {/* メインコンテンツ */}
-            <div className="flex-1 lg:ml-0">
-              <main className="p-4 sm:p-6 lg:p-8">
-                {/* クイックアクション */}
-                <QuickActionsSection />
-                
-                {/* 今日の進捗 */}
-                <TodayProgressSection />
-                
-                {/* 最近の活動 */}
-                <RecentActivitySection />
-              </main>
+        <RedirectHandler>
+          <div className="min-h-screen bg-background">
+            <div className="flex">
+              {/* サイドメニュー */}
+              <SideMenu 
+                isOpen={isSideMenuOpen} 
+                onClose={() => setIsSideMenuOpen(false)} 
+              />
+              
+              {/* メインコンテンツ */}
+              <div className="flex-1 lg:ml-0">
+                <main className="p-4 sm:p-6 lg:p-8">
+                  {/* クイックアクション */}
+                  <QuickActionsSection />
+                  
+                  {/* 今日の進捗 */}
+                  <TodayProgressSection />
+                  
+                  {/* 最近の活動 */}
+                  <RecentActivitySection />
+                </main>
+              </div>
             </div>
           </div>
-        </div>
+        </RedirectHandler>
       </TutorialWrapper>
     </AuthWrapper>
   );
+}
+
+// リダイレクト処理を行うコンポーネント
+function RedirectHandler({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  
+  useEffect(() => {
+    // 保存されたリダイレクト先がある場合はそこに遷移
+    const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+    if (redirectPath) {
+      console.log('ダッシュボードから保存されたリダイレクト先に遷移:', redirectPath);
+      sessionStorage.removeItem('redirectAfterLogin');
+      router.push(redirectPath);
+    }
+  }, [router]);
+
+  return <>{children}</>;
 }

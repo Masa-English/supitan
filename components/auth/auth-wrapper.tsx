@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
@@ -17,6 +17,38 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
   const router = useRouter();
   const supabase = createClient();
 
+  // 安全なリダイレクト先かチェックする関数
+  const isSafeRedirectPath = (path: string): boolean => {
+    const safePaths = [
+      '/dashboard',
+      '/dashboard/start-learning',
+      '/dashboard/review',
+      '/dashboard/category',
+      '/dashboard/search',
+      '/dashboard/favorites',
+      '/dashboard/statistics',
+      '/dashboard/profile',
+      '/contact',
+      '/faq'
+    ];
+    
+    // 完全一致またはdashboard配下のパスを許可
+    return safePaths.includes(path) || path.startsWith('/dashboard/');
+  };
+
+  // 現在のURLを保存する関数
+  const saveCurrentPath = useCallback(() => {
+    const currentPath = window.location.pathname;
+    const currentSearch = window.location.search;
+    const fullPath = currentSearch ? `${currentPath}${currentSearch}` : currentPath;
+    
+    // 安全なパスのみ保存
+    if (isSafeRedirectPath(currentPath)) {
+      sessionStorage.setItem('redirectAfterLogin', fullPath);
+      console.log('リダイレクト先を保存:', fullPath);
+    }
+  }, []);
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -25,21 +57,13 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
         
         if (error) {
           console.error('認証チェックエラー:', error);
-          // エラー時も現在のページURLを保存
-          const currentPath = window.location.pathname;
-          if (currentPath !== '/landing' && currentPath !== '/auth/login' && currentPath !== '/auth/sign-up') {
-            sessionStorage.setItem('redirectAfterLogin', currentPath);
-          }
+          saveCurrentPath();
           router.push('/landing');
           return;
         }
 
         if (!session || !session.user) {
-          // 現在のページURLを保存してからリダイレクト
-          const currentPath = window.location.pathname;
-          if (currentPath !== '/landing' && currentPath !== '/auth/login' && currentPath !== '/auth/sign-up') {
-            sessionStorage.setItem('redirectAfterLogin', currentPath);
-          }
+          saveCurrentPath();
           router.push('/landing');
           return;
         }
@@ -48,11 +72,7 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
         setIsAuthenticated(true);
       } catch (error) {
         console.error('認証チェックエラー:', error);
-        // エラー時も現在のページURLを保存
-        const currentPath = window.location.pathname;
-        if (currentPath !== '/landing' && currentPath !== '/auth/login' && currentPath !== '/auth/sign-up') {
-          sessionStorage.setItem('redirectAfterLogin', currentPath);
-        }
+        saveCurrentPath();
         router.push('/landing');
       } finally {
         setIsLoading(false);
@@ -76,7 +96,7 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
     );
 
     return () => subscription.unsubscribe();
-  }, [router, supabase.auth]);
+  }, [router, supabase.auth, saveCurrentPath]);
 
   if (isLoading) {
     return (

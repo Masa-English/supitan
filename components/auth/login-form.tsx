@@ -49,9 +49,11 @@ export function LoginForm({
       // 保存されたリダイレクト先がある場合はそこに遷移、なければダッシュボード
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
       if (redirectPath) {
+        console.log('保存されたリダイレクト先に遷移:', redirectPath);
         sessionStorage.removeItem('redirectAfterLogin');
         router.push(redirectPath);
       } else {
+        console.log('デフォルトのダッシュボードに遷移');
         router.push("/dashboard");
       }
     } catch (error: unknown) {
