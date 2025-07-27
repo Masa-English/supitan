@@ -26,7 +26,7 @@ function StatCard({
   value, 
   subtitle, 
   icon: Icon, 
-  color = 'amber' 
+  color = 'primary' 
 }: { 
   title: string; 
   value: string | number; 
@@ -35,6 +35,8 @@ function StatCard({
   color?: string; 
 }) {
   const colorClasses = {
+    primary: 'text-primary bg-primary/10',
+    secondary: 'text-secondary bg-secondary/10',
     amber: 'text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30',
     blue: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30',
     green: 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30',
@@ -43,7 +45,7 @@ function StatCard({
   };
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+    <Card className="bg-card border-border hover:shadow-lg transition-all duration-300">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -96,9 +98,9 @@ function SessionHistory({ sessions, type }: { sessions: (StudySession | ReviewSe
   };
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+        <CardTitle className="flex items-center gap-2 text-foreground">
           {type === 'study' ? <BookOpen className="h-5 w-5" /> : <RotateCcw className="h-5 w-5" />}
           {type === 'study' ? '学習セッション履歴' : '復習セッション履歴'}
         </CardTitle>
@@ -107,7 +109,7 @@ function SessionHistory({ sessions, type }: { sessions: (StudySession | ReviewSe
         {sessions.length > 0 ? (
           <div className="space-y-3">
             {sessions.map((session) => (
-              <div key={session.id} className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
+              <div key={session.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-primary/10 rounded-full">
                     {type === 'study' ? getModeIcon((session as StudySession).mode) : <RotateCcw className="h-4 w-4" />}
@@ -200,11 +202,11 @@ export default function StatisticsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+      <div className="min-h-screen bg-background">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
-            <span className="ml-3 text-amber-700 dark:text-amber-300">統計データを読み込み中...</span>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <span className="ml-3 text-muted-foreground">統計データを読み込み中...</span>
           </div>
         </main>
       </div>
@@ -213,11 +215,11 @@ export default function StatisticsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+      <div className="min-h-screen bg-background">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
-            <Button onClick={loadStatistics} className="bg-amber-600 hover:bg-amber-700">
+            <p className="text-destructive mb-4">{error}</p>
+            <Button onClick={loadStatistics} className="bg-primary hover:bg-primary/90">
               再試行
             </Button>
           </div>
@@ -228,7 +230,7 @@ export default function StatisticsPage() {
 
   if (!stats) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+      <div className="min-h-screen bg-background">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <p className="text-muted-foreground">統計データを読み込めませんでした</p>
@@ -242,13 +244,13 @@ export default function StatisticsPage() {
   const masteryPercentage = stats.studied_words > 0 ? Math.round((stats.mastered_words / stats.studied_words) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+    <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* ヘッダー */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-6">
-            <h1 className="text-3xl font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
-              <RefreshCw className="h-8 w-8 text-amber-600" />
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+              <RefreshCw className="h-8 w-8 text-primary" />
               詳細学習統計
             </h1>
             <span className="text-sm text-muted-foreground">
@@ -264,7 +266,7 @@ export default function StatisticsPage() {
             value={stats.total_words}
             subtitle="学習可能な単語"
             icon={BookOpen}
-            color="amber"
+            color="primary"
           />
           <StatCard
             title="学習済み"
@@ -290,9 +292,9 @@ export default function StatisticsPage() {
         </div>
 
         {/* 進捗バー */}
-        <Card className="bg-card/80 backdrop-blur-sm border-amber-200 dark:border-amber-700 mb-8">
+        <Card className="bg-card border-border mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <TrendingUp className="h-5 w-5" />
               学習進捗
             </CardTitle>
@@ -309,7 +311,7 @@ export default function StatisticsPage() {
               </div>
               <div className="w-full bg-muted rounded-full h-3">
                 <div
-                  className="bg-amber-600 h-3 rounded-full transition-all duration-500"
+                  className="bg-primary h-3 rounded-full transition-all duration-500"
                   style={{ width: `${progressPercentage}%` }}
                 />
               </div>
@@ -342,9 +344,9 @@ export default function StatisticsPage() {
 
         {/* 追加統計情報 */}
         <div className="mt-8">
-          <Card className="bg-card/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <Calendar className="h-5 w-5" />
                 学習活動サマリー
               </CardTitle>
@@ -352,34 +354,34 @@ export default function StatisticsPage() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                  <div className="text-2xl font-bold text-primary">
                     {studySessions.length}
                   </div>
-                  <div className="text-sm text-amber-600 dark:text-amber-400">
+                  <div className="text-sm text-muted-foreground">
                     学習セッション数
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                  <div className="text-2xl font-bold text-primary">
                     {reviewSessions.length}
                   </div>
-                  <div className="text-sm text-amber-600 dark:text-amber-400">
+                  <div className="text-sm text-muted-foreground">
                     復習セッション数
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                  <div className="text-2xl font-bold text-primary">
                     {stats.review_count}
                   </div>
-                  <div className="text-sm text-amber-600 dark:text-amber-400">
+                  <div className="text-sm text-muted-foreground">
                     復習待ち単語数
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                  <div className="text-2xl font-bold text-primary">
                     {Math.round(stats.study_time_minutes / Math.max(studySessions.length + reviewSessions.length, 1))}
                   </div>
-                  <div className="text-sm text-amber-600 dark:text-amber-400">
+                  <div className="text-sm text-muted-foreground">
                     平均セッション時間（分）
                   </div>
                 </div>
