@@ -1,8 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 
 // 動的インポートでバンドルサイズを最適化
@@ -17,22 +15,6 @@ const Review = dynamic(() => import('@/components/learning/review').then(mod => 
 
 export default function ReviewPage() {
   const [isCompleted, setIsCompleted] = useState(false);
-  const [, setUser] = useState<{ id: string; email?: string } | null>(null);
-  const router = useRouter();
-  const supabase = createClient();
-
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/auth/login');
-        return;
-      }
-      setUser(user);
-    };
-
-    getUser();
-  }, [router, supabase.auth]);
 
   const handleComplete = () => {
     setIsCompleted(true);

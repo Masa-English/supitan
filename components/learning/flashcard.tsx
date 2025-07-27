@@ -254,7 +254,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
                             e.stopPropagation();
                             playExampleAudio(currentWord.example1!);
                           }}
-                          className="text-primary h-8 w-8 p-0 flex-shrink-0"
+                          className="text-primary h-8 w-8 p-2 flex-shrink-0"
                         >
                           <Volume2 className="h-4 w-4" />
                         </Button>
@@ -281,7 +281,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
                             e.stopPropagation();
                             playExampleAudio(currentWord.example2!);
                           }}
-                          className="text-primary h-8 w-8 p-0 flex-shrink-0"
+                          className="text-primary h-8 w-8 p-2 flex-shrink-0"
                         >
                           <Volume2 className="h-4 w-4" />
                         </Button>
@@ -308,7 +308,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
                             e.stopPropagation();
                             playExampleAudio(currentWord.example3!);
                           }}
-                          className="text-primary h-8 w-8 p-0 flex-shrink-0"
+                          className="text-primary h-8 w-8 p-2 flex-shrink-0"
                         >
                           <Volume2 className="h-4 w-4" />
                         </Button>

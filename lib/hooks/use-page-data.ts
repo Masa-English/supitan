@@ -40,8 +40,14 @@ export function usePageData(options: UsePageDataOptions): UsePageDataReturn {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
+        // getSession()を使用してセッションを確認
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('認証エラー:', error);
+          setError('認証に失敗しました');
+        } else if (session?.user) {
+          setUser(session.user);
+        }
       } catch (err) {
         console.error('認証エラー:', err);
         setError('認証に失敗しました');

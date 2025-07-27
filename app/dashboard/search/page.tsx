@@ -210,7 +210,7 @@ function FilterPanel({
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className="p-2">
         <div className="space-y-0">
           {/* カテゴリーフィルター */}
           <FilterSection

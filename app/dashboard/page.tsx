@@ -53,7 +53,7 @@ function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
       
       {/* サイドメニュー */}
       <div className={`
-        fixed top-0 left-0 h-full z-50 bg-background border-r border-border
+        fixed top-2 left-0 h-full z-50 bg-background border-r border-border
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0 lg:static lg:z-auto

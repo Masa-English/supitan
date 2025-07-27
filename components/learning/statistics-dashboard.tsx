@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '@/lib/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatsCardSkeleton, ProgressBarSkeleton, SessionHistorySkeleton } from '@/components/ui/skeleton';
 
@@ -20,58 +21,49 @@ import { createClient } from '@/lib/supabase/client';
 import { AppStats, StudySession, ReviewSession } from '@/lib/types';
 
 export function StatisticsDashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<AppStats | null>(null);
   const [recentSessions, setRecentSessions] = useState<StudySession[]>([]);
   const [reviewSessions, setReviewSessions] = useState<ReviewSession[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
 
   const db = useMemo(() => new DatabaseService(), []);
   const supabase = createClient();
 
-  // ユーザーIDを取得
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUserId(user?.id || null);
-    };
-    getUser();
-  }, [supabase.auth]);
-
   const getRecentStudySessions = useCallback(async (): Promise<StudySession[]> => {
-    if (!userId) return [];
+    if (!user) return [];
     
     const { data, error } = await supabase
       .from('study_sessions')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(5);
 
     if (error) throw error;
     return data || [];
-  }, [supabase, userId]);
+  }, [supabase, user]);
 
   const getRecentReviewSessions = useCallback(async (): Promise<ReviewSession[]> => {
-    if (!userId) return [];
+    if (!user) return [];
     
     const { data, error } = await supabase
       .from('review_sessions')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(5);
 
     if (error) throw error;
     return data || [];
-  }, [supabase, userId]);
+  }, [supabase, user]);
 
   const loadStatistics = useCallback(async () => {
-    if (!userId) return;
+    if (!user) return;
     
     try {
       const [appStats, studySessions, reviewSessionsData] = await Promise.all([
-        db.getAppStats(userId),
+        db.getAppStats(user.id),
         getRecentStudySessions(),
         getRecentReviewSessions()
       ]);
@@ -84,13 +76,13 @@ export function StatisticsDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [userId, db, getRecentStudySessions, getRecentReviewSessions]);
+  }, [user, db, getRecentStudySessions, getRecentReviewSessions]);
 
   useEffect(() => {
-    if (userId) {
+    if (user) {
       loadStatistics();
     }
-  }, [loadStatistics, userId]);
+  }, [loadStatistics, user]);
 
   const [isClient, setIsClient] = useState(false);
 
@@ -139,7 +131,7 @@ export function StatisticsDashboard() {
     }
   };
 
-  if (loading || !userId) {
+  if (loading || !user) {
     return (
       <div className="space-y-6">
         {/* メイン統計カードのスケルトン */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
@@ -20,9 +20,21 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser();
+        // getSession()を使用してセッションを確認
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        if (error || !user) {
+        if (error) {
+          console.error('認証チェックエラー:', error);
+          // エラー時も現在のページURLを保存
+          const currentPath = window.location.pathname;
+          if (currentPath !== '/landing' && currentPath !== '/auth/login' && currentPath !== '/auth/sign-up') {
+            sessionStorage.setItem('redirectAfterLogin', currentPath);
+          }
+          router.push('/landing');
+          return;
+        }
+
+        if (!session || !session.user) {
           // 現在のページURLを保存してからリダイレクト
           const currentPath = window.location.pathname;
           if (currentPath !== '/landing' && currentPath !== '/auth/login' && currentPath !== '/auth/sign-up') {
@@ -32,7 +44,7 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
           return;
         }
         
-        setUser(user);
+        setUser(session.user);
         setIsAuthenticated(true);
       } catch (error) {
         console.error('認証チェックエラー:', error);
@@ -53,7 +65,12 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_OUT' || !session) {
+          setUser(null);
+          setIsAuthenticated(false);
           router.push('/landing');
+        } else if (session?.user) {
+          setUser(session.user);
+          setIsAuthenticated(true);
         }
       }
     );
@@ -72,8 +89,8 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
     );
   }
 
-  if (!isAuthenticated) {
-    return null;
+  if (!isAuthenticated || !user) {
+    return null; // リダイレクト中
   }
 
   return (

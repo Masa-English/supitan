@@ -1,25 +1,24 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { DatabaseService } from '@/lib/database';
-import { AppStats, StudySession, ReviewSession } from '@/lib/types';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '@/lib/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
-  BarChart3, 
   BookOpen, 
   Target, 
-  TrendingUp, 
-  Clock,
-  CheckCircle,
+  Trophy, 
+  Clock, 
+  RotateCcw, 
+  TrendingUp,
+  Calendar,
   Brain,
-  RotateCcw,
-  Trophy,
-  Activity
+  CheckCircle,
+  RefreshCw
 } from 'lucide-react';
+import { DatabaseService } from '@/lib/database';
+import { createClient } from '@/lib/supabase/client';
+import { AppStats, StudySession, ReviewSession } from '@/lib/types';
 
 // 統計カードコンポーネント
 function StatCard({ 
@@ -145,28 +144,23 @@ function SessionHistory({ sessions, type }: { sessions: (StudySession | ReviewSe
 }
 
 export default function StatisticsPage() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<AppStats | null>(null);
   const [studySessions, setStudySessions] = useState<StudySession[]>([]);
   const [reviewSessions, setReviewSessions] = useState<ReviewSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const router = useRouter();
   const db = useMemo(() => new DatabaseService(), []);
   const supabase = createClient();
 
   // 統計データの読み込み
   const loadStatistics = useCallback(async () => {
+    if (!user) return;
+    
     try {
       setLoading(true);
       setError(null);
-
-      // ユーザー情報を取得
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/auth/login');
-        return;
-      }
 
       // 統計データを取得
       const [appStats, studySessionsData, reviewSessionsData] = await Promise.all([
@@ -196,11 +190,13 @@ export default function StatisticsPage() {
     } finally {
       setLoading(false);
     }
-  }, [db, supabase, router]);
+  }, [db, supabase, user]);
 
   useEffect(() => {
-    loadStatistics();
-  }, [loadStatistics]);
+    if (user) {
+      loadStatistics();
+    }
+  }, [loadStatistics, user]);
 
   if (loading) {
     return (
@@ -252,12 +248,12 @@ export default function StatisticsPage() {
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-6">
             <h1 className="text-3xl font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
-              <BarChart3 className="h-8 w-8 text-amber-600" />
+              <RefreshCw className="h-8 w-8 text-amber-600" />
               詳細学習統計
             </h1>
-            <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-              詳細分析
-            </Badge>
+            <span className="text-sm text-muted-foreground">
+              {new Date().toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' })}
+            </span>
           </div>
         </div>
 
@@ -349,7 +345,7 @@ export default function StatisticsPage() {
           <Card className="bg-card/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
-                <Activity className="h-5 w-5" />
+                <Calendar className="h-5 w-5" />
                 学習活動サマリー
               </CardTitle>
             </CardHeader>

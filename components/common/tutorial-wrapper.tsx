@@ -23,6 +23,10 @@ export function TutorialWrapper({ children }: TutorialWrapperProps) {
 
   const handleTutorialComplete = () => {
     setShowTutorial(false);
+    // チュートリアル完了をlocalStorageに保存
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('hasSeenTutorial', 'true');
+    }
   };
 
   return (

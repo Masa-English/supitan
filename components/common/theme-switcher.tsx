@@ -32,7 +32,7 @@ const ThemeSwitcher = ({ inline = false }: ThemeSwitcherProps) => {
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 touch-target"
+          className="h-8 w-8 p-2 touch-target"
           title="ライトテーマ"
           disabled
         >
@@ -41,7 +41,7 @@ const ThemeSwitcher = ({ inline = false }: ThemeSwitcherProps) => {
         <Button
           variant="secondary"
           size="sm"
-          className="h-8 w-8 p-0 touch-target"
+          className="h-8 w-8 p-2 touch-target"
           title="ダークテーマ"
           disabled
         >
@@ -70,7 +70,7 @@ const ThemeSwitcher = ({ inline = false }: ThemeSwitcherProps) => {
           variant={theme === "light" ? "secondary" : "ghost"}
           size="sm"
           onClick={() => setTheme("light")}
-          className="h-8 w-8 p-0 touch-target"
+          className="h-8 w-8 p-2 touch-target"
           title="ライトテーマ"
         >
           <Sun size={14} />
@@ -79,7 +79,7 @@ const ThemeSwitcher = ({ inline = false }: ThemeSwitcherProps) => {
           variant={theme === "dark" ? "secondary" : "ghost"}
           size="sm"
           onClick={() => setTheme("dark")}
-          className="h-8 w-8 p-0 touch-target"
+          className="h-8 w-8 p-2 touch-target"
           title="ダークテーマ"
         >
           <Moon size={14} />

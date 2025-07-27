@@ -70,21 +70,60 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Do not run code between createServerClient and
-  // supabase.auth.getClaims(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
+  try {
+    // セッションを確認（セキュリティ上の理由でgetUser()を使用）
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error) {
+      // refresh_token_not_foundエラーは一般的で、ログに出力しない
+      if (error.message?.includes('Refresh Token Not Found') || error.code === 'refresh_token_not_found') {
+        // エラーが発生した場合でも、パブリックパスは許可
+        if (isPublicPath || request.nextUrl.pathname === "/") {
+          return supabaseResponse;
+        }
+        // プライベートパスの場合はログインページにリダイレクト
+        const url = request.nextUrl.clone();
+        url.pathname = "/auth/login";
+        return NextResponse.redirect(url);
+      }
+      
+      // その他のエラーは開発環境でのみログ出力
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Session check error:', error);
+      }
+      
+      // エラーが発生した場合でも、パブリックパスは許可
+      if (isPublicPath || request.nextUrl.pathname === "/") {
+        return supabaseResponse;
+      }
+      // プライベートパスの場合はログインページにリダイレクト
+      const url = request.nextUrl.clone();
+      url.pathname = "/auth/login";
+      return NextResponse.redirect(url);
+    }
 
-  // IMPORTANT: If you remove getClaims() and you use server-side rendering
-  // with the Supabase client, your users may be randomly logged out.
-  const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
+    if (
+      request.nextUrl.pathname !== "/" &&
+      !user &&
+      !isPublicPath
+    ) {
+      // no user, potentially respond by redirecting the user to the login page
+      const url = request.nextUrl.clone();
+      url.pathname = "/auth/login";
+      return NextResponse.redirect(url);
+    }
 
-  if (
-    request.nextUrl.pathname !== "/" &&
-    !user &&
-    !isPublicPath
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
+  } catch (error) {
+    // 開発環境でのみログ出力
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Middleware error:', error);
+    }
+    
+    // エラーが発生した場合でも、パブリックパスは許可
+    if (isPublicPath || request.nextUrl.pathname === "/") {
+      return supabaseResponse;
+    }
+    // プライベートパスの場合はログインページにリダイレクト
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);

@@ -80,7 +80,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              className="h-6 w-6 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
             >
               <X className="h-4 w-4" />
             </Button>

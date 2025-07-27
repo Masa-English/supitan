@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/hooks/use-auth';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/toast';
-import { createClient } from '@/lib/supabase/client';
 import { Mail, User, MessageSquare, AlertTriangle, CheckCircle, Loader2, Lock } from 'lucide-react';
 
 interface ContactFormProps {
@@ -32,6 +33,7 @@ const CATEGORIES = [
 ] as const;
 
 export function ContactForm({ className, variant = 'default', showTitle = true }: ContactFormProps) {
+  const { user } = useAuth({ requireAuth: false });
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
@@ -50,7 +52,6 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           setIsLoggedIn(true);
           setFormData(prev => ({
@@ -67,7 +68,7 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
     };
 
     checkUser();
-  }, [supabase.auth]);
+  }, [user]);
 
   const handleInputChange = (field: keyof ContactFormData, value: string) => {
     // ログイン済みユーザーの場合はメールアドレスを変更できないようにする

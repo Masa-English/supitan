@@ -1,37 +1,25 @@
 'use client';
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/lib/hooks/use-auth';
 import { DatabaseService } from '@/lib/database';
 import { Word } from '@/lib/types';
-import dynamic from 'next/dynamic';
-import { CompletionModal } from '@/components/learning';
+import { Flashcard } from '@/components/learning/flashcard';
+import { CompletionModal } from '@/components/learning/completion-modal';
 import { useToast } from '@/components/ui/toast';
-
-// 動的インポートでバンドルサイズを最適化
-const Flashcard = dynamic(() => import('@/components/learning').then(mod => ({ default: mod.Flashcard })), {
-  loading: () => (
-    <div className="flex items-center justify-center h-48 sm:h-64">
-      <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-amber-600"></div>
-    </div>
-  ),
-  ssr: false
-});
 
 export default function FlashcardPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuth();
   const [words, setWords] = useState<Word[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   
   // モーダル状態管理
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   
-  const supabase = createClient();
   const db = useMemo(() => new DatabaseService(), []);
   const category = decodeURIComponent(params.category as string);
   const { showToast } = useToast();
@@ -48,18 +36,10 @@ export default function FlashcardPage() {
   }, [category, db]);
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/auth/login');
-        return;
-      }
-      setUser(user);
-      await loadData();
-    };
-
-    getUser();
-  }, [loadData, router, supabase.auth]);
+    if (user) {
+      loadData();
+    }
+  }, [loadData, user]);
 
   const handleComplete = async () => {
     if (!user) {

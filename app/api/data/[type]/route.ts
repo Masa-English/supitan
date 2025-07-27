@@ -16,9 +16,9 @@ export async function GET(
 
     // 認証確認
     const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { session }, error: authError } = await supabase.auth.getSession();
 
-    if (authError || !user) {
+    if (authError || !session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -26,7 +26,7 @@ export async function GET(
     }
 
     // ユーザーIDの検証
-    if (!user.id) {
+    if (!session.user.id) {
       return NextResponse.json(
         { error: 'Invalid user' },
         { status: 401 }
@@ -55,7 +55,7 @@ export async function GET(
     // 統一データプロバイダーを使用
     const data = await dataProvider.getPageData(type as ValidType, {
       category: category || undefined,
-      userId: user.id,
+      userId: session.user.id,
     });
 
     return NextResponse.json(data, {

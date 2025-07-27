@@ -1,8 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/lib/hooks/use-auth';
 import dynamic from 'next/dynamic';
 
 // 動的インポートでバンドルサイズを最適化
@@ -16,37 +14,14 @@ const ProfileForm = dynamic(() => import('@/components/auth/profile-form').then(
 });
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const supabase = createClient();
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          router.push('/auth/login');
-          return;
-        }
-        setUser(user);
-      } catch (error) {
-        console.error('認証エラー:', error);
-        router.push('/auth/login');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getUser();
-  }, [router, supabase.auth]);
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center">
         <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-        <p className="mt-4 text-muted-foreground">認証を確認中...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">認証を確認中...</p>
         </div>
       </div>
     );
@@ -57,14 +32,15 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <ProfileForm 
-        userId={user.id}
-        userEmail={user.email || ''}
-        onProfileUpdate={(profile) => {
-          console.log('プロフィールが更新されました:', profile);
-        }}
-      />
-    </main>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+            プロフィール設定
+          </h1>
+          <ProfileForm />
+        </div>
+      </div>
+    </div>
   );
 } 

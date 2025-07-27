@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useAuth } from '@/lib/hooks/use-auth';
+import { DatabaseService } from '@/lib/database';
 import { Word, ReviewWord } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Volume2, Check, X, Clock, Star } from 'lucide-react';
 import { AudioControls } from '@/components/common/audio-controls';
-import { DatabaseService } from '@/lib/database';
-import { createClient } from '@/lib/supabase/client';
 import { Badge } from '@/components/ui/badge';
 
 interface ReviewProps {
@@ -15,6 +15,7 @@ interface ReviewProps {
 }
 
 export function Review({ onComplete }: ReviewProps) {
+  const { user } = useAuth();
   const [reviewWords, setReviewWords] = useState<ReviewWord[]>([]);
   const [words, setWords] = useState<Word[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -26,7 +27,6 @@ export function Review({ onComplete }: ReviewProps) {
 
   const currentWord = words[currentIndex];
   const currentReviewWord = reviewWords[currentIndex];
-  const supabase = createClient();
   const db = useMemo(() => new DatabaseService(), []);
 
   // セッション時間の計算
@@ -54,31 +54,31 @@ export function Review({ onComplete }: ReviewProps) {
   }, [results, words.length]);
 
   const loadReviewWords = useCallback(async () => {
+    if (!user) return;
+    
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const dueWords = await db.getDueReviewWords(user.id);
-        setReviewWords(dueWords);
+      const dueWords = await db.getDueReviewWords(user.id);
+      setReviewWords(dueWords);
 
-        if (dueWords.length > 0) {
-          // 復習対象の単語データを取得
-          const wordIds = dueWords.map(rw => rw.word_id);
-          const allWords = await db.getWords();
-          const filteredWords = allWords.filter(word => wordIds.includes(word.id));
-          setWords(filteredWords);
-        }
+      if (dueWords.length > 0) {
+        // 復習対象の単語データを取得
+        const wordIds = dueWords.map(rw => rw.word_id);
+        const allWords = await db.getWords();
+        const filteredWords = allWords.filter(word => wordIds.includes(word.id));
+        setWords(filteredWords);
       }
     } catch (error) {
       console.error('復習単語の読み込みエラー:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, db]);
+  }, [user, db]);
 
   const initializeSession = useCallback(async () => {
+    if (!user) return;
+    
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && !sessionId) {
+      if (!sessionId) {
         const newSessionId = await db.createReviewSession({
           user_id: user.id,
           total_words: words.length,
@@ -93,7 +93,7 @@ export function Review({ onComplete }: ReviewProps) {
     } catch (error) {
       console.error('復習セッション初期化エラー:', error);
     }
-  }, [sessionId, words.length, supabase, db]);
+  }, [sessionId, words.length, user, db]);
 
   useEffect(() => {
     loadReviewWords();
@@ -117,7 +117,6 @@ export function Review({ onComplete }: ReviewProps) {
     setResults(prev => [...prev, result]);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         // 復習結果を更新
         const newReviewCount = (currentReviewWord.review_count || 0) + 1;

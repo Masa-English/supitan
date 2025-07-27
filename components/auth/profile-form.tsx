@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/lib/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,12 +13,11 @@ import { User, Save, Bell, Target } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 
 interface ProfileFormProps {
-  userId: string;
-  userEmail: string;
   onProfileUpdate?: (profile: UserProfile) => void;
 }
 
-export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormProps) {
+export function ProfileForm({ onProfileUpdate }: ProfileFormProps) {
+  const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -38,11 +38,13 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
   const { showToast } = useToast();
 
   const loadProfile = useCallback(async () => {
+    if (!user) return;
+    
     try {
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .single();
 
       if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
@@ -67,7 +69,7 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
         // プロフィールが存在しない場合は初期値を設定
         setFormData(prev => ({
           ...prev,
-          display_name: userEmail.split('@')[0], // メールアドレスの@より前を初期表示名に
+          display_name: user.email?.split('@')[0] || '', // メールアドレスの@より前を初期表示名に
         }));
       }
     } catch (error) {
@@ -76,7 +78,7 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
     } finally {
       setLoading(false);
     }
-  }, [userId, userEmail, supabase, showToast]);
+  }, [user, supabase, showToast]);
 
   useEffect(() => {
     loadProfile();
@@ -84,11 +86,13 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
+    
     setSaving(true);
 
     try {
       const profileData = {
-        user_id: userId,
+        user_id: user.id,
         display_name: formData.display_name,
         bio: formData.bio,
         study_goal: formData.study_goal,
@@ -104,7 +108,7 @@ export function ProfileForm({ userId, userEmail, onProfileUpdate }: ProfileFormP
         result = await supabase
           .from('user_profiles')
           .update(profileData)
-          .eq('user_id', userId)
+          .eq('user_id', user.id)
           .select()
           .single();
       } else {

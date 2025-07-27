@@ -158,6 +158,10 @@ export function TutorialModal({ isOpen, onClose, onComplete }: TutorialModalProp
   };
 
   const handleSkip = () => {
+    // スキップ時もlocalStorageに保存
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('hasSeenTutorial', 'true');
+    }
     onClose();
   };
 
