@@ -61,24 +61,6 @@ function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
         w-64
       `}>
         <div className="p-4 sm:p-6 h-full flex flex-col">
-          {/* ヘッダー */}
-          <div className="flex items-center justify-between mb-6 sm:mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-lg flex items-center justify-center">
-                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
-              </div>
-              <h1 className="text-lg sm:text-xl font-bold text-foreground">MasaFlash</h1>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="lg:hidden p-2"
-            >
-              <X className="w-4 h-4 sm:w-5 sm:h-5" />
-            </Button>
-          </div>
-          
           {/* ナビゲーション */}
           <nav className="flex-1 space-y-4 sm:space-y-6">
             {menuItems.map((section) => (

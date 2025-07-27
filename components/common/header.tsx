@@ -6,6 +6,7 @@ import { BookOpen, ArrowLeft, User, LogOut, Settings, UserCircle, Menu } from 'l
 import { useRouter } from 'next/navigation';
 import { ThemeSwitcher } from '@/components/common/theme-switcher';
 import { createClient } from '@/lib/supabase/client';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,17 +37,38 @@ export function Header({
   onMobileMenuToggle
 }: HeaderProps) {
   const router = useRouter();
-  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<SupabaseUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
-    // AuthWrapperからユーザー情報を取得
-    const authContext = document.querySelector('.auth-context');
-    if (authContext) {
-      const email = authContext.getAttribute('data-user-email');
-      setCurrentUserEmail(email);
-    }
-  }, []);
+    // 現在のユーザーを取得
+    const getCurrentUser = async () => {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) {
+          console.error('ユーザー取得エラー:', error);
+        } else {
+          setCurrentUser(user);
+        }
+      } catch (error) {
+        console.error('ユーザー取得エラー:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getCurrentUser();
+
+    // 認証状態の変更を監視
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setCurrentUser(session?.user || null);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
 
   const handleSignOut = async () => {
     try {
@@ -85,8 +107,16 @@ export function Header({
   };
 
   const handleHomeClick = () => {
-    router.push('/dashboard');
+    if (currentUser) {
+      router.push('/dashboard');
+    } else {
+      router.push('/landing');
+    }
   };
+
+  // ユーザー情報の取得（propsまたは現在のユーザーから）
+  const displayUserEmail = userEmail || currentUser?.email;
+  const isLoggedIn = !!displayUserEmail;
 
   return (
     <header className="bg-card/95 backdrop-blur-md border-b border-border sticky top-0 z-40 w-full">
@@ -138,7 +168,7 @@ export function Header({
             <div className="flex items-center gap-2 sm:gap-3">
               <ThemeSwitcher />
               
-              {(currentUserEmail || userEmail) ? (
+              {isLoggedIn ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
@@ -151,7 +181,7 @@ export function Header({
                           <User className="h-3 w-3 text-primary-foreground" />
                         </div>
                         <span className="hidden sm:inline font-medium">
-                          {(currentUserEmail || userEmail)?.split('@')[0] || 'ユーザー'}
+                          {displayUserEmail?.split('@')[0] || 'ユーザー'}
                         </span>
                       </div>
                     </Button>
@@ -159,10 +189,10 @@ export function Header({
                   <DropdownMenuContent align="end" className="w-56 sm:w-64 bg-card/95 backdrop-blur-md border border-border shadow-lg">
                     <div className="px-3 py-2">
                       <p className="text-sm font-medium text-foreground">
-                        {(currentUserEmail || userEmail)?.split('@')[0] || 'ユーザー'}
+                        {displayUserEmail?.split('@')[0] || 'ユーザー'}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {currentUserEmail || userEmail}
+                        {displayUserEmail}
                       </p>
                     </div>
                     <DropdownMenuSeparator className="bg-border" />
@@ -201,11 +231,11 @@ export function Header({
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={onSignOut || handleSignOut} 
+                  onClick={() => router.push('/auth/login')} 
                   className="border-border text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3 touch-target"
                 >
-                  <LogOut className="h-4 w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">ログアウト</span>
+                  <User className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">ログイン</span>
                 </Button>
               )}
             </div>
