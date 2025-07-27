@@ -360,7 +360,7 @@ export default function ProtectedPage() {
             
             {/* メインコンテンツ */}
             <div className="flex-1 lg:ml-0">
-              <main className="p-6">
+              <main className="p-6 pt-8 lg:pt-12">
                 {/* クイックアクション */}
                 <QuickActionsSection />
                 

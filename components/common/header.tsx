@@ -85,7 +85,7 @@ export function Header({
   };
 
   return (
-    <header className="bg-card/95 backdrop-blur-md border-b border-border sticky top-0 z-40">
+    <header className="bg-card/95 backdrop-blur-md border-b border-border sticky top-0 z-40 w-full">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
           <div className="flex items-center gap-2 sm:gap-4">

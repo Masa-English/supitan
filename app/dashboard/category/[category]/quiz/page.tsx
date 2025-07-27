@@ -6,7 +6,6 @@ import { createClient } from '@/lib/supabase/client';
 import { DatabaseService } from '@/lib/database';
 import { Word } from '@/lib/types';
 import dynamic from 'next/dynamic';
-import { Card, CardContent } from '@/components/ui/card';
 import { Header } from '@/components/common';
 import { CompletionModal } from '@/components/learning';
 

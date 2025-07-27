@@ -4,8 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Word, ReviewWord } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Volume2, Check, X, Clock, Star, Target, TrendingUp, Timer } from 'lucide-react';
-import { useAudioStore } from '@/lib/audio-store';
+import { Volume2, Check, X, Clock, Star } from 'lucide-react';
 import { AudioControls } from '@/components/common/audio-controls';
 import { DatabaseService } from '@/lib/database';
 import { createClient } from '@/lib/supabase/client';
@@ -24,7 +23,6 @@ export function Review({ onComplete }: ReviewProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
-  const [showHint, setShowHint] = useState(false);
 
   const currentWord = words[currentIndex];
   const currentReviewWord = reviewWords[currentIndex];
@@ -148,7 +146,6 @@ export function Review({ onComplete }: ReviewProps) {
     if (currentIndex < words.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setShowAnswer(false);
-      setShowHint(false);
     } else {
       completeSession();
     }
@@ -217,178 +214,128 @@ export function Review({ onComplete }: ReviewProps) {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      {/* 進捗表示と統計 */}
-      <div className="mb-6 flex-shrink-0">
-        {/* メイン進捗バー */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
+    <div className="h-full flex flex-col space-y-6">
+      {/* 進捗表示と統計 - よりシンプルに */}
+      <div className="flex-shrink-0 space-y-4">
+        {/* シンプルな進捗表示 */}
+        <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+            <span className="text-lg font-medium text-gray-700 dark:text-gray-300">
               復習 {currentIndex + 1} / {words.length}
             </span>
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-sm">
               {progressStats.accuracy}% 正答率
             </Badge>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-              <Timer className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <Clock className="h-4 w-4" />
               {formatTime(sessionDuration)}
             </div>
             <AudioControls />
           </div>
         </div>
         
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-4">
+        {/* シンプルなプログレスバー */}
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div
-            className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
+            className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${((currentIndex + 1) / words.length) * 100}%` }}
           />
         </div>
 
-        {/* 統計カード */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-          <Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700">
-            <CardContent className="p-3 text-center">
-              <Check className="h-4 w-4 text-green-600 dark:text-green-400 mx-auto mb-1" />
-              <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                {progressStats.correctCount}
-              </div>
-              <div className="text-xs text-green-600 dark:text-green-400">正解</div>
-            </CardContent>
-          </Card>
+        {/* シンプルな統計表示 */}
+        <div className="grid grid-cols-4 gap-4">
+          <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+            <div className="text-xl font-bold text-green-600 dark:text-green-400">
+              {progressStats.correctCount}
+            </div>
+            <div className="text-xs text-green-600 dark:text-green-400">正解</div>
+          </div>
           
-          <Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700">
-            <CardContent className="p-3 text-center">
-              <X className="h-4 w-4 text-red-600 dark:text-red-400 mx-auto mb-1" />
-              <div className="text-lg font-bold text-red-600 dark:text-red-400">
-                {progressStats.totalAnswered - progressStats.correctCount}
-              </div>
-              <div className="text-xs text-red-600 dark:text-red-400">不正解</div>
-            </CardContent>
-          </Card>
+          <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
+            <div className="text-xl font-bold text-red-600 dark:text-red-400">
+              {progressStats.totalAnswered - progressStats.correctCount}
+            </div>
+            <div className="text-xs text-red-600 dark:text-red-400">不正解</div>
+          </div>
           
-          <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
-            <CardContent className="p-3 text-center">
-              <Target className="h-4 w-4 text-blue-600 dark:text-blue-400 mx-auto mb-1" />
-              <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                {progressStats.remainingWords}
-              </div>
-              <div className="text-xs text-blue-600 dark:text-blue-400">残り</div>
-            </CardContent>
-          </Card>
+          <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+            <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+              {progressStats.remainingWords}
+            </div>
+            <div className="text-xs text-blue-600 dark:text-blue-400">残り</div>
+          </div>
           
-          <Card className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
-            <CardContent className="p-3 text-center">
-              <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400 mx-auto mb-1" />
-              <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                {progressStats.averageDifficulty}
-              </div>
-              <div className="text-xs text-purple-600 dark:text-purple-400">平均難易度</div>
-            </CardContent>
-          </Card>
+          <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+            <div className="text-xl font-bold text-purple-600 dark:text-purple-400">
+              {progressStats.averageDifficulty}
+            </div>
+            <div className="text-xs text-purple-600 dark:text-purple-400">平均難易度</div>
+          </div>
         </div>
       </div>
 
-      {/* 復習カード */}
-      <div className="flex-1 min-h-0 mb-4">
-        <Card className="bg-white dark:bg-gray-800 hover:shadow-lg border-gray-200 dark:border-gray-700 h-full">
-          <CardContent className="p-4 sm:p-6 lg:p-8 text-center h-full flex flex-col justify-center">
-            {/* メインコンテンツ - 自動レイアウト */}
-            <div className="flex flex-col xl:flex-row xl:gap-12 h-full max-w-6xl mx-auto w-full">
-              {/* 左側：英語の単語と発音 */}
-              <div className="xl:flex-1 flex flex-col justify-center text-center xl:text-left">
-                <div className="mb-6 lg:mb-8">
-                  <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-800 dark:text-gray-200 mb-3 lg:mb-4">
-                    {currentWord.word}
-                  </h2>
-                  <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 mb-4 lg:mb-6">
-                    {currentWord.phonetic}
-                  </p>
-                  
-                  {/* ヒント表示 */}
-                  {showHint && (
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4 mb-4">
-                      <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                        💡 ヒント: この単語は {currentWord.japanese.length > 0 ? `${currentWord.japanese.length}文字` : '日本語で表現される'} 意味を持ちます
-                      </p>
-                    </div>
-                  )}
-                </div>
-                
-                {/* 発音を聞くボタン */}
+      {/* シンプルな復習カード */}
+      <div className="flex-1 min-h-0">
+        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 h-full">
+          <CardContent className="p-8 text-center h-full flex flex-col justify-center space-y-8">
+            {/* 単語表示 */}
+            <div className="space-y-4">
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-800 dark:text-gray-200">
+                {currentWord.word}
+              </h2>
+              <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400">
+                {currentWord.phonetic}
+              </p>
+            </div>
+            
+            {/* 操作ボタン */}
+            <div className="space-y-6">
+              {/* 発音ボタン */}
+              <Button
+                variant="outline"
+                onClick={playWordAudio}
+                className="w-full max-w-xs bg-blue-50 border-blue-300 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/30 py-3"
+              >
+                <Volume2 className="h-5 w-5 mr-2" />
+                発音を聞く
+              </Button>
+
+              {/* 答えを見るボタン */}
+              {!showAnswer && (
                 <Button
-                  variant="outline"
-                  onClick={playWordAudio}
-                  className="w-full xl:w-auto mx-auto mb-4 lg:mb-6 bg-blue-100 border-blue-300 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/30 px-6 py-3"
+                  onClick={() => setShowAnswer(true)}
+                  className="w-full max-w-xs bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white py-4 text-lg"
                 >
-                  <Volume2 className="h-5 w-5 mr-2" />
-                  発音を聞く
+                  答えを見る
                 </Button>
+              )}
 
-                {/* ヒントボタン */}
-                {!showAnswer && !showHint && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowHint(true)}
-                    className="w-full xl:w-auto mx-auto mb-4 lg:mb-6 bg-yellow-100 border-yellow-300 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-600 dark:text-yellow-300 dark:hover:bg-yellow-900/30 px-6 py-3"
-                  >
-                    💡 ヒントを見る
-                  </Button>
-                )}
-              </div>
-
-              {/* 右側：答えの表示と操作 */}
-              <div className="xl:flex-1 flex flex-col justify-center">
-                {/* 答えの表示 */}
-                {showAnswer ? (
-                  <div className="space-y-6 flex-1 flex flex-col justify-center max-w-2xl mx-auto xl:mx-0 w-full">
-                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-6">
-                      <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-green-800 dark:text-green-200 mb-3">
-                        意味: {currentWord.japanese}
-                      </h3>
-                      <p className="text-base lg:text-lg text-green-600 dark:text-green-300">
+              {/* 答え表示 */}
+              {showAnswer && (
+                <div className="space-y-6">
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-green-800 dark:text-green-200 mb-2">
+                      {currentWord.japanese}
+                    </h3>
+                    {currentWord.example1_jp && (
+                      <p className="text-green-600 dark:text-green-300">
                         {currentWord.example1_jp}
                       </p>
-                    </div>
-
-                    {/* 難易度評価 */}
-                    <div className="space-y-4">
-                      <p className="text-base lg:text-lg text-gray-600 dark:text-gray-400">
-                        この単語の難易度を評価してください：
-                      </p>
-                      <div className="grid grid-cols-5 gap-3">
-                        {[1, 2, 3, 4, 5].map((difficulty) => (
-                          <Button
-                            key={difficulty}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleAnswer(true, difficulty)}
-                            className="text-sm lg:text-base py-3"
-                          >
-                            {difficulty}
-                          </Button>
-                        ))}
-                      </div>
-                      <p className="text-sm lg:text-base text-gray-500 dark:text-gray-400">
-                        1: 非常に難しい 〜 5: 非常に簡単
-                      </p>
-                    </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="space-y-6 flex-1 flex flex-col justify-center max-w-2xl mx-auto xl:mx-0 w-full">
-                    <Button
-                      onClick={() => setShowAnswer(true)}
-                      className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white py-4 text-lg"
-                    >
-                      答えを見る
-                    </Button>
-                    
-                    <div className="flex flex-col sm:flex-row gap-4">
+
+                  {/* シンプルな評価ボタン */}
+                  <div className="space-y-4">
+                    <p className="text-gray-600 dark:text-gray-400">
+                      この単語を覚えていますか？
+                    </p>
+                    <div className="flex gap-4 justify-center">
                       <Button
                         variant="outline"
                         onClick={() => handleAnswer(false, 1)}
-                        className="flex-1 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/20 py-4"
+                        className="flex-1 max-w-xs border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/20 py-3"
                       >
                         <X className="h-5 w-5 mr-2" />
                         覚えていない
@@ -396,24 +343,24 @@ export function Review({ onComplete }: ReviewProps) {
                       <Button
                         variant="outline"
                         onClick={() => handleAnswer(true, 3)}
-                        className="flex-1 border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/20 py-4"
+                        className="flex-1 max-w-xs border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/20 py-3"
                       >
                         <Check className="h-5 w-5 mr-2" />
                         覚えている
                       </Button>
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* 復習情報 */}
+      {/* シンプルな復習情報 */}
       {currentReviewWord && (
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg flex-shrink-0 max-w-6xl mx-auto w-full">
-          <div className="text-sm lg:text-base text-gray-600 dark:text-gray-400 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="text-sm text-gray-600 dark:text-gray-400 flex justify-center gap-6">
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4" />
               復習回数: {currentReviewWord.review_count}回
@@ -422,17 +369,6 @@ export function Review({ onComplete }: ReviewProps) {
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 前回復習: {new Date(currentReviewWord.last_reviewed).toLocaleDateString('ja-JP', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </div>
-            )}
-            {currentReviewWord.next_review && (
-              <div className="flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                次回復習予定: {new Date(currentReviewWord.next_review).toLocaleDateString('ja-JP', {
-                  year: 'numeric',
                   month: 'short',
                   day: 'numeric'
                 })}

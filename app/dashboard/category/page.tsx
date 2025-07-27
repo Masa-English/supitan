@@ -206,97 +206,99 @@ export default function CategoryPage() {
         showBackButton={true}
       />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー */}
-        <div className="mb-8">
-          <Link href="/dashboard">
-            <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 mb-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              ダッシュボードに戻る
-            </Button>
-          </Link>
-          
-          <div className="flex items-center gap-4 mb-6">
-            <h1 className="text-3xl font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
-              <BookOpen className="h-8 w-8 text-amber-600" />
-              カテゴリー一覧
-            </h1>
-            <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-              {categoryStats.length}個のカテゴリー
-            </Badge>
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          {/* ヘッダー */}
+          <div className="mb-8">
+            <Link href="/dashboard">
+              <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 mb-4">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                ダッシュボードに戻る
+              </Button>
+            </Link>
+            
+            <div className="flex items-center gap-4 mb-6">
+              <h1 className="text-3xl font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                <BookOpen className="h-8 w-8 text-amber-600" />
+                カテゴリー一覧
+              </h1>
+              <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                {categoryStats.length}個のカテゴリー
+              </Badge>
+            </div>
           </div>
-        </div>
 
-        {/* 統計情報 */}
-        <div className="mb-8">
-          <Card className="bg-card/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                    {words.length}
+          {/* 統計情報 */}
+          <div className="mb-8">
+            <Card className="bg-card/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                      {words.length}
+                    </div>
+                    <div className="text-sm text-amber-600 dark:text-amber-400">
+                      総単語数
+                    </div>
                   </div>
-                  <div className="text-sm text-amber-600 dark:text-amber-400">
-                    総単語数
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                      {categoryStats.length}
+                    </div>
+                    <div className="text-sm text-amber-600 dark:text-amber-400">
+                      カテゴリー数
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                      {Object.values(userProgress).reduce((sum, count) => sum + count, 0)}
+                    </div>
+                    <div className="text-sm text-amber-600 dark:text-amber-400">
+                      学習済み単語数
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                      {Math.round(
+                        (Object.values(userProgress).reduce((sum, count) => sum + count, 0) / Math.max(words.length, 1)) * 100
+                      )}%
+                    </div>
+                    <div className="text-sm text-amber-600 dark:text-amber-400">
+                      全体進捗
+                    </div>
                   </div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                    {categoryStats.length}
-                  </div>
-                  <div className="text-sm text-amber-600 dark:text-amber-400">
-                    カテゴリー数
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                    {Object.values(userProgress).reduce((sum, count) => sum + count, 0)}
-                  </div>
-                  <div className="text-sm text-amber-600 dark:text-amber-400">
-                    学習済み単語数
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                    {Math.round(
-                      (Object.values(userProgress).reduce((sum, count) => sum + count, 0) / Math.max(words.length, 1)) * 100
-                    )}%
-                  </div>
-                  <div className="text-sm text-amber-600 dark:text-amber-400">
-                    全体進捗
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* カテゴリー一覧 */}
-        {categoryStats.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {categoryStats.map(({ category, wordCount, userProgress }) => (
-              <CategoryCard
-                key={category}
-                category={category}
-                wordCount={wordCount}
-                userProgress={userProgress}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <BookOpen className="h-16 w-16 text-amber-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-2">
-              カテゴリーが見つかりませんでした
-            </h3>
-            <p className="text-amber-600 dark:text-amber-400 mb-4">
-              単語データが読み込まれていない可能性があります
-            </p>
-            <Button onClick={loadData} className="bg-amber-600 hover:bg-amber-700">
-              再読み込み
-            </Button>
-          </div>
-        )}
+          {/* カテゴリー一覧 */}
+          {categoryStats.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {categoryStats.map(({ category, wordCount, userProgress }) => (
+                <CategoryCard
+                  key={category}
+                  category={category}
+                  wordCount={wordCount}
+                  userProgress={userProgress}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <BookOpen className="h-16 w-16 text-amber-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-2">
+                カテゴリーが見つかりませんでした
+              </h3>
+              <p className="text-amber-600 dark:text-amber-400 mb-4">
+                単語データが読み込まれていない可能性があります
+              </p>
+              <Button onClick={loadData} className="bg-amber-600 hover:bg-amber-700">
+                再読み込み
+              </Button>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

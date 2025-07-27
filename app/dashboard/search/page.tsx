@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { DatabaseService } from '@/lib/database';
 import { Word } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -411,8 +409,9 @@ export default function SearchPage() {
         showBackButton={true}
       />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー */}
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          {/* ヘッダー */}
                   <div className="mb-8">
             <Link href="/dashboard">
               <Button variant="ghost" className="text-muted-foreground hover:bg-accent mb-4">
@@ -479,6 +478,7 @@ export default function SearchPage() {
               </div>
             )}
           </div>
+        </div>
         </div>
       </main>
     </div>

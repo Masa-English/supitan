@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Modal, ModalBody, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Brain, Target, ArrowRight, ArrowLeft, Check } from "lucide-react";
@@ -137,14 +137,6 @@ const tutorialSteps: TutorialStep[] = [
 
 export function TutorialModal({ isOpen, onClose, onComplete }: TutorialModalProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      const seen = localStorage.getItem('hasSeenTutorial');
-      setHasSeenTutorial(!!seen);
-    }
-  }, [isOpen]);
 
   const handleNext = () => {
     if (currentStep < tutorialSteps.length - 1) {
@@ -161,7 +153,6 @@ export function TutorialModal({ isOpen, onClose, onComplete }: TutorialModalProp
   };
 
   const handleComplete = () => {
-    localStorage.setItem('hasSeenTutorial', 'true');
     onComplete();
     onClose();
   };
