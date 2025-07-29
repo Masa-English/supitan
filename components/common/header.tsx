@@ -30,8 +30,8 @@ interface HeaderProps {
   progress?: number;
   currentIndex?: number;
   totalCount?: number;
-  isSideMenuOpen?: boolean;
-  onSideMenuToggle?: () => void;
+  _isSideMenuOpen?: boolean;
+  _onSideMenuToggle?: () => void;
 }
 
 export function Header({
@@ -47,13 +47,14 @@ export function Header({
   progress: propProgress = 0,
   currentIndex: propCurrentIndex = 0,
   totalCount: propTotalCount = 0,
-  isSideMenuOpen,
-  onSideMenuToggle
+  _isSideMenuOpen,
+  _onSideMenuToggle
 }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isSideMenuOpen: contextSideMenuOpen, toggleSideMenu } = useHeader();
+  const { toggleSideMenu } = useHeader();
   const [currentUser, setCurrentUser] = useState<SupabaseUser | null>(null);
+  // contextSideMenuOpenは未使用だが、useHeaderフックの戻り値として必要
   const supabase = createClient();
   // デフォルト値を使用（SSR/CSR互換性のため）
   const title = propTitle !== "英単語学習" ? propTitle : "ダッシュボード";
@@ -198,7 +199,7 @@ export function Header({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={onSideMenuToggle || onMobileMenuToggle || toggleSideMenu}
+                  onClick={_onSideMenuToggle || onMobileMenuToggle || toggleSideMenu}
                   className="lg:hidden text-muted-foreground hover:bg-accent transition-colors p-2 touch-target"
                 >
                   <Menu className="h-5 w-5" />

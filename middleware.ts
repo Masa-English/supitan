@@ -14,8 +14,9 @@ export const config = {
      * - favicon.ico (favicon file)
      * - manifest.json (PWA manifest file)
      * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
+     * - debug APIs
      * Feel free to modify this pattern to include more paths.
      */
-    "/((?!_next/static|_next/image|favicon.ico|manifest.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.json|api/debug|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

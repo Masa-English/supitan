@@ -51,7 +51,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
   if (!shouldRender) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* オーバーレイ */}
       <div 
         className={cn(
@@ -63,7 +63,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
       
       {/* モーダルコンテンツ */}
       <div className={cn(
-        "relative z-50 w-full max-w-md mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 transform",
+        "relative z-50 w-full max-h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 transform flex flex-col",
         isVisible 
           ? "opacity-100 scale-100 translate-y-0" 
           : "opacity-0 scale-95 translate-y-4",
@@ -71,7 +71,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
       )}>
         {/* ヘッダー */}
         {title && (
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {title}
             </h2>
@@ -87,7 +87,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
         )}
         
         {/* コンテンツ */}
-        <div className="p-6">
+        <div className="flex-1 overflow-y-auto">
           {children}
         </div>
       </div>
@@ -115,7 +115,7 @@ interface ModalBodyProps {
 
 export function ModalBody({ children, className }: ModalBodyProps) {
   return (
-    <div className={cn("mb-6", className)}>
+    <div className={cn("", className)}>
       {children}
     </div>
   );
@@ -128,7 +128,7 @@ interface ModalFooterProps {
 
 export function ModalFooter({ children, className }: ModalFooterProps) {
   return (
-    <div className={cn("flex gap-3 justify-end", className)}>
+    <div className={cn("flex gap-3 justify-end flex-shrink-0", className)}>
       {children}
     </div>
   );

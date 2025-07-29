@@ -7,7 +7,7 @@ import { DatabaseService } from '@/lib/database';
 import { Word } from '@/lib/types';
 import { Flashcard } from '@/components/learning/flashcard';
 import { CompletionModal } from '@/components/learning/completion-modal';
-import { AudioPreloader } from '@/components/learning/audio-preloader';
+// import { AudioPreloader } from '@/components/learning/audio-preloader';
 import { useToast } from '@/components/ui/toast';
 
 
@@ -17,7 +17,7 @@ export default function FlashcardPage() {
   const { user } = useAuth();
   const [words, setWords] = useState<Word[]>([]);
   const [loading, setLoading] = useState(true);
-  const [audioLoading, setAudioLoading] = useState(false);
+  // const [audioLoading, setAudioLoading] = useState(false);
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
   const [_currentIndex, setCurrentIndex] = useState(0);
   
@@ -153,6 +153,17 @@ export default function FlashcardPage() {
     setShowCompletionModal(false);
   };
 
+  // 音声読み込みコールバックを最適化（現在は使用されていない）
+  // const handleAudioLoadComplete = useCallback(() => {
+  //   setAudioLoading(false);
+  // }, []);
+
+  // const handleAudioLoadProgress = useCallback((_loaded: number, _total: number) => {
+  //   if (!audioLoading) {
+  //     setAudioLoading(true);
+  //   }
+  // }, [audioLoading]);
+
   if (loading) {
     return (
       <div className="h-screen flex flex-col">
@@ -206,14 +217,12 @@ export default function FlashcardPage() {
         />
       </main>
 
-      {/* 音声ファイル事前読み込み */}
-      <AudioPreloader
+      {/* 音声ファイル事前読み込み - 一時的に無効化 */}
+      {/* <AudioPreloader
         words={words}
-        onLoadComplete={() => setAudioLoading(false)}
-        onLoadProgress={(_loaded, _total) => {
-          if (!audioLoading) setAudioLoading(true);
-        }}
-      />
+        onLoadComplete={handleAudioLoadComplete}
+        onLoadProgress={handleAudioLoadProgress}
+      /> */}
 
       {/* 完了モーダル */}
       {showCompletionModal && (

@@ -34,7 +34,10 @@ export function AudioPreloader({ words, onLoadComplete, onLoadProgress }: AudioP
             await loadWordAudio(word.id, word.audio_file!);
             setLoadedCount(prev => {
               const newCount = prev + 1;
-              onLoadProgress?.(newCount, audioWords.length);
+              // コールバックをsetTimeoutで非同期に実行
+              setTimeout(() => {
+                onLoadProgress?.(newCount, audioWords.length);
+              }, 0);
               return newCount;
             });
           } catch (error) {
@@ -42,7 +45,10 @@ export function AudioPreloader({ words, onLoadComplete, onLoadProgress }: AudioP
             // エラーが発生してもカウントを進める
             setLoadedCount(prev => {
               const newCount = prev + 1;
-              onLoadProgress?.(newCount, audioWords.length);
+              // コールバックをsetTimeoutで非同期に実行
+              setTimeout(() => {
+                onLoadProgress?.(newCount, audioWords.length);
+              }, 0);
               return newCount;
             });
           }
@@ -58,7 +64,7 @@ export function AudioPreloader({ words, onLoadComplete, onLoadProgress }: AudioP
     };
 
     preloadAudioFiles();
-  }, [words, loadWordAudio, onLoadComplete, onLoadProgress]);
+  }, [words, onLoadComplete, onLoadProgress, loadWordAudio]); // loadWordAudioを依存配列に追加
 
   if (!isLoading) {
     return null;

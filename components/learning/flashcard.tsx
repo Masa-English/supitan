@@ -9,6 +9,7 @@ import { AudioControls } from '@/components/common/audio-controls';
 import { createClient } from '@/lib/supabase/client';
 import { AudioInitializer } from './audio-initializer';
 import { useAudioStore } from '@/lib/audio-store';
+// import { getWordAudioInfo } from '@/lib/audio-utils';
 
 interface FlashcardProps {
   words: Word[];
@@ -25,9 +26,30 @@ export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: F
   const [addedToReview, setAddedToReview] = useState<Set<string>>(new Set());
   const [flippedExamples, setFlippedExamples] = useState<Set<string>>(new Set());
   const [showJapanese, setShowJapanese] = useState(false);
+  // const [audioStatus, setAudioStatus] = useState<{
+  //   loading: boolean;
+  //   error: string | null;
+  //   info: {
+  //     wordId: string;
+  //     word: string | null;
+  //     audioFile: string | null;
+  //     audioInfo: {
+  //       exists: boolean;
+  //       error: string | null;
+  //       metadata: {
+  //         name: string;
+  //         size: number;
+  //         mimeType: string;
+  //         lastModified: string;
+  //         path: string;
+  //       } | null;
+  //     } | null;
+  //     error: string | null;
+  //   } | null;
+  // }>({ loading: false, error: null, info: null });
 
   
-  const { volume, isMuted, loadWordAudio } = useAudioStore();
+  const { volume, isMuted } = useAudioStore();
   
   const currentWord = words[currentIndex];
   const progress = ((currentIndex + 1) / words.length) * 100;
@@ -67,23 +89,31 @@ export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: F
     setShowJapanese(false);
   }, [currentIndex]);
 
-  // 音声ファイルの初期化
-  useEffect(() => {
-    const initializeAudioFiles = async () => {
-      for (const word of words) {
-        if (word.audio_file) {
-          try {
-            // 新しい音声ストアの機能を使用して音声ファイルを読み込み
-            await loadWordAudio(word.id, word.audio_file);
-          } catch (error) {
-            console.warn(`音声ファイルの読み込みに失敗しました: ${word.word} (${word.audio_file})`, error);
-          }
-        }
-      }
-    };
+  // 音声ファイルの初期化 - 一時的に無効化（動的読み込みに変更）
+  // useEffect(() => {
+  //   const initializeAudioFiles = async () => {
+  //     console.log(`[Flashcard] 音声ファイル初期化開始: ${words.length}個の単語`);
+      
+  //     for (const word of words) {
+  //       if (word.audio_file) {
+  //         console.log(`[Flashcard] 音声ファイル初期化: ${word.word} (${word.audio_file})`);
+  //         try {
+  //           // 新しい音声ストアの機能を使用して音声ファイルを読み込み
+  //           await loadWordAudio(word.id, word.audio_file);
+  //           console.log(`[Flashcard] 音声ファイル初期化成功: ${word.word}`);
+  //         } catch (error) {
+  //           console.warn(`[Flashcard] 音声ファイルの読み込みに失敗しました: ${word.word} (${word.audio_file})`, error);
+  //           }
+  //       } else {
+  //         console.log(`[Flashcard] 音声ファイルなし: ${word.word}`);
+  //       }
+  //     }
+      
+  //     console.log(`[Flashcard] 音声ファイル初期化完了`);
+  //   };
 
-    initializeAudioFiles();
-  }, [words, loadWordAudio]);
+  //   initializeAudioFiles();
+  // }, [words]);
 
   const handleNext = useCallback(() => {
     if (currentIndex < words.length - 1) {
@@ -168,15 +198,19 @@ export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: F
     }
   }, [volume]);
 
-  const playWordAudio = useCallback(() => {
+  const playWordAudio = useCallback(async () => {
     if (!currentWord?.word || isMuted) return;
 
-    // 新しい音声ストアの機能を使用して音声を再生
-    const { playWordAudio: playAudio } = useAudioStore.getState();
-    playAudio(currentWord.id);
-    
-    // 音声ファイルがない場合はWeb Speech APIを使用
-    if (!currentWord.audio_file) {
+    console.log(`[Flashcard] 音声再生開始: ${currentWord.word}, audio_file=${currentWord.audio_file}`);
+
+    // 音声ファイルがある場合は音声ファイルを再生
+    if (currentWord.audio_file) {
+      console.log(`[Flashcard] 音声ファイルを再生: ${currentWord.audio_file}`);
+      const { playWordAudio: playAudio } = useAudioStore.getState();
+      await playAudio(currentWord.id);
+    } else {
+      console.log(`[Flashcard] Web Speech APIを使用: ${currentWord.word}`);
+      // 音声ファイルがない場合はWeb Speech APIを使用
       fallbackToSpeechSynthesis(currentWord.word);
     }
   }, [currentWord, isMuted, fallbackToSpeechSynthesis]);
@@ -209,6 +243,42 @@ export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: F
     setShowJapanese(prev => !prev);
   }, []);
 
+  // 音声ファイルの状態を確認する関数（現在は使用されていない）
+  // const checkAudioStatus = useCallback(async (word: Word) => {
+  //   if (!word) return;
+    
+  //   console.log(`[Flashcard] 音声ファイル状態確認開始: ${word.word} (${word.id})`);
+    
+  //   setAudioStatus(prev => ({ ...prev, loading: true, error: null }));
+    
+  //   try {
+  //     const audioInfo = await getWordAudioInfo(word.id);
+  //     console.log(`[Flashcard] 音声ファイル状態確認結果:`, audioInfo);
+      
+  //     setAudioStatus({
+  //       loading: false,
+  //       error: null,
+  //       info: audioInfo
+  //     });
+  //   } catch (error) {
+  //     console.error(`[Flashcard] 音声ファイル状態確認エラー:`, error);
+  //     setAudioStatus({
+  //       loading: false,
+  //       error: error instanceof Error ? error.message : '音声ファイルの確認に失敗しました',
+  //       info: null
+  //     });
+  //   }
+  // }, []); // 依存配列を空にする
+
+  // 現在の単語が変わったら音声ファイルの状態を確認 - 一時的に無効化
+  // useEffect(() => {
+  //   if (currentWord?.audio_file) {
+  //     checkAudioStatus(currentWord);
+  //   } else {
+  //     setAudioStatus({ loading: false, error: null, info: null });
+  //   }
+  // }, [currentWord, checkAudioStatus]);
+
   if (!currentWord) {
     return (
       <div className="text-center">
@@ -222,7 +292,7 @@ export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: F
       <div className="h-full flex flex-col footer-safe">
       {/* Progress and Audio Controls */}
       <div className="mb-4 flex-shrink-0">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-3">
           <div className="flex items-center gap-4">
             <span className="text-lg font-medium text-foreground">
               {currentIndex + 1} / {words.length}
@@ -232,7 +302,9 @@ export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: F
               {Math.round(progress)}% 完了
             </div>
           </div>
-          <AudioControls />
+          <div className="flex items-center gap-2">
+            <AudioControls className="bg-card border border-border rounded-lg px-3 py-2 shadow-sm" />
+          </div>
         </div>
         <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
           <div
@@ -268,14 +340,67 @@ export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: F
                   <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground mb-4 lg:mb-6">
                     {currentWord.phonetic}
                   </p>
-                  <Button
-                    variant="outline"
-                    onClick={playWordAudio}
-                    className="bg-primary/10 border-primary text-primary px-6 py-3"
-                  >
-                    <Volume2 className="h-5 w-5 mr-2" />
-                    発音を聞く
-                  </Button>
+                  <div className="flex flex-col items-center gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={playWordAudio}
+                      className="bg-primary/10 border-primary text-primary px-6 py-3"
+                    >
+                      <Volume2 className="h-5 w-5 mr-2" />
+                      発音を聞く
+                    </Button>
+                    
+                    {/* 音声ファイルの状態表示（現在は無効化） */}
+                    {/* 
+                    {currentWord.audio_file && (
+                      <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
+                        {audioStatus.loading ? (
+                          <div className="flex items-center gap-1">
+                            <div className="animate-spin rounded-full h-3 w-3 border-b border-primary"></div>
+                            <span>音声ファイル確認中...</span>
+                          </div>
+                        ) : audioStatus.error ? (
+                          <div className="flex items-center gap-1 text-red-500">
+                            <AlertCircle className="h-3 w-3" />
+                            <span>音声ファイルエラー</span>
+                          </div>
+                        ) : audioStatus.info?.audioInfo?.exists ? (
+                          <div className="flex items-center gap-1 text-green-500">
+                            <CheckCircle className="h-3 w-3" />
+                            <span>音声ファイル利用可能</span>
+                          </div>
+                        ) : audioStatus.info?.audioInfo ? (
+                          <div className="flex items-center gap-1 text-yellow-500">
+                            <AlertCircle className="h-3 w-3" />
+                            <span>音声ファイル未発見</span>
+                          </div>
+                        ) : null}
+                        
+                        {process.env.NODE_ENV === 'development' && audioStatus.info && (
+                          <details className="text-left max-w-xs">
+                            <summary className="cursor-pointer text-blue-500 hover:text-blue-600">
+                              デバッグ情報
+                            </summary>
+                            <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs">
+                              <div><strong>単語:</strong> {audioStatus.info.word}</div>
+                              <div><strong>音声ファイル:</strong> {audioStatus.info.audioFile}</div>
+                              {audioStatus.info.audioInfo?.metadata && (
+                                <>
+                                  <div><strong>ファイル名:</strong> {audioStatus.info.audioInfo.metadata.name}</div>
+                                  <div><strong>サイズ:</strong> {audioStatus.info.audioInfo.metadata.size} bytes</div>
+                                  <div><strong>MIME:</strong> {audioStatus.info.audioInfo.metadata.mimeType}</div>
+                                </>
+                              )}
+                              {audioStatus.info.error && (
+                                <div className="text-red-500"><strong>エラー:</strong> {audioStatus.info.error}</div>
+                              )}
+                            </div>
+                          </details>
+                        )}
+                      </div>
+                    )}
+                    */}
+                  </div>
                 </div>
 
                 {/* 日本語の意味 - 初期表示では隠す */}

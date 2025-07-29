@@ -60,13 +60,36 @@ export class DatabaseService {
 
   // ユーザープログレス関連
   async getUserProgress(userId: string): Promise<UserProgress[]> {
-    const { data, error } = await this.supabase
-      .from('user_progress')
-      .select('*')
-      .eq('user_id', userId);
+    try {
+      const { data, error } = await this.supabase
+        .from('user_progress')
+        .select('*')
+        .eq('user_id', userId);
 
-    if (error) throw error;
-    return data || [];
+      if (error) {
+        console.error('getUserProgress error:', {
+          error,
+          userId,
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+        
+        // 406エラーの場合は空配列を返す（一時的な回避策）
+        if (error.code === '406') {
+          console.warn('RLS policy issue detected, returning empty array');
+          return [];
+        }
+        
+        throw error;
+      }
+      
+      return data || [];
+    } catch (error) {
+      console.error('getUserProgress exception:', error);
+      throw error;
+    }
   }
 
   async getWordProgress(userId: string, wordId: string): Promise<UserProgress | null> {

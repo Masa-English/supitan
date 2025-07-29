@@ -116,7 +116,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       const blob = await fetchAudioFromStorage(audioFilePath);
       
       if (!blob) {
-        console.warn(`音声ファイルが見つかりません: ${audioFilePath}`);
+        console.warn(`[AudioStore] 音声ファイルが見つかりません: ${audioFilePath}`);
         return null;
       }
 
@@ -128,6 +128,13 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       audio.volume = volume;
       audio.preload = 'auto';
 
+      // 音声の読み込み完了を待つ
+      await new Promise((resolve, reject) => {
+        audio.addEventListener('canplaythrough', resolve, { once: true });
+        audio.addEventListener('error', reject, { once: true });
+        audio.load();
+      });
+
       // キャッシュに保存
       const newCache = new Map(wordAudioCache);
       newCache.set(wordId, audio);
@@ -136,21 +143,61 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       return audio;
 
     } catch (error) {
-      console.error(`音声ファイルの読み込みに失敗しました: ${audioFilePath}`, error);
+      console.error(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${audioFilePath}`, error);
       return null;
     }
   },
 
-  playWordAudio: (wordId: string) => {
-    const { wordAudioCache, isMuted, volume } = get();
+  playWordAudio: async (wordId: string) => {
+    const { wordAudioCache, isMuted, volume, loadWordAudio } = get();
     
-    const audio = wordAudioCache.get(wordId);
+    console.log(`[AudioStore] 音声再生開始: wordId=${wordId}, isMuted=${isMuted}`);
+    
+    let audio = wordAudioCache.get(wordId) || null;
+    
+    // キャッシュにない場合は動的に読み込み
+    if (!audio) {
+      console.log(`[AudioStore] キャッシュに音声ファイルなし、動的読み込み開始: ${wordId}`);
+      try {
+        // 単語IDから音声ファイルパスを取得
+        const supabase = createClient();
+        const { data: word, error: wordError } = await supabase
+          .from('words')
+          .select('audio_file')
+          .eq('id', wordId)
+          .single();
+
+        if (wordError || !word?.audio_file) {
+          console.warn(`[AudioStore] 音声ファイルが見つかりません: ${wordId}`, wordError);
+          return;
+        }
+
+        console.log(`[AudioStore] 音声ファイルパス取得: ${word.audio_file}`);
+
+        // 音声ファイルを読み込み
+        audio = await loadWordAudio(wordId, word.audio_file);
+        if (!audio) {
+          console.warn(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${word.audio_file}`);
+          return;
+        }
+      } catch (error) {
+        console.error(`[AudioStore] 音声ファイル取得エラー: ${wordId}`, error);
+        return;
+      }
+    } else {
+      console.log(`[AudioStore] キャッシュから音声ファイル取得: ${wordId}`);
+    }
+    
+    // 音声を再生
     if (audio && !isMuted) {
+      console.log(`[AudioStore] 音声再生実行: ${wordId}`);
       audio.volume = volume;
       audio.currentTime = 0;
       audio.play().catch(error => {
-        console.error('単語音声再生エラー:', error);
+        console.error('[AudioStore] 単語音声再生エラー:', error);
       });
+    } else {
+      console.log(`[AudioStore] 音声再生スキップ: audio=${!!audio}, isMuted=${isMuted}`);
     }
   },
 

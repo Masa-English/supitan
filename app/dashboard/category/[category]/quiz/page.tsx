@@ -132,46 +132,40 @@ export default function QuizPage() {
 
   if (loading) {
     return (
-      <div className="h-screen flex flex-col">
-        <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              {category}のクイズデータを読み込み中...
-            </p>
-          </div>
-        </main>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            {category}のクイズデータを読み込み中...
+          </p>
+        </div>
       </div>
     );
   }
 
   if (words.length === 0) {
     return (
-      <div className="h-screen flex flex-col">
-        <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-md">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-              <div className="text-primary text-2xl sm:text-3xl">🧠</div>
-            </div>
-            <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2 sm:mb-3">
-              単語が見つかりません
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
-              {category}カテゴリーに単語が登録されていないか、データの読み込みに失敗しました。
-            </p>
-            <button
-              onClick={handleBackToHome}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base"
-            >
-              ダッシュボードに戻る
-            </button>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md px-4">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+            <div className="text-primary text-2xl sm:text-3xl">🧠</div>
           </div>
-        </main>
+          <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2 sm:mb-3">
+            単語が見つかりません
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
+            {category}カテゴリーに単語が登録されていないか、データの読み込みに失敗しました。
+          </p>
+          <button
+            onClick={handleBackToHome}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base"
+          >
+            ダッシュボードに戻る
+          </button>
+        </div>
       </div>
     );
   }
-
-
 
   const handleGoToReview = () => {
     router.push('/dashboard/review');
@@ -186,14 +180,12 @@ export default function QuizPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col">
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-        <Quiz
-          words={words}
-          onComplete={handleComplete}
-          onAddToReview={handleAddToReview}
-        />
-      </main>
+    <div className="min-h-screen bg-background">
+      <Quiz
+        words={words}
+        onComplete={handleComplete}
+        onAddToReview={handleAddToReview}
+      />
 
       {/* 完了モーダル */}
       {showCompletionModal && (

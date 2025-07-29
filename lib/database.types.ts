@@ -142,74 +142,74 @@ export type Database = {
       }
       admins: {
         Row: {
-          created_at: string
+          created_at: string | null
           email: string
           id: string
           is_active: boolean | null
           last_login: string | null
           name: string
           role: string | null
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           email: string
           id?: string
           is_active?: boolean | null
           last_login?: string | null
           name: string
           role?: string | null
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           email?: string
           id?: string
           is_active?: boolean | null
           last_login?: string | null
           name?: string
           role?: string | null
-          updated_at?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
       audio_files: {
         Row: {
-          created_at: string
+          created_at: string | null
           duration_seconds: number | null
+          file_name: string
           file_path: string
           file_size: number
-          filename: string
           id: string
           is_active: boolean | null
           mime_type: string
-          updated_at: string
+          updated_at: string | null
           uploaded_by: string | null
           word_id: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           duration_seconds?: number | null
+          file_name: string
           file_path: string
           file_size: number
-          filename: string
           id?: string
           is_active?: boolean | null
           mime_type: string
-          updated_at?: string
+          updated_at?: string | null
           uploaded_by?: string | null
           word_id?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           duration_seconds?: number | null
+          file_name?: string
           file_path?: string
           file_size?: number
-          filename?: string
           id?: string
           is_active?: boolean | null
           mime_type?: string
-          updated_at?: string
+          updated_at?: string | null
           uploaded_by?: string | null
           word_id?: string | null
         }
@@ -279,6 +279,7 @@ export type Database = {
       }
       contact_inquiries: {
         Row: {
+          assigned_to: string | null
           category: string
           created_at: string | null
           email: string
@@ -294,6 +295,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          assigned_to?: string | null
           category: string
           created_at?: string | null
           email: string
@@ -309,6 +311,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          assigned_to?: string | null
           category?: string
           created_at?: string | null
           email?: string
@@ -323,7 +326,15 @@ export type Database = {
           user_agent?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "contact_inquiries_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       learning_records: {
         Row: {
@@ -665,8 +676,8 @@ export type Database = {
           example1_jp: string
           example2: string
           example2_jp: string
-          example3: string | null
-          example3_jp: string | null
+          example3: string
+          example3_jp: string
           id: string
           is_active: boolean | null
           japanese: string
@@ -689,8 +700,8 @@ export type Database = {
           example1_jp: string
           example2: string
           example2_jp: string
-          example3?: string | null
-          example3_jp?: string | null
+          example3: string
+          example3_jp: string
           id?: string
           is_active?: boolean | null
           japanese: string
@@ -713,8 +724,8 @@ export type Database = {
           example1_jp?: string
           example2?: string
           example2_jp?: string
-          example3?: string | null
-          example3_jp?: string | null
+          example3?: string
+          example3_jp?: string
           id?: string
           is_active?: boolean | null
           japanese?: string

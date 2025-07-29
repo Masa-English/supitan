@@ -10,13 +10,13 @@ import {
   Search, 
   Target, 
   BarChart3, 
-  User,
-  Heart,
+  // User,
+  // Heart,
   TrendingUp,
   Award
 } from 'lucide-react';
 import Link from 'next/link';
-import { DashboardClient } from './dashboard-client';
+// import { DashboardClient } from './dashboard-client';
 
 // メインアクションカード
 function MainActionCard({ 
@@ -245,25 +245,23 @@ export default function DashboardPage() {
             </div>
           </div>
         }>
-          <DashboardClient>
-            <div className="min-h-screen bg-background">
-              <div className="flex">
-                {/* メインコンテンツ */}
-                <div className="flex-1 lg:ml-0">
-                  <main className="w-full p-4 sm:p-6 lg:p-8">
-                    {/* クイックアクション */}
-                    <QuickActionsSection />
-                    
-                    {/* 今日の進捗 */}
-                    <TodayProgressSection />
-                    
-                    {/* 最近の活動 */}
-                    <RecentActivitySection />
-                  </main>
-                </div>
+          <div className="min-h-screen bg-background">
+            <div className="flex">
+              {/* メインコンテンツ */}
+              <div className="flex-1 lg:ml-0">
+                <main className="w-full p-4 sm:p-6 lg:p-8">
+                  {/* クイックアクション */}
+                  <QuickActionsSection />
+                  
+                  {/* 今日の進捗 */}
+                  <TodayProgressSection />
+                  
+                  {/* 最近の活動 */}
+                  <RecentActivitySection />
+                </main>
               </div>
             </div>
-          </DashboardClient>
+          </div>
         </Suspense>
       </TutorialWrapper>
     </AuthWrapper>
