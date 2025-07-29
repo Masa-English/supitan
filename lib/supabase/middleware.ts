@@ -2,10 +2,6 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 
-// Edge Runtime対応のため、Node.js固有のAPIを使用しない
-// 現在のSupabaseクライアントはEdge Runtimeと互換性がないため、デフォルトのNode.js runtimeを使用
-// export const runtime = 'edge';
-
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -51,6 +47,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Edge Runtime互換のSupabaseクライアント設定
   const supabase = createServerClient(
     supabaseUrl,
     supabaseKey,
@@ -69,6 +66,12 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
           );
+        },
+      },
+      // Edge Runtime互換の設定
+      global: {
+        headers: {
+          'X-Client-Info': 'supabase-js-ssr',
         },
       },
     },

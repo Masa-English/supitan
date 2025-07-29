@@ -142,6 +142,12 @@ const nextConfig: NextConfig = {
       maxEntrypointSize: 500000, // 500KB
       hints: false, // パフォーマンス警告を無効化
     };
+
+    // Edge Runtime警告の抑制
+    config.ignoreWarnings = [
+      /A Node\.js API is used.*which is not supported in the Edge Runtime/,
+      /Serializing big strings.*impacts deserialization performance/,
+    ];
     
     return config;
   },
