@@ -233,35 +233,24 @@ export default function DashboardPage() {
     <AuthWrapper>
       <TutorialWrapper>
         <Suspense fallback={
-          <div className="min-h-screen bg-background">
-            <div className="flex">
-              <div className="flex-1 lg:ml-0">
-                <main className="w-full p-4 sm:p-6 lg:p-8">
-                  <QuickActionsSection />
-                  <TodayProgressSection />
-                  <RecentActivitySection />
-                </main>
-              </div>
+          <div className="w-full p-4 sm:p-6 lg:p-8">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="h-32 bg-muted animate-pulse rounded-lg" />
+              <div className="h-48 bg-muted animate-pulse rounded-lg" />
+              <div className="h-64 bg-muted animate-pulse rounded-lg" />
             </div>
           </div>
         }>
-          <div className="min-h-screen bg-background">
-            <div className="flex">
-              {/* メインコンテンツ */}
-              <div className="flex-1 lg:ml-0">
-                <main className="w-full p-4 sm:p-6 lg:p-8">
-                  {/* クイックアクション */}
-                  <QuickActionsSection />
-                  
-                  {/* 今日の進捗 */}
-                  <TodayProgressSection />
-                  
-                  {/* 最近の活動 */}
-                  <RecentActivitySection />
-                </main>
-              </div>
-            </div>
-          </div>
+          <main className="w-full p-4 sm:p-6 lg:p-8">
+            {/* クイックアクション */}
+            <QuickActionsSection />
+            
+            {/* 今日の進捗 */}
+            <TodayProgressSection />
+            
+            {/* 最近の活動 */}
+            <RecentActivitySection />
+          </main>
         </Suspense>
       </TutorialWrapper>
     </AuthWrapper>
