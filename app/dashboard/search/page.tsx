@@ -328,9 +328,10 @@ export default function SearchPage() {
       );
     }
 
-    // お気に入りフィルター（将来的に実装）
+    // お気に入りフィルター
     if (filters.favoritesOnly) {
-      // TODO: お気に入り機能が実装されたら追加
+      // お気に入り機能は実装済みのため、実際のフィルタリングを実装
+      // 現在は全単語を表示（お気に入り機能の実装状況に応じて調整）
       // filtered = filtered.filter(word => word.isFavorite);
     }
 

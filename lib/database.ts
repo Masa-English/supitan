@@ -16,13 +16,20 @@ export class DatabaseService {
   }
 
   async getWordsByCategory(category: string): Promise<Word[]> {
+    console.log(`Database: Searching for category: "${category}"`);
+    
     const { data, error } = await this.supabase
       .from('words')
       .select('*')
       .eq('category', category)
       .order('word', { ascending: true });
 
-    if (error) throw error;
+    if (error) {
+      console.error(`Database error for category "${category}":`, error);
+      throw error;
+    }
+    
+    console.log(`Database: Found ${data?.length || 0} words for category "${category}"`);
     return data || [];
   }
 
@@ -32,17 +39,23 @@ export class DatabaseService {
       .select('category')
       .order('category', { ascending: true });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Database error getting categories:', error);
+      throw error;
+    }
 
     const categoryCounts = data?.reduce((acc, word) => {
       acc[word.category] = (acc[word.category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
-    return Object.entries(categoryCounts || {}).map(([category, count]) => ({
+    const categories = Object.entries(categoryCounts || {}).map(([category, count]) => ({
       category,
       count
     }));
+    
+    console.log('Available categories:', categories);
+    return categories;
   }
 
   // ユーザープログレス関連

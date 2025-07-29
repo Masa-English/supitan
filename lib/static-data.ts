@@ -264,5 +264,5 @@ function getPosSymbol(category: string): string {
 // キャッシュ管理（Next.js 15では不要）
 export async function revalidateStaticData() {
   // Next.js 15ではキャッシュ管理が変更されたため、この関数は現在使用されていません
-  console.log('revalidateStaticData: この関数は現在使用されていません');
+  // 将来的なISRキャッシュ管理のために保持
 } 

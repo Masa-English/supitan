@@ -175,8 +175,14 @@ const CACHE_CONFIG = {
 git clone <repository-url>
 cd masa-flash-with-quiz
 
-# 2. 依存関係のインストール
+# 2. 開発環境のセットアップ（推奨）
+npm run dev-setup
+
+# または手動でセットアップ
 npm install
+npm run type-check
+npm run lint
+npm run format
 
 # 3. 環境変数の設定
 cp .env.example .env.local
@@ -184,6 +190,37 @@ cp .env.example .env.local
 
 # 4. 開発サーバー起動
 npm run dev
+```
+
+### 開発用コマンド
+
+```bash
+# 開発サーバー起動
+npm run dev
+
+# 本番ビルド
+npm run build
+npm run build:analyze
+
+# リントチェック
+npm run lint
+npm run lint:fix
+
+# 型チェック
+npm run type-check
+
+# コードフォーマット
+npm run format
+npm run format:check
+
+# テスト実行
+npm run test
+npm run test:watch
+npm run test:coverage
+
+# クリーンアップ
+npm run clean
+npm run clean:all
 ```
 
 ### 環境変数設定

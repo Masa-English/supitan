@@ -2,6 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 
+// Edge Runtime対応のため、Node.js固有のAPIを使用しない
+export const runtime = 'edge';
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -38,8 +41,8 @@ export async function updateSession(request: NextRequest) {
 
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
   if (!supabaseUrl || !supabaseKey) {
     const url = request.nextUrl.clone();
@@ -88,7 +91,7 @@ export async function updateSession(request: NextRequest) {
       }
       
       // その他のエラーは開発環境でのみログ出力
-      if (process.env.NODE_ENV === 'development') {
+      if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
         console.error('Session check error:', error);
       }
       
@@ -115,7 +118,7 @@ export async function updateSession(request: NextRequest) {
 
   } catch (error) {
     // 開発環境でのみログ出力
-    if (process.env.NODE_ENV === 'development') {
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
       console.error('Middleware error:', error);
     }
     

@@ -149,7 +149,7 @@ const nextConfig: NextConfig = {
   },
 
   // 出力設定の最適化
-  output: 'standalone', // 本番環境での最適化
+  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined, // 本番環境での最適化
 };
 
 export default nextConfig;

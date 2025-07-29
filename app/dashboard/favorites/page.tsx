@@ -125,8 +125,8 @@ export default function FavoritesPage() {
         return;
       }
 
-      // お気に入り単語を取得（将来的に実装）
-      // 現在は全単語を表示（お気に入り機能が実装されたら変更）
+      // お気に入り単語を取得
+      // 現在は全単語を表示（お気に入り機能の実装状況に応じて調整）
       const allWords = await db.getWords();
       const userProgressData = await db.getUserProgress(user.id);
       

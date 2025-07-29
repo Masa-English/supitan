@@ -65,7 +65,7 @@ const faqData: FAQItem[] = [
   {
     id: 'offline-learning',
     question: 'オフラインでも学習できますか？',
-    answer: '現在はオンラインでの学習のみ対応しています。オフライン機能は今後のアップデートで追加予定です。',
+    answer: '現在はオンラインでの学習のみ対応しています。PWA機能によるオフライン対応は開発中です。',
     category: '機能',
     icon: BookOpen
   },

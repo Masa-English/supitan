@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ThemeSwitcher } from '@/components/common/theme-switcher';
 import { createClient } from '@/lib/supabase/client';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,48 +25,66 @@ interface HeaderProps {
   showUserInfo?: boolean;
   showMobileMenu?: boolean;
   onMobileMenuToggle?: () => void;
+  showProgress?: boolean;
+  progress?: number;
+  currentIndex?: number;
+  totalCount?: number;
 }
 
 export function Header({
-  title = "英単語学習",
+  title: propTitle = "英単語学習",
   showBackButton = false,
   onBackClick,
   userEmail,
   onSignOut,
   showUserInfo = true,
   showMobileMenu = false,
-  onMobileMenuToggle
+  // onMobileMenuToggle, // 未使用のため削除
+  showProgress: propShowProgress = false,
+  progress: propProgress = 0,
+  currentIndex: propCurrentIndex = 0,
+  totalCount: propTotalCount = 0
 }: HeaderProps) {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<SupabaseUser | null>(null);
   const supabase = createClient();
+  // デフォルト値を使用（SSR/CSR互換性のため）
+  const title = propTitle !== "英単語学習" ? propTitle : "ダッシュボード";
+  const showProgress = propShowProgress || false;
+  const progress = propProgress || 0;
+  const currentIndex = propCurrentIndex || 0;
+  const totalCount = propTotalCount || 0;
 
   useEffect(() => {
-    // 現在のユーザーを取得
-    const getCurrentUser = async () => {
-      try {
-        // getSession()を使用してセッションを確認
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
+    // クライアントサイドでのみ実行
+    if (typeof window !== 'undefined') {
+      // 現在のユーザーを取得
+      const getCurrentUser = async () => {
+        try {
+          // getSession()を使用してセッションを確認
+          const { data: { session }, error } = await supabase.auth.getSession();
+          if (error) {
+            console.error('ユーザー取得エラー:', error);
+          } else if (session?.user) {
+            setCurrentUser(session.user);
+          }
+        } catch (error) {
           console.error('ユーザー取得エラー:', error);
-        } else if (session?.user) {
-          setCurrentUser(session.user);
         }
-      } catch (error) {
-        console.error('ユーザー取得エラー:', error);
-      }
-    };
+      };
 
-    getCurrentUser();
+      getCurrentUser();
 
-    // 認証状態の変更を監視
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setCurrentUser(session?.user || null);
-      }
-    );
+      // 認証状態の変更を監視
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          setCurrentUser(session?.user || null);
+        }
+      );
 
-    return () => subscription.unsubscribe();
+      return () => subscription.unsubscribe();
+    }
+    return undefined;
   }, [supabase.auth]);
 
   const handleSignOut = async () => {
@@ -80,58 +99,128 @@ export function Header({
   const handleBackClick = () => {
     if (onBackClick) {
       onBackClick();
-    } else {
-      // 現在のパスに基づいて適切な戻り先を決定
-      const currentPath = window.location.pathname;
-      
-      // 学習ページからはカテゴリーページに戻る
-      if (currentPath.match(/^\/dashboard\/category\/[^\/]+\/(flashcard|quiz|browse)$/)) {
-        const category = currentPath.split('/')[3];
-        router.push(`/dashboard/category/${category}`);
-      }
-      // カテゴリーページからはダッシュボードに戻る
-      else if (currentPath.match(/^\/dashboard\/category\/[^\/]+$/)) {
-        router.push('/dashboard');
-      }
-      // start-learningページからはダッシュボードに戻る
-      else if (currentPath === '/dashboard/start-learning') {
-        router.push('/dashboard');
-      }
-      // その他の場合は履歴に戻る
-      else {
-        router.back();
-      }
+      return;
     }
+    
+    // 現在のパスに基づいて適切な戻り先を決定
+    const currentPath = window.location.pathname;
+    
+    // 学習ページからはカテゴリーページに戻る
+    if (currentPath.match(/^\/dashboard\/category\/[^\/]+\/(flashcard|quiz|browse)$/)) {
+      const category = currentPath.split('/')[3];
+      router.push(`/dashboard/category/${category}`);
+      return;
+    }
+    // カテゴリーページからはダッシュボードに戻る
+    if (currentPath.match(/^\/dashboard\/category\/[^\/]+$/)) {
+      router.push('/dashboard');
+      return;
+    }
+    // start-learningページからはダッシュボードに戻る
+    if (currentPath === '/dashboard/start-learning') {
+      router.push('/dashboard');
+      return;
+    }
+    // その他の場合は履歴に戻る
+    router.back();
   };
 
   const handleHomeClick = () => {
     if (currentUser) {
       router.push('/dashboard');
-    } else {
-      router.push('/landing');
+      return;
     }
+    router.push('/landing');
   };
 
   // ユーザー情報の取得（propsまたは現在のユーザーから）
   const displayUserEmail = userEmail || currentUser?.email;
   const isLoggedIn = !!displayUserEmail;
+  
+  // ハイドレーションエラーを防ぐため、初期状態ではローディング状態を表示
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <header className="bg-card/95 backdrop-blur-md border-b border-border sticky z-40 w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 sm:h-18">
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* モバイルメニューボタン */}
-            {showMobileMenu && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onMobileMenuToggle}
-                className="lg:hidden text-muted-foreground hover:bg-accent transition-colors p-2 touch-target"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            )}
+          {/* プログレス表示 */}
+          {showProgress && (
+            <div className="absolute top-full left-0 right-0 bg-muted/50 border-b border-border px-4 py-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-medium text-foreground">
+                  {currentIndex} / {totalCount}
+                </span>
+                <span className="text-sm text-primary">
+                  {Math.round(progress)}% 完了
+                </span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-primary h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          )}
+                      <div className="flex items-center gap-3 sm:gap-4">
+              {/* モバイルメニューボタン */}
+              {showMobileMenu && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="lg:hidden text-muted-foreground hover:bg-accent transition-colors p-2 touch-target"
+                    >
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56 bg-card/95 backdrop-blur-md border border-border shadow-lg">
+                    <DropdownMenuItem 
+                      onClick={() => router.push('/dashboard')}
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      ダッシュボード
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        const currentPath = window.location.pathname;
+                        if (currentPath.match(/^\/dashboard\/category\/[^\/]+\/(flashcard|quiz|browse)$/)) {
+                          const category = currentPath.split('/')[3];
+                          router.push(`/dashboard/category/${category}`);
+                        } else {
+                          router.push('/dashboard');
+                        }
+                      }}
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
+                    >
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      カテゴリーに戻る
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => router.push('/dashboard/review')}
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
+                    >
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      復習
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-border" />
+                    <DropdownMenuItem 
+                      onClick={() => router.push('/dashboard/profile')}
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
+                    >
+                      <UserCircle className="h-4 w-4 mr-2" />
+                      プロフィール設定
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             
             {showBackButton && (
               <Button
@@ -162,7 +251,7 @@ export function Header({
             </div>
           </div>
           
-          {showUserInfo && (
+          {showUserInfo && isClient && (
             <div className="flex items-center gap-2 sm:gap-3">
               <ThemeSwitcher />
               
@@ -214,6 +303,22 @@ export function Header({
                     >
                       <Settings className="h-4 w-4 mr-2" />
                       ダッシュボード
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        // 現在のパスからカテゴリーを取得してカテゴリーページに戻る
+                        const currentPath = window.location.pathname;
+                        if (currentPath.match(/^\/dashboard\/category\/[^\/]+\/(flashcard|quiz|browse)$/)) {
+                          const category = currentPath.split('/')[3];
+                          router.push(`/dashboard/category/${category}`);
+                        } else {
+                          router.push('/dashboard');
+                        }
+                      }}
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
+                    >
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      カテゴリーに戻る
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-border" />
                     <DropdownMenuItem 

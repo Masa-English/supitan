@@ -4,26 +4,30 @@ import { useState, useEffect, useCallback } from 'react';
 import { Word } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, RotateCcw, Volume2, Star, StarOff, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, Volume2, Star, StarOff, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { AudioControls } from '@/components/common/audio-controls';
 import { createClient } from '@/lib/supabase/client';
 import { AudioInitializer } from './audio-initializer';
+import { useAudioStore } from '@/lib/audio-store';
 
 interface FlashcardProps {
   words: Word[];
   onComplete: () => void;
   onAddToReview: (wordId: string) => void;
   category: string;
+  onIndexChange?: (index: number) => void;
 }
 
-export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) {
+export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: FlashcardProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [addedToReview, setAddedToReview] = useState<Set<string>>(new Set());
   const [flippedExamples, setFlippedExamples] = useState<Set<string>>(new Set());
+  const [showJapanese, setShowJapanese] = useState(false);
+  const [audioElements, setAudioElements] = useState<Map<string, HTMLAudioElement>>(new Map());
   
-  // 音声機能は新しいAudioControlsコンポーネントで管理
+  const { volume, isMuted } = useAudioStore();
   
   const currentWord = words[currentIndex];
   const progress = ((currentIndex + 1) / words.length) * 100;
@@ -57,24 +61,73 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
     loadFavorites();
   }, []);
 
-  // 単語が変わったら例文の表示状態をリセット
+  // 単語が変わったら例文の表示状態と日本語表示状態をリセット
   useEffect(() => {
     setFlippedExamples(new Set());
+    setShowJapanese(false);
   }, [currentIndex]);
+
+  // 音声ファイルの初期化
+  useEffect(() => {
+    const initializeAudioFiles = async () => {
+      const newAudioElements = new Map<string, HTMLAudioElement>();
+      
+      for (const word of words) {
+        if (word.audio_file) {
+          try {
+            const supabase = createClient();
+            // audio_fileフィールドにはファイルパスが格納されている
+            const { data, error } = await supabase.storage
+              .from('audio')
+              .download(word.audio_file);
+            
+            if (!error && data) {
+              const blob = new Blob([data], { type: 'audio/mpeg' });
+              const url = URL.createObjectURL(blob);
+              const audio = new Audio(url);
+              audio.volume = volume;
+              audio.preload = 'auto';
+              newAudioElements.set(word.id, audio);
+            } else {
+              console.warn(`音声ファイルが見つかりません: ${word.audio_file}`);
+            }
+          } catch (error) {
+            console.warn(`音声ファイルの読み込みに失敗しました: ${word.word} (${word.audio_file})`, error);
+          }
+        }
+      }
+      
+      setAudioElements(newAudioElements);
+    };
+
+    initializeAudioFiles();
+
+    // クリーンアップ関数
+    return () => {
+      audioElements.forEach((audio: HTMLAudioElement) => {
+        audio.pause();
+        URL.revokeObjectURL(audio.src);
+      });
+    };
+  }, [words, volume, audioElements]);
 
   const handleNext = useCallback(() => {
     if (currentIndex < words.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      onIndexChange?.(newIndex);
     } else {
       onComplete();
     }
-  }, [currentIndex, words.length, onComplete]);
+  }, [currentIndex, words.length, onComplete, onIndexChange]);
 
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+      const newIndex = currentIndex - 1;
+      setCurrentIndex(newIndex);
+      onIndexChange?.(newIndex);
     }
-  }, [currentIndex]);
+  }, [currentIndex, onIndexChange]);
 
   const handleAddToReview = useCallback(async () => {
     if (!currentWord || isLoading || isAddedToReview) return;
@@ -130,23 +183,47 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
     }
   }, [currentWord, isFavorite]);
 
-  const playWordAudio = useCallback(() => {
-    if (currentWord?.word) {
-      const utterance = new SpeechSynthesisUtterance(currentWord.word);
+  const fallbackToSpeechSynthesis = useCallback((text: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-US';
       utterance.rate = 0.8;
       utterance.pitch = 1.0;
+      utterance.volume = volume;
       speechSynthesis.speak(utterance);
     }
-  }, [currentWord]);
+  }, [volume]);
+
+  const playWordAudio = useCallback(() => {
+    if (!currentWord?.word || isMuted) return;
+
+    // 音声ファイルがある場合は音声ファイルを再生
+    const audioElement = audioElements.get(currentWord.id);
+    if (audioElement) {
+      audioElement.volume = volume;
+      audioElement.currentTime = 0;
+      audioElement.play().catch(error => {
+        console.error('音声ファイル再生エラー:', error);
+        // フォールバック: Web Speech APIを使用
+        fallbackToSpeechSynthesis(currentWord.word);
+      });
+    } else {
+      // 音声ファイルがない場合はWeb Speech APIを使用
+      fallbackToSpeechSynthesis(currentWord.word);
+    }
+  }, [currentWord, audioElements, volume, isMuted, fallbackToSpeechSynthesis]);
 
   const playExampleAudio = useCallback((text: string) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.8;
-    utterance.pitch = 1.0;
-    speechSynthesis.speak(utterance);
-  }, []);
+    if (isMuted) return;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      utterance.pitch = 1.0;
+      utterance.volume = volume;
+      speechSynthesis.speak(utterance);
+    }
+  }, [isMuted, volume]);
 
   const handleExampleClick = useCallback((exampleKey: string) => {
     setFlippedExamples(prev => {
@@ -160,6 +237,10 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
     });
   }, []);
 
+  const toggleJapaneseDisplay = useCallback(() => {
+    setShowJapanese(prev => !prev);
+  }, []);
+
   if (!currentWord) {
     return (
       <div className="text-center">
@@ -171,7 +252,7 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
   return (
     <AudioInitializer>
       <div className="h-full flex flex-col footer-safe">
-      {/* Progress Bar */}
+      {/* Progress and Audio Controls */}
       <div className="mb-4 flex-shrink-0">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
           <div className="flex items-center gap-4">
@@ -207,10 +288,10 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
               {isFavorite ? <Star className="h-5 w-5 sm:h-6 sm:w-6 fill-current" /> : <StarOff className="h-5 w-5 sm:h-6 sm:w-6" />}
             </Button>
 
-            {/* メインコンテンツ - 自動レイアウト */}
-            <div className="flex flex-col xl:flex-row xl:gap-12 h-full max-w-7xl mx-auto w-full">
-              {/* 左側：英単語と意味 */}
-              <div className="xl:flex-1 flex flex-col justify-center text-center xl:text-left">
+            {/* メインコンテンツ - 常に1列表示 */}
+            <div className="flex flex-col h-full max-w-4xl mx-auto w-full">
+              {/* 英単語と意味セクション */}
+              <div className="flex flex-col justify-center text-center">
                 {/* 英単語セクション */}
                 <div className="mb-6 lg:mb-8">
                   <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-3 lg:mb-4">
@@ -229,17 +310,40 @@ export function Flashcard({ words, onComplete, onAddToReview }: FlashcardProps) 
                   </Button>
                 </div>
 
-                {/* 日本語の意味 */}
+                {/* 日本語の意味 - 初期表示では隠す */}
                 <div className="mb-6 lg:mb-8">
-                  <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground">
-                    {currentWord.japanese}
-                  </h3>
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={toggleJapaneseDisplay}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      {showJapanese ? (
+                        <>
+                          <EyeOff className="h-4 w-4 mr-2" />
+                          意味を隠す
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-4 w-4 mr-2" />
+                          意味を表示
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {showJapanese && (
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground">
+                      {currentWord.japanese}
+                    </h3>
+                  )}
                 </div>
               </div>
 
-              {/* 右側：例文セクション */}
-              <div className="xl:flex-1 flex flex-col justify-center">
-                <div className="space-y-3 lg:space-y-4 max-w-3xl mx-auto xl:mx-0 w-full">
+              {/* 例文セクション */}
+              <div className="flex flex-col justify-center">
+                <div className="space-y-3 lg:space-y-4 max-w-3xl mx-auto w-full">
                   {currentWord.example1 && (
                     <div 
                       className="bg-accent rounded-xl p-4 lg:p-5 border border-border cursor-pointer"

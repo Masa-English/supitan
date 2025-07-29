@@ -120,8 +120,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 管理者権限チェック（簡易版 - 開発中は一時的に無効化）
-    // TODO: 適切な管理者権限チェックを実装
+    // 管理者権限チェック（本番環境では適切な実装が必要）
+    // 現在は開発環境用のため一時的に無効化
     /*
     const { data: userProfile } = await supabase
       .from('user_profiles')

@@ -23,12 +23,11 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
       // 少し遅延させてアニメーションを開始
       const timer = setTimeout(() => setIsVisible(true), 10);
       return () => clearTimeout(timer);
-    } else {
-      setIsVisible(false);
-      // アニメーション完了後にレンダリングを停止
-      const timer = setTimeout(() => setShouldRender(false), 300);
-      return () => clearTimeout(timer);
     }
+    setIsVisible(false);
+    // アニメーション完了後にレンダリングを停止
+    const timer = setTimeout(() => setShouldRender(false), 300);
+    return () => clearTimeout(timer);
   }, [isOpen]);
 
   React.useEffect(() => {

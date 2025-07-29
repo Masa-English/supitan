@@ -22,11 +22,10 @@ export function Toast({ isOpen, onClose, title, message, type = 'info', duration
       setShouldRender(true);
       const timer = setTimeout(() => setIsVisible(true), 10);
       return () => clearTimeout(timer);
-    } else {
-      setIsVisible(false);
-      const timer = setTimeout(() => setShouldRender(false), 300);
-      return () => clearTimeout(timer);
     }
+    setIsVisible(false);
+    const timer = setTimeout(() => setShouldRender(false), 300);
+    return () => clearTimeout(timer);
   }, [isOpen]);
 
   React.useEffect(() => {
@@ -37,6 +36,7 @@ export function Toast({ isOpen, onClose, title, message, type = 'info', duration
       }, duration);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isOpen, duration, onClose]);
 
   if (!shouldRender) return null;
@@ -47,9 +47,8 @@ export function Toast({ isOpen, onClose, title, message, type = 'info', duration
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case 'error':
         return <AlertCircle className="h-5 w-5 text-red-600" />;
-      default:
-        return <Info className="h-5 w-5 text-blue-600" />;
     }
+    return <Info className="h-5 w-5 text-blue-600" />;
   };
 
   const getStyles = () => {
@@ -58,9 +57,8 @@ export function Toast({ isOpen, onClose, title, message, type = 'info', duration
         return 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700';
       case 'error':
         return 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700';
-      default:
-        return 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700';
     }
+    return 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700';
   };
 
   const handleClose = () => {

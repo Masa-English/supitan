@@ -9,6 +9,7 @@ import { Flashcard } from '@/components/learning/flashcard';
 import { CompletionModal } from '@/components/learning/completion-modal';
 import { useToast } from '@/components/ui/toast';
 
+
 export default function FlashcardPage() {
   const params = useParams();
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function FlashcardPage() {
   const [words, setWords] = useState<Word[]>([]);
   const [loading, setLoading] = useState(true);
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
+  const [_currentIndex, setCurrentIndex] = useState(0);
   
   // モーダル状態管理
   const [showCompletionModal, setShowCompletionModal] = useState(false);
@@ -23,6 +25,10 @@ export default function FlashcardPage() {
   const db = useMemo(() => new DatabaseService(), []);
   const category = decodeURIComponent(params.category as string);
   const { showToast } = useToast();
+
+  
+  // プログレス計算（使用されていないため削除）
+  // const progress = words.length > 0 ? ((currentIndex + 1) / words.length) * 100 : 0;
 
   const loadData = useCallback(async () => {
     try {
@@ -40,6 +46,8 @@ export default function FlashcardPage() {
       loadData();
     }
   }, [loadData, user]);
+
+
 
   const handleComplete = async () => {
     if (!user) {
@@ -186,12 +194,13 @@ export default function FlashcardPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-2 sm:py-4">
         <Flashcard
           words={words}
           onComplete={handleComplete}
           onAddToReview={handleAddToReview}
           category={category}
+          onIndexChange={setCurrentIndex}
         />
       </main>
 

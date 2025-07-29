@@ -17,13 +17,14 @@ export const revalidate = 900; // 15分
 // 動的メタデータの生成
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;
+  const decodedCategory = decodeURIComponent(category);
   
   return {
-    title: `${category} - 英単語学習 | Masa Flash`,
-    description: `${category}の英単語を効率的に学習しましょう。フラッシュカードとクイズで習得度を向上させます。`,
+    title: `${decodedCategory} - 英単語学習 | Masa Flash`,
+    description: `${decodedCategory}の英単語を効率的に学習しましょう。フラッシュカードとクイズで習得度を向上させます。`,
     openGraph: {
-      title: `${category} - 英単語学習`,
-      description: `${category}の英単語学習ページ`,
+      title: `${decodedCategory} - 英単語学習`,
+      description: `${decodedCategory}の英単語学習ページ`,
     },
   };
 }
@@ -33,15 +34,27 @@ async function getStaticPageData(category: string): Promise<{
   words: Word[];
   categories: Category[];
 }> {
-  // 統一データプロバイダーを使用してデータを一括取得
-  const pageData = await dataProvider.getPageData('category', {
-    category,
-  });
+  try {
+    console.log(`Fetching data for category: ${category}`);
+    
+    // 統一データプロバイダーを使用してデータを一括取得
+    const pageData = await dataProvider.getPageData('category', {
+      category,
+    });
 
-  return {
-    words: pageData.words,
-    categories: pageData.categories || [],
-  };
+    console.log(`Page data received:`, {
+      wordsCount: pageData.words?.length || 0,
+      categoriesCount: pageData.categories?.length || 0
+    });
+
+    return {
+      words: pageData.words || [],
+      categories: pageData.categories || [],
+    };
+  } catch (error) {
+    console.error(`Error fetching data for category ${category}:`, error);
+    throw error;
+  }
 }
 
 
@@ -49,13 +62,16 @@ async function getStaticPageData(category: string): Promise<{
 export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
   try {
     const { category } = await params;
+    const decodedCategory = decodeURIComponent(category);
+    console.log(`Loading category: ${decodedCategory} (encoded: ${category})`);
     
     // 静的データを取得
-    const { words } = await getStaticPageData(category);
+    const { words } = await getStaticPageData(decodedCategory);
+    console.log(`Found ${words?.length || 0} words for category: ${decodedCategory}`);
 
     // データが存在しない場合は404
     if (!words || words.length === 0) {
-      console.log(`Category not found: ${category}`);
+      console.log(`Category not found: ${decodedCategory}`);
       notFound();
     }
 
@@ -66,7 +82,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-6">
               <h1 className="text-3xl font-bold text-amber-800 dark:text-amber-200">
-                {category}
+                {decodedCategory}
               </h1>
               <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
                 {words.length}個の単語
@@ -98,7 +114,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
           {/* 学習モード選択 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Link href={`/dashboard/category/${encodeURIComponent(category)}/flashcard`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/flashcard`}>
               <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-blue-200 dark:border-blue-700">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-blue-800 dark:text-blue-200">
@@ -118,7 +134,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
               </Card>
             </Link>
 
-            <Link href={`/dashboard/category/${encodeURIComponent(category)}/quiz`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/quiz`}>
               <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-green-200 dark:border-green-700">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-3 text-green-800 dark:text-green-200">
