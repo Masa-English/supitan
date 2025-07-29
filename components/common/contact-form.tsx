@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/toast';
 import { Mail, User, MessageSquare, AlertTriangle, CheckCircle, Loader2, Lock } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface ContactFormProps {
   className?: string;
@@ -34,6 +35,8 @@ const CATEGORIES = [
 
 export function ContactForm({ className, variant = 'default', showTitle = true }: ContactFormProps) {
   const { user } = useAuth({ requireAuth: false });
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
@@ -52,6 +55,14 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
   useEffect(() => {
     const checkUser = async () => {
       try {
+        // URLパラメータでリセットが要求されている場合は状態をリセット
+        const reset = searchParams.get('reset');
+        if (reset === 'true') {
+          setIsSubmitted(false);
+          // URLからリセットパラメータを削除
+          router.replace('/contact', { scroll: false });
+        }
+
         if (user) {
           setIsLoggedIn(true);
           setFormData(prev => ({
@@ -68,7 +79,7 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
     };
 
     checkUser();
-  }, [user]);
+  }, [user, searchParams, router]);
 
   const handleInputChange = (field: keyof ContactFormData, value: string) => {
     // ログイン済みユーザーの場合はメールアドレスを変更できないようにする
@@ -88,19 +99,24 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
     try {
       // バリデーション
       if (!formData.name.trim()) {
-        throw new Error('お名前を入力してください');
+        showToast('お名前を入力してください', { type: 'error' });
+        return;
       }
       if (!formData.email.trim()) {
-        throw new Error('メールアドレスを入力してください');
+        showToast('メールアドレスを入力してください', { type: 'error' });
+        return;
       }
       if (!formData.subject.trim()) {
-        throw new Error('件名を入力してください');
+        showToast('件名を入力してください', { type: 'error' });
+        return;
       }
       if (!formData.message.trim()) {
-        throw new Error('メッセージを入力してください');
+        showToast('メッセージを入力してください', { type: 'error' });
+        return;
       }
       if (formData.message.length < 10) {
-        throw new Error('メッセージは10文字以上で入力してください');
+        showToast('メッセージは10文字以上で入力してください', { type: 'error' });
+        return;
       }
 
       // ユーザー情報を取得
@@ -127,10 +143,10 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
       setIsSubmitted(true);
       showToast('お問い合わせを送信しました。ありがとうございます。', { type: 'success' });
       
-      // フォームをリセット
+      // フォームをリセット（ユーザー情報は保持）
       setFormData({
-        name: '',
-        email: '',
+        name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
+        email: user?.email || '',
         subject: '',
         message: '',
         category: 'general',
@@ -149,9 +165,10 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
 
   const handleReset = () => {
     setIsSubmitted(false);
+    // ユーザー情報を保持してフォームをリセット
     setFormData({
-      name: '',
-      email: '',
+      name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
+      email: user?.email || '',
       subject: '',
       message: '',
       category: 'general',
@@ -452,7 +469,7 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
               </p>
             </div>
             <div className="flex justify-center gap-3">
-              <Button onClick={handleReset} variant="outline">
+              <Button onClick={() => router.push('/contact?reset=true')} variant="outline">
                 新しいお問い合わせ
               </Button>
             </div>

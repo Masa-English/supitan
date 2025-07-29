@@ -1,24 +1,16 @@
-'use client';
-
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from '@/lib/hooks/use-auth';
+import { Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { 
   BookOpen, 
   Target, 
   Trophy, 
-  Clock, 
-  RotateCcw, 
-  TrendingUp,
-  Calendar,
-  Brain,
-  CheckCircle,
-  RefreshCw
+  Clock,
+  BarChart3,
+  Construction,
+  AlertTriangle,
+  TrendingUp
 } from 'lucide-react';
-import { DatabaseService } from '@/lib/database';
-import { createClient } from '@/lib/supabase/client';
-import { AppStats, StudySession, ReviewSession } from '@/lib/types';
 
 // 統計カードコンポーネント
 function StatCard({ 
@@ -26,13 +18,15 @@ function StatCard({
   value, 
   subtitle, 
   icon: Icon, 
-  color = 'primary' 
+  color = 'primary',
+  disabled = false
 }: { 
   title: string; 
   value: string | number; 
   subtitle?: string; 
   icon: React.ComponentType<{ className?: string }>; 
-  color?: string; 
+  color?: string;
+  disabled?: boolean;
 }) {
   const colorClasses = {
     primary: 'text-primary bg-primary/10',
@@ -45,350 +39,162 @@ function StatCard({
   };
 
   return (
-    <Card className="bg-card border-border hover:shadow-lg transition-all duration-300">
-      <CardContent className="p-6">
+    <Card className={`bg-card border-border hover:shadow-lg transition-all duration-300 ${disabled ? 'opacity-60' : ''}`}>
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold text-foreground">{value}</p>
-            {subtitle && (
-              <p className="text-xs text-muted-foreground">{subtitle}</p>
-            )}
-          </div>
-          <div className={`p-3 rounded-full ${colorClasses[color as keyof typeof colorClasses]}`}>
-            <Icon className="h-6 w-6" />
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            {title}
+          </CardTitle>
+          <div className={`p-2 rounded-lg ${colorClasses[color as keyof typeof colorClasses]}`}>
+            <Icon className="h-4 w-4" />
           </div>
         </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// セッション履歴コンポーネント
-function SessionHistory({ sessions, type }: { sessions: (StudySession | ReviewSession)[]; type: 'study' | 'review' }) {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ja-JP', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getModeIcon = (mode: string) => {
-    switch (mode) {
-      case 'flashcard':
-        return <BookOpen className="h-4 w-4" />;
-      case 'quiz':
-        return <Brain className="h-4 w-4" />;
-      default:
-        return <Target className="h-4 w-4" />;
-    }
-  };
-
-  const getModeLabel = (mode: string) => {
-    switch (mode) {
-      case 'flashcard':
-        return 'フラッシュカード';
-      case 'quiz':
-        return 'クイズ';
-      default:
-        return '学習';
-    }
-  };
-
-  return (
-    <Card className="bg-card border-border">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-foreground">
-          {type === 'study' ? <BookOpen className="h-5 w-5" /> : <RotateCcw className="h-5 w-5" />}
-          {type === 'study' ? '学習セッション履歴' : '復習セッション履歴'}
-        </CardTitle>
       </CardHeader>
       <CardContent>
-        {sessions.length > 0 ? (
-          <div className="space-y-3">
-            {sessions.map((session) => (
-              <div key={session.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-full">
-                    {type === 'study' ? getModeIcon((session as StudySession).mode) : <RotateCcw className="h-4 w-4" />}
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">
-                      {type === 'study' ? (session as StudySession).category : '復習セッション'}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {type === 'study' ? getModeLabel((session as StudySession).mode) : '復習'} • {session.completed_words}語
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1 text-sm text-primary">
-                    <CheckCircle className="h-4 w-4" />
-                    {Math.round((session.correct_answers / session.total_words) * 100)}%
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(session.created_at || new Date().toISOString())}
-                  </p>
-                </div>
-              </div>
-            ))}
+        <div className="space-y-1">
+          <div className="text-2xl font-bold text-foreground">
+            {value}
           </div>
-        ) : (
-          <p className="text-muted-foreground text-center py-4">
-            {type === 'study' ? 'まだ学習セッションがありません' : 'まだ復習セッションがありません'}
-          </p>
-        )}
+          {subtitle && (
+            <div className="text-xs text-muted-foreground">
+              {subtitle}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
 }
 
 export default function StatisticsPage() {
-  const { user } = useAuth();
-  const [stats, setStats] = useState<AppStats | null>(null);
-  const [studySessions, setStudySessions] = useState<StudySession[]>([]);
-  const [reviewSessions, setReviewSessions] = useState<ReviewSession[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const db = useMemo(() => new DatabaseService(), []);
-  const supabase = createClient();
-
-  // 統計データの読み込み
-  const loadStatistics = useCallback(async () => {
-    if (!user) return;
-    
-    try {
-      setLoading(true);
-      setError(null);
-
-      // 統計データを取得
-      const [appStats, studySessionsData, reviewSessionsData] = await Promise.all([
-        db.getAppStats(user.id),
-        supabase
-          .from('study_sessions')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(10)
-          .then(result => result.data || []),
-        supabase
-          .from('review_sessions')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(10)
-          .then(result => result.data || [])
-      ]);
-
-      setStats(appStats);
-      setStudySessions(studySessionsData);
-      setReviewSessions(reviewSessionsData);
-    } catch (err) {
-      console.error('Statistics page error:', err);
-      setError(err instanceof Error ? err.message : 'データの取得に失敗しました');
-    } finally {
-      setLoading(false);
-    }
-  }, [db, supabase, user]);
-
-  useEffect(() => {
-    if (user) {
-      loadStatistics();
-    }
-  }, [loadStatistics, user]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            <span className="ml-3 text-muted-foreground">統計データを読み込み中...</span>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-background">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <p className="text-destructive mb-4">{error}</p>
-            <Button onClick={loadStatistics} className="bg-primary hover:bg-primary/90">
-              再試行
-            </Button>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  if (!stats) {
-    return (
-      <div className="min-h-screen bg-background">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <p className="text-muted-foreground">統計データを読み込めませんでした</p>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  const progressPercentage = stats.total_words > 0 ? Math.round((stats.studied_words / stats.total_words) * 100) : 0;
-  const masteryPercentage = stats.studied_words > 0 ? Math.round((stats.mastered_words / stats.studied_words) * 100) : 0;
-
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ヘッダー */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-6">
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-              <RefreshCw className="h-8 w-8 text-primary" />
-              詳細学習統計
-            </h1>
-            <span className="text-sm text-muted-foreground">
-              {new Date().toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' })}
-            </span>
+        {/* 開発中バナー */}
+        <div className="mb-8 p-4 bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+          <div className="flex items-center gap-3">
+            <Construction className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <div>
+              <h3 className="font-semibold text-amber-800 dark:text-amber-200">
+                開発中のお知らせ
+              </h3>
+              <p className="text-sm text-amber-700 dark:text-amber-300">
+                統計機能は現在開発中です。表示されているデータはサンプルデータです。
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* メイン統計カード */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title="総単語数"
-            value={stats.total_words}
-            subtitle="学習可能な単語"
-            icon={BookOpen}
-            color="primary"
-          />
-          <StatCard
-            title="学習済み"
-            value={stats.studied_words}
-            subtitle={`${progressPercentage}% 完了`}
-            icon={Target}
-            color="blue"
-          />
-          <StatCard
-            title="習得済み"
-            value={stats.mastered_words}
-            subtitle={`${masteryPercentage}% 習得率`}
-            icon={Trophy}
-            color="green"
-          />
-          <StatCard
-            title="学習時間"
-            value={`${Math.round(stats.study_time_minutes / 60)}h`}
-            subtitle={`${stats.study_time_minutes}分`}
-            icon={Clock}
-            color="purple"
-          />
+        {/* ページヘッダー */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-3">
+            <BarChart3 className="h-8 w-8 text-primary" />
+            学習統計
+          </h1>
+          <p className="text-muted-foreground">
+            あなたの学習進捗と成果を確認しましょう
+          </p>
         </div>
 
-        {/* 進捗バー */}
-        <Card className="bg-card border-border mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-foreground">
-              <TrendingUp className="h-5 w-5" />
-              学習進捗
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-foreground">
-                  全体の学習進捗
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {stats.studied_words} / {stats.total_words} ({progressPercentage}%)
-                </span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-3">
-                <div
-                  className="bg-primary h-3 rounded-full transition-all duration-500"
-                  style={{ width: `${progressPercentage}%` }}
-                />
-              </div>
+        <Suspense fallback={
+          <div className="space-y-8">
+            {/* 統計カードのスケルトン */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i} className="bg-card border-border">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 w-24 bg-muted rounded animate-pulse" />
+                      <div className="h-8 w-8 bg-muted rounded animate-pulse" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-8 w-16 bg-muted rounded animate-pulse" />
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-            
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-foreground">
-                  習得進捗
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {stats.mastered_words} / {stats.studied_words} ({masteryPercentage}%)
-                </span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-3">
-                <div
-                  className="bg-green-600 h-3 rounded-full transition-all duration-500"
-                  style={{ width: `${masteryPercentage}%` }}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        }>
+          {/* 統計カード */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatCard
+              title="総単語数"
+              value="0"
+              subtitle="サンプルデータ"
+              icon={BookOpen}
+              color="primary"
+              disabled={true}
+            />
+            <StatCard
+              title="学習済み"
+              value="0"
+              subtitle="サンプルデータ"
+              icon={Target}
+              color="blue"
+              disabled={true}
+            />
+            <StatCard
+              title="習得済み"
+              value="0"
+              subtitle="サンプルデータ"
+              icon={Trophy}
+              color="green"
+              disabled={true}
+            />
+            <StatCard
+              title="学習時間"
+              value="0分"
+              subtitle="サンプルデータ"
+              icon={Clock}
+              color="amber"
+              disabled={true}
+            />
+          </div>
 
-        {/* セッション履歴 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <SessionHistory sessions={studySessions} type="study" />
-          <SessionHistory sessions={reviewSessions} type="review" />
-        </div>
-
-        {/* 追加統計情報 */}
-        <div className="mt-8">
-          <Card className="bg-card border-border">
+          {/* 進捗チャート（開発中） */}
+          <Card className="bg-card border-border mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-foreground">
-                <Calendar className="h-5 w-5" />
-                学習活動サマリー
+                <TrendingUp className="h-5 w-5" />
+                学習進捗
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="h-64 flex items-center justify-center bg-muted/20 rounded-lg border-2 border-dashed border-muted">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">
-                    {studySessions.length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    学習セッション数
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">
-                    {reviewSessions.length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    復習セッション数
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">
-                    {stats.review_count}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    復習待ち単語数
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">
-                    {Math.round(stats.study_time_minutes / Math.max(studySessions.length + reviewSessions.length, 1))}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    平均セッション時間（分）
-                  </div>
+                  <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground font-medium">進捗チャート</p>
+                  <p className="text-sm text-muted-foreground">開発中</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-        </div>
+
+          {/* 開発中メッセージ */}
+          <div className="p-6 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div className="flex items-start gap-4">
+              <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400 mt-1 flex-shrink-0" />
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  統計機能開発中
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  統計機能は現在開発中です。上記のデータは実際の学習データではなく、サンプルデータです。
+                  実際の統計データの表示は、機能完成後に利用可能になります。
+                </p>
+                <div className="flex gap-2">
+                  <Badge variant="outline" className="border-amber-300 text-amber-700 dark:border-amber-600 dark:text-amber-300">
+                    開発中
+                  </Badge>
+                  <Badge variant="outline" className="border-gray-300 text-gray-600 dark:border-gray-600 dark:text-gray-400">
+                    サンプルデータ
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Suspense>
       </main>
     </div>
   );

@@ -171,12 +171,18 @@ export function Quiz({
 
   const playAudio = () => {
     if (currentQuestion?.word?.word) {
-      // Web Speech APIを使用して音声を再生
-      const utterance = new SpeechSynthesisUtterance(currentQuestion.word.word);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.8;
-      utterance.pitch = 1.0;
-      speechSynthesis.speak(utterance);
+      // 音声ファイルがある場合は音声ファイルを再生、ない場合はWeb Speech APIを使用
+      if (currentQuestion.word.audio_file) {
+        const { playWordAudio } = useAudioStore.getState();
+        playWordAudio(currentQuestion.word.id);
+      } else {
+        // Web Speech APIを使用して音声を再生
+        const utterance = new SpeechSynthesisUtterance(currentQuestion.word.word);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.8;
+        utterance.pitch = 1.0;
+        speechSynthesis.speak(utterance);
+      }
     }
   };
 

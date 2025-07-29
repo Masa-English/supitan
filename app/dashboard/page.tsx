@@ -1,11 +1,8 @@
-'use client';
-
-import { useState, useEffect } from 'react';
+import { Suspense } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AuthWrapper } from '@/components/auth';
 import { TutorialWrapper } from '../../components/common';
-import { useRouter } from 'next/navigation';
 import { 
   Play, 
   RotateCcw, 
@@ -19,82 +16,7 @@ import {
   Award
 } from 'lucide-react';
 import Link from 'next/link';
-
-// サイドメニューコンポーネント
-function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const menuItems = [
-    {
-      title: '学習',
-      items: [
-        { label: '学習開始', href: '/dashboard/start-learning', icon: Play, color: 'text-primary' },
-        { label: '復習', href: '/dashboard/review', icon: RotateCcw, color: 'text-primary' },
-        { label: '単語一覧', href: '/dashboard/category', icon: BookOpen, color: 'text-primary' },
-        { label: '検索', href: '/dashboard/search', icon: Search, color: 'text-primary' },
-      ]
-    },
-    {
-      title: '管理',
-      items: [
-        { label: 'お気に入り', href: '/dashboard/favorites', icon: Heart, color: 'text-primary' },
-        { label: '統計', href: '/dashboard/statistics', icon: BarChart3, color: 'text-primary' },
-        { label: 'プロフィール', href: '/dashboard/profile', icon: User, color: 'text-primary' },
-      ]
-    }
-  ];
-
-  return (
-    <>
-      {/* オーバーレイ（モバイル用） */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
-      
-      {/* サイドメニュー */}
-      <div className={`
-        fixed top-2 left-0 h-full z-50 bg-background border-r border-border
-        transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:z-auto
-        w-64
-      `}>
-        <div className="p-4 sm:p-6 h-full flex flex-col">
-          {/* ナビゲーション */}
-          <nav className="flex-1 space-y-4 sm:space-y-6">
-            {menuItems.map((section) => (
-              <div key={section.title}>
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 sm:mb-3">
-                  {section.title}
-                </h3>
-                <ul className="space-y-1">
-                  {section.items.map((item) => (
-                    <li key={item.label}>
-                      <Link
-                        href={item.href}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                        onClick={() => {
-                          // モバイルではメニューを閉じる
-                          if (window.innerWidth < 1024) {
-                            onClose();
-                          }
-                        }}
-                      >
-                        <item.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.color}`} />
-                        <span className="font-medium text-sm sm:text-base">{item.label}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </nav>
-        </div>
-      </div>
-    </>
-  );
-}
+import { DashboardClient } from './dashboard-client';
 
 // メインアクションカード
 function MainActionCard({ 
@@ -201,58 +123,58 @@ function TodayProgressSection() {
         </p>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         <Card className="bg-card border-border">
-          <CardContent className="p-4 sm:p-5">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <div className="flex flex-col items-center space-y-2">
+              <div className="p-2 sm:p-3 bg-primary/10 rounded-xl">
                 <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-bold text-primary">0</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">学習済み</div>
+                <div className="text-xl sm:text-2xl font-bold text-card-foreground">0</div>
+                <div className="text-xs text-muted-foreground">学習済み</div>
               </div>
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4 sm:p-5">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <div className="flex flex-col items-center space-y-2">
+              <div className="p-2 sm:p-3 bg-primary/10 rounded-xl">
                 <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-bold text-primary">0</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">正解率</div>
+                <div className="text-xl sm:text-2xl font-bold text-card-foreground">0</div>
+                <div className="text-xs text-muted-foreground">正解率</div>
               </div>
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4 sm:p-5">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <div className="flex flex-col items-center space-y-2">
+              <div className="p-2 sm:p-3 bg-primary/10 rounded-xl">
                 <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-bold text-primary">0</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">連続日数</div>
+                <div className="text-xl sm:text-2xl font-bold text-card-foreground">0</div>
+                <div className="text-xs text-muted-foreground">連続日数</div>
               </div>
             </div>
           </CardContent>
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4 sm:p-5">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
+          <CardContent className="p-4 sm:p-6 text-center">
+            <div className="flex flex-col items-center space-y-2">
+              <div className="p-2 sm:p-3 bg-primary/10 rounded-xl">
                 <Award className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <div className="text-xl sm:text-2xl font-bold text-primary">0</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">達成数</div>
+                <div className="text-xl sm:text-2xl font-bold text-card-foreground">0</div>
+                <div className="text-xs text-muted-foreground">達成数</div>
               </div>
             </div>
           </CardContent>
@@ -306,55 +228,44 @@ function RecentActivitySection() {
   );
 }
 
-export default function ProtectedPage() {
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
-
+export default function DashboardPage() {
   return (
     <AuthWrapper>
       <TutorialWrapper>
-        <RedirectHandler>
+        <Suspense fallback={
           <div className="min-h-screen bg-background">
             <div className="flex">
-              {/* サイドメニュー */}
-              <SideMenu 
-                isOpen={isSideMenuOpen} 
-                onClose={() => setIsSideMenuOpen(false)} 
-              />
-              
-              {/* メインコンテンツ */}
               <div className="flex-1 lg:ml-0">
-                <main className="p-4 sm:p-6 lg:p-8">
-                  {/* クイックアクション */}
+                <main className="w-full p-4 sm:p-6 lg:p-8">
                   <QuickActionsSection />
-                  
-                  {/* 今日の進捗 */}
                   <TodayProgressSection />
-                  
-                  {/* 最近の活動 */}
                   <RecentActivitySection />
                 </main>
               </div>
             </div>
           </div>
-        </RedirectHandler>
+        }>
+          <DashboardClient>
+            <div className="min-h-screen bg-background">
+              <div className="flex">
+                {/* メインコンテンツ */}
+                <div className="flex-1 lg:ml-0">
+                  <main className="w-full p-4 sm:p-6 lg:p-8">
+                    {/* クイックアクション */}
+                    <QuickActionsSection />
+                    
+                    {/* 今日の進捗 */}
+                    <TodayProgressSection />
+                    
+                    {/* 最近の活動 */}
+                    <RecentActivitySection />
+                  </main>
+                </div>
+              </div>
+            </div>
+          </DashboardClient>
+        </Suspense>
       </TutorialWrapper>
     </AuthWrapper>
   );
-}
-
-// リダイレクト処理を行うコンポーネント
-function RedirectHandler({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  
-  useEffect(() => {
-    // 保存されたリダイレクト先がある場合はそこに遷移
-    const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-    if (redirectPath) {
-      console.log('ダッシュボードから保存されたリダイレクト先に遷移:', redirectPath);
-      sessionStorage.removeItem('redirectAfterLogin');
-      router.push(redirectPath);
-    }
-  }, [router]);
-
-  return <>{children}</>;
 }

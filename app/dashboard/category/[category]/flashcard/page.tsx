@@ -7,6 +7,7 @@ import { DatabaseService } from '@/lib/database';
 import { Word } from '@/lib/types';
 import { Flashcard } from '@/components/learning/flashcard';
 import { CompletionModal } from '@/components/learning/completion-modal';
+import { AudioPreloader } from '@/components/learning/audio-preloader';
 import { useToast } from '@/components/ui/toast';
 
 
@@ -16,6 +17,7 @@ export default function FlashcardPage() {
   const { user } = useAuth();
   const [words, setWords] = useState<Word[]>([]);
   const [loading, setLoading] = useState(true);
+  const [audioLoading, setAudioLoading] = useState(false);
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
   const [_currentIndex, setCurrentIndex] = useState(0);
   
@@ -203,6 +205,15 @@ export default function FlashcardPage() {
           onIndexChange={setCurrentIndex}
         />
       </main>
+
+      {/* 音声ファイル事前読み込み */}
+      <AudioPreloader
+        words={words}
+        onLoadComplete={() => setAudioLoading(false)}
+        onLoadProgress={(_loaded, _total) => {
+          if (!audioLoading) setAudioLoading(true);
+        }}
+      />
 
       {/* 完了モーダル */}
       {showCompletionModal && (

@@ -25,9 +25,9 @@ export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: F
   const [addedToReview, setAddedToReview] = useState<Set<string>>(new Set());
   const [flippedExamples, setFlippedExamples] = useState<Set<string>>(new Set());
   const [showJapanese, setShowJapanese] = useState(false);
-  const [audioElements, setAudioElements] = useState<Map<string, HTMLAudioElement>>(new Map());
+
   
-  const { volume, isMuted } = useAudioStore();
+  const { volume, isMuted, loadWordAudio } = useAudioStore();
   
   const currentWord = words[currentIndex];
   const progress = ((currentIndex + 1) / words.length) * 100;
@@ -70,46 +70,20 @@ export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: F
   // 音声ファイルの初期化
   useEffect(() => {
     const initializeAudioFiles = async () => {
-      const newAudioElements = new Map<string, HTMLAudioElement>();
-      
       for (const word of words) {
         if (word.audio_file) {
           try {
-            const supabase = createClient();
-            // audio_fileフィールドにはファイルパスが格納されている
-            const { data, error } = await supabase.storage
-              .from('audio')
-              .download(word.audio_file);
-            
-            if (!error && data) {
-              const blob = new Blob([data], { type: 'audio/mpeg' });
-              const url = URL.createObjectURL(blob);
-              const audio = new Audio(url);
-              audio.volume = volume;
-              audio.preload = 'auto';
-              newAudioElements.set(word.id, audio);
-            } else {
-              console.warn(`音声ファイルが見つかりません: ${word.audio_file}`);
-            }
+            // 新しい音声ストアの機能を使用して音声ファイルを読み込み
+            await loadWordAudio(word.id, word.audio_file);
           } catch (error) {
             console.warn(`音声ファイルの読み込みに失敗しました: ${word.word} (${word.audio_file})`, error);
           }
         }
       }
-      
-      setAudioElements(newAudioElements);
     };
 
     initializeAudioFiles();
-
-    // クリーンアップ関数
-    return () => {
-      audioElements.forEach((audio: HTMLAudioElement) => {
-        audio.pause();
-        URL.revokeObjectURL(audio.src);
-      });
-    };
-  }, [words, volume, audioElements]);
+  }, [words, loadWordAudio]);
 
   const handleNext = useCallback(() => {
     if (currentIndex < words.length - 1) {
@@ -197,21 +171,15 @@ export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: F
   const playWordAudio = useCallback(() => {
     if (!currentWord?.word || isMuted) return;
 
-    // 音声ファイルがある場合は音声ファイルを再生
-    const audioElement = audioElements.get(currentWord.id);
-    if (audioElement) {
-      audioElement.volume = volume;
-      audioElement.currentTime = 0;
-      audioElement.play().catch(error => {
-        console.error('音声ファイル再生エラー:', error);
-        // フォールバック: Web Speech APIを使用
-        fallbackToSpeechSynthesis(currentWord.word);
-      });
-    } else {
-      // 音声ファイルがない場合はWeb Speech APIを使用
+    // 新しい音声ストアの機能を使用して音声を再生
+    const { playWordAudio: playAudio } = useAudioStore.getState();
+    playAudio(currentWord.id);
+    
+    // 音声ファイルがない場合はWeb Speech APIを使用
+    if (!currentWord.audio_file) {
       fallbackToSpeechSynthesis(currentWord.word);
     }
-  }, [currentWord, audioElements, volume, isMuted, fallbackToSpeechSynthesis]);
+  }, [currentWord, isMuted, fallbackToSpeechSynthesis]);
 
   const playExampleAudio = useCallback((text: string) => {
     if (isMuted) return;
