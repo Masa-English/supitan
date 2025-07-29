@@ -27,33 +27,33 @@ function CategoryCard({
   const progressPercentage = wordCount > 0 ? Math.round((userProgress / wordCount) * 100) : 0;
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm border-amber-200 dark:border-amber-700 hover:shadow-lg transition-all duration-200 hover:scale-105">
+    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
       <Link href={`/dashboard/category/${encodeURIComponent(category)}`}>
         <CardContent className="p-6">
           <div className="text-center space-y-4">
             {/* カテゴリー名 */}
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-amber-800 dark:text-amber-200">
+              <h3 className="text-xl font-bold text-foreground">
                 {category}
               </h3>
-              <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+              <Badge variant="secondary" className="bg-secondary/20 text-secondary-foreground">
                 {wordCount}個の単語
               </Badge>
             </div>
 
             {/* 進捗情報 */}
             <div className="space-y-2">
-              <div className="flex justify-between items-center text-xs text-amber-600 dark:text-amber-400">
+              <div className="flex justify-between items-center text-xs text-muted-foreground">
                 <span>学習進捗</span>
                 <span>{userProgress} / {wordCount}</span>
               </div>
-              <div className="w-full bg-amber-200 dark:bg-amber-700 rounded-full h-2">
+              <div className="w-full bg-muted rounded-full h-2">
                 <div
-                  className="bg-amber-600 dark:bg-amber-400 h-2 rounded-full transition-all duration-300"
+                  className="bg-primary h-2 rounded-full transition-all duration-300"
                   style={{ width: `${progressPercentage}%` }}
                 />
               </div>
-              <div className="text-xs text-amber-600 dark:text-amber-400">
+              <div className="text-xs text-muted-foreground">
                 {progressPercentage}% 完了
               </div>
             </div>
@@ -63,7 +63,7 @@ function CategoryCard({
               <Button
                 variant="outline"
                 size="sm"
-                className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20"
+                className="border-border text-foreground hover:bg-muted"
               >
                 <BookOpen className="h-4 w-4 mr-1" />
                 学習開始
@@ -164,11 +164,11 @@ export default function CategoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+      <div className="min-h-screen bg-background">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div>
-            <span className="ml-3 text-amber-700 dark:text-amber-300">カテゴリーを読み込み中...</span>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <span className="ml-3 text-muted-foreground">カテゴリーを読み込み中...</span>
           </div>
         </main>
       </div>
@@ -177,11 +177,11 @@ export default function CategoryPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+      <div className="min-h-screen bg-background">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
-            <Button onClick={loadData} className="bg-amber-600 hover:bg-amber-700">
+            <p className="text-destructive mb-4">{error}</p>
+            <Button onClick={loadData} className="bg-primary hover:bg-primary/90">
               再試行
             </Button>
           </div>
@@ -191,24 +191,24 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+    <div className="min-h-screen bg-background">
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           {/* ヘッダー */}
           <div className="mb-8">
             <Link href="/dashboard">
-              <Button variant="ghost" className="text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 mb-4">
+              <Button variant="ghost" className="text-muted-foreground hover:bg-muted mb-4">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 ダッシュボードに戻る
               </Button>
             </Link>
             
             <div className="flex items-center gap-4 mb-6">
-              <h1 className="text-3xl font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
-                <BookOpen className="h-8 w-8 text-amber-600" />
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+                <BookOpen className="h-8 w-8 text-primary" />
                 カテゴリー一覧
               </h1>
-              <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+              <Badge variant="secondary" className="bg-secondary/20 text-secondary-foreground">
                 {categoryStats.length}個のカテゴリー
               </Badge>
             </div>
@@ -216,40 +216,40 @@ export default function CategoryPage() {
 
           {/* 統計情報 */}
           <div className="mb-8">
-            <Card className="bg-card/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+            <Card className="bg-card border-border">
               <CardContent className="p-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                    <div className="text-2xl font-bold text-foreground">
                       {words.length}
                     </div>
-                    <div className="text-sm text-amber-600 dark:text-amber-400">
+                    <div className="text-sm text-muted-foreground">
                       総単語数
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                    <div className="text-2xl font-bold text-foreground">
                       {categoryStats.length}
                     </div>
-                    <div className="text-sm text-amber-600 dark:text-amber-400">
+                    <div className="text-sm text-muted-foreground">
                       カテゴリー数
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                    <div className="text-2xl font-bold text-foreground">
                       {Object.values(userProgress).reduce((sum, count) => sum + count, 0)}
                     </div>
-                    <div className="text-sm text-amber-600 dark:text-amber-400">
+                    <div className="text-sm text-muted-foreground">
                       学習済み単語数
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                    <div className="text-2xl font-bold text-foreground">
                       {Math.round(
                         (Object.values(userProgress).reduce((sum, count) => sum + count, 0) / Math.max(words.length, 1)) * 100
                       )}%
                     </div>
-                    <div className="text-sm text-amber-600 dark:text-amber-400">
+                    <div className="text-sm text-muted-foreground">
                       全体進捗
                     </div>
                   </div>
@@ -272,14 +272,14 @@ export default function CategoryPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <BookOpen className="h-16 w-16 text-amber-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-2">
+              <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 カテゴリーが見つかりませんでした
               </h3>
-              <p className="text-amber-600 dark:text-amber-400 mb-4">
+              <p className="text-muted-foreground mb-4">
                 単語データが読み込まれていない可能性があります
               </p>
-              <Button onClick={loadData} className="bg-amber-600 hover:bg-amber-700">
+              <Button onClick={loadData} className="bg-primary hover:bg-primary/90">
                 再読み込み
               </Button>
             </div>

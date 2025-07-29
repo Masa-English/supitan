@@ -71,14 +71,14 @@ export default function StatisticsPage() {
     <div className="min-h-screen bg-background">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 開発中バナー */}
-        <div className="mb-8 p-4 bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+        <div className="mb-8 p-4 bg-muted border border-border rounded-lg">
           <div className="flex items-center gap-3">
             <Construction className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             <div>
-              <h3 className="font-semibold text-amber-800 dark:text-amber-200">
+              <h3 className="font-semibold text-foreground">
                 開発中のお知らせ
               </h3>
-              <p className="text-sm text-amber-700 dark:text-amber-300">
+              <p className="text-sm text-muted-foreground">
                 統計機能は現在開発中です。表示されているデータはサンプルデータです。
               </p>
             </div>

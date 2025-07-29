@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Brain, Play } from 'lucide-react';
+import { BookOpen, Brain } from 'lucide-react';
 import { Word, Category } from '@/lib/types';
 import Link from 'next/link';
 import { Suspense } from 'react';
@@ -11,8 +11,6 @@ import { UserProgressSection } from './user-progress-section';
 
 // 統一されたISR設定
 export const revalidate = 900; // 15分
-
-
 
 // 動的メタデータの生成
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }) {
@@ -57,8 +55,6 @@ async function getStaticPageData(category: string): Promise<{
   }
 }
 
-
-
 export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
   try {
     const { category } = await params;
@@ -76,15 +72,15 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
     }
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+      <div className="min-h-screen bg-background">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* ヘッダー */}
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-6">
-              <h1 className="text-3xl font-bold text-amber-800 dark:text-amber-200">
+              <h1 className="text-3xl font-bold text-foreground">
                 {decodedCategory}
               </h1>
-              <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+              <Badge variant="secondary" className="bg-secondary/20 text-secondary-foreground">
                 {words.length}個の単語
               </Badge>
             </div>
@@ -94,14 +90,14 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           <Suspense fallback={
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               {[1, 2, 3].map((i) => (
-                <Card key={i} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
+                <Card key={i} className="bg-card border-border">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
                       読み込み中...
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
+                    <div className="text-2xl font-bold text-foreground">
                       -
                     </div>
                   </CardContent>
@@ -115,78 +111,90 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           {/* 学習モード選択 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/flashcard`}>
-              <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-blue-200 dark:border-blue-700">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3 text-blue-800 dark:text-blue-200">
-                    <BookOpen className="h-6 w-6" />
-                    フラッシュカード学習
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-blue-600 dark:text-blue-400 mb-4">
-                    単語カードをめくって意味を確認し、じっくりと学習できます。
-                  </p>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                    <Play className="h-4 w-4 mr-2" />
-                    学習を開始
-                  </Button>
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary/15 rounded-xl group-hover:bg-primary/25 transition-colors">
+                      <BookOpen className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-semibold text-foreground">
+                        フラッシュカード
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        単語を見て意味を覚える
+                      </p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </Link>
 
             <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/quiz`}>
-              <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-green-200 dark:border-green-700">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3 text-green-800 dark:text-green-200">
-                    <Brain className="h-6 w-6" />
-                    クイズ
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-green-600 dark:text-green-400 mb-4">
-                    4択クイズで理解度をテストし、知識を定着させます。
-                  </p>
-                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                    <Play className="h-4 w-4 mr-2" />
-                    クイズを開始
-                  </Button>
+              <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-secondary/15 rounded-xl group-hover:bg-secondary/25 transition-colors">
+                      <Brain className="h-6 w-6 text-secondary" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-semibold text-foreground">
+                        クイズ
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        選択肢から正解を選ぶ
+                      </p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </Link>
           </div>
 
-          {/* 単語一覧プレビュー */}
-          <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-amber-200 dark:border-amber-700">
-            <CardHeader>
-              <CardTitle className="text-amber-800 dark:text-amber-200">
-                単語一覧プレビュー（最初の10個）
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {words.slice(0, 10).map((word) => (
-                  <div
-                    key={word.id}
-                    className="p-4 rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-900/10"
-                  >
-                    <div className="font-semibold text-amber-800 dark:text-amber-200 mb-1">
-                      {word.word}
+          {/* 単語一覧 */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-foreground">
+                単語一覧
+              </h2>
+              <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/browse`}>
+                <Button variant="outline" className="border-border text-foreground hover:bg-muted">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  詳細を見る
+                </Button>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {words.slice(0, 8).map((word) => (
+                <Card key={word.id} className="bg-card border-border">
+                  <CardContent className="p-4">
+                    <div className="text-center space-y-2">
+                      <h3 className="font-semibold text-foreground">
+                        {word.word}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {word.japanese}
+                      </p>
+                      <Badge variant="outline" className="text-xs border-border text-muted-foreground">
+                        {word.category}
+                      </Badge>
                     </div>
-                    <div className="text-sm text-amber-600 dark:text-amber-400">
-                      {word.japanese}
-                    </div>
-                  </div>
-                ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {words.length > 8 && (
+              <div className="text-center mt-6">
+                <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/browse`}>
+                  <Button variant="outline" className="border-border text-foreground hover:bg-muted">
+                    すべての単語を見る ({words.length}個)
+                  </Button>
+                </Link>
               </div>
-              {words.length > 10 && (
-                <div className="mt-4 text-center">
-                  <p className="text-amber-600 dark:text-amber-400">
-                    他 {words.length - 10} 個の単語があります
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            )}
+          </div>
         </main>
       </div>
     );
