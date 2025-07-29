@@ -51,6 +51,18 @@ const nextConfig: NextConfig = {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
           },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), payment=()',
+          },
+          {
+            key: 'X-Permitted-Cross-Domain-Policies',
+            value: 'none',
+          },
         ],
       },
       // 静的アセットの長期キャッシュ
@@ -119,6 +131,8 @@ const nextConfig: NextConfig = {
     // キャッシュ最適化
     if (config.cache && typeof config.cache === 'object') {
       config.cache.maxMemoryGenerations = 1;
+      // 大きな文字列のシリアライゼーション警告を抑制
+      config.cache.allowCollectingMemory = false;
     }
     
     // パフォーマンス警告の閾値を調整（バンドルサイズ警告を抑制）

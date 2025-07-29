@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+// 動的レンダリングを強制（cookies()を使用するため）
+export const dynamic = 'force-dynamic';
+
 interface HealthCheck {
   status: string;
   timestamp: string;

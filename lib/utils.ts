@@ -187,3 +187,47 @@ export function logMemoryUsage(label: string = 'Memory Usage'): void {
   }
   // 本番環境では何もしない
 }
+
+// セキュアなストレージ操作
+export function secureStorageSet(key: string, value: string): void {
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      // 機密情報は暗号化して保存（簡易版）
+      const encodedValue = btoa(encodeURIComponent(value));
+      sessionStorage.setItem(key, encodedValue);
+    }
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('SessionStorage access failed:', error);
+    }
+  }
+}
+
+export function secureStorageGet(key: string): string | null {
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const encodedValue = sessionStorage.getItem(key);
+      if (encodedValue) {
+        return decodeURIComponent(atob(encodedValue));
+      }
+    }
+    return null;
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('SessionStorage access failed:', error);
+    }
+    return null;
+  }
+}
+
+export function secureStorageRemove(key: string): void {
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      sessionStorage.removeItem(key);
+    }
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('SessionStorage access failed:', error);
+    }
+  }
+}

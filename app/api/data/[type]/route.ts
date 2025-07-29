@@ -33,11 +33,15 @@ export async function GET(
       );
     }
 
-    // データ型の検証
+    // データ型の検証（XSS対策）
     const validTypes = ['category', 'quiz', 'flashcard', 'review'] as const;
     type ValidType = typeof validTypes[number];
     
     if (!type || !validTypes.includes(type as ValidType)) {
+      // セキュリティログ（開発環境のみ）
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`Invalid data type attempted: ${type}`);
+      }
       return NextResponse.json(
         { error: 'Invalid data type' },
         { status: 400 }

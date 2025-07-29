@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+// 動的レンダリングを強制（cookies()を使用するため）
+export const dynamic = 'force-dynamic';
+
 // キャッシュ設定
 export const revalidate = 300; // 5分
 

@@ -5,12 +5,17 @@ import { getStaticData } from '@/lib/static-data';
 export const revalidate = 900; // 15分間キャッシュ
 
 export async function GET() {
-  console.log('静的データAPI呼び出し開始');
+  // 開発環境でのみログ出力
+  if (process.env.NODE_ENV === 'development') {
+    console.log('静的データAPI呼び出し開始');
+  }
   
   try {
     // 環境変数の確認
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.error('Supabase環境変数が設定されていません');
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Supabase環境変数が設定されていません');
+      }
       return NextResponse.json(
         { 
           error: 'Supabase環境変数が設定されていません',
@@ -21,11 +26,13 @@ export async function GET() {
     }
 
     const staticData = await getStaticData();
-    console.log('静的データ取得成功:', {
-      categoriesCount: staticData.categories.length,
-      totalWords: staticData.totalWords,
-      lastUpdated: staticData.lastUpdated
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('静的データ取得成功:', {
+        categoriesCount: staticData.categories.length,
+        totalWords: staticData.totalWords,
+        lastUpdated: staticData.lastUpdated
+      });
+    }
 
     return NextResponse.json(staticData, {
       headers: {
@@ -35,7 +42,9 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('静的データの生成エラー:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('静的データの生成エラー:', error);
+    }
     
     // エラーの詳細情報を含める
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

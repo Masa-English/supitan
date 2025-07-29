@@ -3,7 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 
 // Edge Runtime対応のため、Node.js固有のAPIを使用しない
-export const runtime = 'edge';
+// 現在のSupabaseクライアントはEdge Runtimeと互換性がないため、デフォルトのNode.js runtimeを使用
+// export const runtime = 'edge';
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
