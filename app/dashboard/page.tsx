@@ -76,7 +76,7 @@ function QuickActionsSection() {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="mobile-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <MainActionCard
           title="学習開始"
           description="新しい単語をフラッシュカードとクイズで学習"
@@ -123,7 +123,7 @@ function TodayProgressSection() {
         </p>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+      <div className="mobile-grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         <Card className="bg-card border-border">
           <CardContent className="p-4 sm:p-6 text-center">
             <div className="flex flex-col items-center space-y-2">

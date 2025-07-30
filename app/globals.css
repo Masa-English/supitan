@@ -260,6 +260,87 @@
     overscroll-behavior: contain;
   }
   
+  /* モバイル最適化の追加スタイル */
+  .mobile-optimized {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  @media (max-width: 640px) {
+    .mobile-optimized {
+      font-size: 13px;
+      line-height: 1.3;
+    }
+  }
+  
+  /* コンパクト表示用のユーティリティ */
+  .compact-text {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  @media (max-width: 640px) {
+    .compact-text {
+      font-size: 0.75rem;
+      line-height: 1.125rem;
+    }
+  }
+  
+  /* モバイルでのボタンサイズ最適化 */
+  .mobile-button {
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  @media (max-width: 640px) {
+    .mobile-button {
+      min-height: 48px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.875rem;
+    }
+  }
+  
+  /* モバイルでのカード最適化 */
+  .mobile-card {
+    padding: 0.75rem;
+    margin: 0.5rem;
+  }
+  
+  @media (max-width: 640px) {
+    .mobile-card {
+      padding: 0.5rem;
+      margin: 0.25rem;
+    }
+  }
+  
+  /* モバイルでのグリッド最適化 */
+  .mobile-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  @media (min-width: 640px) {
+    .mobile-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .mobile-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .mobile-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+  }
+  
   /* レスポンシブ画像 */
   .responsive-img {
     max-width: 100%;

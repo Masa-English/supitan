@@ -293,229 +293,243 @@ export function Flashcard({ words, onComplete, onAddToReview, onIndexChange }: F
 
   return (
     <AudioInitializer>
-      <div className="h-full flex flex-col footer-safe">
-      {/* Progress and Audio Controls */}
-      <div className="mb-3 flex-shrink-0">
-        {/* 進捗情報 */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="text-base sm:text-lg font-medium text-foreground">
-              {currentIndex + 1} / {words.length}
-            </span>
-            <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-primary">
-              <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-              {Math.round(progress)}% 完了
-            </div>
-          </div>
-          
-          {/* 音声コントロール */}
-          <AudioControls />
-        </div>
-        
-        {/* 進捗バー */}
-        <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-          <div
-            className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col justify-center min-h-0">
-        <div className="max-w-4xl mx-auto w-full px-2 sm:px-4">
-          {/* Word Section */}
-          <div className="text-center mb-4 sm:mb-6">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground">
-                {currentWord.word}
-              </h1>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={playWordAudio}
-                className="text-primary hover:bg-accent"
-              >
-                <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
-              </Button>
-            </div>
-            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-3 sm:mb-4">
-              {currentWord.phonetic}
-            </p>
-            
-            {/* Action Buttons */}
-            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleToggleFavorite}
-                className={`h-8 w-8 p-0 ${isFavorite ? 'text-yellow-500' : 'text-muted-foreground'}`}
-              >
-                {isFavorite ? <Star className="h-4 w-4" /> : <StarOff className="h-4 w-4" />}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleAddToReview}
-                className={`h-8 w-8 p-0 ${isAddedToReview ? 'text-green-500' : 'text-muted-foreground'}`}
-              >
-                <CheckCircle className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Japanese Meaning Section */}
-          <div className="mb-4 sm:mb-6">
-            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleJapaneseDisplay}
-                className="text-muted-foreground hover:text-foreground text-xs sm:text-sm"
-              >
-                {showJapanese ? (
-                  <>
-                    <EyeOff className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                    意味を隠す
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                    意味を表示
-                  </>
-                )}
-              </Button>
+      <div className="min-h-screen flex flex-col">
+        {/* ヘッダー部分 - 進捗表示 */}
+        <div className="flex-shrink-0 p-2 sm:p-3 lg:p-4 border-b border-border bg-background">
+          <div className="max-w-6xl mx-auto">
+            {/* 進捗情報 */}
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="flex items-center gap-2 sm:gap-3">
+                {/* スマホでは問題番号を非表示 */}
+                <span className="hidden sm:inline text-sm sm:text-base lg:text-lg font-medium text-foreground">
+                  {currentIndex + 1} / {words.length}
+                </span>
+                <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                  {Math.round(progress)}% 完了
+                </div>
+              </div>
+              
+              {/* 音声コントロール */}
+              <div className="flex items-center gap-2">
+                <AudioControls />
+              </div>
             </div>
             
-            {showJapanese && (
-              <h3 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-foreground">
-                {currentWord.japanese}
-              </h3>
-            )}
+            {/* 進捗バー */}
+            <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
+        </div>
 
-          {/* Examples Section */}
-          <div className="flex flex-col justify-center">
-            <div className="space-y-2 sm:space-y-3 max-w-3xl mx-auto w-full">
-              {currentWord.example1 && (
-                <div 
-                  className="bg-accent rounded-xl p-3 sm:p-4 border border-border cursor-pointer"
-                  onClick={() => handleExampleClick('example1')}
-                >
-                  <div className="flex items-start justify-between mb-2 sm:mb-3">
-                    <p className="text-foreground font-medium text-sm sm:text-base lg:text-lg flex-1 pr-2 sm:pr-3 leading-relaxed">
-                      {flippedExamples.has('example1') ? currentWord.example1 : currentWord.example1_jp}
+        {/* メインコンテンツ */}
+        <div className="flex-1 p-2 sm:p-3 lg:p-4">
+          <div className="max-w-6xl mx-auto h-full flex flex-col">
+            {/* 単語カード */}
+            <div className="flex-1 mb-3 sm:mb-4">
+              <div className="bg-card border border-border shadow-lg rounded-xl h-full flex flex-col">
+                <div className="p-2 sm:p-3 lg:p-4 h-full flex flex-col">
+                  {/* 単語セクション */}
+                  <div className="text-center mb-2 sm:mb-3 lg:mb-4 flex-shrink-0">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                      <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-foreground break-words">
+                        {currentWord.word}
+                      </h2>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={playWordAudio}
+                        className="text-primary hover:bg-accent touch-target"
+                      >
+                        <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs sm:text-sm lg:text-base text-muted-foreground mb-2 sm:mb-3">
+                      {currentWord.phonetic}
                     </p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        playExampleAudio(currentWord.example1!);
-                      }}
-                      className="text-primary h-6 w-6 sm:h-8 sm:w-8 p-1 sm:p-2 flex-shrink-0"
-                    >
-                      <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                    </Button>
+                    
+                    {/* アクションボタン */}
+                    <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleToggleFavorite}
+                        className={`h-8 w-8 p-0 touch-target ${isFavorite ? 'text-yellow-500' : 'text-muted-foreground'}`}
+                      >
+                        {isFavorite ? <Star className="h-4 w-4" /> : <StarOff className="h-4 w-4" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleAddToReview}
+                        className={`h-8 w-8 p-0 touch-target ${isAddedToReview ? 'text-green-500' : 'text-muted-foreground'}`}
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <p className="text-muted-foreground text-xs sm:text-sm lg:text-base">
-                    {flippedExamples.has('example1') ? currentWord.example1_jp : 'クリックして英語を表示'}
-                  </p>
+
+                  {/* 日本語意味セクション */}
+                  <div className="mb-2 sm:mb-3 lg:mb-4 flex-shrink-0">
+                    <div className="flex items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={toggleJapaneseDisplay}
+                        className="text-muted-foreground hover:text-foreground text-xs sm:text-sm"
+                      >
+                        {showJapanese ? (
+                          <>
+                            <EyeOff className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                            意味を隠す
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                            意味を表示
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    {showJapanese && (
+                      <h3 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-foreground text-center">
+                        {currentWord.japanese}
+                      </h3>
+                    )}
+                  </div>
+
+                  {/* 例文セクション */}
+                  <div className="flex-1 flex items-center justify-center min-h-0">
+                    <div className="w-full">
+                      <div className="space-y-1 sm:space-y-2 max-w-3xl mx-auto">
+                        {currentWord.example1 && (
+                          <div 
+                            className="bg-accent rounded-xl p-2 sm:p-3 border border-border cursor-pointer"
+                            onClick={() => handleExampleClick('example1')}
+                          >
+                            <div className="flex items-start justify-between mb-1 sm:mb-2">
+                              <p className="text-foreground font-medium text-xs sm:text-sm lg:text-base flex-1 pr-2 sm:pr-3 leading-relaxed">
+                                {flippedExamples.has('example1') ? currentWord.example1 : currentWord.example1_jp}
+                              </p>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  playExampleAudio(currentWord.example1!);
+                                }}
+                                className="text-primary h-6 w-6 sm:h-8 sm:w-8 p-1 sm:p-2 flex-shrink-0"
+                              >
+                                <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-muted-foreground text-xs sm:text-sm">
+                              {flippedExamples.has('example1') ? currentWord.example1_jp : 'クリックして英語を表示'}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {currentWord.example2 && (
+                          <div 
+                            className="bg-accent rounded-xl p-2 sm:p-3 border border-border cursor-pointer"
+                            onClick={() => handleExampleClick('example2')}
+                          >
+                            <div className="flex items-start justify-between mb-1 sm:mb-2">
+                              <p className="text-foreground font-medium text-xs sm:text-sm lg:text-base flex-1 pr-2 sm:pr-3 leading-relaxed">
+                                {flippedExamples.has('example2') ? currentWord.example2 : currentWord.example2_jp}
+                              </p>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  playExampleAudio(currentWord.example2!);
+                                }}
+                                className="text-primary h-6 w-6 sm:h-8 sm:w-8 p-1 sm:p-2 flex-shrink-0"
+                              >
+                                <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-muted-foreground text-xs sm:text-sm">
+                              {flippedExamples.has('example2') ? currentWord.example2_jp : 'クリックして英語を表示'}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {currentWord.example3 && (
+                          <div 
+                            className="bg-accent rounded-xl p-2 sm:p-3 border border-border cursor-pointer"
+                            onClick={() => handleExampleClick('example3')}
+                          >
+                            <div className="flex items-start justify-between mb-1 sm:mb-2">
+                              <p className="text-foreground font-medium text-xs sm:text-sm lg:text-base flex-1 pr-2 sm:pr-3 leading-relaxed">
+                                {flippedExamples.has('example3') ? currentWord.example3 : currentWord.example3_jp}
+                              </p>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  playExampleAudio(currentWord.example3!);
+                                }}
+                                className="text-primary h-6 w-6 sm:h-8 sm:w-8 p-1 sm:p-2 flex-shrink-0"
+                              >
+                                <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-muted-foreground text-xs sm:text-sm">
+                              {flippedExamples.has('example3') ? currentWord.example3_jp : 'クリックして英語を表示'}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              )}
-              
-              {currentWord.example2 && (
-                <div 
-                  className="bg-accent rounded-xl p-3 sm:p-4 border border-border cursor-pointer"
-                  onClick={() => handleExampleClick('example2')}
+              </div>
+            </div>
+
+            {/* ナビゲーションコントロール */}
+            <div className="text-center flex-shrink-0">
+              <div className="flex items-center justify-center gap-2 sm:gap-4">
+                <Button
+                  variant="outline"
+                  onClick={handlePrevious}
+                  disabled={currentIndex === 0}
+                  className="h-8 sm:h-10 px-2 sm:px-3 py-2 text-xs sm:text-sm touch-target"
                 >
-                  <div className="flex items-start justify-between mb-2 sm:mb-3">
-                    <p className="text-foreground font-medium text-sm sm:text-base lg:text-lg flex-1 pr-2 sm:pr-3 leading-relaxed">
-                      {flippedExamples.has('example2') ? currentWord.example2 : currentWord.example2_jp}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        playExampleAudio(currentWord.example2!);
-                      }}
-                      className="text-primary h-6 w-6 sm:h-8 sm:w-8 p-1 sm:p-2 flex-shrink-0"
-                    >
-                      <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                    </Button>
-                  </div>
-                  <p className="text-muted-foreground text-xs sm:text-sm lg:text-base">
-                    {flippedExamples.has('example2') ? currentWord.example2_jp : 'クリックして英語を表示'}
-                  </p>
-                </div>
-              )}
-              
-              {currentWord.example3 && (
-                <div 
-                  className="bg-accent rounded-xl p-3 sm:p-4 border border-border cursor-pointer"
-                  onClick={() => handleExampleClick('example3')}
+                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">前へ</span>
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  onClick={handleReset}
+                  className="h-8 sm:h-10 px-2 sm:px-3 py-2 text-xs sm:text-sm touch-target"
                 >
-                  <div className="flex items-start justify-between mb-2 sm:mb-3">
-                    <p className="text-foreground font-medium text-sm sm:text-base lg:text-lg flex-1 pr-2 sm:pr-3 leading-relaxed">
-                      {flippedExamples.has('example3') ? currentWord.example3 : currentWord.example3_jp}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        playExampleAudio(currentWord.example3!);
-                      }}
-                      className="text-primary h-6 w-6 sm:h-8 sm:w-8 p-1 sm:p-2 flex-shrink-0"
-                    >
-                      <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                    </Button>
-                  </div>
-                  <p className="text-muted-foreground text-xs sm:text-sm lg:text-base">
-                    {flippedExamples.has('example3') ? currentWord.example3_jp : 'クリックして英語を表示'}
-                  </p>
-                </div>
-              )}
+                  <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">リセット</span>
+                </Button>
+                
+                <Button
+                  onClick={handleNext}
+                  className="h-8 sm:h-10 px-2 sm:px-3 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-medium touch-target"
+                >
+                  <span className="mr-1 sm:mr-2">
+                    {currentIndex === words.length - 1 ? '完了' : '次へ'}
+                  </span>
+                  <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Navigation Controls */}
-      <div className="mt-4 sm:mt-6 flex-shrink-0">
-        <div className="flex items-center justify-center gap-2 sm:gap-4">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={currentIndex === 0}
-            className="h-10 sm:h-12 px-3 sm:px-4"
-          >
-            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-            <span className="text-xs sm:text-sm">前へ</span>
-          </Button>
-          
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            className="h-10 sm:h-12 px-3 sm:px-4"
-          >
-            <RotateCcw className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-            <span className="text-xs sm:text-sm">リセット</span>
-          </Button>
-          
-          <Button
-            onClick={handleNext}
-            className="h-10 sm:h-12 px-3 sm:px-4 bg-primary hover:bg-primary/90"
-          >
-            <span className="text-xs sm:text-sm mr-1 sm:mr-2">
-              {currentIndex === words.length - 1 ? '完了' : '次へ'}
-            </span>
-            <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
-          </Button>
-        </div>
-      </div>
-    </div>
     </AudioInitializer>
   );
 } 

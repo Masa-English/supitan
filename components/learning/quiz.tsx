@@ -276,14 +276,14 @@ export function Quiz({
                   {/* 問題文セクション */}
                   <div className="text-center mb-2 sm:mb-3 lg:mb-4 flex-shrink-0">
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-2">
-                      <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-foreground">
+                      <h2 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-foreground break-words">
                         {currentQuestion.word.word}
                       </h2>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={playAudio}
-                        className="text-primary hover:bg-accent"
+                        className="text-primary hover:bg-accent touch-target"
                       >
                         <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
                       </Button>
@@ -321,7 +321,7 @@ export function Quiz({
                             <Button
                               key={index}
                               variant="outline"
-                              className={`w-full justify-start text-left h-auto p-2 sm:p-3 lg:p-4 text-xs sm:text-sm lg:text-base transition-all duration-200 min-h-[50px] sm:min-h-[60px] touch-target ${
+                              className={`w-full justify-start text-left h-auto p-2 sm:p-3 lg:p-4 text-xs sm:text-sm lg:text-base transition-all duration-200 min-h-[50px] sm:min-h-[60px] touch-target mobile-button ${
                                 showResult
                                   ? isCorrectOption
                                     ? 'bg-green-100 border-green-500 text-green-800 dark:bg-green-900/20 dark:border-green-400 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-900/20'
@@ -403,7 +403,7 @@ export function Quiz({
               <div className="text-center flex-shrink-0">
                 <Button
                   onClick={handleNext}
-                  className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-3 h-8 sm:h-10 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-medium touch-target"
+                  className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-3 h-8 sm:h-10 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-medium touch-target mobile-button"
                 >
                   {currentIndex < questions.length - 1 ? '次の問題' : '結果を見る'}
                 </Button>

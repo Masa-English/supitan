@@ -152,7 +152,7 @@ export function Header({
                 variant="ghost"
                 size="sm"
                 onClick={toggleSideMenu}
-                className="lg:hidden text-muted-foreground hover:bg-accent transition-colors p-1.5 sm:p-2 touch-target"
+                className="lg:hidden text-muted-foreground hover:bg-accent transition-colors p-1.5 sm:p-2 touch-target mobile-button"
               >
                 <Menu className="h-5 w-5" />
               </Button>
@@ -164,7 +164,7 @@ export function Header({
                 variant="ghost"
                 size="sm"
                 onClick={handleBackClick}
-                className="text-muted-foreground hover:bg-accent transition-colors p-1.5 sm:p-2 touch-target"
+                className="text-muted-foreground hover:bg-accent transition-colors p-1.5 sm:p-2 touch-target mobile-button"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
@@ -207,7 +207,7 @@ export function Header({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="p-1.5"
+                    className="p-1.5 touch-target mobile-button"
                   >
                     <User className="h-5 w-5" />
                   </Button>

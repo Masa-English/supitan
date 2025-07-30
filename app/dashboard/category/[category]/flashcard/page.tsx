@@ -166,11 +166,11 @@ export default function FlashcardPage() {
 
   if (loading) {
     return (
-      <div className="h-screen flex flex-col">
-        <main className="flex-1 flex items-center justify-center px-3 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex flex-col">
+        <main className="flex-1 flex items-center justify-center px-2 sm:px-3 lg:px-4">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
-            <p className="text-xs sm:text-base text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {category}の単語データを読み込み中...
             </p>
           </div>
@@ -181,8 +181,8 @@ export default function FlashcardPage() {
 
   if (words.length === 0) {
     return (
-      <div className="h-screen flex flex-col">
-        <main className="flex-1 flex items-center justify-center px-3 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex flex-col">
+        <main className="flex-1 flex items-center justify-center px-2 sm:px-3 lg:px-4">
           <div className="text-center max-w-md">
             <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 lg:mb-6">
               <div className="text-amber-600 dark:text-amber-400 text-xl sm:text-2xl lg:text-3xl">📚</div>
@@ -190,12 +190,12 @@ export default function FlashcardPage() {
             <h2 className="text-base sm:text-lg lg:text-xl font-bold text-foreground mb-2 sm:mb-3">
               単語が見つかりません
             </h2>
-            <p className="text-xs sm:text-base text-muted-foreground mb-3 sm:mb-4 lg:mb-6">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 lg:mb-6">
               {category}カテゴリーに単語が登録されていないか、データの読み込みに失敗しました。
             </p>
             <button
               onClick={handleBackToHome}
-              className="bg-amber-600 hover:bg-amber-700 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-base"
+              className="bg-amber-600 hover:bg-amber-700 text-white px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm"
             >
               ダッシュボードに戻る
             </button>
@@ -206,8 +206,8 @@ export default function FlashcardPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      <main className="flex-1 px-3 sm:px-6 lg:px-8 py-2 sm:py-4">
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-1 flex flex-col">
         <Flashcard
           words={words}
           onComplete={handleComplete}
