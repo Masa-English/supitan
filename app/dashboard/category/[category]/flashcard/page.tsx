@@ -117,22 +117,7 @@ export default function FlashcardPage() {
     }
   };
 
-  const handleAddToReview = async (wordId: string) => {
-    if (!user) {
-      console.error('User not authenticated');
-      return;
-    }
 
-    try {
-      // 復習リストに追加
-      await db.addToReview(user.id, wordId);
-      
-      showToast('この単語が復習リストに追加されました。');
-    } catch (error) {
-      console.error('復習リストへの追加エラー:', error);
-      showToast('復習リストへの追加に失敗しました。');
-    }
-  };
 
   const handleRetry = () => {
     setShowCompletionModal(false);
@@ -211,7 +196,6 @@ export default function FlashcardPage() {
         <Flashcard
           words={words}
           onComplete={handleComplete}
-          onAddToReview={handleAddToReview}
           category={category}
           onIndexChange={setCurrentIndex}
         />

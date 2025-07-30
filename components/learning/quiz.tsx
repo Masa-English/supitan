@@ -226,7 +226,7 @@ export function Quiz({
 
   return (
     <AudioInitializer>
-      <div className="min-h-screen flex flex-col">
+      <div className="h-screen flex flex-col">
         {/* ヘッダー部分 - 進捗表示 */}
         <div className="flex-shrink-0 p-2 sm:p-3 lg:p-4 border-b border-border bg-background">
           <div className="max-w-6xl mx-auto">
@@ -266,9 +266,9 @@ export function Quiz({
           </div>
         </div>
 
-        {/* メインコンテンツ */}
-        <div className="flex-1 p-2 sm:p-3 lg:p-4">
-          <div className="max-w-6xl mx-auto h-full flex flex-col">
+        {/* メインコンテンツ - スクロール可能なエリア */}
+        <div className="flex-1 overflow-y-auto p-2 sm:p-3 lg:p-4">
+          <div className="max-w-6xl mx-auto min-h-full flex flex-col">
             {/* 問題カード */}
             <div className="flex-1 mb-3 sm:mb-4">
               <Card className="bg-card border-border shadow-lg h-full">
@@ -397,10 +397,14 @@ export function Quiz({
                 </CardContent>
               </Card>
             )}
+          </div>
+        </div>
 
-            {/* 次へボタン */}
-            {showResult && (
-              <div className="text-center flex-shrink-0">
+        {/* 次へボタン - 固定位置 */}
+        {showResult && (
+          <div className="flex-shrink-0 p-2 border-t border-border bg-background">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center">
                 <Button
                   onClick={handleNext}
                   className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-3 h-8 sm:h-10 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-medium touch-target mobile-button"
@@ -408,9 +412,9 @@ export function Quiz({
                   {currentIndex < questions.length - 1 ? '次の問題' : '結果を見る'}
                 </Button>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </AudioInitializer>
   );

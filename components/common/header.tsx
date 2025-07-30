@@ -178,7 +178,8 @@ export function Header({
               <BookOpen className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
               <div>
                 <h1 className="text-lg sm:text-xl font-bold text-foreground">
-                  Masa Flash
+                  <span className="sm:hidden">Masa</span>
+                  <span className="hidden sm:inline">Masa Flash</span>
                 </h1>
                 <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                   ダッシュボード
