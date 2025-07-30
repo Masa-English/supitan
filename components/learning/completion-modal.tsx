@@ -119,16 +119,16 @@ export function CompletionModal({
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
           <Button
             onClick={onGoToReview}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 text-sm sm:text-base"
+            className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-4 sm:py-3 h-16 sm:h-12 text-base sm:text-sm font-medium touch-target"
           >
-            <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+            <BookOpen className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
             復習する
           </Button>
           <Button
             onClick={onBackToHome}
-            className="flex-1 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white py-3 text-sm sm:text-base"
+            className="flex-1 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white py-4 sm:py-3 h-16 sm:h-12 text-base sm:text-sm font-medium touch-target"
           >
-            <Home className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+            <Home className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
             ホームに戻る
           </Button>
         </div>
@@ -138,15 +138,15 @@ export function CompletionModal({
           <Button
             variant="outline"
             onClick={onRetry}
-            className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20 py-3 text-sm sm:text-base"
+            className="flex-1 border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20 py-4 sm:py-3 h-16 sm:h-12 text-base sm:text-sm font-medium touch-target"
           >
-            <RotateCcw className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+            <RotateCcw className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
             最初からやり直す
           </Button>
           <Button
             variant="outline"
             onClick={onBackToCategory}
-            className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 py-3 text-sm sm:text-base"
+            className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 py-4 sm:py-3 h-16 sm:h-12 text-base sm:text-sm font-medium touch-target"
           >
             カテゴリーに戻る
           </Button>

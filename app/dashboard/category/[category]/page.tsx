@@ -73,14 +73,14 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
     return (
       <div className="min-h-screen bg-background">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
           {/* ヘッダー */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-6">
-              <h1 className="text-3xl font-bold text-foreground">
+          <div className="mb-4 sm:mb-8">
+            <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
+              <h1 className="text-xl sm:text-3xl font-bold text-foreground">
                 {decodedCategory}
               </h1>
-              <Badge variant="secondary" className="bg-secondary/20 text-secondary-foreground">
+              <Badge variant="secondary" className="bg-secondary/20 text-secondary-foreground text-xs sm:text-sm">
                 {words.length}個の単語
               </Badge>
             </div>
@@ -88,16 +88,16 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
           {/* ユーザー進捗統計（動的レンダリング） */}
           <Suspense fallback={
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 mb-4 sm:mb-8">
               {[1, 2, 3].map((i) => (
                 <Card key={i} className="bg-card border-border">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                    <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                       読み込み中...
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-foreground">
+                    <div className="text-lg sm:text-2xl font-bold text-foreground">
                       -
                     </div>
                   </CardContent>
@@ -109,19 +109,19 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           </Suspense>
 
           {/* 学習モード選択 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 mb-4 sm:mb-8">
             <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/flashcard`}>
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-primary/15 rounded-xl group-hover:bg-primary/25 transition-colors">
-                      <BookOpen className="h-6 w-6 text-primary" />
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="p-2 sm:p-3 bg-primary/15 rounded-xl group-hover:bg-primary/25 transition-colors">
+                      <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                     </div>
                     <div className="space-y-1">
-                      <h3 className="text-lg font-semibold text-foreground">
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground">
                         フラッシュカード
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         単語を見て意味を覚える
                       </p>
                     </div>
@@ -132,16 +132,16 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
             <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/quiz`}>
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-secondary/15 rounded-xl group-hover:bg-secondary/25 transition-colors">
-                      <Brain className="h-6 w-6 text-secondary" />
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="p-2 sm:p-3 bg-secondary/15 rounded-xl group-hover:bg-secondary/25 transition-colors">
+                      <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
                     </div>
                     <div className="space-y-1">
-                      <h3 className="text-lg font-semibold text-foreground">
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground">
                         クイズ
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         選択肢から正解を選ぶ
                       </p>
                     </div>
@@ -152,28 +152,28 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           </div>
 
           {/* 単語一覧 */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-foreground">
+          <div className="mb-4 sm:mb-8">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-bold text-foreground">
                 単語一覧
               </h2>
               <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/browse`}>
-                <Button variant="outline" className="border-border text-foreground hover:bg-muted">
-                  <BookOpen className="h-4 w-4 mr-2" />
+                <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
+                  <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   詳細を見る
                 </Button>
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4">
               {words.slice(0, 8).map((word) => (
                 <Card key={word.id} className="bg-card border-border">
-                  <CardContent className="p-4">
-                    <div className="text-center space-y-2">
-                      <h3 className="font-semibold text-foreground">
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="text-center space-y-1 sm:space-y-2">
+                      <h3 className="font-semibold text-foreground text-sm sm:text-base">
                         {word.word}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {word.japanese}
                       </p>
                       <Badge variant="outline" className="text-xs border-border text-muted-foreground">
@@ -186,9 +186,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
             </div>
 
             {words.length > 8 && (
-              <div className="text-center mt-6">
+              <div className="text-center mt-4 sm:mt-6">
                 <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/browse`}>
-                  <Button variant="outline" className="border-border text-foreground hover:bg-muted">
+                  <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
                     すべての単語を見る ({words.length}個)
                   </Button>
                 </Link>

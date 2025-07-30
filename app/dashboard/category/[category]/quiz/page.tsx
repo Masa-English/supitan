@@ -135,7 +135,7 @@ export default function QuizPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-sm sm:text-base text-muted-foreground">
+          <p className="text-xs sm:text-base text-muted-foreground">
             {category}のクイズデータを読み込み中...
           </p>
         </div>
@@ -146,19 +146,19 @@ export default function QuizPage() {
   if (words.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center max-w-md px-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-            <div className="text-primary text-2xl sm:text-3xl">🧠</div>
+        <div className="text-center max-w-md px-3 sm:px-4">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 lg:mb-6">
+            <div className="text-primary text-xl sm:text-2xl lg:text-3xl">🧠</div>
           </div>
-          <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2 sm:mb-3">
+          <h2 className="text-base sm:text-lg lg:text-xl font-bold text-foreground mb-2 sm:mb-3">
             単語が見つかりません
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
+          <p className="text-xs sm:text-base text-muted-foreground mb-3 sm:mb-4 lg:mb-6">
             {category}カテゴリーに単語が登録されていないか、データの読み込みに失敗しました。
           </p>
           <button
             onClick={handleBackToHome}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-base"
           >
             ダッシュボードに戻る
           </button>

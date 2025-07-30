@@ -15,9 +15,11 @@ import {
   User
 } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 // サイドメニューコンポーネント
 function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const pathname = usePathname();
   const menuItems = [
     {
       title: '学習',
@@ -61,31 +63,39 @@ function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
           <nav className="flex-1 space-y-4 sm:space-y-6">
             {menuItems.map((section) => (
               <div key={section.title}>
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 sm:mb-3">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-2 px-3">
                   {section.title}
                 </h3>
                 <ul className="space-y-1">
-                  {section.items.map((item) => (
-                    <li key={item.label}>
-                      <Link
-                        href={item.href}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                        onClick={() => {
-                          // モバイルではメニューを閉じる
-                          if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-                            onClose();
-                          }
-                        }}
-                      >
-                        <item.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.color}`} />
-                        <span className="font-medium text-sm sm:text-base">{item.label}</span>
-                      </Link>
-                    </li>
-                  ))}
+                  {section.items.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-foreground hover:bg-accent transition-colors touch-target ${
+                            isActive ? 'bg-primary/10 text-primary border-r-2 border-primary' : ''
+                          }`}
+                        >
+                          <item.icon className="h-5 w-5" />
+                          <span className="font-medium">{item.label}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}
           </nav>
+
+          {/* フッター */}
+          <div className="border-t border-border pt-4">
+            <div className="px-3 py-2">
+              <p className="text-xs text-muted-foreground">
+                © 2025 Masa Flash
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </>
