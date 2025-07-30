@@ -36,14 +36,14 @@ function WordCard({ word }: { word: Word }) {
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card h-full min-h-[320px]">
-      <CardHeader className="pb-3">
+    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card h-full min-h-[280px] sm:min-h-[320px]">
+      <CardHeader className="pb-2 sm:pb-3">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0">
-            <h3 className="text-2xl font-bold text-foreground mb-2 leading-tight">
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 leading-tight">
               {word.word}
             </h3>
-            <Badge variant="outline" className="text-sm border-border text-muted-foreground px-2 py-1">
+            <Badge variant="outline" className="text-xs sm:text-sm border-border text-muted-foreground px-2 py-1">
               {word.phonetic}
             </Badge>
           </div>
@@ -58,30 +58,30 @@ function WordCard({ word }: { word: Word }) {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="pt-0 space-y-4">
+      <CardContent className="pt-0 space-y-3 sm:space-y-4">
         <div className="bg-muted rounded-lg p-3">
-          <p className="text-foreground text-lg font-semibold text-center">
+          <p className="text-foreground text-base sm:text-lg font-semibold text-center">
             {word.japanese}
           </p>
         </div>
         
         {word.example1 && (
-          <div className="space-y-3">
-            <div className="bg-muted/50 rounded-lg p-3 border border-border">
-              <p className="text-sm text-muted-foreground italic mb-2 leading-relaxed">
+          <div className="space-y-2 sm:space-y-3">
+            <div className="bg-muted/50 rounded-lg p-2 sm:p-3 border border-border">
+              <p className="text-xs sm:text-sm text-muted-foreground italic mb-1 sm:mb-2 leading-relaxed">
                 &ldquo;{word.example1}&rdquo;
               </p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                 {word.example1_jp}
               </p>
             </div>
             
             {word.example2 && (
-              <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                <p className="text-sm text-muted-foreground italic mb-2 leading-relaxed">
+              <div className="bg-muted/50 rounded-lg p-2 sm:p-3 border border-border">
+                <p className="text-xs sm:text-sm text-muted-foreground italic mb-1 sm:mb-2 leading-relaxed">
                   &ldquo;{word.example2}&rdquo;
                 </p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   {word.example2_jp}
                 </p>
               </div>
@@ -97,12 +97,12 @@ function WordCard({ word }: { word: Word }) {
 function StatCard({ icon: Icon, label, value }: { icon: LucideIcon, label: string, value: string | number }) {
   return (
     <Card className="bg-card border-border shadow-md">
-      <CardContent className="p-4">
-        <div className="flex flex-col items-center text-center gap-2">
-          <Icon className="h-6 w-6 text-primary" />
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex flex-col items-center text-center gap-1 sm:gap-2">
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           <div>
-            <p className="text-sm text-muted-foreground font-medium">{label}</p>
-            <p className="text-2xl font-bold text-foreground">{value}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">{label}</p>
+            <p className="text-lg sm:text-2xl font-bold text-foreground">{value}</p>
           </div>
         </div>
       </CardContent>
@@ -116,25 +116,25 @@ function LoadingState({ category }: { category: string }) {
     <div className="h-screen flex flex-col bg-background">
       {/* ヘッダー */}
       <header className="bg-card border-b border-border flex-shrink-0">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4">
+        <div className="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-3 sm:py-4">
           <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
               {category}の単語一覧
             </h1>
-            <div className="flex items-center justify-center gap-4 text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                <span>読み込み中...</span>
+            <div className="flex items-center justify-center gap-2 sm:gap-4 text-muted-foreground">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="text-xs sm:text-sm">読み込み中...</span>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4 min-h-0">
+      <main className="flex-1 flex flex-col w-full px-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-3 sm:py-4 min-h-0">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <span className="ml-3 text-muted-foreground">単語を読み込み中...</span>
+          <span className="ml-3 text-muted-foreground text-sm sm:text-base">単語を読み込み中...</span>
         </div>
       </main>
     </div>
@@ -147,22 +147,22 @@ function ErrorState({ category, error, onRetry }: { category: string, error?: st
     <div className="h-screen flex flex-col bg-background">
       {/* ヘッダー */}
       <header className="bg-card border-b border-border flex-shrink-0">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4">
+        <div className="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-3 sm:py-4">
           <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
               {category}の単語一覧
             </h1>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4 min-h-0">
+      <main className="flex-1 flex flex-col w-full px-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-3 sm:py-4 min-h-0">
         <div className="text-center py-12">
           <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">
             エラーが発生しました
           </h3>
-          <p className="text-muted-foreground mb-4">
+          <p className="text-muted-foreground mb-4 text-sm sm:text-base">
             {error || 'データの取得に失敗しました'}
           </p>
           <Button onClick={onRetry} className="bg-primary hover:bg-primary/90">
@@ -225,29 +225,29 @@ export default function BrowsePage() {
     <div className="h-screen flex flex-col bg-background">
       {/* ヘッダー */}
       <header className="bg-card border-b border-border flex-shrink-0">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4">
+        <div className="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-3 sm:py-4">
           <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
               {category}の単語一覧
             </h1>
-            <div className="flex items-center justify-center gap-4 text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                <span>{totalWords}個の単語</span>
+            <div className="flex items-center justify-center gap-2 sm:gap-4 text-muted-foreground">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="text-xs sm:text-sm">{totalWords}個の単語</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                <span>学習準備完了</span>
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Target className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="text-xs sm:text-sm">学習準備完了</span>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4 min-h-0">
+      <main className="flex-1 flex flex-col w-full px-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-3 sm:py-4 min-h-0">
         {/* 統計セクション */}
-        <div className="mb-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="mb-4 sm:mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             <StatCard icon={Users} label="総単語数" value={totalWords} />
             <StatCard icon={Target} label="例文付き" value={withExamples} />
             <StatCard icon={Search} label="学習可能" value={totalWords} />
@@ -256,16 +256,16 @@ export default function BrowsePage() {
         </div>
 
         {/* ナビゲーション */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link href={`/dashboard/category/${encodeURIComponent(category)}`}>
-              <Button variant="outline" className="border-border text-foreground hover:bg-muted">
-                <ArrowLeft className="h-4 w-4 mr-2" />
+              <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
+                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 カテゴリーに戻る
               </Button>
             </Link>
             <Link href="/dashboard/category">
-              <Button variant="ghost" className="text-muted-foreground hover:bg-muted">
+              <Button variant="ghost" className="text-muted-foreground hover:bg-muted text-xs sm:text-sm">
                 カテゴリー一覧
               </Button>
             </Link>
@@ -273,12 +273,12 @@ export default function BrowsePage() {
           
           <div className="flex items-center gap-2">
             <Link href={`/dashboard/category/${encodeURIComponent(category)}/flashcard`}>
-              <Button className="bg-primary hover:bg-primary/90">
+              <Button className="bg-primary hover:bg-primary/90 text-xs sm:text-sm">
                 フラッシュカード学習
               </Button>
             </Link>
             <Link href={`/dashboard/category/${encodeURIComponent(category)}/quiz`}>
-              <Button variant="outline" className="border-border text-foreground hover:bg-muted">
+              <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
                 クイズ学習
               </Button>
             </Link>
@@ -287,7 +287,7 @@ export default function BrowsePage() {
 
         {/* 単語一覧 */}
         <div className="flex-1 overflow-y-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
             {words.map((word) => (
               <WordCard key={word.id} word={word} />
             ))}

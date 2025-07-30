@@ -53,7 +53,7 @@ export default async function LandingPage() {
       </div>
 
       {/* 統計カード */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-12">
+      <div className="mobile-grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-12">
         <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-md transition-all duration-200">
           <CardHeader className="pb-2 px-3 sm:px-6">
             <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
@@ -124,7 +124,7 @@ export default async function LandingPage() {
         <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8 text-center">
           学習カテゴリー
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
+        <div className="mobile-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
           {staticData.categories.map((category) => (
             <Card key={category.name} className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-lg transition-all duration-200 hover:scale-105">
               <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
@@ -163,7 +163,7 @@ export default async function LandingPage() {
         <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8 text-center">
           学習機能
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
+        <div className="mobile-grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
           <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-lg transition-all duration-200 hover:scale-105">
             <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
