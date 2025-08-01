@@ -54,8 +54,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ユーザー情報を取得
-    const { data: { user } } = await supabase.auth.getUser();
+    // ユーザー情報を取得（エラーハンドリング付き）
+    let user = null;
+    try {
+      const { data: { user: userData }, error } = await supabase.auth.getUser();
+      if (!error && userData) {
+        user = userData;
+      }
+           } catch {
+         // セッションエラーは静かに処理
+         console.debug('Session check skipped for contact POST API');
+       }
 
     // IPアドレスを取得
     const forwarded = headersList.get('x-forwarded-for');
@@ -111,9 +120,19 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     
-    // 認証チェック
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
+    // 認証チェック（エラーハンドリング付き）
+    let user = null;
+    try {
+      const { data: { user: userData }, error: authError } = await supabase.auth.getUser();
+      if (!authError && userData) {
+        user = userData;
+      }
+           } catch {
+         // セッションエラーは静かに処理
+         console.debug('Session check skipped for contact API');
+       }
+    
+    if (!user) {
       return NextResponse.json(
         { error: '認証が必要です' },
         { status: 401 }

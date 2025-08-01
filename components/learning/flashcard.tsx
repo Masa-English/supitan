@@ -51,7 +51,20 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     const loadFavorites = async () => {
       try {
         const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        
+        // セッションが存在するかチェック（エラーハンドリング付き）
+        let user = null;
+        try {
+          const { data: { user: userData }, error } = await supabase.auth.getUser();
+          if (!error && userData) {
+            user = userData;
+          }
+                 } catch {
+           // セッションエラーは静かに処理
+           console.debug('Session check skipped for favorites loading');
+           return;
+         }
+        
         if (!user) return;
 
         // データベースからお気に入り状態を取得
@@ -135,7 +148,20 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
 
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      
+      // セッションが存在するかチェック（エラーハンドリング付き）
+      let user = null;
+      try {
+        const { data: { user: userData }, error } = await supabase.auth.getUser();
+        if (!error && userData) {
+          user = userData;
+        }
+             } catch {
+         // セッションエラーは静かに処理
+         console.debug('Session check skipped for favorite toggle');
+         return;
+       }
+      
       if (!user) return;
 
       // データベースでお気に入り状態を更新

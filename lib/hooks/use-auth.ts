@@ -31,6 +31,29 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
         setLoading(true);
         setError(null);
 
+        // パブリックページの場合は認証チェックをスキップ
+        const publicPaths = [
+          '/landing',
+          '/contact',
+          '/auth/login',
+          '/auth/sign-up',
+          '/auth/forgot-password',
+          '/auth/sign-up-success',
+          '/auth/update-password',
+          '/auth/confirm',
+          '/auth/error',
+          '/faq'
+        ];
+
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+        const isPublicPath = publicPaths.some(path => currentPath.startsWith(path));
+
+        // パブリックページで認証が不要な場合は早期リターン
+        if (isPublicPath && !requireAuth) {
+          setLoading(false);
+          return;
+        }
+
         // セキュリティ上の理由でgetUser()を使用
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         

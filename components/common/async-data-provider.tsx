@@ -61,7 +61,18 @@ async function AsyncStatisticsDashboard() {
   const { createClient } = await import('@/lib/supabase/client');
   
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  
+  // セッションが存在するかチェック（エラーハンドリング付き）
+  let user = null;
+  try {
+    const { data: { user: userData }, error } = await supabase.auth.getUser();
+    if (!error && userData) {
+      user = userData;
+    }
+     } catch {
+     // セッションエラーは静かに処理
+     console.debug('Session check skipped for statistics dashboard');
+   }
   
   if (!user) {
     return (
