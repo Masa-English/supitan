@@ -303,9 +303,9 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
           </div>
         </div>
 
-        {/* メインコンテンツ - スクロール可能なエリア */}
-        <div className="flex-1 overflow-y-auto p-2">
-          <div className="max-w-6xl mx-auto w-full min-h-full flex flex-col">
+        {/* メインコンテンツ - vhに沿った中央配置 */}
+        <div className="flex-1 flex items-center justify-center p-2">
+          <div className="max-w-6xl mx-auto w-full h-full flex flex-col justify-center">
             {/* 単語カード */}
             <div className="flex-shrink-0 mb-4">
               <div className="bg-card border border-border shadow-lg rounded-xl p-4 relative">
@@ -456,8 +456,8 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
                 </div>
               </div>
             </div>
-            <div className="max-w-6xl mx-auto">
-            <div className="flex items-center justify-center gap-3 sm:gap-4">
+            {/* ナビゲーションボタン - 中央配置 */}
+            <div className="flex items-center justify-center gap-3 sm:gap-4 mt-6">
               <Button
                 variant="outline"
                 onClick={handlePrevious}
@@ -488,10 +488,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
               </Button>
             </div>
           </div>
-          </div>
         </div>
-
-        
       </div>
     </AudioInitializer>
   );

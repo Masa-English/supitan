@@ -2,7 +2,7 @@
 
 
 import { ThemeSwitcher } from "@/components/common/theme-switcher";
-import { Heart, Mail, BookOpen, MessageCircle } from "lucide-react";
+import { BookOpen, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 interface FooterProps {
@@ -10,7 +10,7 @@ interface FooterProps {
   showThemeSwitcher?: boolean;
 }
 
-export function Footer({ variant = 'default', showThemeSwitcher = true }: FooterProps) {
+export function Footer({ showThemeSwitcher = true }: FooterProps) {
   return (
     <footer className="bg-card border-t border-border mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">

@@ -192,7 +192,7 @@ export default function FlashcardPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col justify-around">
         <Flashcard
           words={words}
           onComplete={handleComplete}
