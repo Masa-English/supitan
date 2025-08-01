@@ -164,19 +164,12 @@ function DashboardLayoutInner({ children }: { children: ReactNode }) {
             <div className="flex-1">
               {children}
             </div>
-            
-            {/* フッター - 学習ページ以外で表示 */}
-            {!isLearningPage && (
-              <div className="lg:hidden">
-                <Footer variant="minimal" showThemeSwitcher={false} />
-              </div>
-            )}
           </main>
         </div>
         
-        {/* デスクトップ用フッター */}
+        {/* フッター - 学習ページ以外で表示 */}
         {!isLearningPage && (
-          <div className="hidden lg:block">
+          <div className="footer-flex">
             <Footer />
           </div>
         )}

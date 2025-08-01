@@ -30,10 +30,10 @@ export function CompletionModal({
   onBackToCategory
 }: CompletionModalProps) {
   const getPerformanceMessage = () => {
-    if (results.accuracy >= 90) return { emoji: "🎉", message: "素晴らしい！", color: "text-green-600" };
-    if (results.accuracy >= 70) return { emoji: "👏", message: "よくできました！", color: "text-blue-600" };
-    if (results.accuracy >= 50) return { emoji: "👍", message: "がんばりました！", color: "text-amber-600" };
-    return { emoji: "💪", message: "次回もがんばりましょう！", color: "text-orange-600" };
+    if (results.accuracy >= 90) return { message: "素晴らしい！", color: "text-green-600", bgColor: "from-green-500 to-emerald-600" };
+    if (results.accuracy >= 70) return { message: "よくできました！", color: "text-blue-600", bgColor: "from-blue-500 to-cyan-600" };
+    if (results.accuracy >= 50) return { message: "がんばりました！", color: "text-amber-600", bgColor: "from-amber-500 to-orange-600" };
+    return { message: "次回もがんばりましょう！", color: "text-orange-600", bgColor: "from-orange-500 to-red-600" };
   };
 
   const performance = getPerformanceMessage();
@@ -47,7 +47,17 @@ export function CompletionModal({
     >
       <ModalBody className="p-6">
         <div className="text-center mb-6 sm:mb-8">
-          <div className="text-6xl sm:text-8xl mb-4 sm:mb-6">{performance.emoji}</div>
+          {/* モダンなアイコンデザイン */}
+          <div className="relative mb-6 sm:mb-8">
+            <div className={`w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-gradient-to-br ${performance.bgColor} rounded-full flex items-center justify-center shadow-lg`}>
+              <svg className="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            {/* 装飾的な背景要素 */}
+            <div className={`absolute inset-0 w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-gradient-to-br ${performance.bgColor.replace('500', '400').replace('600', '500')}/20 rounded-full blur-xl`}></div>
+          </div>
+          
           <h3 className="text-2xl sm:text-3xl font-bold text-amber-800 dark:text-amber-200 mb-2 sm:mb-3">
             学習完了！
           </h3>
@@ -61,32 +71,38 @@ export function CompletionModal({
 
         {/* 結果表示 */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 sm:p-6 rounded-xl border border-green-200 dark:border-green-700 text-center">
-            <Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 dark:text-green-400 mx-auto mb-2 sm:mb-3" />
-            <div className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mb-1">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 text-center shadow-sm hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+              <Trophy className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
               {results.correctCount}
             </div>
-            <div className="text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium">
+            <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
               正解数
             </div>
           </div>
           
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 sm:p-6 rounded-xl border border-blue-200 dark:border-blue-700 text-center">
-            <Target className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 dark:text-blue-400 mx-auto mb-2 sm:mb-3" />
-            <div className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 text-center shadow-sm hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-full flex items-center justify-center">
+              <Target className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
               {results.totalWords}
             </div>
-            <div className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-medium">
+            <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
               総問題数
             </div>
           </div>
           
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-4 sm:p-6 rounded-xl border border-amber-200 dark:border-amber-700 text-center">
-            <Star className="h-6 w-6 sm:h-8 sm:w-8 text-amber-600 dark:text-amber-400 mx-auto mb-2 sm:mb-3" />
-            <div className="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 mb-1">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 text-center shadow-sm hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center">
+              <Star className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
               {results.accuracy}%
             </div>
-            <div className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 font-medium">
+            <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium">
               正答率
             </div>
           </div>
@@ -94,13 +110,13 @@ export function CompletionModal({
 
         {/* 進捗バー */}
         <div className="mb-6 sm:mb-8">
-          <div className="flex justify-between items-center mb-2 sm:mb-3">
-            <span className="text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300">学習進捗</span>
-            <span className="text-xs sm:text-sm font-medium text-amber-600 dark:text-amber-400">{results.accuracy}%</span>
+          <div className="flex justify-between items-center mb-3 sm:mb-4">
+            <span className="text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300">学習進捗</span>
+            <span className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100">{results.accuracy}%</span>
           </div>
-          <div className="w-full bg-amber-200 dark:bg-amber-700 rounded-full h-3 sm:h-4 overflow-hidden">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 sm:h-3 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-amber-500 to-amber-600 h-3 sm:h-4 rounded-full transition-all duration-1000 ease-out"
+              className="bg-gradient-to-r from-green-500 to-emerald-600 h-2 sm:h-3 rounded-full transition-all duration-1000 ease-out shadow-sm"
               style={{ width: `${results.accuracy}%` }}
             />
           </div>

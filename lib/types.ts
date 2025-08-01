@@ -101,6 +101,7 @@ export interface QuizQuestion {
   options: string[];
   correct_answer: string;
   type: 'meaning' | 'example';
+  question?: string; // 問題文（例文問題の場合）
 }
 
 export interface AppStats {

@@ -22,48 +22,62 @@ function WordCard({ word }: { word: Word }) {
   };
 
   return (
-    <Card className="group bg-card backdrop-blur-sm border border-border hover:border-primary hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+    <Card className="group bg-card backdrop-blur-sm border border-border hover:border-primary hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer">
       <CardContent className="p-4 sm:p-6">
-        <div className="text-center space-y-3 sm:space-y-4">
-          {/* 単語と発音 */}
-          <div className="space-y-2">
-            <h3 className="text-lg sm:text-xl font-bold text-card-foreground group-hover:text-primary transition-colors">
-              {word.word}
-            </h3>
-            {word.phonetic && (
-              <Badge variant="outline" className="text-xs border-border text-muted-foreground bg-muted">
-                {word.phonetic}
-              </Badge>
-            )}
+        <div className="space-y-3 sm:space-y-4">
+          {/* ヘッダー部分 */}
+          <div className="flex items-start justify-between">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg sm:text-xl font-bold text-card-foreground group-hover:text-primary transition-colors truncate">
+                {word.word}
+              </h3>
+              {word.phonetic && (
+                <Badge variant="outline" className="text-xs border-border text-muted-foreground bg-muted mt-1">
+                  {word.phonetic}
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={playAudio}
+                className="text-muted-foreground hover:text-primary hover:bg-primary/10 p-1.5 h-8 w-8"
+                title="音声を再生"
+              >
+                <Volume2 className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-1.5 h-8 w-8"
+                title="お気に入りに追加"
+              >
+                <Heart className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
 
           {/* 日本語訳 */}
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            {word.japanese}
-          </p>
+          <div className="space-y-2">
+            <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
+              {word.japanese}
+            </p>
+          </div>
 
-          {/* カテゴリー */}
-          <Badge className="text-xs bg-primary/10 text-primary border-0">
-            {word.category}
-          </Badge>
-
-          {/* アクションボタン */}
-          <div className="flex items-center justify-center gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={playAudio}
-              className="text-muted-foreground hover:text-primary hover:bg-primary/10 p-2"
-            >
-              <Volume2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-2"
-            >
-              <Heart className="h-4 w-4" />
-            </Button>
+          {/* フッター部分 */}
+          <div className="flex items-center justify-between pt-2">
+            <Badge className="text-xs bg-primary/10 text-primary border-0">
+              {word.category}
+            </Badge>
+            {word.difficulty_level && (
+              <Badge 
+                variant="outline" 
+                className="text-xs border-border text-muted-foreground"
+              >
+                Lv.{word.difficulty_level}
+              </Badge>
+            )}
           </div>
         </div>
       </CardContent>
@@ -76,24 +90,31 @@ function FilterChip({
   label, 
   isActive, 
   onClick, 
-  icon 
+  icon,
+  count
 }: { 
   label: string; 
   isActive: boolean; 
   onClick: () => void; 
   icon?: React.ReactNode;
+  count?: number;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+      className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 min-h-[2rem] sm:min-h-[2.5rem] ${
         isActive
-          ? 'bg-primary/10 text-primary border border-primary/20'
-          : 'bg-muted text-muted-foreground border border-border hover:bg-accent hover:text-accent-foreground'
+          ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm'
+          : 'bg-muted text-muted-foreground border border-border hover:bg-accent hover:text-accent-foreground hover:shadow-sm'
       }`}
     >
       {icon}
-      {label}
+      <span className="truncate">{label}</span>
+      {count !== undefined && (
+        <Badge variant="secondary" className="ml-1 text-xs bg-background/50">
+          {count}
+        </Badge>
+      )}
     </button>
   );
 }
@@ -103,28 +124,39 @@ function FilterSection({
   title, 
   children, 
   isExpanded, 
-  onToggle 
+  onToggle,
+  count
 }: { 
   title: string; 
   children: React.ReactNode; 
   isExpanded: boolean; 
-  onToggle: () => void; 
+  onToggle: () => void;
+  count?: number;
 }) {
   return (
     <div className="border-b border-border last:border-b-0">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between py-3 text-left hover:bg-accent transition-colors"
+        className="w-full flex items-center justify-between py-4 px-2 text-left hover:bg-accent transition-colors rounded-md"
+        aria-expanded={isExpanded}
+        aria-label={`${title}セクションを${isExpanded ? '閉じる' : '開く'}`}
       >
-        <span className="font-medium text-foreground text-sm sm:text-base">{title}</span>
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-foreground text-sm sm:text-base">{title}</span>
+          {count !== undefined && (
+            <Badge variant="secondary" className="text-xs">
+              {count}
+            </Badge>
+          )}
+        </div>
         {isExpanded ? (
-          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         )}
       </button>
       {isExpanded && (
-        <div className="pb-3">
+        <div className="pb-4 px-2">
           {children}
         </div>
       )}
@@ -136,7 +168,8 @@ function FilterSection({
 function FilterPanel({ 
   filters, 
   onFilterChange, 
-  onClearFilters 
+  onClearFilters,
+  wordCounts
 }: { 
   filters: {
     categories: string[];
@@ -144,7 +177,12 @@ function FilterPanel({
     favoritesOnly: boolean;
   }; 
   onFilterChange: (key: string, value: string[] | number[] | boolean) => void; 
-  onClearFilters: () => void; 
+  onClearFilters: () => void;
+  wordCounts: {
+    categories: Record<string, number>;
+    difficultyLevels: Record<number, number>;
+    favorites: number;
+  };
 }) {
   const [expandedSections, setExpandedSections] = useState({
     categories: true,
@@ -192,7 +230,7 @@ function FilterPanel({
   };
 
   return (
-    <Card className="bg-card backdrop-blur-sm border border-border shadow-sm">
+    <Card className="bg-card backdrop-blur-sm border border-border shadow-sm sticky top-4">
       <CardHeader className="pb-3 sm:pb-4">
         <div className="flex items-center justify-between">
           <h3 className="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2">
@@ -204,19 +242,21 @@ function FilterPanel({
             size="sm"
             onClick={onClearFilters}
             className="text-muted-foreground hover:text-destructive p-2"
+            title="フィルターをクリア"
           >
             <X className="h-4 w-4 mr-1" />
             <span className="hidden sm:inline">クリア</span>
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-2">
+      <CardContent className="p-0">
         <div className="space-y-0">
           {/* カテゴリーフィルター */}
           <FilterSection
             title="カテゴリー"
             isExpanded={expandedSections.categories}
             onToggle={() => toggleSection('categories')}
+            count={filters.categories.length > 0 ? filters.categories.length : undefined}
           >
             <div className="flex flex-wrap gap-2">
               {categories.map((category) => (
@@ -225,6 +265,7 @@ function FilterPanel({
                   label={category}
                   isActive={filters.categories.includes(category)}
                   onClick={() => toggleCategory(category)}
+                  count={wordCounts.categories[category]}
                 />
               ))}
             </div>
@@ -235,6 +276,7 @@ function FilterPanel({
             title="難易度"
             isExpanded={expandedSections.difficulty}
             onToggle={() => toggleSection('difficulty')}
+            count={filters.difficultyLevels.length > 0 ? filters.difficultyLevels.length : undefined}
           >
             <div className="flex flex-wrap gap-2">
               {difficultyLevels.map((level) => (
@@ -243,6 +285,7 @@ function FilterPanel({
                   label={level.label}
                   isActive={filters.difficultyLevels.includes(level.value)}
                   onClick={() => toggleDifficulty(level.value)}
+                  count={wordCounts.difficultyLevels[level.value]}
                 />
               ))}
             </div>
@@ -253,12 +296,14 @@ function FilterPanel({
             title="お気に入り"
             isExpanded={expandedSections.favorites}
             onToggle={() => toggleSection('favorites')}
+            count={filters.favoritesOnly ? wordCounts.favorites : undefined}
           >
             <FilterChip
               label="お気に入りのみ"
               isActive={filters.favoritesOnly}
               onClick={toggleFavorites}
               icon={<Star className="h-3 w-3 sm:h-4 sm:w-4" />}
+              count={wordCounts.favorites}
             />
           </FilterSection>
         </div>
@@ -300,6 +345,28 @@ export default function SearchPage() {
   useEffect(() => {
     loadWords();
   }, [loadWords]);
+
+  // 単語カウントの計算
+  const wordCounts = useMemo(() => {
+    const categories: Record<string, number> = {};
+    const difficultyLevels: Record<number, number> = {};
+    const favorites = 0;
+
+    words.forEach(word => {
+      // カテゴリーカウント
+      categories[word.category] = (categories[word.category] || 0) + 1;
+      
+      // 難易度カウント
+      if (word.difficulty_level) {
+        difficultyLevels[word.difficulty_level] = (difficultyLevels[word.difficulty_level] || 0) + 1;
+      }
+      
+      // お気に入りカウント（実装状況に応じて調整）
+      // if (word.isFavorite) favorites++;
+    });
+
+    return { categories, difficultyLevels, favorites };
+  }, [words]);
 
   // 検索・フィルタリング処理
   useEffect(() => {
@@ -405,6 +472,7 @@ export default function SearchPage() {
                 filters={filters}
                 onFilterChange={handleFilterChange}
                 onClearFilters={clearFilters}
+                wordCounts={wordCounts}
               />
             </div>
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, BookOpen, User, ArrowLeft } from 'lucide-react';
+import { Menu, BookOpen, User, ArrowLeft, LogOut, LogIn } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeSwitcher } from './theme-switcher';
@@ -120,6 +120,19 @@ export function Header({
     router.push('/landing');
   };
 
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('ログアウトエラー:', error);
+    }
+  };
+
+  const handleLogin = () => {
+    router.push('/auth/login');
+  };
+
   return (
     <header className="bg-card/95 backdrop-blur-md border-b border-border sticky z-40 w-full">
       <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -214,6 +227,31 @@ export function Header({
                   </Button>
                 </div>
               </div>
+            )}
+
+            {/* ログイン・ログアウトボタン */}
+            {currentUser ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-muted-foreground hover:bg-accent transition-colors p-1.5 sm:p-2 touch-target mobile-button"
+                title="ログアウト"
+              >
+                <LogOut className="h-5 w-5" />
+                <span className="hidden sm:inline ml-2">ログアウト</span>
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogin}
+                className="text-muted-foreground hover:bg-accent transition-colors p-1.5 sm:p-2 touch-target mobile-button"
+                title="ログイン"
+              >
+                <LogIn className="h-5 w-5" />
+                <span className="hidden sm:inline ml-2">ログイン</span>
+              </Button>
             )}
 
             {/* テーマ切り替え */}

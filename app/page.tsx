@@ -3,7 +3,18 @@ import { createClient } from '@/lib/supabase/server';
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  
+  // セッションが存在するかチェック（エラーハンドリング付き）
+  let user = null;
+  try {
+    const { data: { user: userData }, error } = await supabase.auth.getUser();
+    if (!error && userData) {
+      user = userData;
+    }
+     } catch {
+     // セッションエラーは静かに処理
+     console.debug('Session check skipped for home page');
+   }
 
   if (!user) {
     redirect('/landing');
