@@ -6,7 +6,7 @@ import { DatabaseService } from '@/lib/database';
 import { Word, ReviewWord } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Volume2, Check, X, Clock, Star, BookOpen } from 'lucide-react';
+import { Volume2, Check, X, Clock, BookOpen } from 'lucide-react';
 import { AudioControls } from '@/components/common/audio-controls';
 import { Badge } from '@/components/ui/badge';
 
@@ -225,21 +225,21 @@ export function Review({ onComplete }: ReviewProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 flex flex-col">
-        <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-y-auto">
-          <div className="max-w-4xl mx-auto h-full flex flex-col space-y-6">
+        <div className="flex-1 px-3 sm:px-4 lg:px-6 py-4 sm:py-6 overflow-y-auto">
+          <div className="max-w-4xl mx-auto h-full flex flex-col space-y-4 sm:space-y-6">
             {/* 進捗表示と統計 */}
-            <div className="flex-shrink-0 space-y-4">
+            <div className="flex-shrink-0 space-y-3 sm:space-y-4">
               {/* シンプルな進捗表示 */}
               <div className="flex justify-between items-center">
-                <div className="flex items-center gap-4">
-                  <span className="text-lg font-medium text-foreground">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <span className="text-base sm:text-lg font-medium text-foreground">
                     復習 {currentIndex + 1} / {words.length}
                   </span>
                   <Badge variant="secondary" className="text-sm">
                     {progressStats.accuracy}% 正答率
                   </Badge>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
                     {formatTime(sessionDuration)}
@@ -257,33 +257,33 @@ export function Review({ onComplete }: ReviewProps) {
               </div>
 
               {/* シンプルな統計表示 */}
-              <div className="grid grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-                  <div className="text-xl font-bold text-green-600 dark:text-green-400">
+              <div className="grid grid-cols-4 gap-3 sm:gap-4">
+                <div className="text-center">
+                  <div className="text-lg sm:text-xl font-bold text-primary">
                     {progressStats.correctCount}
                   </div>
-                  <div className="text-xs text-green-600 dark:text-green-400">正解</div>
+                  <div className="text-xs text-muted-foreground">正解</div>
                 </div>
                 
-                <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
-                  <div className="text-xl font-bold text-red-600 dark:text-red-400">
+                <div className="text-center">
+                  <div className="text-lg sm:text-xl font-bold text-red-600">
                     {progressStats.totalAnswered - progressStats.correctCount}
                   </div>
-                  <div className="text-xs text-red-600 dark:text-red-400">不正解</div>
+                  <div className="text-xs text-muted-foreground">不正解</div>
                 </div>
                 
-                <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-                  <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                <div className="text-center">
+                  <div className="text-lg sm:text-xl font-bold text-blue-600">
                     {progressStats.remainingWords}
                   </div>
-                  <div className="text-xs text-blue-600 dark:text-blue-400">残り</div>
+                  <div className="text-xs text-muted-foreground">残り</div>
                 </div>
                 
-                <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
-                  <div className="text-xl font-bold text-purple-600 dark:text-purple-400">
+                <div className="text-center">
+                  <div className="text-lg sm:text-xl font-bold text-purple-600">
                     {progressStats.averageDifficulty}
                   </div>
-                  <div className="text-xs text-purple-600 dark:text-purple-400">平均難易度</div>
+                  <div className="text-xs text-muted-foreground">平均難易度</div>
                 </div>
               </div>
             </div>
@@ -291,19 +291,19 @@ export function Review({ onComplete }: ReviewProps) {
             {/* シンプルな復習カード */}
             <div className="flex-1 min-h-0">
               <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 h-full">
-                <CardContent className="p-8 text-center h-full flex flex-col justify-center space-y-8">
+                <CardContent className="p-6 sm:p-8 text-center h-full flex flex-col justify-center space-y-6 sm:space-y-8">
                   {/* 単語表示 */}
-                  <div className="space-y-4">
-                    <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground">
+                  <div className="space-y-3 sm:space-y-4">
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
                       {currentWord.word}
                     </h2>
-                    <p className="text-xl sm:text-2xl text-muted-foreground">
+                    <p className="text-lg sm:text-xl text-muted-foreground">
                       {currentWord.phonetic}
                     </p>
                   </div>
                   
                   {/* 操作ボタン */}
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {/* 発音ボタン */}
                     <Button
                       variant="outline"
@@ -326,41 +326,45 @@ export function Review({ onComplete }: ReviewProps) {
 
                     {/* 答え表示 */}
                     {showAnswer && (
-                      <div className="space-y-6">
-                        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-6">
-                          <h3 className="text-xl font-semibold text-green-800 dark:text-green-200 mb-2">
-                            {currentWord.japanese}
+                      <div className="space-y-4 sm:space-y-6">
+                        <div className="bg-muted/50 rounded-lg p-4 sm:p-6">
+                          <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">
+                            日本語の意味
                           </h3>
-                          {currentWord.example1_jp && (
-                            <p className="text-green-600 dark:text-green-300">
+                          <p className="text-base sm:text-lg text-foreground">
+                            {currentWord.japanese}
+                          </p>
+                        </div>
+                        
+                        {currentWord.example1_jp && (
+                          <div className="bg-muted/50 rounded-lg p-4 sm:p-6">
+                            <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">
+                              例文
+                            </h3>
+                            <p className="text-base sm:text-lg text-foreground">
                               {currentWord.example1_jp}
                             </p>
-                          )}
-                        </div>
-
-                        {/* シンプルな評価ボタン */}
-                        <div className="space-y-4">
-                          <p className="text-muted-foreground">
-                            この単語を覚えていますか？
-                          </p>
-                          <div className="flex gap-4 justify-center">
-                            <Button
-                              variant="outline"
-                              onClick={() => handleAnswer(false, 1)}
-                              className="flex-1 max-w-xs border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/20 py-3"
-                            >
-                              <X className="h-5 w-5 mr-2" />
-                              覚えていない
-                            </Button>
-                            <Button
-                              variant="outline"
-                              onClick={() => handleAnswer(true, 3)}
-                              className="flex-1 max-w-xs border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/20 py-3"
-                            >
-                              <Check className="h-5 w-5 mr-2" />
-                              覚えている
-                            </Button>
                           </div>
+                        )}
+
+                        {/* 評価ボタン */}
+                        <div className="flex gap-2 sm:gap-3 justify-center">
+                          <Button
+                            variant="outline"
+                            onClick={() => handleAnswer(false, 1)}
+                            className="flex-1 h-12 sm:h-14 bg-red-50 border-red-300 text-red-800 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/30"
+                          >
+                            <X className="h-5 w-5 mr-2" />
+                            難しい
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => handleAnswer(true, 3)}
+                            className="flex-1 h-12 sm:h-14 bg-green-50 border-green-300 text-green-800 hover:bg-green-100 dark:bg-green-900/20 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/30"
+                          >
+                            <Check className="h-5 w-5 mr-2" />
+                            簡単
+                          </Button>
                         </div>
                       </div>
                     )}
@@ -368,27 +372,6 @@ export function Review({ onComplete }: ReviewProps) {
                 </CardContent>
               </Card>
             </div>
-
-            {/* シンプルな復習情報 */}
-            {currentReviewWord && (
-              <div className="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <div className="text-sm text-muted-foreground flex justify-center gap-6">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4" />
-                    復習回数: {currentReviewWord.review_count}回
-                  </div>
-                  {currentReviewWord.last_reviewed && (
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      前回復習: {new Date(currentReviewWord.last_reviewed).toLocaleDateString('ja-JP', {
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </main>

@@ -35,11 +35,11 @@ export default async function LandingPage() {
   return (
     <>
       {/* ヒーローセクション */}
-      <div className="text-center mb-8 sm:mb-12 px-4 sm:px-0">
+      <div className="text-center mb-6 sm:mb-8 px-4 sm:px-0">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4 leading-tight">
           効率的な英語学習を始めましょう
         </h2>
-        <p className="text-sm sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 leading-relaxed">
+        <p className="text-sm sm:text-lg md:text-xl text-muted-foreground mb-4 sm:mb-6 leading-relaxed">
           {staticData.totalWords}個の単語で、あなたの英語力を向上させます
         </p>
         <Link href="/auth/sign-up">
@@ -53,16 +53,16 @@ export default async function LandingPage() {
       </div>
 
       {/* 統計カード */}
-      <div className="mobile-grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-12">
+      <div className="mobile-grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-md transition-all duration-200">
-          <CardHeader className="pb-2 px-3 sm:px-6">
+          <CardHeader className="pb-2 px-3 sm:px-4">
             <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
               <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">総単語数</span>
               <span className="sm:hidden">単語数</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-3 sm:px-6 pt-0">
+          <CardContent className="px-3 sm:px-4 pt-0">
             <div className="text-lg sm:text-2xl font-bold text-primary">
               {staticData.totalWords}
             </div>
@@ -70,14 +70,14 @@ export default async function LandingPage() {
         </Card>
 
         <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-md transition-all duration-200">
-          <CardHeader className="pb-2 px-3 sm:px-6">
+          <CardHeader className="pb-2 px-3 sm:px-4">
             <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
               <Target className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">カテゴリー</span>
               <span className="sm:hidden">カテゴリ</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-3 sm:px-6 pt-0">
+          <CardContent className="px-3 sm:px-4 pt-0">
             <div className="text-lg sm:text-2xl font-bold text-primary">
               {staticData.categories.length}
             </div>
@@ -85,14 +85,14 @@ export default async function LandingPage() {
         </Card>
 
         <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-md transition-all duration-200">
-          <CardHeader className="pb-2 px-3 sm:px-6">
+          <CardHeader className="pb-2 px-3 sm:px-4">
             <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
               <Trophy className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">学習モード</span>
               <span className="sm:hidden">モード</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-3 sm:px-6 pt-0">
+          <CardContent className="px-3 sm:px-4 pt-0">
             <div className="text-lg sm:text-2xl font-bold text-primary">
               3
             </div>
@@ -100,14 +100,14 @@ export default async function LandingPage() {
         </Card>
 
         <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-md transition-all duration-200">
-          <CardHeader className="pb-2 px-3 sm:px-6">
+          <CardHeader className="pb-2 px-3 sm:px-4">
             <CardTitle className="text-xs sm:text-sm font-medium text-primary flex items-center gap-1 sm:gap-2">
               <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">最終更新</span>
               <span className="sm:hidden">更新</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-3 sm:px-6 pt-0">
+          <CardContent className="px-3 sm:px-4 pt-0">
             <div className="text-xs sm:text-sm text-primary">
               {new Date(staticData.lastUpdated).toLocaleDateString('ja-JP', {
                 year: 'numeric',
@@ -120,14 +120,14 @@ export default async function LandingPage() {
       </div>
 
       {/* カテゴリー一覧 */}
-      <div className="mb-8 sm:mb-12">
-        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8 text-center">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 sm:mb-6 text-center">
           学習カテゴリー
         </h2>
-        <div className="mobile-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
+        <div className="mobile-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {staticData.categories.map((category) => (
             <Card key={category.name} className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-lg transition-all duration-200 hover:scale-105">
-              <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
+              <CardHeader className="text-center pb-3 sm:pb-4 px-3 sm:px-4">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <Badge variant="outline" className="text-sm sm:text-lg font-bold border-primary text-primary">
                     {category.pos}
@@ -140,7 +140,7 @@ export default async function LandingPage() {
                   {category.englishName}
                 </p>
               </CardHeader>
-              <CardContent className="text-center px-4 sm:px-6">
+              <CardContent className="text-center px-3 sm:px-4">
                 <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                   {category.count}個の単語
                 </p>
@@ -159,13 +159,13 @@ export default async function LandingPage() {
       </div>
 
       {/* 機能紹介 */}
-      <div className="mb-8 sm:mb-12">
-        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 sm:mb-8 text-center">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 sm:mb-6 text-center">
           学習機能
         </h2>
-        <div className="mobile-grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
+        <div className="mobile-grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6">
           <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-lg transition-all duration-200 hover:scale-105">
-            <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
+            <CardHeader className="text-center pb-3 sm:pb-4 px-3 sm:px-4">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               </div>
@@ -173,7 +173,7 @@ export default async function LandingPage() {
                 フラッシュカード
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-center px-4 sm:px-6">
+            <CardContent className="text-center px-3 sm:px-4">
               <p className="text-sm sm:text-base text-muted-foreground">
                 カードをめくって単語を学習。音声機能付きで発音も学べます。
               </p>
@@ -181,7 +181,7 @@ export default async function LandingPage() {
           </Card>
 
           <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-lg transition-all duration-200 hover:scale-105">
-            <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
+            <CardHeader className="text-center pb-3 sm:pb-4 px-3 sm:px-4">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <Target className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               </div>
@@ -189,7 +189,7 @@ export default async function LandingPage() {
                 クイズ
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-center px-4 sm:px-6">
+            <CardContent className="text-center px-3 sm:px-4">
               <p className="text-sm sm:text-base text-muted-foreground">
                 選択問題で理解度を確認。間違えた問題は復習リストに自動追加。
               </p>
@@ -197,7 +197,7 @@ export default async function LandingPage() {
           </Card>
 
           <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-lg transition-all duration-200 hover:scale-105">
-            <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6">
+            <CardHeader className="text-center pb-3 sm:pb-4 px-3 sm:px-4">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <RotateCcw className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               </div>
@@ -205,7 +205,7 @@ export default async function LandingPage() {
                 復習システム
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-center px-4 sm:px-6">
+            <CardContent className="text-center px-3 sm:px-4">
               <p className="text-sm sm:text-base text-muted-foreground">
                 忘却曲線に基づく効率的な復習で、長期記憶に定着させます。
               </p>
@@ -215,11 +215,11 @@ export default async function LandingPage() {
       </div>
 
       {/* CTA */}
-      <div className="text-center bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl sm:rounded-2xl p-6 sm:p-12 mx-4 sm:mx-0">
+      <div className="text-center bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl sm:rounded-2xl p-4 sm:p-8 mx-4 sm:mx-0">
         <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 sm:mb-4">
           今すぐ英語学習を始めましょう
         </h2>
-        <p className="text-sm sm:text-lg text-muted-foreground mb-6 sm:mb-8">
+        <p className="text-sm sm:text-lg text-muted-foreground mb-4 sm:mb-6">
           無料でアカウントを作成して、効率的な英語学習を体験してください。
         </p>
         <Link href="/auth/sign-up">

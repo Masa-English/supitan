@@ -456,12 +456,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* ナビゲーションコントロール - 固定位置 */}
-        <div className="flex-shrink-0 p-2 border-t border-border bg-background">
-          <div className="max-w-6xl mx-auto">
+            <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-center gap-3 sm:gap-4">
               <Button
                 variant="outline"
@@ -493,7 +488,10 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
               </Button>
             </div>
           </div>
+          </div>
         </div>
+
+        
       </div>
     </AudioInitializer>
   );
