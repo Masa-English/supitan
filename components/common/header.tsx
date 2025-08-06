@@ -59,7 +59,7 @@ export function Header({
   const supabase = createClient();
   
   // デフォルト値を使用（SSR/CSR互換性のため）
-  const title = propTitle !== "英単語学習" ? propTitle : "ダッシュボード";
+  const title = propTitle !== "英単語学習" ? propTitle : "";
   const showProgress = propShowProgress || false;
   const progress = propProgress || 0;
   const currentIndex = propCurrentIndex || 0;
