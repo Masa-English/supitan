@@ -1,280 +1,242 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Target, Trophy, Clock, RotateCcw, ArrowRight } from 'lucide-react';
+import { Zap, Target, Trophy, Clock, RotateCcw, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { getStaticData } from '@/lib/static-data';
 
-// 静的生成の設定 - より頻繁な更新で最新情報を提供
-export const revalidate = 900; // 15分ごとに再生成
+export const metadata: Metadata = {
+  title: 'スピ単 - 効率的な英語学習アプリ',
+  description: 'フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。音声機能付きで発音も学べます。',
+  keywords: ['英語学習', 'フラッシュカード', 'クイズ', '復習', '英単語', '語学学習'],
+  openGraph: {
+    title: 'スピ単 - 効率的な英語学習アプリ',
+    description: 'フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。音声機能付きで発音も学べます。',
+    type: 'website',
+  },
+};
 
-// 静的パラメータ生成（将来的な拡張用）
-export async function generateStaticParams() {
-  return [{}]; // ランディングページは単一ページ
-}
-
-// メタデータ最適化
-export async function generateMetadata() {
-  const staticData = await getStaticData();
-  return {
-    title: 'Masa Flash - 効率的な英語学習アプリ',
-    description: `${staticData.totalWords}個の単語で効率的に英語を学習。フラッシュカード、クイズ、復習システムで語彙力アップ！`,
-    keywords: ['英語学習', 'フラッシュカード', 'クイズ', '復習', '英単語', '語学学習'],
-    openGraph: {
-      title: 'Masa Flash - 効率的な英語学習アプリ',
-      description: `${staticData.totalWords}個の単語で効率的に英語を学習`,
-      type: 'website',
-    },
-  };
-}
-
-export default async function LandingPage() {
-  // サーバーサイドでデータを取得
-  const staticData = await getStaticData();
-
+export default function LandingPage() {
   return (
-    <div className="space-y-12 sm:space-y-16 lg:space-y-20 xl:space-y-24">
+    <div className="min-h-screen bg-background">
       {/* ヒーローセクション */}
-      <section className="text-center py-8 sm:py-12 lg:py-16 xl:py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-4 sm:mb-6 lg:mb-8 leading-tight">
-            効率的な英語学習を
-            <span className="text-primary block mt-2">始めましょう</span>
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 lg:mb-10 leading-relaxed max-w-3xl mx-auto">
-            {staticData.totalWords}個の単語で、あなたの英語力を向上させます
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
-            <Link href="/auth/sign-up" className="w-full sm:w-auto">
-              <Button 
-                size="lg" 
-                className="bg-primary hover:bg-primary/90 text-primary-foreground text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 h-auto min-h-[48px] sm:min-h-[56px] shadow-lg hover:shadow-xl transition-all duration-200 group w-full sm:w-auto"
-              >
-                無料で始める
-                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <Link href="/auth/login" className="w-full sm:w-auto">
-              <Button 
-                variant="outline"
-                size="lg"
-                className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 h-auto min-h-[48px] sm:min-h-[56px] border-2 hover:bg-muted/50 transition-all duration-200 w-full sm:w-auto"
-              >
-                ログイン
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 統計カード */}
-      <section className="py-8 sm:py-12 lg:py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 xl:gap-8">
-            <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-lg transition-all duration-300 hover:scale-105">
-              <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 lg:px-6">
-                <CardTitle className="text-xs sm:text-sm lg:text-base font-medium text-primary flex items-center gap-1 sm:gap-2 lg:gap-3">
-                  <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5" />
-                  <span>総単語数</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 sm:px-4 lg:px-6 pt-0">
-                <div className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-primary">
-                  {staticData.totalWords}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
+        <div className="relative z-10 container mx-auto px-4 py-16 sm:py-24">
+          <div className="text-center max-w-4xl mx-auto">
+            {/* ロゴとタイトル */}
+            <div className="flex items-center justify-center mb-8">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-primary/10 rounded-2xl">
+                  <Zap className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20 text-primary" />
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-lg transition-all duration-300 hover:scale-105">
-              <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 lg:px-6">
-                <CardTitle className="text-xs sm:text-sm lg:text-base font-medium text-primary flex items-center gap-1 sm:gap-2 lg:gap-3">
-                  <Target className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5" />
-                  <span>カテゴリー</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 sm:px-4 lg:px-6 pt-0">
-                <div className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-primary">
-                  {staticData.categories.length}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-lg transition-all duration-300 hover:scale-105">
-              <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 lg:px-6">
-                <CardTitle className="text-xs sm:text-sm lg:text-base font-medium text-primary flex items-center gap-1 sm:gap-2 lg:gap-3">
-                  <Trophy className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5" />
-                  <span>学習モード</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 sm:px-4 lg:px-6 pt-0">
-                <div className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-primary">
-                  3
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-lg transition-all duration-300 hover:scale-105">
-              <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 lg:px-6">
-                <CardTitle className="text-xs sm:text-sm lg:text-base font-medium text-primary flex items-center gap-1 sm:gap-2 lg:gap-3">
-                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5" />
-                  <span>最終更新</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 sm:px-4 lg:px-6 pt-0">
-                <div className="text-xs sm:text-sm lg:text-base text-primary font-medium">
-                  {new Date(staticData.lastUpdated).toLocaleDateString('ja-JP', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* カテゴリー一覧 */}
-      <section className="py-8 sm:py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground mb-3 sm:mb-4 lg:mb-6">
-              学習カテゴリー
-            </h2>
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto">
-              文法カテゴリー別に効率的に学習できます
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-            {staticData.categories.map((category) => (
-              <Card key={category.name} className="bg-card/80 backdrop-blur-sm border-primary/20 hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-                <CardHeader className="text-center pb-3 sm:pb-4 px-4 sm:px-6 lg:px-8">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 lg:mb-6 group-hover:bg-primary/20 transition-colors">
-                    <Badge variant="outline" className="text-sm sm:text-base lg:text-lg font-bold border-primary text-primary">
-                      {category.pos}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-lg sm:text-xl lg:text-2xl text-foreground">
-                    {category.name}
-                  </CardTitle>
-                  <p className="text-xs sm:text-sm lg:text-base text-muted-foreground">
-                    {category.englishName}
+                <div className="text-left">
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-2">
+                    スピ単
+                  </h1>
+                  <p className="text-lg sm:text-xl text-muted-foreground">
+                    効率的な英語学習アプリ
                   </p>
-                </CardHeader>
-                <CardContent className="text-center px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6">
-                  <p className="text-xs sm:text-sm lg:text-base text-muted-foreground mb-3 sm:mb-4 lg:mb-6">
-                    {category.count}個の単語
-                  </p>
-                  <Link href="/auth/sign-up" className="block">
-                    <Button 
-                      variant="outline" 
-                      className="border-primary text-primary hover:bg-primary/10 text-xs sm:text-sm lg:text-base px-4 sm:px-6 py-2 sm:py-3 h-auto min-h-[40px] sm:min-h-[48px] w-full group-hover:border-primary/60 transition-all duration-200"
-                    >
-                      学習開始
-                      <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+                </div>
+              </div>
+            </div>
 
-      {/* 機能紹介 */}
-      <section className="py-8 sm:py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground mb-3 sm:mb-4 lg:mb-6">
-              学習機能
-            </h2>
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-3xl mx-auto">
-              科学的に設計された学習システムで効率的に英語を習得
+            {/* サブタイトル */}
+            <p className="text-xl sm:text-2xl lg:text-3xl text-foreground mb-8 leading-relaxed">
+              科学的な学習法で<br className="sm:hidden" />
+              <span className="text-primary font-semibold">英単語を効率的に</span><br className="sm:hidden" />
+              マスターしましょう
             </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-              <CardHeader className="text-center pb-4 sm:pb-6 px-4 sm:px-6 lg:px-8">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:bg-primary/20 transition-colors">
-                  <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-primary" />
-                </div>
-                <CardTitle className="text-lg sm:text-xl lg:text-2xl text-foreground">
-                  フラッシュカード
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
-                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
-                  カードをめくって単語を学習。音声機能付きで発音も学べます。
-                </p>
-              </CardContent>
-            </Card>
 
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-              <CardHeader className="text-center pb-4 sm:pb-6 px-4 sm:px-6 lg:px-8">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:bg-primary/20 transition-colors">
-                  <Target className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-primary" />
-                </div>
-                <CardTitle className="text-lg sm:text-xl lg:text-2xl text-foreground">
-                  クイズ
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
-                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
-                  選択問題で理解度を確認。間違えた問題は復習リストに自動追加。
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-              <CardHeader className="text-center pb-4 sm:pb-6 px-4 sm:px-6 lg:px-8">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:bg-primary/20 transition-colors">
-                  <RotateCcw className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-primary" />
-                </div>
-                <CardTitle className="text-lg sm:text-xl lg:text-2xl text-foreground">
-                  復習システム
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
-                <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
-                  忘却曲線に基づく効率的な復習で、長期記憶に定着させます。
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-8 sm:py-12 lg:py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl sm:rounded-2xl lg:rounded-3xl p-6 sm:p-8 lg:p-12 xl:p-16">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground mb-4 sm:mb-6 lg:mb-8">
-              今すぐ英語学習を始めましょう
-            </h2>
-            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground mb-6 sm:mb-8 lg:mb-10 max-w-2xl mx-auto leading-relaxed">
-              無料でアカウントを作成して、効率的な英語学習を体験してください。
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
-              <Link href="/auth/sign-up" className="w-full sm:w-auto">
-                <Button 
-                  size="lg" 
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground text-base sm:text-lg px-6 sm:px-8 lg:px-10 py-3 sm:py-4 h-auto min-h-[48px] sm:min-h-[56px] shadow-lg hover:shadow-xl transition-all duration-200 group w-full sm:w-auto"
-                >
-                  無料で始める
-                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
+            {/* CTAボタン */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <Link href="/auth/login">
+                <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Zap className="h-5 w-5 mr-2" />
+                  学習を始める
                 </Button>
               </Link>
-              <Link href="/auth/login" className="w-full sm:w-auto">
-                <Button 
-                  variant="outline"
-                  size="lg"
-                  className="text-base sm:text-lg px-6 sm:px-8 lg:px-10 py-3 sm:py-4 h-auto min-h-[48px] sm:min-h-[56px] border-2 hover:bg-muted/50 transition-all duration-200 w-full sm:w-auto"
-                >
-                  ログイン
+              <Link href="/contact">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-8 py-4 border-border">
+                  お問い合わせ
                 </Button>
               </Link>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* 特徴セクション */}
+      <section className="py-16 sm:py-24 bg-card/50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              スピ単の特徴
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              科学的な学習法に基づいた効率的な英単語学習システム
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* 特徴1 */}
+            <div className="text-center p-6 bg-background rounded-xl border border-border">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-3">
+                高速学習
+              </h3>
+              <p className="text-muted-foreground">
+                フラッシュカードとクイズで効率的に単語を覚えられます
+              </p>
+            </div>
+
+            {/* 特徴2 */}
+            <div className="text-center p-6 bg-background rounded-xl border border-border">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Target className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-3">
+                間隔反復
+              </h3>
+              <p className="text-muted-foreground">
+                科学的な間隔反復システムで確実に記憶に定着
+              </p>
+            </div>
+
+            {/* 特徴3 */}
+            <div className="text-center p-6 bg-background rounded-xl border border-border">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trophy className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-3">
+                進捗管理
+              </h3>
+              <p className="text-muted-foreground">
+                詳細な進捗と統計で学習成果を可視化
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 学習方法セクション */}
+      <section className="py-16 sm:py-24">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              学習方法
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              3つの学習モードで効率的に英単語をマスター
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* フラッシュカード */}
+            <div className="bg-card border border-border rounded-xl p-8">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mr-4">
+                  <Zap className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground">
+                  フラッシュカード
+                </h3>
+              </div>
+              <p className="text-muted-foreground mb-4">
+                単語と意味を素早く確認し、記憶を定着させます。
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center">
+                  <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-primary" />
+                  高速な単語確認
+                </li>
+                <li className="flex items-center">
+                  <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-primary" />
+                  音声機能付き
+                </li>
+                <li className="flex items-center">
+                  <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-primary" />
+                  例文で理解促進
+                </li>
+              </ul>
+            </div>
+
+            {/* クイズ */}
+            <div className="bg-card border border-border rounded-xl p-8">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mr-4">
+                  <Target className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground">
+                  クイズ
+                </h3>
+              </div>
+              <p className="text-muted-foreground mb-4">
+                選択式クイズで理解度を確認し、弱点を特定します。
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center">
+                  <Target className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-primary" />
+                  4択問題形式
+                </li>
+                <li className="flex items-center">
+                  <Target className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-primary" />
+                  即座のフィードバック
+                </li>
+                <li className="flex items-center">
+                  <Target className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-primary" />
+                  正答率の追跡
+                </li>
+              </ul>
+            </div>
+
+            {/* 復習 */}
+            <div className="bg-card border border-border rounded-xl p-8">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mr-4">
+                  <RotateCcw className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground">
+                  復習
+                </h3>
+              </div>
+              <p className="text-muted-foreground mb-4">
+                間隔反復システムで記憶を確実に定着させます。
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center">
+                  <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-primary" />
+                  科学的な間隔反復
+                </li>
+                <li className="flex items-center">
+                  <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-primary" />
+                  自動復習スケジュール
+                </li>
+                <li className="flex items-center">
+                  <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-primary" />
+                  記憶定着の促進
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTAセクション */}
+      <section className="py-16 sm:py-24 bg-primary/5">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
+            今すぐ学習を始めましょう
+          </h2>
+          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+            科学的な学習法で効率的に英単語をマスターし、英語力を向上させましょう
+          </p>
+          <Link href="/auth/login">
+            <Button size="lg" className="text-lg px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground">
+              <ArrowRight className="h-5 w-5 mr-2" />
+              無料で始める
+            </Button>
+          </Link>
         </div>
       </section>
     </div>

@@ -11,14 +11,14 @@ const defaultUrl = process.env.VERCEL_URL
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: {
-    default: "Masa Flash - 効率的な英語学習アプリ",
-    template: "%s | Masa Flash"
+    default: "スピ単 - 効率的な英語学習アプリ",
+    template: "%s | スピ単"
   },
   description: "フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。音声機能付きで発音も学べます。",
   keywords: ["英語学習", "フラッシュカード", "クイズ", "復習", "英単語", "語学学習"],
-  authors: [{ name: "Masa Flash Team" }],
-  creator: "Masa Flash",
-  publisher: "Masa Flash",
+  authors: [{ name: "スピ単 Team" }],
+  creator: "スピ単",
+  publisher: "スピ単",
   robots: {
     index: true,
     follow: true,
@@ -27,21 +27,21 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ja_JP",
     url: defaultUrl,
-    siteName: "Masa Flash",
-    title: "Masa Flash - 効率的な英語学習アプリ",
+    siteName: "スピ単",
+    title: "スピ単 - 効率的な英語学習アプリ",
     description: "フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Masa Flash - 英語学習アプリ",
+        alt: "スピ単 - 英語学習アプリ",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Masa Flash - 効率的な英語学習アプリ",
+    title: "スピ単 - 効率的な英語学習アプリ",
     description: "フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。",
     images: ["/og-image.png"],
   },
@@ -52,8 +52,8 @@ export const viewport: Viewport = {
   themeColor: "#d97706",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 const geistSans = Geist({
@@ -72,7 +72,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className={`${geistSans.className} antialiased`}>
         <ThemeProvider

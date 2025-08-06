@@ -1,20 +1,20 @@
 {
-  "name": "Masa Flash - 効率的な英語学習アプリ",
-  "short_name": "Masa Flash",
-  "description": "フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。",
+  "name": "スピ単 - 効率的な英語学習アプリ",
+  "short_name": "スピ単",
+  "description": "フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。音声機能付きで発音も学べます。",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fef7e3",
+  "background_color": "#ffffff",
   "theme_color": "#d97706",
   "orientation": "portrait-primary",
-  "categories": ["education", "productivity"],
-  "lang": "ja",
-  "scope": "/",
   "icons": [
     {
       "src": "/favicon.ico",
       "sizes": "any",
       "type": "image/x-icon"
     }
-  ]
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "ja",
+  "dir": "ltr"
 }
