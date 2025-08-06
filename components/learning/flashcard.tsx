@@ -16,6 +16,7 @@ interface FlashcardProps {
   onComplete: () => void;
   category: string;
   onIndexChange?: (index: number) => void;
+  key?: string | number; // リセット用のキーを追加
 }
 
 export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) {
@@ -85,8 +86,18 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
       }
     };
 
-    loadUserData();
-  }, [db]);
+    // ユーザーデータが既に読み込まれている場合はスキップ
+    if (favorites.size > 0 || reviewWords.size > 0) {
+      return;
+    }
+
+    // タブ復元時は少し遅延して読み込み
+    const timeoutId = setTimeout(() => {
+      loadUserData();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [db, favorites.size, reviewWords.size]);
 
   // 単語が変わったら例文の表示状態と日本語表示状態をリセット
   useEffect(() => {

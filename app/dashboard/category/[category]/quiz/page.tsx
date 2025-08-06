@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { DatabaseService } from '@/lib/database';
@@ -19,10 +19,86 @@ export default function QuizPage() {
   // モーダル状態管理
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   
+  // リセット用のキー
+  const [resetKey, setResetKey] = useState(0);
+  
+  // データ取得状態を管理
+  const [dataFetched, setDataFetched] = useState(false);
+  
+  // タブ復元検出用のref
+  const isTabRestored = useRef(false);
+  const hasInitialized = useRef(false);
+  
   const db = useMemo(() => new DatabaseService(), []);
   const category = decodeURIComponent(params.category as string);
 
+  // タブ復元検出とセッションストレージ管理
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const storageKey = `quiz_${category}_data`;
+    
+    // ページが非表示になった時の処理
+    const handleVisibilityChange = () => {
+      if (document.hidden && words.length > 0) {
+        // ページが非表示になった時にデータを保存
+        sessionStorage.setItem(storageKey, JSON.stringify({
+          words,
+          timestamp: Date.now()
+        }));
+      }
+    };
+
+    // ページが表示された時の処理
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        // タブ復元を検出
+        isTabRestored.current = true;
+        console.log('タブ復元を検出しました');
+      }
+    };
+
+    // イベントリスナーを追加
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pageshow', handlePageShow);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, [category, words]);
+
   const loadData = useCallback(async (userId: string) => {
+    // タブ復元の場合はセッションストレージから復元
+    if (isTabRestored.current && typeof window !== 'undefined') {
+      const storageKey = `quiz_${category}_data`;
+      const savedData = sessionStorage.getItem(storageKey);
+      
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          const dataAge = Date.now() - parsedData.timestamp;
+          
+          // 5分以内のデータのみ復元
+          if (dataAge < 5 * 60 * 1000) {
+            setWords(parsedData.words);
+            setDataFetched(true);
+            setLoading(false);
+            console.log('セッションストレージからデータを復元しました');
+            return;
+          }
+        } catch (error) {
+          console.error('セッションストレージの復元エラー:', error);
+        }
+      }
+    }
+
+    // 既にデータが取得済みの場合はスキップ
+    if (dataFetched && words.length > 0) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const [wordsData, progressData] = await Promise.all([
         db.getWordsByCategory(category),
@@ -30,6 +106,7 @@ export default function QuizPage() {
       ]);
 
       setWords(wordsData);
+      setDataFetched(true);
       
       // プログレスデータをマップ形式に変換
       const progressMap: Record<string, { mastery_level: number; is_favorite: boolean }> = {};
@@ -47,13 +124,42 @@ export default function QuizPage() {
     } finally {
       setLoading(false);
     }
-  }, [category, db]);
+  }, [category, db, dataFetched, words.length]);
 
   useEffect(() => {
-    if (user) {
-      loadData(user.id);
+    if (user && !dataFetched && !hasInitialized.current) {
+      hasInitialized.current = true;
+      // loadDataを直接呼び出し
+      const fetchData = async () => {
+        try {
+          const [wordsData, progressData] = await Promise.all([
+            db.getWordsByCategory(category),
+            db.getUserProgress(user.id)
+          ]);
+
+          setWords(wordsData);
+          setDataFetched(true);
+          
+          // プログレスデータをマップ形式に変換
+          const progressMap: Record<string, { mastery_level: number; is_favorite: boolean }> = {};
+          progressData.forEach(progress => {
+            if (progress.word_id) {
+              progressMap[progress.word_id] = {
+                mastery_level: progress.mastery_level || 0,
+                is_favorite: progress.is_favorite || false
+              };
+            }
+          });
+
+        } catch (error) {
+          console.error('データの読み込みに失敗しました:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
     }
-  }, [loadData, user]);
+  }, [user, dataFetched, category, db]);
 
   const handleComplete = async (results: { wordId: string; correct: boolean }[]) => {
     if (!user) return;
@@ -123,7 +229,21 @@ export default function QuizPage() {
   const handleRetry = () => {
     setShowCompletionModal(false);
     setSessionResults([]);
-    window.location.reload();
+    // データ取得状態もリセット
+    setDataFetched(false);
+    // タブ復元フラグもリセット
+    isTabRestored.current = false;
+    hasInitialized.current = false;
+    // セッションストレージもクリア
+    if (typeof window !== 'undefined') {
+      const storageKey = `quiz_${category}_data`;
+      sessionStorage.removeItem(storageKey);
+    }
+    // リセットキーを更新してコンポーネントを完全にリセット
+    setResetKey(prev => prev + 1);
+    // 状態をリセットしてからデータを再読み込み
+    setLoading(true);
+    loadData(user?.id || '');
   };
 
   const handleBackToHome = () => {
@@ -182,6 +302,7 @@ export default function QuizPage() {
   return (
     <div className="min-h-screen bg-background">
       <Quiz
+        key={resetKey} // Quizコンポーネントをリセットするためにkeyを追加
         words={words}
         onComplete={handleComplete}
         onAddToReview={handleAddToReview}

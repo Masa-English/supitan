@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LucideIcon, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useHeader } from '@/lib/contexts/header-context';
 
 interface NavigationItem {
@@ -11,6 +12,7 @@ interface NavigationItem {
   href: string;
   icon: LucideIcon;
   color: string;
+  badge?: string;
 }
 
 interface SideMenuProps {
@@ -20,6 +22,13 @@ interface SideMenuProps {
 export function SideMenu({ navigationItems }: SideMenuProps) {
   const pathname = usePathname();
   const { toggleSideMenu } = useHeader();
+
+  const handleLinkClick = () => {
+    // モバイルの場合のみサイドメニューを閉じる
+    if (window.innerWidth < 1024) {
+      toggleSideMenu();
+    }
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -55,6 +64,7 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={handleLinkClick}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 transform ${
                     isActive 
                       ? 'bg-primary/10 text-primary border-r-2 border-primary shadow-sm' 
@@ -68,7 +78,15 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
                   <IconComponent className={`h-4 w-4 flex-shrink-0 transition-transform duration-200 ${
                     isActive ? 'scale-110' : 'group-hover:scale-110'
                   }`} />
-                  <span className="transition-all duration-200">{item.label}</span>
+                  <span className="transition-all duration-200 flex-1">{item.label}</span>
+                  {item.badge && (
+                    <Badge 
+                      variant="secondary" 
+                      className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-700"
+                    >
+                      {item.badge}
+                    </Badge>
+                  )}
                 </Link>
               </li>
             );

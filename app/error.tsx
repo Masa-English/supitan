@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function Error({
   error,
@@ -12,6 +13,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const router = useRouter();
+
   useEffect(() => {
     console.error('アプリケーションエラー:', error);
   }, [error]);
@@ -46,7 +49,7 @@ export default function Error({
             </Button>
             <Button
               variant="outline"
-              onClick={() => window.location.href = '/'}
+              onClick={() => router.push('/')}
               className="border-red-200 text-red-600 hover:bg-red-50"
             >
               ホームに戻る

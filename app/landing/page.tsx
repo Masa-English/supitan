@@ -234,7 +234,7 @@ export default function LandingPage() {
           <Link href="/auth/login">
             <Button size="lg" className="text-lg px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground">
               <ArrowRight className="h-5 w-5 mr-2" />
-              無料で始める
+              さっそく始める
             </Button>
           </Link>
         </div>

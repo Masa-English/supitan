@@ -14,6 +14,7 @@ interface QuizProps {
   words: Word[];
   onComplete: (results: { wordId: string; correct: boolean }[]) => void;
   onAddToReview: (wordId: string) => void;
+  key?: string | number; // リセット用のキーを追加
 }
 
 export function Quiz({
@@ -156,10 +157,20 @@ export function Quiz({
     if (words.length > 0) {
       // クライアントサイドでのみ問題を生成
       if (typeof window !== 'undefined') {
-        generateQuestions();
+        // 既に問題が生成されている場合はスキップ
+        if (questions.length > 0) {
+          return;
+        }
+        
+        // タブ復元時は少し遅延して問題生成
+        const timeoutId = setTimeout(() => {
+          generateQuestions();
+        }, 150);
+
+        return () => clearTimeout(timeoutId);
       }
     }
-  }, [generateQuestions, words.length]);
+  }, [generateQuestions, words.length, questions.length]);
 
   useEffect(() => {
     setSelectedAnswer(null);
@@ -283,8 +294,7 @@ export function Quiz({
                          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground break-words bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                            {currentQuestion.word.word}
                          </h2>
-                         <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                       </div>
+                        </div>
                        <Button
                          variant="ghost"
                          size="sm"

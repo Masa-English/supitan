@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { DatabaseService } from '@/lib/database';
@@ -24,6 +24,16 @@ export default function FlashcardPage() {
   // モーダル状態管理
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   
+  // リセット用のキー
+  const [resetKey, setResetKey] = useState(0);
+  
+  // データ取得状態を管理
+  const [dataFetched, setDataFetched] = useState(false);
+  
+  // タブ復元検出用のref
+  const isTabRestored = useRef(false);
+  const hasInitialized = useRef(false);
+  
   const db = useMemo(() => new DatabaseService(), []);
   const category = decodeURIComponent(params.category as string);
   const { showToast } = useToast();
@@ -32,22 +42,102 @@ export default function FlashcardPage() {
   // プログレス計算（使用されていないため削除）
   // const progress = words.length > 0 ? ((currentIndex + 1) / words.length) * 100 : 0;
 
+  // タブ復元検出とセッションストレージ管理
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const storageKey = `flashcard_${category}_data`;
+    
+    // ページが非表示になった時の処理
+    const handleVisibilityChange = () => {
+      if (document.hidden && words.length > 0) {
+        // ページが非表示になった時にデータを保存
+        sessionStorage.setItem(storageKey, JSON.stringify({
+          words,
+          timestamp: Date.now()
+        }));
+      }
+    };
+
+    // ページが表示された時の処理
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        // タブ復元を検出
+        isTabRestored.current = true;
+        console.log('タブ復元を検出しました');
+      }
+    };
+
+    // イベントリスナーを追加
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pageshow', handlePageShow);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, [category, words]);
+
   const loadData = useCallback(async () => {
+    // タブ復元の場合はセッションストレージから復元
+    if (isTabRestored.current && typeof window !== 'undefined') {
+      const storageKey = `flashcard_${category}_data`;
+      const savedData = sessionStorage.getItem(storageKey);
+      
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          const dataAge = Date.now() - parsedData.timestamp;
+          
+          // 5分以内のデータのみ復元
+          if (dataAge < 5 * 60 * 1000) {
+            setWords(parsedData.words);
+            setDataFetched(true);
+            setLoading(false);
+            console.log('セッションストレージからデータを復元しました');
+            return;
+          }
+        } catch (error) {
+          console.error('セッションストレージの復元エラー:', error);
+        }
+      }
+    }
+
+    // 既にデータが取得済みの場合はスキップ
+    if (dataFetched && words.length > 0) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const wordsData = await db.getWordsByCategory(category);
       setWords(wordsData);
+      setDataFetched(true);
     } catch (error) {
       console.error('データの読み込みに失敗しました:', error);
     } finally {
       setLoading(false);
     }
-  }, [category, db]);
+  }, [category, db, dataFetched, words.length]);
 
   useEffect(() => {
-    if (user) {
-      loadData();
+    if (user && !dataFetched && !hasInitialized.current) {
+      hasInitialized.current = true;
+      // loadDataを直接呼び出し
+      const fetchData = async () => {
+        try {
+          const wordsData = await db.getWordsByCategory(category);
+          setWords(wordsData);
+          setDataFetched(true);
+        } catch (error) {
+          console.error('データの読み込みに失敗しました:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
     }
-  }, [loadData, user]);
+  }, [user, dataFetched, category, db]);
 
 
 
@@ -122,8 +212,22 @@ export default function FlashcardPage() {
   const handleRetry = () => {
     setShowCompletionModal(false);
     setSessionResults([]);
-    // ページをリロードして完全にリセット
-    window.location.reload();
+    setCurrentIndex(0);
+    // データ取得状態もリセット
+    setDataFetched(false);
+    // タブ復元フラグもリセット
+    isTabRestored.current = false;
+    hasInitialized.current = false;
+    // セッションストレージもクリア
+    if (typeof window !== 'undefined') {
+      const storageKey = `flashcard_${category}_data`;
+      sessionStorage.removeItem(storageKey);
+    }
+    // リセットキーを更新してコンポーネントを完全にリセット
+    setResetKey(prev => prev + 1);
+    // 状態をリセットしてからデータを再読み込み
+    setLoading(true);
+    loadData();
   };
 
   const handleBackToHome = () => {
@@ -194,6 +298,7 @@ export default function FlashcardPage() {
     <div className="h-screen flex flex-col">
       <main className="flex-1 flex flex-col justify-around sm:justify-around pb-safe">
         <Flashcard
+          key={resetKey} // Flashcardコンポーネントをリセットするためにkeyを追加
           words={words}
           onComplete={handleComplete}
           category={category}

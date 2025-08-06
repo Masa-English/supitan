@@ -44,8 +44,13 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
     { label: '学習開始', href: '/dashboard/start-learning', icon: Zap, color: 'text-primary' },
     { label: '復習', href: '/dashboard/review', icon: RotateCcw, color: 'text-primary' },
     { label: '検索', href: '/dashboard/search', icon: Search, color: 'text-primary' },
-    { label: '統計', href: '/dashboard/statistics', icon: BarChart3, color: 'text-primary' },
-    { label: 'お気に入り', href: '/dashboard/favorites', icon: Heart, color: 'text-primary' },
+    { 
+      label: '統計', 
+      href: '/dashboard/statistics', 
+      icon: BarChart3, 
+      color: 'text-primary',
+      badge: '開発中'
+    },
     { label: '単語一覧', href: '/dashboard/category', icon: Zap, color: 'text-primary' },
     { label: 'プロフィール', href: '/dashboard/profile', icon: User, color: 'text-primary' },
   ];
