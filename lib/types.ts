@@ -32,7 +32,7 @@ export interface Word {
   phonetic: string | null;
   category_id: string | null;
   created_by: string | null;
-  difficulty_level: number | null;
+  difficulty_level: number | null; // TODO: 削除予定 - 難易度機能は廃止
   is_active: boolean | null;
   tags: string[] | null;
   trivia_content: string | null;

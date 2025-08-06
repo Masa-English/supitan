@@ -33,7 +33,7 @@ export class DatabaseService {
     return data || [];
   }
 
-  async getCategories(): Promise<{ category: string; count: number }[]> {
+  async getCategories(): Promise<{ category: string; count: number; englishName: string; pos: string; description: string; color: string; icon: string }[]> {
     const { data, error } = await this.supabase
       .from('words')
       .select('category')
@@ -49,9 +49,18 @@ export class DatabaseService {
       return acc;
     }, {} as Record<string, number>);
 
-    const categories = Object.entries(categoryCounts || {}).map(([category, count]) => ({
-      category,
-      count
+    // 新しいカテゴリー設定を使用
+    const { getAllCategories } = await import('./categories');
+    const allCategories = getAllCategories();
+    
+    const categories = allCategories.map(categoryConfig => ({
+      category: categoryConfig.name,
+      count: categoryCounts[categoryConfig.name] || 0,
+      englishName: categoryConfig.englishName,
+      pos: categoryConfig.pos,
+      description: categoryConfig.description,
+      color: categoryConfig.color,
+      icon: categoryConfig.icon
     }));
     
     console.log('Available categories:', categories);

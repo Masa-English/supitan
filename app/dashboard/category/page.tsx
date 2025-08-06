@@ -13,31 +13,43 @@ import {
   BookOpen
 } from 'lucide-react';
 import Link from 'next/link';
+import { 
+  getAllCategories, 
+  createAllCategoryStats, 
+  encodeCategoryName,
+  CategoryStats 
+} from '@/lib/categories';
 
 // カテゴリーカードコンポーネント
 function CategoryCard({ 
-  category, 
-  wordCount, 
-  userProgress 
+  categoryStats 
 }: { 
-  category: string; 
-  wordCount: number; 
-  userProgress: number; 
+  categoryStats: CategoryStats;
 }) {
-  const progressPercentage = wordCount > 0 ? Math.round((userProgress / wordCount) * 100) : 0;
+  const progressPercentage = categoryStats.count > 0 ? 
+    Math.round(((categoryStats.progress || 0) / categoryStats.count) * 100) : 0;
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
-      <Link href={`/dashboard/category/${encodeURIComponent(category)}`}>
+      <Link href={`/dashboard/category/${encodeCategoryName(categoryStats.name)}`}>
         <CardContent className="p-6">
           <div className="text-center space-y-4">
             {/* カテゴリー名 */}
             <div className="space-y-2">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-2xl">{categoryStats.icon}</span>
+                <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">
+                  {categoryStats.pos}
+                </Badge>
+              </div>
               <h3 className="text-xl font-bold text-foreground">
-                {category}
+                {categoryStats.name}
               </h3>
+              <p className="text-sm text-muted-foreground">
+                {categoryStats.englishName}
+              </p>
               <Badge variant="secondary" className="bg-secondary/20 text-secondary-foreground">
-                {wordCount}個の単語
+                {categoryStats.count}個の単語
               </Badge>
             </div>
 
@@ -45,12 +57,15 @@ function CategoryCard({
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs text-muted-foreground">
                 <span>学習進捗</span>
-                <span>{userProgress} / {wordCount}</span>
+                <span>{categoryStats.progress || 0} / {categoryStats.count}</span>
               </div>
               <div className="w-full bg-muted rounded-full h-2">
                 <div
-                  className="bg-primary h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${progressPercentage}%` }}
+                  className="h-2 rounded-full transition-all duration-300"
+                  style={{ 
+                    width: `${progressPercentage}%`,
+                    backgroundColor: categoryStats.color
+                  }}
                 />
               </div>
               <div className="text-xs text-muted-foreground">
@@ -151,27 +166,15 @@ export default function CategoryPage() {
     loadData();
   }, [loadData]);
 
-  // カテゴリー別の統計を計算
+  // カテゴリー別の統計を計算（新しいユーティリティ関数を使用）
   const categoryStats = useMemo(() => {
-    const categoryMap: Record<string, { count: number; progress: number }> = {};
-    
-    words.forEach(word => {
-      if (!categoryMap[word.category]) {
-        categoryMap[word.category] = { count: 0, progress: 0 };
-      }
-      categoryMap[word.category].count += 1;
-    });
-
-    // 進捗情報を追加
-    Object.keys(categoryMap).forEach(category => {
-      categoryMap[category].progress = userProgress[category] || 0;
-    });
-
-    return Object.entries(categoryMap).map(([category, stats]) => ({
-      category,
-      wordCount: stats.count,
-      userProgress: stats.progress
-    }));
+    return createAllCategoryStats(
+      words.reduce((acc, word) => {
+        acc[word.category] = (acc[word.category] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>),
+      userProgress
+    );
   }, [words, userProgress]);
 
   if (loading) {
@@ -273,12 +276,10 @@ export default function CategoryPage() {
           {/* カテゴリー一覧 */}
           {categoryStats.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {categoryStats.map(({ category, wordCount, userProgress }) => (
+              {categoryStats.map((categoryStats) => (
                 <CategoryCard
-                  key={category}
-                  category={category}
-                  wordCount={wordCount}
-                  userProgress={userProgress}
+                  key={categoryStats.name}
+                  categoryStats={categoryStats}
                 />
               ))}
             </div>

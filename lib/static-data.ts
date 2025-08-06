@@ -7,6 +7,9 @@ export interface StaticData {
     englishName: string;
     count: number;
     pos: string;
+    description: string;
+    color: string;
+    icon: string;
   }[];
   totalWords: number;
   categoryWords: {
@@ -107,7 +110,7 @@ class StaticDatabaseService {
     }
   }
 
-  async getCategories(): Promise<{ category: string; count: number }[]> {
+  async getCategories(): Promise<{ category: string; count: number; englishName: string; pos: string; description: string; color: string; icon: string }[]> {
     try {
       const supabase = this.getSupabaseClient();
       const { data, error } = await supabase
@@ -125,9 +128,18 @@ class StaticDatabaseService {
         return acc;
       }, {} as Record<string, number>);
 
-      return Object.entries(categoryCounts || {}).map(([category, count]) => ({
-        category,
-        count
+      // 新しいカテゴリー設定を使用
+      const { getAllCategories } = await import('./categories');
+      const allCategories = getAllCategories();
+      
+      return allCategories.map(categoryConfig => ({
+        category: categoryConfig.name,
+        count: categoryCounts[categoryConfig.name] || 0,
+        englishName: categoryConfig.englishName,
+        pos: categoryConfig.pos,
+        description: categoryConfig.description,
+        color: categoryConfig.color,
+        icon: categoryConfig.icon
       }));
     } catch (error) {
       console.error('getCategories error:', error);
@@ -160,9 +172,12 @@ async function getStaticDataInternal(): Promise<StaticData> {
     // カテゴリー統計の計算
     const categoryStats = categories.map((cat) => ({
       name: cat.category,
-      englishName: getEnglishName(cat.category),
+      englishName: cat.englishName,
       count: cat.count,
-      pos: getPosSymbol(cat.category)
+      pos: cat.pos,
+      description: cat.description,
+      color: cat.color,
+      icon: cat.icon
     }));
 
     // カテゴリー別の単語データ（最初の10個のみ）
@@ -214,19 +229,19 @@ export async function getStaticDataForCategory(category: string): Promise<Word[]
 }
 
 function getDefaultStaticData(): StaticData {
-  const defaultCategories = ['動詞', '形容詞', '副詞', '名詞', '代名詞', '前置詞', '助動詞', '感嘆詞', '接続詞'];
   return {
-    categories: defaultCategories.map(name => ({
-      name,
-      englishName: getEnglishName(name),
-      count: 0,
-      pos: getPosSymbol(name)
-    })),
+    categories: [
+      { name: '動詞', englishName: 'Verbs', count: 0, pos: 'V', description: '動作や状態を表す動詞', color: '#3B82F6', icon: '⚡' },
+      { name: '句動詞', englishName: 'Phrasal Verbs', count: 0, pos: 'PV', description: '動詞と前置詞・副詞の組み合わせ', color: '#8B5CF6', icon: '🔗' },
+      { name: '形容詞', englishName: 'Adjectives', count: 0, pos: 'ADJ', description: '人や物の性質・状態を表す形容詞', color: '#10B981', icon: '🎨' },
+      { name: '副詞', englishName: 'Adverbs', count: 0, pos: 'ADV', description: '動詞・形容詞・副詞を修飾する副詞', color: '#F59E0B', icon: '⚙️' },
+      { name: '名詞', englishName: 'Nouns', count: 0, pos: 'N', description: '人・物・事柄を表す名詞', color: '#EF4444', icon: '📦' },
+      { name: 'フレーズ', englishName: 'Phrases', count: 0, pos: 'PHR', description: 'よく使われる表現やフレーズ', color: '#06B6D4', icon: '💬' },
+      { name: 'イディオム', englishName: 'Idioms', count: 0, pos: 'IDIOM', description: '慣用句やイディオム', color: '#EC4899', icon: '🎭' },
+      { name: 'リアクション', englishName: 'Reactions', count: 0, pos: 'REACT', description: '感情や反応を表す表現', color: '#84CC16', icon: '😊' }
+    ],
     totalWords: 0,
-    categoryWords: defaultCategories.map(category => ({
-      category,
-      words: []
-    })),
+    categoryWords: [],
     lastUpdated: new Date().toISOString()
   };
 }

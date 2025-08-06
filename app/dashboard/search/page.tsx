@@ -8,6 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, Volume2, Heart, X, BookOpen, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { 
+  getAllCategories, 
+  getCategoryColor, 
+  getCategoryIcon, 
+  getCategoryPos 
+} from '@/lib/categories';
+import { CategoryBadge } from '@/components/common';
 
 // 単語カードコンポーネント
 function WordCard({ word }: { word: Word }) {
@@ -67,17 +74,13 @@ function WordCard({ word }: { word: Word }) {
 
           {/* フッター部分 */}
           <div className="flex items-center justify-between pt-2">
-            <Badge className="text-xs bg-primary/10 text-primary border-0">
-              {word.category}
-            </Badge>
-            {word.difficulty_level && (
-              <Badge 
-                variant="outline" 
-                className="text-xs border-border text-muted-foreground"
-              >
-                Lv.{word.difficulty_level}
-              </Badge>
-            )}
+            <CategoryBadge 
+              categoryName={word.category} 
+              showIcon={true} 
+              showPos={true}
+              variant="outline"
+              size="sm"
+            />
           </div>
         </div>
       </CardContent>
@@ -173,34 +176,22 @@ function FilterPanel({
 }: { 
   filters: {
     categories: string[];
-    difficultyLevels: number[];
     favoritesOnly: boolean;
   }; 
-  onFilterChange: (key: string, value: string[] | number[] | boolean) => void; 
+  onFilterChange: (key: string, value: string[] | boolean) => void; 
   onClearFilters: () => void;
   wordCounts: {
     categories: Record<string, number>;
-    difficultyLevels: Record<number, number>;
     favorites: number;
   };
 }) {
   const [expandedSections, setExpandedSections] = useState({
     categories: true,
-    difficulty: true,
     favorites: true
   });
 
-  const categories = [
-    '動詞', '名詞', '形容詞', '副詞', '前置詞', '接続詞', '代名詞', '冠詞'
-  ];
-
-  const difficultyLevels = [
-    { value: 1, label: '初級', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
-    { value: 2, label: '中級', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
-    { value: 3, label: '上級', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' },
-    { value: 4, label: '専門', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
-    { value: 5, label: 'マスター', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' }
-  ];
+  // 共通のカテゴリー設定を使用
+  const categories = getAllCategories();
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
@@ -209,19 +200,11 @@ function FilterPanel({
     }));
   };
 
-  const toggleCategory = (category: string) => {
-    if (filters.categories.includes(category)) {
-      onFilterChange('categories', filters.categories.filter(c => c !== category));
+  const toggleCategory = (categoryName: string) => {
+    if (filters.categories.includes(categoryName)) {
+      onFilterChange('categories', filters.categories.filter(c => c !== categoryName));
     } else {
-      onFilterChange('categories', [...filters.categories, category]);
-    }
-  };
-
-  const toggleDifficulty = (level: number) => {
-    if (filters.difficultyLevels.includes(level)) {
-      onFilterChange('difficultyLevels', filters.difficultyLevels.filter(d => d !== level));
-    } else {
-      onFilterChange('difficultyLevels', [...filters.difficultyLevels, level]);
+      onFilterChange('categories', [...filters.categories, categoryName]);
     }
   };
 
@@ -261,31 +244,12 @@ function FilterPanel({
             <div className="flex flex-wrap gap-2">
               {categories.map((category) => (
                 <FilterChip
-                  key={category}
-                  label={category}
-                  isActive={filters.categories.includes(category)}
-                  onClick={() => toggleCategory(category)}
-                  count={wordCounts.categories[category]}
-                />
-              ))}
-            </div>
-          </FilterSection>
-
-          {/* 難易度フィルター */}
-          <FilterSection
-            title="難易度"
-            isExpanded={expandedSections.difficulty}
-            onToggle={() => toggleSection('difficulty')}
-            count={filters.difficultyLevels.length > 0 ? filters.difficultyLevels.length : undefined}
-          >
-            <div className="flex flex-wrap gap-2">
-              {difficultyLevels.map((level) => (
-                <FilterChip
-                  key={level.value}
-                  label={level.label}
-                  isActive={filters.difficultyLevels.includes(level.value)}
-                  onClick={() => toggleDifficulty(level.value)}
-                  count={wordCounts.difficultyLevels[level.value]}
+                  key={category.id}
+                  label={category.name}
+                  isActive={filters.categories.includes(category.name)}
+                  onClick={() => toggleCategory(category.name)}
+                  count={wordCounts.categories[category.name]}
+                  icon={<span className="text-sm">{category.icon}</span>}
                 />
               ))}
             </div>
@@ -320,7 +284,6 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     categories: [] as string[],
-    difficultyLevels: [] as number[],
     favoritesOnly: false
   });
 
@@ -349,23 +312,17 @@ export default function SearchPage() {
   // 単語カウントの計算
   const wordCounts = useMemo(() => {
     const categories: Record<string, number> = {};
-    const difficultyLevels: Record<number, number> = {};
     const favorites = 0;
 
     words.forEach(word => {
       // カテゴリーカウント
       categories[word.category] = (categories[word.category] || 0) + 1;
       
-      // 難易度カウント
-      if (word.difficulty_level) {
-        difficultyLevels[word.difficulty_level] = (difficultyLevels[word.difficulty_level] || 0) + 1;
-      }
-      
       // お気に入りカウント（実装状況に応じて調整）
       // if (word.isFavorite) favorites++;
     });
 
-    return { categories, difficultyLevels, favorites };
+    return { categories, favorites };
   }, [words]);
 
   // 検索・フィルタリング処理
@@ -388,13 +345,6 @@ export default function SearchPage() {
       filtered = filtered.filter(word => filters.categories.includes(word.category));
     }
 
-    // 難易度フィルター
-    if (filters.difficultyLevels.length > 0) {
-      filtered = filtered.filter(word => 
-        word.difficulty_level && filters.difficultyLevels.includes(word.difficulty_level)
-      );
-    }
-
     // お気に入りフィルター
     if (filters.favoritesOnly) {
       // お気に入り機能は実装済みのため、実際のフィルタリングを実装
@@ -405,7 +355,7 @@ export default function SearchPage() {
     setFilteredWords(filtered);
   }, [words, searchQuery, filters]);
 
-  const handleFilterChange = (key: string, value: string[] | number[] | boolean) => {
+  const handleFilterChange = (key: string, value: string[] | boolean) => {
     setFilters(prev => ({
       ...prev,
       [key]: value
@@ -415,7 +365,6 @@ export default function SearchPage() {
   const clearFilters = () => {
     setFilters({
       categories: [],
-      difficultyLevels: [],
       favoritesOnly: false
     });
     setSearchQuery('');
