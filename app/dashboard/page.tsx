@@ -66,8 +66,8 @@ function MainActionCard({
 // クイックアクションセクション
 function QuickActionsSection() {
   return (
-    <section className="mb-6 sm:mb-8">
-      <div className="mb-4 sm:mb-6">
+    <section className="mb-4 sm:mb-6">
+      <div className="mb-3 sm:mb-4">
         <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
           クイックアクション
         </h2>
@@ -76,7 +76,7 @@ function QuickActionsSection() {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="mobile-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <MainActionCard
           title="学習開始"
           description="新しい単語をフラッシュカードとクイズで学習"
@@ -113,8 +113,8 @@ function QuickActionsSection() {
 // 今日の進捗セクション
 function TodayProgressSection() {
   return (
-    <section className="mb-6 sm:mb-8">
-      <div className="mb-4 sm:mb-6">
+    <section className="mb-4 sm:mb-6">
+      <div className="mb-3 sm:mb-4">
         <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
           今日の進捗
         </h2>
@@ -123,9 +123,9 @@ function TodayProgressSection() {
         </p>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+      <div className="mobile-grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card className="bg-card border-border">
-          <CardContent className="p-4 sm:p-6 text-center">
+          <CardContent className="p-3 sm:p-4 text-center">
             <div className="flex flex-col items-center space-y-2">
               <div className="p-2 sm:p-3 bg-primary/10 rounded-xl">
                 <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
@@ -139,7 +139,7 @@ function TodayProgressSection() {
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4 sm:p-6 text-center">
+          <CardContent className="p-3 sm:p-4 text-center">
             <div className="flex flex-col items-center space-y-2">
               <div className="p-2 sm:p-3 bg-primary/10 rounded-xl">
                 <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
@@ -153,7 +153,7 @@ function TodayProgressSection() {
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4 sm:p-6 text-center">
+          <CardContent className="p-3 sm:p-4 text-center">
             <div className="flex flex-col items-center space-y-2">
               <div className="p-2 sm:p-3 bg-primary/10 rounded-xl">
                 <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
@@ -167,7 +167,7 @@ function TodayProgressSection() {
         </Card>
         
         <Card className="bg-card border-border">
-          <CardContent className="p-4 sm:p-6 text-center">
+          <CardContent className="p-3 sm:p-4 text-center">
             <div className="flex flex-col items-center space-y-2">
               <div className="p-2 sm:p-3 bg-primary/10 rounded-xl">
                 <Award className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
@@ -187,8 +187,8 @@ function TodayProgressSection() {
 // 最近の活動セクション
 function RecentActivitySection() {
   return (
-    <section className="mb-6 sm:mb-8">
-      <div className="flex items-center justify-between mb-4 sm:mb-6">
+    <section className="mb-4 sm:mb-6">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
             最近の活動
@@ -207,7 +207,7 @@ function RecentActivitySection() {
       
       <Card className="border-border bg-card">
         <CardContent className="p-4 sm:p-6">
-          <div className="text-center py-6 sm:py-8">
+          <div className="text-center py-4 sm:py-6">
             <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
             <h3 className="text-base sm:text-lg font-medium text-card-foreground mb-2">
               まだ学習履歴がありません
@@ -233,15 +233,15 @@ export default function DashboardPage() {
     <AuthWrapper>
       <TutorialWrapper>
         <Suspense fallback={
-          <div className="w-full p-4 sm:p-6 lg:p-8">
-            <div className="space-y-6 sm:space-y-8">
-              <div className="h-32 bg-muted animate-pulse rounded-lg" />
-              <div className="h-48 bg-muted animate-pulse rounded-lg" />
-              <div className="h-64 bg-muted animate-pulse rounded-lg" />
+          <div className="w-full p-3 sm:p-4 lg:p-6">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="h-24 sm:h-32 bg-muted animate-pulse rounded-lg" />
+              <div className="h-36 sm:h-48 bg-muted animate-pulse rounded-lg" />
+              <div className="h-48 sm:h-64 bg-muted animate-pulse rounded-lg" />
             </div>
           </div>
         }>
-          <main className="w-full p-4 sm:p-6 lg:p-8">
+          <main className="w-full p-3 sm:p-4 lg:p-6">
             {/* クイックアクション */}
             <QuickActionsSection />
             

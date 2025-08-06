@@ -118,8 +118,20 @@ export default function FavoritesPage() {
       setLoading(true);
       setError(null);
 
-      // ユーザー情報を取得
-      const { data: { user } } = await supabase.auth.getUser();
+      // ユーザー情報を取得（エラーハンドリング付き）
+      let user = null;
+      try {
+        const { data: { user: userData }, error } = await supabase.auth.getUser();
+        if (!error && userData) {
+          user = userData;
+        }
+             } catch {
+         // セッションエラーは静かに処理
+         console.debug('Session check skipped for favorites page');
+         router.push('/auth/login');
+         return;
+       }
+      
       if (!user) {
         router.push('/auth/login');
         return;

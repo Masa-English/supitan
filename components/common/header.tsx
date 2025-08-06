@@ -1,21 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { BookOpen, ArrowLeft, User, LogOut, Settings, UserCircle, Menu } from 'lucide-react';
-import { useRouter, usePathname } from 'next/navigation';
-import { ThemeSwitcher } from '@/components/common/theme-switcher';
+import { Menu, BookOpen, User, ArrowLeft, LogOut, LogIn } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { User as SupabaseUser } from '@supabase/supabase-js';
+import { usePathname, useRouter } from 'next/navigation';
+import { ThemeSwitcher } from './theme-switcher';
 import { useHeader } from '@/lib/contexts/header-context';
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface HeaderProps {
   title?: string;
@@ -35,14 +27,14 @@ interface HeaderProps {
 }
 
 export function Header({
-  title: propTitle = "英単語学習",
+  title: _propTitle = "英単語学習",
   showBackButton = false,
   onBackClick,
-  userEmail,
-  onSignOut,
+  userEmail: _userEmail,
+  onSignOut: _onSignOut,
   showUserInfo = true,
   showMobileMenu = false,
-  onMobileMenuToggle,
+  onMobileMenuToggle: _onMobileMenuToggle,
   showProgress: propShowProgress = false,
   progress: propProgress = 0,
   currentIndex: propCurrentIndex = 0,
@@ -57,7 +49,6 @@ export function Header({
   // contextSideMenuOpenは未使用だが、useHeaderフックの戻り値として必要
   const supabase = createClient();
   // デフォルト値を使用（SSR/CSR互換性のため）
-  const title = propTitle !== "英単語学習" ? propTitle : "ダッシュボード";
   const showProgress = propShowProgress || false;
   const progress = propProgress || 0;
   const currentIndex = propCurrentIndex || 0;
@@ -95,36 +86,6 @@ export function Header({
     return undefined;
   }, [supabase.auth]);
 
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      router.push('/landing');
-    } catch (error) {
-      console.error('ログアウトエラー:', error);
-    }
-  };
-
-  // 現在のパスに基づいて戻るボタンの表示を決定
-  const shouldShowBackButton = () => {
-    if (onBackClick) {
-      return showBackButton;
-    }
-    
-    // ダッシュボードページでは戻るボタンを表示しない
-    if (pathname === '/dashboard') {
-      return false;
-    }
-    
-    // その他のページでは戻るボタンを表示
-    return showBackButton;
-  };
-
-  // 現在のパスに基づいてモバイルメニューの表示を決定
-  const shouldShowMobileMenu = () => {
-    // ダッシュボードページでもモバイルメニューを表示（サイドメニュー開閉用）
-    return showMobileMenu;
-  };
-
   const handleBackClick = () => {
     if (onBackClick) {
       onBackClick();
@@ -159,173 +120,143 @@ export function Header({
     router.push('/landing');
   };
 
-  // ユーザー情報の取得（propsまたは現在のユーザーから）
-  const displayUserEmail = userEmail || currentUser?.email;
-  const isLoggedIn = !!displayUserEmail;
-  
-  // ハイドレーションエラーを防ぐため、初期状態ではローディング状態を表示
-  const [isClient, setIsClient] = useState(false);
-  
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('ログアウトエラー:', error);
+    }
+  };
+
+  const handleLogin = () => {
+    router.push('/auth/login');
+  };
 
   return (
     <header className="bg-card/95 backdrop-blur-md border-b border-border sticky z-40 w-full">
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 sm:h-18">
-          {/* プログレス表示 */}
+        <div className="flex justify-between items-center h-16">
+          {/* プログレス表示 - スマホでの位置最適化 */}
           {showProgress && (
-            <div className="absolute top-full left-0 right-0 bg-muted/50 border-b border-border px-4 py-2">
+            <div className="absolute top-full left-0 right-0 bg-muted/50 border-b border-border px-3 sm:px-4 py-1.5 sm:py-2">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium text-foreground">
+                <span className="text-xs sm:text-sm font-medium text-foreground">
                   {currentIndex} / {totalCount}
                 </span>
-                <span className="text-sm text-primary">
+                <span className="text-xs sm:text-sm text-primary">
                   {Math.round(progress)}% 完了
                 </span>
               </div>
               <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                 <div
-                  className="bg-primary h-2 rounded-full transition-all duration-300"
+                  className="bg-primary h-2 rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
           )}
-                      <div className="flex items-center gap-3 sm:gap-4">
-              {/* モバイルメニューボタン */}
-              {shouldShowMobileMenu() && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={_onSideMenuToggle || onMobileMenuToggle || toggleSideMenu}
-                  className="lg:hidden text-muted-foreground hover:bg-accent transition-colors p-2 touch-target"
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-              )}
-            
-            {shouldShowBackButton() && (
+
+          {/* 左側 - ナビゲーション */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* モバイルメニューボタン */}
+            {showMobileMenu && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleSideMenu}
+                className="lg:hidden text-muted-foreground hover:bg-accent transition-colors p-1.5 sm:p-2 touch-target mobile-button"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            )}
+
+            {/* 戻るボタン */}
+            {showBackButton && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleBackClick}
-                className="text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3 touch-target"
+                className="text-muted-foreground hover:bg-accent transition-colors p-1.5 sm:p-2 touch-target mobile-button"
               >
-                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">戻る</span>
+                <ArrowLeft className="h-5 w-5" />
               </Button>
             )}
-            <div 
-              className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:opacity-80 transition-opacity touch-friendly"
+
+            {/* ホームリンク */}
+            <div
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={handleHomeClick}
             >
               <BookOpen className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
               <div>
                 <h1 className="text-lg sm:text-xl font-bold text-foreground">
-                  Masa Flash
+                  <span className="sm:hidden">Masa</span>
+                  <span className="hidden sm:inline">Masa Flash</span>
                 </h1>
-                {title !== "英単語学習" && (
-                  <p className="text-xs sm:text-sm text-muted-foreground -mt-0.5">
-                    {title}
-                  </p>
-                )}
+                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
+                  ダッシュボード
+                </p>
               </div>
             </div>
           </div>
-          
-          {showUserInfo && isClient && (
-            <div className="flex items-center gap-2 sm:gap-3">
-              <ThemeSwitcher />
-              
-              {isLoggedIn ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="text-muted-foreground hover:bg-accent transition-colors border border-border hover:border-primary/50 p-2 sm:px-3 touch-target"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
-                          <User className="h-3 w-3 text-primary-foreground" />
-                        </div>
-                        <span className="hidden sm:inline font-medium">
-                          {displayUserEmail?.split('@')[0] || 'ユーザー'}
-                        </span>
-                      </div>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 sm:w-64 bg-card/95 backdrop-blur-md border border-border shadow-lg">
-                    <div className="px-3 py-2">
-                      <p className="text-sm font-medium text-foreground">
-                        {displayUserEmail?.split('@')[0] || 'ユーザー'}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {displayUserEmail}
-                      </p>
-                    </div>
-                    <DropdownMenuSeparator className="bg-border" />
-                    <DropdownMenuItem 
-                      onClick={() => router.push('/dashboard/profile')}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
-                    >
-                      <UserCircle className="h-4 w-4 mr-2" />
-                      プロフィール設定
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => router.push('/dashboard/review')}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
-                    >
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      復習
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => router.push('/dashboard')}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
-                    >
-                      <Settings className="h-4 w-4 mr-2" />
-                      ダッシュボード
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => {
-                        // 現在のパスからカテゴリーを取得してカテゴリーページに戻る
-                        if (pathname.match(/^\/dashboard\/category\/[^\/]+\/(flashcard|quiz|browse)$/)) {
-                          const category = pathname.split('/')[3];
-                          router.push(`/dashboard/category/${category}`);
-                        } else {
-                          router.push('/dashboard');
-                        }
-                      }}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
-                    >
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      カテゴリーに戻る
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-border" />
-                    <DropdownMenuItem 
-                      onClick={onSignOut || handleSignOut} 
-                      className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 touch-target"
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      ログアウト
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => router.push('/auth/login')} 
-                  className="border-border text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3 touch-target"
-                >
-                  <User className="h-4 w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">ログイン</span>
-                </Button>
-              )}
-            </div>
-          )}
+
+          {/* 右側 - ユーザー情報とテーマ切り替え */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* ユーザー情報 */}
+            {showUserInfo && currentUser && (
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                    <User className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="text-sm">
+                    <p className="font-medium text-foreground">{currentUser.email}</p>
+                    <p className="text-xs text-muted-foreground">学習者</p>
+                  </div>
+                </div>
+                
+                {/* モバイル用ユーザーアイコン */}
+                <div className="sm:hidden">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-1.5 touch-target mobile-button"
+                  >
+                    <User className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* ログイン・ログアウトボタン */}
+            {currentUser ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-muted-foreground hover:bg-accent transition-colors p-1.5 sm:p-2 touch-target mobile-button"
+                title="ログアウト"
+              >
+                <LogOut className="h-5 w-5" />
+                <span className="hidden sm:inline ml-2">ログアウト</span>
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogin}
+                className="text-muted-foreground hover:bg-accent transition-colors p-1.5 sm:p-2 touch-target mobile-button"
+                title="ログイン"
+              >
+                <LogIn className="h-5 w-5" />
+                <span className="hidden sm:inline ml-2">ログイン</span>
+              </Button>
+            )}
+
+            {/* テーマ切り替え */}
+            <ThemeSwitcher />
+          </div>
         </div>
       </div>
     </header>

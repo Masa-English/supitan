@@ -2,7 +2,7 @@
 
 
 import { ThemeSwitcher } from "@/components/common/theme-switcher";
-import { Heart, Mail } from "lucide-react";
+import { BookOpen, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 interface FooterProps {
@@ -10,55 +10,18 @@ interface FooterProps {
   showThemeSwitcher?: boolean;
 }
 
-export function Footer({ variant = 'default', showThemeSwitcher = true }: FooterProps) {
-  const currentYear = new Date().getFullYear();
-
-
-
-  if (variant === 'minimal') {
-    return (
-      <footer className="w-full border-t border-border bg-card/95 backdrop-blur-md relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary rounded-lg flex items-center justify-center">
-                <Heart className="h-3 w-3 text-primary-foreground" />
-              </div>
-              <span className="text-sm font-medium text-foreground">
-                Masa Flash
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              {showThemeSwitcher && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">テーマ:</span>
-                  <ThemeSwitcher inline />
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">
-                © {currentYear} Masa Flash
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
-    );
-  }
-
+export function Footer({ showThemeSwitcher = true }: FooterProps) {
   return (
-    <footer className="w-full border-t border-border bg-card/95 backdrop-blur-md relative z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="bg-card border-t border-border mt-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {/* アプリ情報 */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary rounded-lg flex items-center justify-center">
-                <Heart className="h-4 w-4 text-primary-foreground" />
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <BookOpen className="h-5 w-5 text-primary-foreground" />
               </div>
-              <h3 className="text-lg font-bold text-foreground">
-                Masa Flash
-              </h3>
+              <h3 className="text-lg font-bold text-foreground">Masa Flash</h3>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               効率的な英語学習をサポートするフラッシュカードアプリです。
@@ -68,61 +31,41 @@ export function Footer({ variant = 'default', showThemeSwitcher = true }: Footer
 
           {/* 機能 */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-foreground">
-              機能
-            </h4>
+            <h4 className="text-sm font-semibold text-foreground">機能</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                フラッシュカード学習
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                クイズ形式の確認
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                間隔反復復習
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                学習進捗管理
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                音声機能
-              </li>
+              <li>フラッシュカード学習</li>
+              <li>クイズ形式の確認</li>
+              <li>間隔反復復習</li>
+              <li>学習進捗管理</li>
+              <li>音声機能</li>
             </ul>
           </div>
 
           {/* リンク */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-foreground">
-              リンク
-            </h4>
-            <div className="flex flex-col gap-3">
-              {/* お問い合わせ */}
+            <h4 className="text-sm font-semibold text-foreground">リンク</h4>
+            <div className="space-y-2">
               <Link 
                 href="/contact" 
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group touch-target py-1"
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                <Mail className="h-4 w-4" />
-                <span>お問い合わせ</span>
+                <MessageCircle className="h-4 w-4" />
+                お問い合わせ
               </Link>
+              {showThemeSwitcher && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">テーマ:</span>
+                  <ThemeSwitcher />
+                </div>
+              )}
             </div>
-            
-            {showThemeSwitcher && (
-              <div className="flex items-center gap-3 pt-4">
-                <span className="text-xs text-muted-foreground">テーマ:</span>
-                <ThemeSwitcher inline />
-              </div>
-            )}
           </div>
         </div>
         
-        <div className="border-t border-border mt-8 pt-6">
-          <p className="text-center text-xs text-muted-foreground">
-            © {currentYear} Masa Flash - 効率的な英語学習
+        {/* コピーライト */}
+        <div className="border-t border-border mt-6 pt-6">
+          <p className="text-center text-sm text-muted-foreground">
+            © 2025 Masa Flash - 効率的な英語学習
           </p>
         </div>
       </div>

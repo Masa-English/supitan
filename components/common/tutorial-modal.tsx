@@ -173,27 +173,27 @@ export function TutorialModal({ isOpen, onClose, onComplete }: TutorialModalProp
       isOpen={isOpen} 
       onClose={onClose}
       title=""
-      className="max-w-2xl"
+      className="max-w-2xl mx-4 sm:mx-6"
     >
-      <ModalBody>
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-primary/15 rounded-full flex items-center justify-center mx-auto mb-4">
-            <currentTutorialStep.icon className="h-8 w-8 text-primary" />
+      <ModalBody className="p-4 sm:p-6 lg:p-8">
+        <div className="text-center mb-4 sm:mb-6">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/15 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <currentTutorialStep.icon className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
           </div>
-          <h3 className="text-2xl font-bold text-foreground mb-2">
+          <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 sm:mb-3">
             {currentTutorialStep.title}
           </h3>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {currentTutorialStep.description}
           </p>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           {currentTutorialStep.content}
         </div>
 
         {/* ステップインジケーター */}
-        <div className="flex justify-center space-x-2 mb-6">
+        <div className="flex justify-center space-x-2 mb-4 sm:mb-6">
           {tutorialSteps.map((_, index) => (
             <div
               key={index}
@@ -209,22 +209,22 @@ export function TutorialModal({ isOpen, onClose, onComplete }: TutorialModalProp
         </div>
       </ModalBody>
 
-      <ModalFooter>
+      <ModalFooter className="p-4 sm:p-6 lg:p-8 pt-0">
         <div className="flex justify-between w-full">
           <Button
             variant="ghost"
             onClick={handleSkip}
-            className="text-muted-foreground"
+            className="text-muted-foreground text-sm sm:text-base"
           >
             スキップ
           </Button>
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 sm:gap-3">
             {currentStep > 0 && (
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 text-sm sm:text-base"
               >
                 <ArrowLeft className="h-4 w-4" />
                 前へ
@@ -233,7 +233,7 @@ export function TutorialModal({ isOpen, onClose, onComplete }: TutorialModalProp
             
             <Button
               onClick={handleNext}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-sm sm:text-base"
             >
               {isLastStep ? (
                 <>

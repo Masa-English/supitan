@@ -31,8 +31,21 @@ export async function GET(_request: NextRequest) {
       .eq('user_id', userId)
       .eq('word_id', 'd530f274-f964-48bb-bbac-54b01da681b7');
 
-    // 3. 認証情報の詳細確認
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    // 3. 認証情報の詳細確認（エラーハンドリング付き）
+    let user = null;
+    let userError: Error | null = null;
+    try {
+      const { data: { user: userData }, error } = await supabase.auth.getUser();
+      if (!error && userData) {
+        user = userData;
+      } else {
+        userError = error;
+      }
+    } catch (error) {
+      // セッションエラーは静かに処理
+      console.debug('Session check skipped for RLS test API');
+      userError = error as Error;
+    }
     
     // 4. JWTトークンの確認
     const { data: { session: currentSession } } = await supabase.auth.getSession();

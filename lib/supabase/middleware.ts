@@ -78,16 +78,17 @@ export async function updateSession(request: NextRequest) {
   );
 
   try {
-    // セッションを確認（セキュリティ上の理由でgetUser()を使用）
+    // パブリックパスの場合はセッションチェックをスキップ
+    if (isPublicPath || request.nextUrl.pathname === "/") {
+      return supabaseResponse;
+    }
+
+    // プライベートパスの場合のみセッションを確認
     const { data: { user }, error } = await supabase.auth.getUser();
     
     if (error) {
       // refresh_token_not_foundエラーは一般的で、ログに出力しない
       if (error.message?.includes('Refresh Token Not Found') || error.code === 'refresh_token_not_found') {
-        // エラーが発生した場合でも、パブリックパスは許可
-        if (isPublicPath || request.nextUrl.pathname === "/") {
-          return supabaseResponse;
-        }
         // プライベートパスの場合はログインページにリダイレクト
         const url = request.nextUrl.clone();
         url.pathname = "/auth/login";
@@ -99,21 +100,13 @@ export async function updateSession(request: NextRequest) {
         console.error('Session check error:', error);
       }
       
-      // エラーが発生した場合でも、パブリックパスは許可
-      if (isPublicPath || request.nextUrl.pathname === "/") {
-        return supabaseResponse;
-      }
       // プライベートパスの場合はログインページにリダイレクト
       const url = request.nextUrl.clone();
       url.pathname = "/auth/login";
       return NextResponse.redirect(url);
     }
 
-    if (
-      request.nextUrl.pathname !== "/" &&
-      !user &&
-      !isPublicPath
-    ) {
+    if (!user) {
       // no user, potentially respond by redirecting the user to the login page
       const url = request.nextUrl.clone();
       url.pathname = "/auth/login";
@@ -126,10 +119,6 @@ export async function updateSession(request: NextRequest) {
       console.error('Middleware error:', error);
     }
     
-    // エラーが発生した場合でも、パブリックパスは許可
-    if (isPublicPath || request.nextUrl.pathname === "/") {
-      return supabaseResponse;
-    }
     // プライベートパスの場合はログインページにリダイレクト
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
