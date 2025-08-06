@@ -172,7 +172,6 @@ export default function CategorySelectionPage() {
                         <CardTitle className="flex items-center justify-between">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="text-lg">{categoryConfig.icon}</span>
                               <span className="text-sm sm:text-base lg:text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
                                 {categoryConfig.name}
                               </span>

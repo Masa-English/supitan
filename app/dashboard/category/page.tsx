@@ -36,7 +36,6 @@ function CategoryCard({
             {/* カテゴリー名 */}
             <div className="space-y-2">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="text-2xl">{categoryStats.icon}</span>
                 <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">
                   {categoryStats.pos}
                 </Badge>
