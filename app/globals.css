@@ -14,6 +14,26 @@
   
   body {
     @apply bg-background text-foreground;
+    /* 日本語テキストの表示を安定させる */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 日本語テキストの表示を安定させるためのユーティリティクラス */
+  .writing-mode-horizontal {
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+  }
+
+  .text-orientation-mixed {
+    text-orientation: mixed;
+  }
+
+  /* 日本語フォントファミリーの設定 */
+  .font-japanese {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
   }
 
   /* CSS変数定義 - ライトテーマ */

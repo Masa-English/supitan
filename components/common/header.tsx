@@ -59,7 +59,7 @@ export function Header({
   const supabase = createClient();
   
   // デフォルト値を使用（SSR/CSR互換性のため）
-  const title = propTitle !== "英単語学習" ? propTitle : "";
+  const title = propTitle;
   const showProgress = propShowProgress || false;
   const progress = propProgress || 0;
   const currentIndex = propCurrentIndex || 0;
@@ -226,10 +226,14 @@ export function Header({
                 <h1 className="text-lg sm:text-xl font-bold text-foreground">
                   スピ単
                 </h1>
-                {title !== "英単語学習" && (
-                  <p className="text-xs sm:text-sm text-muted-foreground -mt-0.5">
-                    {title}
-                  </p>
+                {isClient && (
+                  <>
+                    {title && title !== "英単語学習" && title !== "" && (
+                      <p className="text-xs sm:text-sm text-muted-foreground -mt-0.5">
+                        {title}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             </div>

@@ -93,6 +93,28 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        sans: [
+          "-apple-system",
+          "BlinkMacSystemFont",
+          '"Segoe UI"',
+          '"Noto Sans"',
+          '"Hiragino Sans"',
+          '"Yu Gothic"',
+          '"Meiryo"',
+          "sans-serif"
+        ],
+        japanese: [
+          "-apple-system",
+          "BlinkMacSystemFont",
+          '"Segoe UI"',
+          '"Noto Sans"',
+          '"Hiragino Sans"',
+          '"Yu Gothic"',
+          '"Meiryo"',
+          "sans-serif"
+        ],
+      },
     },
   },
   plugins: [tailwindcssAnimate],

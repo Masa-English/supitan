@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, Volume2, X, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Filter, Volume2, X, BookOpen, ChevronDown, ChevronUp, Star, Sparkles } from 'lucide-react';
 import { 
   getAllCategories
 } from '@/lib/categories';
@@ -26,58 +26,66 @@ function WordCard({ word }: { word: Word }) {
   };
 
   return (
-    <Card className="group bg-card backdrop-blur-sm border border-border hover:border-primary hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer">
-      <CardContent className="p-4 sm:p-6">
-        <div className="space-y-3 sm:space-y-4">
+    <Card className="group relative bg-gradient-to-br from-card to-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden">
+      {/* グラデーションオーバーレイ */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      <CardContent className="relative p-5 sm:p-6">
+        <div className="space-y-4">
           {/* ヘッダー部分 */}
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg sm:text-xl font-bold text-card-foreground group-hover:text-primary transition-colors truncate">
+              <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent group-hover:from-primary group-hover:to-primary/80 transition-all duration-300 truncate writing-mode-horizontal text-orientation-mixed">
                 {word.word}
               </h3>
               {word.phonetic && (
-                <Badge variant="outline" className="text-xs border-border text-muted-foreground bg-muted mt-1">
+                <Badge variant="outline" className="text-xs border-primary/20 text-primary bg-primary/5 mt-2 font-mono writing-mode-horizontal text-orientation-mixed">
                   {word.phonetic}
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={playAudio}
-                className="text-muted-foreground hover:text-primary hover:bg-primary/10 p-1.5 h-8 w-8"
+                className="text-muted-foreground hover:text-primary hover:bg-primary/10 p-2 h-9 w-9 rounded-full"
                 title="音声を再生"
               >
-                <Volume2 className="h-3.5 w-3.5" />
+                <Volume2 className="h-4 w-4" />
               </Button>
-              {/* <Button
+              <Button
                 variant="ghost"
                 size="sm"
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-1.5 h-8 w-8"
+                className="text-muted-foreground hover:text-yellow-500 hover:bg-yellow-500/10 p-2 h-9 w-9 rounded-full"
                 title="お気に入りに追加"
               >
-                <Heart className="h-3.5 w-3.5" />
-              </Button> */}
+                <Star className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
           {/* 日本語訳 */}
           <div className="space-y-2">
-            <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
+            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed line-clamp-2 group-hover:text-foreground transition-colors duration-300 writing-mode-horizontal text-orientation-mixed font-sans">
               {word.japanese}
             </p>
           </div>
 
           {/* フッター部分 */}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-3 border-t border-border/30">
             <CategoryBadge 
               categoryName={word.category} 
               showIcon={true} 
               showPos={true}
               variant="outline"
               size="sm"
+              className="group-hover:bg-primary/10 group-hover:border-primary/30 transition-all duration-300"
             />
+            <div className="flex items-center gap-1 text-xs text-muted-foreground writing-mode-horizontal text-orientation-mixed">
+              <Sparkles className="h-3 w-3" />
+              <span>学習中</span>
+            </div>
           </div>
         </div>
       </CardContent>
@@ -102,16 +110,23 @@ function FilterChip({
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 min-h-[2rem] sm:min-h-[2.5rem] ${
+      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 min-h-[2.5rem] relative overflow-hidden writing-mode-horizontal text-orientation-mixed ${
         isActive
-          ? 'bg-primary/10 text-primary border border-primary/20 shadow-sm'
-          : 'bg-muted text-muted-foreground border border-border hover:bg-accent hover:text-accent-foreground hover:shadow-sm'
+          ? 'bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/30 shadow-lg shadow-primary/20'
+          : 'bg-muted/50 text-muted-foreground border border-border/50 hover:bg-accent hover:text-accent-foreground hover:shadow-md hover:border-primary/30'
       }`}
     >
-      {icon}
-      <span className="truncate">{label}</span>
+      {icon && <span className="text-base">{icon}</span>}
+      <span className="truncate writing-mode-horizontal text-orientation-mixed">{label}</span>
       {count !== undefined && (
-        <Badge variant="secondary" className="ml-1 text-xs bg-background/50">
+        <Badge 
+          variant="secondary" 
+          className={`ml-1 text-xs font-bold writing-mode-horizontal text-orientation-mixed ${
+            isActive 
+              ? 'bg-primary/20 text-primary border-primary/30' 
+              : 'bg-background/80 text-muted-foreground'
+          }`}
+        >
           {count}
         </Badge>
       )}
@@ -134,29 +149,33 @@ function FilterSection({
   count?: number;
 }) {
   return (
-    <div className="border-b border-border last:border-b-0">
+    <div className="border-b border-border/50 last:border-b-0">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between py-4 px-2 text-left hover:bg-accent transition-colors rounded-md"
+        className="w-full flex items-center justify-between py-4 px-3 text-left hover:bg-accent/50 transition-all duration-300 rounded-lg group"
         aria-expanded={isExpanded}
         aria-label={`${title}セクションを${isExpanded ? '閉じる' : '開く'}`}
       >
-        <div className="flex items-center gap-2">
-          <span className="font-medium text-foreground text-sm sm:text-base">{title}</span>
+        <div className="flex items-center gap-3">
+          <span className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors duration-300 writing-mode-horizontal text-orientation-mixed">
+            {title}
+          </span>
           {count !== undefined && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20 writing-mode-horizontal text-orientation-mixed">
               {count}
             </Badge>
           )}
         </div>
-        {isExpanded ? (
-          <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-        ) : (
-          <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-        )}
+        <div className="flex items-center gap-2">
+          {isExpanded ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
+          )}
+        </div>
       </button>
       {isExpanded && (
-        <div className="pb-4 px-2">
+        <div className="pb-4 px-3 animate-in slide-in-from-top-2 duration-300">
           {children}
         </div>
       )}
@@ -205,27 +224,25 @@ function FilterPanel({
     }
   };
 
-  // const toggleFavorites = () => {
-  //   onFilterChange('favoritesOnly', !filters.favoritesOnly);
-  // };
-
   return (
-    <Card className="bg-card backdrop-blur-sm border border-border shadow-sm sticky top-4">
-      <CardHeader className="pb-3 sm:pb-4">
+    <Card className="bg-gradient-to-br from-card to-card/90 backdrop-blur-sm border border-border/50 shadow-xl">
+      <CardHeader className="pb-4 sm:pb-5">
         <div className="flex items-center justify-between">
-          <h3 className="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2">
-            <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+          <h3 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-3 writing-mode-horizontal text-orientation-mixed">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Filter className="h-5 w-5 text-primary" />
+            </div>
             フィルター
           </h3>
           <Button
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="text-muted-foreground hover:text-destructive p-2"
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-2 rounded-lg transition-all duration-300"
             title="フィルターをクリア"
           >
-            <X className="h-4 w-4 mr-1" />
-            <span className="hidden sm:inline">クリア</span>
+            <X className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline writing-mode-horizontal text-orientation-mixed">クリア</span>
           </Button>
         </div>
       </CardHeader>
@@ -238,7 +255,7 @@ function FilterPanel({
             onToggle={() => toggleSection('categories')}
             count={filters.categories.length > 0 ? filters.categories.length : undefined}
           >
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
               {categories.map((category) => (
                 <FilterChip
                   key={category.id}
@@ -246,7 +263,7 @@ function FilterPanel({
                   isActive={filters.categories.includes(category.name)}
                   onClick={() => toggleCategory(category.name)}
                   count={wordCounts.categories[category.name]}
-                  icon={<span className="text-sm">{category.icon}</span>}
+                  icon={<span className="text-base">{category.icon}</span>}
                 />
               ))}
             </div>
@@ -353,11 +370,13 @@ export default function SearchPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/95">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            <span className="ml-3 text-muted-foreground">単語を読み込み中...</span>
+            <div className="flex items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-2 border-primary/20 border-t-primary"></div>
+              <span className="text-muted-foreground font-medium writing-mode-horizontal text-orientation-mixed">単語を読み込み中...</span>
+            </div>
           </div>
         </main>
       </div>
@@ -366,12 +385,12 @@ export default function SearchPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/95">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="text-center">
-            <p className="text-destructive mb-4">{error}</p>
-            <Button onClick={loadWords} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              再試行
+            <p className="text-destructive mb-6 text-lg writing-mode-horizontal text-orientation-mixed">{error}</p>
+            <Button onClick={loadWords} className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg">
+              <span className="writing-mode-horizontal text-orientation-mixed">再試行</span>
             </Button>
           </div>
         </main>
@@ -380,24 +399,33 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 overflow-y-auto">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/95">
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           {/* ヘッダー */}
-          <div className="mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                単語検索・フィルター
-              </h1>
-              <Badge className="bg-primary/10 text-primary border-0 w-fit">
+          <div className="mb-8 sm:mb-10">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-6 sm:mb-8">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-primary/10 rounded-xl">
+                  <Search className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent writing-mode-horizontal text-orientation-mixed">
+                    単語検索・フィルター
+                  </h1>
+                  <p className="text-muted-foreground mt-1 writing-mode-horizontal text-orientation-mixed font-sans">効率的に単語を検索・管理</p>
+                </div>
+              </div>
+              <Badge className="bg-gradient-to-r from-primary/20 to-primary/10 text-primary border-primary/30 px-4 py-2 text-sm font-semibold w-fit writing-mode-horizontal text-orientation-mixed">
                 {filteredWords.length}個の単語
               </Badge>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
+          {/* 縦並びレイアウト */}
+          <div className="space-y-8">
             {/* フィルターパネル */}
-            <div className="lg:col-span-1">
+            <div className="w-full">
               <FilterPanel 
                 filters={filters}
                 onFilterChange={handleFilterChange}
@@ -406,40 +434,54 @@ export default function SearchPage() {
               />
             </div>
 
-            {/* メインコンテンツ */}
-            <div className="lg:col-span-3">
-              {/* 検索バー */}
-              <div className="mb-4 sm:mb-6">
+            {/* 検索バー */}
+            <div className="w-full">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors duration-300" />
                   <Input
                     type="text"
                     placeholder="単語、意味、カテゴリーで検索..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 sm:pl-12 border-border focus:border-primary focus:ring-primary bg-background backdrop-blur-sm h-10 sm:h-12"
+                    className="pl-12 sm:pl-14 border-border/50 focus:border-primary focus:ring-primary/20 bg-background/80 backdrop-blur-sm h-12 sm:h-14 text-base rounded-xl transition-all duration-300 focus:bg-background writing-mode-horizontal text-orientation-mixed w-full"
                   />
                 </div>
               </div>
+            </div>
 
-              {/* 検索結果 */}
+            {/* 検索結果 */}
+            <div className="w-full">
               {filteredWords.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-                  {filteredWords.map((word) => (
-                    <WordCard key={word.id} word={word} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 sm:gap-8">
+                  {filteredWords.map((word, index) => (
+                    <div
+                      key={word.id}
+                      className="animate-in slide-in-from-bottom-4 duration-500"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <WordCard word={word} />
+                    </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 sm:py-12">
-                  <BookOpen className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">
+                <div className="text-center py-12 sm:py-16">
+                  <div className="p-6 bg-muted/30 rounded-2xl inline-block mb-6">
+                    <BookOpen className="h-16 w-16 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-3 writing-mode-horizontal text-orientation-mixed">
                     単語が見つかりませんでした
                   </h3>
-                  <p className="text-sm sm:text-base text-muted-foreground mb-4">
-                    検索条件を変更してみてください
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto writing-mode-horizontal text-orientation-mixed font-sans">
+                    検索条件を変更するか、フィルターをクリアしてみてください
                   </p>
-                  <Button onClick={clearFilters} variant="outline" className="border-border text-foreground hover:bg-accent">
-                    フィルターをクリア
+                  <Button 
+                    onClick={clearFilters} 
+                    variant="outline" 
+                    className="border-border/50 text-foreground hover:bg-accent hover:border-primary/30 px-6 py-3 rounded-lg transition-all duration-300"
+                  >
+                    <span className="writing-mode-horizontal text-orientation-mixed">フィルターをクリア</span>
                   </Button>
                 </div>
               )}
