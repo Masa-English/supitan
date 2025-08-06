@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Word } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, RotateCcw, Volume2, Star, StarOff, Eye, EyeOff, BookOpen } from 'lucide-react';
@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { DatabaseService } from '@/lib/database';
 import { AudioInitializer } from './audio-initializer';
 import { useAudioStore } from '@/lib/audio-store';
+import { useToast } from '@/components/ui/toast';
 
 interface FlashcardProps {
   words: Word[];
@@ -25,6 +26,8 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
   const [showJapanese, setShowJapanese] = useState(false);
   
   const { volume, isMuted } = useAudioStore();
+  const db = useMemo(() => new DatabaseService(), []);
+  const { showToast } = useToast();
   
   const currentWord = words[currentIndex];
   const progress = ((currentIndex + 1) / words.length) * 100;
@@ -36,7 +39,6 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     const loadUserData = async () => {
       try {
         const supabase = createClient();
-        const db = new DatabaseService();
         
         let user = null;
         try {
@@ -84,7 +86,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     };
 
     loadUserData();
-  }, []);
+  }, [db]);
 
   // 単語が変わったら例文の表示状態と日本語表示状態をリセット
   useEffect(() => {
@@ -108,44 +110,14 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     }
   }, [currentIndex, words.length, onComplete, onIndexChange]);
 
-  const handleAddToReview = useCallback(async () => {
-    if (!currentWord) return;
-
-    try {
-      const db = new DatabaseService();
-      
-      let user = null;
-      try {
-        const supabase = createClient();
-        const { data: { user: userData }, error } = await supabase.auth.getUser();
-        if (!error && userData) {
-          user = userData;
-        }
-      } catch {
-        console.debug('Session check skipped for review add');
-        return;
-      }
-      
-      if (!user) return;
-
-      // review_wordsテーブルに復習対象として追加
-      await db.addToReview(user.id, currentWord.id);
-
-      setReviewWords(prev => new Set([...prev, currentWord.id]));
-    } catch (error) {
-      console.error('復習追加エラー:', error);
-    }
-  }, [currentWord]);
-
   const handleToggleReview = useCallback(async () => {
     if (!currentWord) return;
 
     try {
-      const db = new DatabaseService();
+      const supabase = createClient();
       
       let user = null;
       try {
-        const supabase = createClient();
         const { data: { user: userData }, error } = await supabase.auth.getUser();
         if (!error && userData) {
           user = userData;
@@ -166,16 +138,34 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
           newSet.delete(currentWord.id);
           return newSet;
         });
+
+        // 復習から削除のtoast通知
+        showToast(`${currentWord.word} を復習から削除しました`, {
+          type: 'info',
+          title: '復習から削除'
+        });
       } else {
         // 復習に追加
         await db.addToReview(user.id, currentWord.id);
 
         setReviewWords(prev => new Set([...prev, currentWord.id]));
+
+        // 復習に追加のtoast通知
+        showToast(`${currentWord.word} を復習に追加しました`, {
+          type: 'success',
+          title: '復習に追加'
+        });
       }
     } catch (error) {
       console.error('復習操作エラー:', error);
+      
+      // エラー時のtoast通知
+      showToast('復習の操作に失敗しました', {
+        type: 'error',
+        title: 'エラー'
+      });
     }
-  }, [currentWord, isInReview]);
+  }, [currentWord, isInReview, db, showToast]);
 
   const handleToggleFavorite = useCallback(async () => {
     if (!currentWord) return;
@@ -321,17 +311,8 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
             <div className="flex-1 flex items-center justify-center min-h-0 pb-6 sm:pb-0">
               <div className="w-full max-h-full overflow-y-auto">
                 <div className="bg-card border border-border shadow-lg rounded-xl p-4 relative">
-                  {/* 復習とお気に入りボタン */}
-                  <div className="absolute top-3 right-3 z-10 flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleToggleReview}
-                      className={`h-8 w-8 p-0 touch-target ${isInReview ? 'text-blue-500' : 'text-muted-foreground'}`}
-                      title={isInReview ? '復習から削除' : '復習に追加'}
-                    >
-                      <BookOpen className="h-4 w-4" />
-                    </Button>
+                  {/* お気に入りボタンのみ残す */}
+                  <div className="absolute top-3 right-3 z-10">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -487,13 +468,16 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
               </Button>
               
               <Button
-                variant="outline"
-                onClick={handleAddToReview}
-                disabled={isInReview}
-                className="h-12 px-4 py-3 text-sm font-medium touch-target flex-1 max-w-[120px]"
+                variant={isInReview ? "outline" : "outline"}
+                onClick={handleToggleReview}
+                className={`h-12 px-4 py-3 text-sm font-medium touch-target flex-1 max-w-[120px] ${
+                  isInReview ? 'text-blue-600 border-blue-600 hover:bg-blue-50' : 'text-muted-foreground'
+                }`}
               >
-                <BookOpen className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">復習に追加</span>
+                <BookOpen className={`h-4 w-4 mr-2 ${isInReview ? 'text-blue-600' : ''}`} />
+                <span className="hidden sm:inline">
+                  {isInReview ? '復習から削除' : '復習に追加'}
+                </span>
               </Button>
               
               <Button

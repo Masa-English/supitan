@@ -5,10 +5,9 @@ import { useAuth } from '@/lib/hooks/use-auth';
 import { DatabaseService } from '@/lib/database';
 import { Word, ReviewWord } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Volume2, Check, X, Clock, BookOpen } from 'lucide-react';
 import { AudioControls } from '@/components/common/audio-controls';
-import { Badge } from '@/components/ui/badge';
+import { AudioInitializer } from './audio-initializer';
 
 interface ReviewProps {
   onComplete: (results: { wordId: string; correct: boolean; difficulty: number }[]) => void;
@@ -223,158 +222,124 @@ export function Review({ onComplete }: ReviewProps) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 flex flex-col">
-        <div className="flex-1 px-3 sm:px-4 lg:px-6 py-4 sm:py-6 overflow-y-auto">
-          <div className="max-w-4xl mx-auto h-full flex flex-col space-y-4 sm:space-y-6">
-            {/* 進捗表示と統計 */}
-            <div className="flex-shrink-0 space-y-3 sm:space-y-4">
-              {/* シンプルな進捗表示 */}
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <span className="text-base sm:text-lg font-medium text-foreground">
-                    復習 {currentIndex + 1} / {words.length}
-                  </span>
-                  <Badge variant="secondary" className="text-sm">
-                    {progressStats.accuracy}% 正答率
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    {formatTime(sessionDuration)}
-                  </div>
-                  <AudioControls />
+    <AudioInitializer>
+      <div className="h-screen flex flex-col" style={{ minHeight: '100dvh' }}>
+        {/* ヘッダー部分 */}
+        <div className="flex-shrink-0 p-2 border-b border-border bg-background">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline text-sm font-medium text-foreground">
+                  復習 {currentIndex + 1} / {words.length}
+                </span>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  {Math.round(((currentIndex + 1) / words.length) * 100)}% 完了
                 </div>
               </div>
               
-              {/* シンプルなプログレスバー */}
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${((currentIndex + 1) / words.length) * 100}%` }}
-                />
-              </div>
-
-              {/* シンプルな統計表示 */}
-              <div className="grid grid-cols-4 gap-3 sm:gap-4">
-                <div className="text-center">
-                  <div className="text-lg sm:text-xl font-bold text-primary">
-                    {progressStats.correctCount}
-                  </div>
-                  <div className="text-xs text-muted-foreground">正解</div>
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  {formatTime(sessionDuration)}
                 </div>
-                
-                <div className="text-center">
-                  <div className="text-lg sm:text-xl font-bold text-red-600">
-                    {progressStats.totalAnswered - progressStats.correctCount}
-                  </div>
-                  <div className="text-xs text-muted-foreground">不正解</div>
-                </div>
-                
-                <div className="text-center">
-                  <div className="text-lg sm:text-xl font-bold text-blue-600">
-                    {progressStats.remainingWords}
-                  </div>
-                  <div className="text-xs text-muted-foreground">残り</div>
-                </div>
-                
-                <div className="text-center">
-                  <div className="text-lg sm:text-xl font-bold text-purple-600">
-                    {progressStats.averageDifficulty}
-                  </div>
-                  <div className="text-xs text-muted-foreground">平均難易度</div>
-                </div>
+                <AudioControls />
               </div>
             </div>
+            
+            <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${((currentIndex + 1) / words.length) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
 
-            {/* シンプルな復習カード */}
-            <div className="flex-1 min-h-0">
-              <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 h-full">
-                <CardContent className="p-6 sm:p-8 text-center h-full flex flex-col justify-center space-y-6 sm:space-y-8">
-                  {/* 単語表示 */}
-                  <div className="space-y-3 sm:space-y-4">
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
-                      {currentWord.word}
-                    </h2>
-                    <p className="text-lg sm:text-xl text-muted-foreground">
+        {/* メインコンテンツ */}
+        <div className="flex-1 flex flex-col">
+          <div className="max-w-6xl mx-auto w-full h-auto flex flex-col">
+            <div className="flex-1 flex items-center justify-center min-h-0 pb-6 sm:pb-0">
+              <div className="w-full max-h-full overflow-y-auto">
+                <div className="bg-card border border-border shadow-lg rounded-xl p-4 relative">
+                  {/* 単語セクション */}
+                  <div className="text-center mb-3">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mb-2">
+                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground break-words">
+                        {currentWord.word}
+                      </h2>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={playWordAudio}
+                        className="text-primary hover:bg-accent touch-target"
+                      >
+                        <Volume2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
                       {currentWord.phonetic}
                     </p>
                   </div>
-                  
-                  {/* 操作ボタン */}
-                  <div className="space-y-4 sm:space-y-6">
-                    {/* 発音ボタン */}
-                    <Button
-                      variant="outline"
-                      onClick={playWordAudio}
-                      className="w-full max-w-xs bg-blue-50 border-blue-300 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/30 py-3"
-                    >
-                      <Volume2 className="h-5 w-5 mr-2" />
-                      発音を聞く
-                    </Button>
 
-                    {/* 答えを見るボタン */}
+                  {/* 答え表示 */}
+                  {showAnswer && (
+                    <div className="mb-4">
+                      <div className="bg-accent rounded-lg p-3 border border-border">
+                        <h3 className="text-lg font-semibold text-foreground mb-2">意味</h3>
+                        <p className="text-foreground font-medium leading-relaxed">
+                          {currentWord.japanese}
+                        </p>
+                      </div>
+                      
+                      {currentWord.example1_jp && (
+                        <div className="bg-accent rounded-lg p-3 border border-border mt-3">
+                          <h3 className="text-lg font-semibold text-foreground mb-2">例文</h3>
+                          <p className="text-foreground font-medium text-sm leading-relaxed">
+                            {currentWord.example1_jp}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 操作ボタン */}
+                  <div className="space-y-3">
                     {!showAnswer && (
                       <Button
                         onClick={() => setShowAnswer(true)}
-                        className="w-full max-w-xs bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-800 text-white py-4 text-lg"
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium touch-target h-12"
                       >
                         答えを見る
                       </Button>
                     )}
 
-                    {/* 答え表示 */}
                     {showAnswer && (
-                      <div className="space-y-4 sm:space-y-6">
-                        <div className="bg-muted/50 rounded-lg p-4 sm:p-6">
-                          <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">
-                            日本語の意味
-                          </h3>
-                          <p className="text-base sm:text-lg text-foreground">
-                            {currentWord.japanese}
-                          </p>
-                        </div>
+                      <div className="flex gap-2 sm:gap-4">
+                        <Button
+                          variant="outline"
+                          onClick={() => handleAnswer(false, 1)}
+                          className="flex-1 h-12 px-4 py-3 text-sm font-medium touch-target"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          <span className="hidden sm:inline">難しい</span>
+                        </Button>
                         
-                        {currentWord.example1_jp && (
-                          <div className="bg-muted/50 rounded-lg p-4 sm:p-6">
-                            <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">
-                              例文
-                            </h3>
-                            <p className="text-base sm:text-lg text-foreground">
-                              {currentWord.example1_jp}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* 評価ボタン */}
-                        <div className="flex gap-2 sm:gap-3 justify-center">
-                          <Button
-                            variant="outline"
-                            onClick={() => handleAnswer(false, 1)}
-                            className="flex-1 h-12 sm:h-14 bg-red-50 border-red-300 text-red-800 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/30"
-                          >
-                            <X className="h-5 w-5 mr-2" />
-                            難しい
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => handleAnswer(true, 3)}
-                            className="flex-1 h-12 sm:h-14 bg-green-50 border-green-300 text-green-800 hover:bg-green-100 dark:bg-green-900/20 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/30"
-                          >
-                            <Check className="h-5 w-5 mr-2" />
-                            簡単
-                          </Button>
-                        </div>
+                        <Button
+                          onClick={() => handleAnswer(true, 3)}
+                          className="flex-1 h-12 px-4 py-3 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium touch-target"
+                        >
+                          <Check className="h-4 w-4 mr-2" />
+                          <span className="hidden sm:inline">簡単</span>
+                        </Button>
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AudioInitializer>
   );
 } 
