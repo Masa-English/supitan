@@ -33,13 +33,13 @@ export default function QuizPage() {
   const category = decodeURIComponent(params.category as string);
 
   // タブ復元検出とセッションストレージ管理
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+  useEffect((): (() => void) | undefined => {
+    if (typeof window === 'undefined') return undefined;
 
     const storageKey = `quiz_${category}_data`;
     
     // ページが非表示になった時の処理
-    const handleVisibilityChange = () => {
+    const handleVisibilityChange = (): void => {
       if (document.hidden && words.length > 0) {
         // ページが非表示になった時にデータを保存
         sessionStorage.setItem(storageKey, JSON.stringify({

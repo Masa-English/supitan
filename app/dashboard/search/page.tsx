@@ -9,10 +9,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, Volume2, Heart, X, BookOpen, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { 
-  getAllCategories, 
-  getCategoryColor, 
-  getCategoryIcon, 
-  getCategoryPos 
+  getAllCategories
 } from '@/lib/categories';
 import { CategoryBadge } from '@/components/common';
 

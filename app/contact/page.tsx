@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { ArrowLeft, MessageCircle, Mail, Phone, MapPin } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ContactForm } from '@/components/common/contact-form';

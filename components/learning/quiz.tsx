@@ -159,7 +159,7 @@ export function Quiz({
       if (typeof window !== 'undefined') {
         // 既に問題が生成されている場合はスキップ
         if (questions.length > 0) {
-          return;
+          return undefined;
         }
         
         // タブ復元時は少し遅延して問題生成
@@ -169,7 +169,9 @@ export function Quiz({
 
         return () => clearTimeout(timeoutId);
       }
+      return undefined;
     }
+    return undefined;
   }, [generateQuestions, words.length, questions.length]);
 
   useEffect(() => {

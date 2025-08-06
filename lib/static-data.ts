@@ -246,35 +246,7 @@ function getDefaultStaticData(): StaticData {
   };
 }
 
-function getEnglishName(category: string): string {
-  const englishMap: Record<string, string> = {
-    '動詞': 'Verb',
-    '形容詞': 'Adjective',
-    '副詞': 'Adverb',
-    '名詞': 'Noun',
-    '代名詞': 'Pronoun',
-    '前置詞': 'Preposition',
-    '助動詞': 'Auxiliary Verb',
-    '感嘆詞': 'Interjection',
-    '接続詞': 'Conjunction'
-  };
-  return englishMap[category] || category;
-}
 
-function getPosSymbol(category: string): string {
-  const posMap: Record<string, string> = {
-    '動詞': 'V',
-    '形容詞': 'Adj',
-    '副詞': 'Adv',
-    '名詞': 'N',
-    '代名詞': 'Pron',
-    '前置詞': 'Prep',
-    '助動詞': 'Aux',
-    '感嘆詞': 'Int',
-    '接続詞': 'Conj'
-  };
-  return posMap[category] || '';
-}
 
 // キャッシュ管理（Next.js 15では不要）
 export async function revalidateStaticData() {

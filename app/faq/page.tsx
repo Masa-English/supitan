@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { ArrowLeft, HelpCircle, Zap, Settings, Shield, Users, Brain, Target } from 'lucide-react';
+import { ArrowLeft, HelpCircle, Zap, Settings, Shield, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';

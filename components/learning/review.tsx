@@ -34,23 +34,7 @@ export function Review({ onComplete }: ReviewProps) {
     return Math.floor((Date.now() - sessionStartTime.getTime()) / 1000);
   }, [sessionStartTime]);
 
-  // 進捗統計
-  const progressStats = useMemo(() => {
-    const correctCount = results.filter(r => r.correct).length;
-    const totalAnswered = results.length;
-    const accuracy = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
-    const averageDifficulty = totalAnswered > 0 
-      ? Math.round(results.reduce((sum, r) => sum + r.difficulty, 0) / totalAnswered * 10) / 10 
-      : 0;
 
-    return {
-      correctCount,
-      totalAnswered,
-      accuracy,
-      averageDifficulty,
-      remainingWords: words.length - totalAnswered
-    };
-  }, [results, words.length]);
 
   const loadReviewWords = useCallback(async () => {
     if (!user) return;

@@ -142,7 +142,7 @@ export function CompletionModal({
               className="border-orange-300 text-orange-700 hover:bg-orange-50 dark:border-orange-600 dark:text-orange-300 dark:hover:bg-orange-900/20 h-12 sm:h-14 text-sm sm:text-base font-medium touch-target"
             >
               <RotateCcw className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">最初からやり直す</span>
+              <span className="hidden sm:inline">やり直す</span>
               <span className="sm:hidden">やり直し</span>
             </Button>
             <Button

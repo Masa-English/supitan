@@ -32,9 +32,10 @@ const tutorialSteps: TutorialStep[] = [
 interface TutorialModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onComplete?: () => void;
 }
 
-export function TutorialModal({ isOpen, onClose }: TutorialModalProps) {
+export function TutorialModal({ isOpen, onClose, onComplete }: TutorialModalProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
 
@@ -49,6 +50,7 @@ export function TutorialModal({ isOpen, onClose }: TutorialModalProps) {
       setCurrentStep(currentStep + 1);
     } else {
       setHasSeenTutorial(true);
+      onComplete?.();
       onClose();
     }
   };
@@ -61,6 +63,7 @@ export function TutorialModal({ isOpen, onClose }: TutorialModalProps) {
 
   const handleSkip = () => {
     setHasSeenTutorial(true);
+    onComplete?.();
     onClose();
   };
 

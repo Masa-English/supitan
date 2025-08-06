@@ -1,18 +1,12 @@
-import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TutorialWrapper } from '../../components/common';
 import { 
   Play, 
   RotateCcw, 
   Zap, 
-  Search, 
-  Target, 
-  BarChart3, 
-  TrendingUp,
-  Award
+  Search
 } from 'lucide-react';
 import Link from 'next/link';
 

@@ -33,14 +33,8 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
   return (
     <div className="h-full flex flex-col">
       {/* ヘッダー */}
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110">
-              <span className="text-primary-foreground font-bold text-sm">ス</span>
-            </div>
-            <h2 className="text-lg font-bold text-foreground">スピ単</h2>
-          </div>
+      <div className="p-4">
+        <div className="flex items-center justify-end">
           {/* 閉じるボタン - モバイルでのみ表示 */}
           <Button
             variant="ghost"

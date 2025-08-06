@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Word } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, RotateCcw, Volume2, Star, StarOff, Eye, EyeOff, BookOpen } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Volume2, Star, StarOff, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { AudioControls } from '@/components/common/audio-controls';
 import { createClient } from '@/lib/supabase/client';
 import { DatabaseService } from '@/lib/database';
@@ -88,7 +88,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
 
     // ユーザーデータが既に読み込まれている場合はスキップ
     if (favorites.size > 0 || reviewWords.size > 0) {
-      return;
+      return undefined;
     }
 
     // タブ復元時は少し遅延して読み込み

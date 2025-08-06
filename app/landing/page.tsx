@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
-import { Zap, Target, Trophy, Clock, RotateCcw, ArrowRight } from 'lucide-react';
+import { Zap, Target, Trophy, RotateCcw, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {

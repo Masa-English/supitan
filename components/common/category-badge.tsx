@@ -15,7 +15,6 @@ export function CategoryBadge({
   showIcon = true, 
   showPos = true,
   variant = 'outline',
-  size = 'sm',
   className = ''
 }: CategoryBadgeProps) {
   const config = getCategoryConfigByName(categoryName);

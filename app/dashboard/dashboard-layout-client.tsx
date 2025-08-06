@@ -5,12 +5,10 @@ import { Header } from '@/components/common';
 import { SideMenu } from '@/app/dashboard/side-menu';
 import { useHeader } from '@/lib/contexts/header-context';
 import { 
-  BookOpen, 
   RotateCcw, 
   Search, 
   BarChart3, 
   User, 
-  Heart,
   Zap
 } from 'lucide-react';
 
@@ -38,6 +36,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
 
       return () => window.removeEventListener('resize', checkMobile);
     }
+    return undefined;
   }, [isClient]);
 
   const navigationItems = [

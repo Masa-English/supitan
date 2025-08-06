@@ -1,4 +1,4 @@
-export { AsyncDataProvider } from './async-data-provider';
+export { SuspenseCategoriesList, SuspenseStatisticsDashboard, SuspenseWordsList } from './async-data-provider';
 export { AudioControls } from './audio-controls';
 export { AudioProvider } from './audio-provider';
 export { ContactForm } from './contact-form';

@@ -70,7 +70,7 @@ export function Header({
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     // クライアントサイドでのみ実行
     if (isClient) {
       // 現在のユーザーを取得
@@ -98,6 +98,7 @@ export function Header({
 
       return () => subscription.unsubscribe();
     }
+    return undefined;
   }, [isClient, supabase.auth]);
 
   const handleSignOut = async () => {
@@ -109,7 +110,7 @@ export function Header({
   };
 
   // 現在のパスに基づいて戻るボタンの表示を決定
-  const shouldShowBackButton = () => {
+  const shouldShowBackButton = (): boolean => {
     if (onBackClick) {
       return showBackButton;
     }
@@ -153,6 +154,7 @@ export function Header({
     }
     // その他の場合は履歴に戻る
     router.back();
+    return;
   };
 
   const handleHomeClick = () => {

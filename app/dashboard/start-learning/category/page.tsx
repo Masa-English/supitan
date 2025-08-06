@@ -5,33 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AuthWrapper } from '@/components/auth';
 import { CategoryCardSkeleton } from '@/components/ui/skeleton';
-import { AlertCircle, ArrowLeft, BookOpen, Brain } from 'lucide-react';
+import { AlertCircle, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { StaticData } from '@/lib/static-data';
 import { 
   getAllCategories, 
-  encodeCategoryName,
-  formatCategoryDetails 
+  encodeCategoryName
 } from '@/lib/categories';
 
-// 学習モードの定義（前のページと同じ）
-const learningModes = [
-  {
-    id: 'flashcard',
-    name: 'フラッシュカード',
-    description: '単語を見て意味を覚える',
-    icon: BookOpen,
-    color: 'primary',
-    recommended: true
-  },
-  {
-    id: 'quiz',
-    name: 'クイズ',
-    description: '選択肢から正解を選ぶ',
-    icon: Brain,
-    color: 'secondary'
-  }
-];
+
 
 // カテゴリーセクションのスケルトン
 function CategoriesSkeleton() {
@@ -56,6 +38,19 @@ export default function CategorySelectionPage() {
   const [staticData, setStaticData] = useState<StaticData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // カテゴリーデータを読み込み
+  const loadData = async () => {
+    try {
+      const { getStaticData } = await import('@/lib/static-data');
+      const data = await getStaticData();
+      setStaticData(data);
+    } catch (error) {
+      console.error('データの読み込みに失敗しました:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     // セッションストレージから学習モードを取得
     const savedMode = sessionStorage.getItem('selectedLearningMode');
@@ -67,19 +62,6 @@ export default function CategorySelectionPage() {
     
     setSelectedMode(savedMode);
     console.log('復元された学習モード:', savedMode);
-
-    // カテゴリーデータを読み込み
-    const loadData = async () => {
-      try {
-        const { getStaticData } = await import('@/lib/static-data');
-        const data = await getStaticData();
-        setStaticData(data);
-      } catch (error) {
-        console.error('データの読み込みに失敗しました:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     loadData();
   }, [router]);
@@ -178,7 +160,6 @@ export default function CategorySelectionPage() {
             <div className="flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 {allCategories.map((categoryConfig) => {
-                  const categoryDetails = formatCategoryDetails(categoryConfig.name);
                   const staticCategory = staticData.categories.find(cat => cat.name === categoryConfig.name);
                   
                   return (
