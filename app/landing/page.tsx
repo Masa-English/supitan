@@ -22,27 +22,9 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
         <div className="relative z-10 container mx-auto px-4 py-16 sm:py-24">
           <div className="text-center max-w-4xl mx-auto">
-            {/* ロゴとタイトル */}
-            <div className="flex items-center justify-center mb-8">
-              <div className="flex items-center gap-4">
-                <div className="p-4 bg-primary/10 rounded-2xl">
-                  <Zap className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20 text-primary" />
-                </div>
-                <div className="text-left">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-2">
-                    スピ単
-                  </h1>
-                  <p className="text-lg sm:text-xl text-muted-foreground">
-                    効率的な英語学習アプリ
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* サブタイトル */}
             <p className="text-xl sm:text-2xl lg:text-3xl text-foreground mb-8 leading-relaxed">
-              科学的な学習法で<br className="sm:hidden" />
-              <span className="text-primary font-semibold">英単語を効率的に</span><br className="sm:hidden" />
+              <span className="text-primary font-semibold">英単語を効率的に</span>
               マスターしましょう
             </p>
 
@@ -72,7 +54,7 @@ export default function LandingPage() {
               スピ単の特徴
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              科学的な学習法に基づいた効率的な英単語学習システム
+              Masa式学習法に基づいた効率的な英単語学習システム
             </p>
           </div>
 
@@ -99,7 +81,7 @@ export default function LandingPage() {
                 間隔反復
               </h3>
               <p className="text-muted-foreground">
-                科学的な間隔反復システムで確実に記憶に定着
+                間隔反復システムで確実に記憶に定着
               </p>
             </div>
 
@@ -206,7 +188,7 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center">
                   <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-primary" />
-                  科学的な間隔反復
+                  間隔反復
                 </li>
                 <li className="flex items-center">
                   <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-primary" />
@@ -229,7 +211,7 @@ export default function LandingPage() {
             今すぐ学習を始めましょう
           </h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            科学的な学習法で効率的に英単語をマスターし、英語力を向上させましょう
+            学習法で効率的に英単語をマスターし、英語力を向上させましょう
           </p>
           <Link href="/auth/login">
             <Button size="lg" className="text-lg px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground">

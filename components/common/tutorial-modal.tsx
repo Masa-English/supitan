@@ -18,8 +18,8 @@ const tutorialSteps: TutorialStep[] = [
     icon: Zap,
   },
   {
-    title: '科学的な学習法',
-    description: 'スピ単は、科学的な学習法に基づいた英単語学習アプリです。',
+    title: '学習法',
+    description: 'スピ単は、Masa式学習法に基づいた英単語学習アプリです。',
     icon: Brain,
   },
   {
