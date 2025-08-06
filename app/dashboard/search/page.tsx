@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, Volume2, Heart, X, BookOpen, Star, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Filter, Volume2, X, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
 import { 
   getAllCategories
 } from '@/lib/categories';
@@ -51,14 +51,14 @@ function WordCard({ word }: { word: Word }) {
               >
                 <Volume2 className="h-3.5 w-3.5" />
               </Button>
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="sm"
                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 p-1.5 h-8 w-8"
                 title="お気に入りに追加"
               >
                 <Heart className="h-3.5 w-3.5" />
-              </Button>
+              </Button> */}
             </div>
           </div>
 
@@ -205,9 +205,9 @@ function FilterPanel({
     }
   };
 
-  const toggleFavorites = () => {
-    onFilterChange('favoritesOnly', !filters.favoritesOnly);
-  };
+  // const toggleFavorites = () => {
+  //   onFilterChange('favoritesOnly', !filters.favoritesOnly);
+  // };
 
   return (
     <Card className="bg-card backdrop-blur-sm border border-border shadow-sm sticky top-4">
@@ -250,22 +250,6 @@ function FilterPanel({
                 />
               ))}
             </div>
-          </FilterSection>
-
-          {/* お気に入りフィルター */}
-          <FilterSection
-            title="お気に入り"
-            isExpanded={expandedSections.favorites}
-            onToggle={() => toggleSection('favorites')}
-            count={filters.favoritesOnly ? wordCounts.favorites : undefined}
-          >
-            <FilterChip
-              label="お気に入りのみ"
-              isActive={filters.favoritesOnly}
-              onClick={toggleFavorites}
-              icon={<Star className="h-3 w-3 sm:h-4 sm:w-4" />}
-              count={wordCounts.favorites}
-            />
           </FilterSection>
         </div>
       </CardContent>
