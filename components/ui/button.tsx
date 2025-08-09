@@ -59,6 +59,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         aria-busy={loading}
         role="button"
         tabIndex={isDisabled ? -1 : 0}
+        suppressHydrationWarning
         {...props}
       >
         {loading && (

@@ -74,9 +74,9 @@ export default function CategorySelectionPage() {
       return;
     }
     
-    // 選択されたモードに基づいて適切なページに遷移
+    // オプション選択ページへ遷移（セクション/ランダム設定）
     const encodedCategory = encodeCategoryName(categoryName);
-    const targetUrl = `/dashboard/category/${encodedCategory}/${selectedMode}`;
+    const targetUrl = `/dashboard/category/${encodedCategory}/options?mode=${selectedMode}`;
     console.log('遷移先URL:', targetUrl);
     router.push(targetUrl);
   };

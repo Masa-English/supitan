@@ -19,6 +19,7 @@ export interface UserProfile {
 export interface Word {
   id: string;
   category: string;
+  section?: number | string | null;
   word: string;
   japanese: string;
   example1: string;

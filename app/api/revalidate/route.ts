@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { path, token } = body;
+    const { path, token } = body as { path?: unknown; token?: string };
 
     // セキュリティトークンの検証
     if (token !== process.env.REVALIDATION_TOKEN) {
@@ -16,6 +16,12 @@ export async function POST(request: NextRequest) {
 
     // 特定のパスの再検証
     if (path) {
+      if (typeof path !== 'string' || !path.startsWith('/') || path.length > 200) {
+        return NextResponse.json(
+          { error: 'Invalid path' },
+          { status: 400 }
+        );
+      }
       revalidatePath(path);
     } else {
       // デフォルトでランディングページとカテゴリーページを再検証

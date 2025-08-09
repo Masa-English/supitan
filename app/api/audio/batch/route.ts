@@ -4,15 +4,37 @@ import { createClient } from '@/lib/supabase/server';
 export async function POST(request: NextRequest) {
   try {
     const { wordIds } = await request.json();
-    
+
+    // 入力検証
     if (!Array.isArray(wordIds)) {
       return NextResponse.json(
         { error: 'wordIdsは配列である必要があります' },
         { status: 400 }
       );
     }
+    if (wordIds.length === 0 || wordIds.length > 100) {
+      return NextResponse.json(
+        { error: 'wordIdsの件数が不正です（1〜100件）' },
+        { status: 400 }
+      );
+    }
+    if (!wordIds.every(id => typeof id === 'string' && id.length <= 64)) {
+      return NextResponse.json(
+        { error: 'wordIdsに不正な値が含まれています' },
+        { status: 400 }
+      );
+    }
 
     const supabase = await createClient();
+
+    // 認証必須
+    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    if (authError || !session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     
     // 指定された単語IDの音声ファイル情報を取得
     const { data: words, error: wordsError } = await supabase

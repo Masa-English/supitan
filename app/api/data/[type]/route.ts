@@ -83,14 +83,14 @@ export async function GET(
 
 // プリフライトリクエスト対応
 export async function OPTIONS() {
-  return NextResponse.json(
-    {},
-    {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      },
+  const origin = process.env.NEXT_PUBLIC_BASE_URL || '*';
+  return NextResponse.json({}, {
+    headers: {
+      'Access-Control-Allow-Origin': origin,
+      'Vary': 'Origin',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400'
     }
-  );
+  });
 } 

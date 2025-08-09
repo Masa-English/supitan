@@ -272,12 +272,12 @@ export default function BrowsePage() {
           </div>
           
           <div className="flex items-center gap-2">
-            <Link href={`/dashboard/category/${encodeURIComponent(category)}/flashcard`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(category)}/options?mode=flashcard`}>
               <Button className="bg-primary hover:bg-primary/90 text-xs sm:text-sm">
                 フラッシュカード学習
               </Button>
             </Link>
-            <Link href={`/dashboard/category/${encodeURIComponent(category)}/quiz`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(category)}/options?mode=quiz`}>
               <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
                 クイズ学習
               </Button>

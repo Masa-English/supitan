@@ -5,6 +5,13 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ word: string }> }
 ) {
+  // 本番環境ではデバッグAPIを無効化
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { error: 'Debug API is not available in production' },
+      { status: 404 }
+    );
+  }
   try {
     const { word } = await params;
     const supabase = await createClient();
@@ -40,6 +47,13 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ word: string }> }
 ) {
+  // 本番環境ではデバッグAPIを無効化
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { error: 'Debug API is not available in production' },
+      { status: 404 }
+    );
+  }
   try {
     const { word } = await params;
     const body = await request.json();

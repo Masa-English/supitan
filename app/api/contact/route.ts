@@ -139,22 +139,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 管理者権限チェック（本番環境では適切な実装が必要）
-    // 現在は開発環境用のため一時的に無効化
-    /*
-    const { data: userProfile } = await supabase
-      .from('user_profiles')
+    // 管理者権限チェック（adminsテーブル基準）
+    const { data: adminData, error: adminError } = await supabase
+      .from('admins')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('email', user.email)
+      .eq('is_active', true)
       .single();
 
-    if (!userProfile?.is_admin) {
+    if (adminError || !adminData) {
       return NextResponse.json(
         { error: '管理者権限が必要です' },
         { status: 403 }
       );
     }
-    */
 
     // クエリパラメータを取得
     const { searchParams } = new URL(request.url);

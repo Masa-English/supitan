@@ -17,7 +17,7 @@
     "test:e2e": "playwright test",
     "quality-check": "node scripts/quality-check.mjs",
     "pre-deploy": "node scripts/pre-deploy.mjs",
-    "sync-types": "supabase gen types typescript --project-id yuzoaegfjjxoptytqtzq --schema public > lib/database.types.ts",
+    "sync-types": "supabase gen types typescript --linked --schema public > lib/database.types.ts",
     "db:init": "supabase init",
     "db:link": "supabase link",
     "db:pull": "supabase db pull",

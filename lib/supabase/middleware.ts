@@ -42,11 +42,8 @@ export async function updateSession(request: NextRequest) {
     '/landing',
     '/contact',
     '/faq',
-    '/',
     '/api/health',
     '/api/static-data',
-    '/api/data',
-    '/api/audio',
     '/api/revalidate',
     '/api/contact',
     '/favicon.ico',
@@ -54,10 +51,20 @@ export async function updateSession(request: NextRequest) {
   ]
 
   // 現在のパスがパブリックパスかどうかをチェック
-  const isPublicPath = publicPaths.some(path => 
-    request.nextUrl.pathname.startsWith(path) || 
-    request.nextUrl.pathname === path
-  )
+  const isPublicPath = (() => {
+    const pathname = request.nextUrl.pathname
+    for (const path of publicPaths) {
+      if (path === '/') {
+        if (pathname === '/') return true
+        continue
+      }
+      if (pathname === path || pathname.startsWith(path + '/')) return true
+    }
+    return false
+  })()
+
+  const isAPIRoute = request.nextUrl.pathname.startsWith('/api')
+  const isAdminPath = request.nextUrl.pathname.startsWith('/admin')
 
   // デバッグ用ログ（開発環境のみ）
   if (process.env.NODE_ENV === 'development') {
@@ -73,8 +80,11 @@ export async function updateSession(request: NextRequest) {
   if (error) {
     console.error('Middleware auth error:', error)
     
-    // パブリックパスでない場合はランディングページにリダイレクト
+    // パブリックパスでない場合
     if (!isPublicPath) {
+      if (isAPIRoute) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
       const url = request.nextUrl.clone()
       url.pathname = '/landing'
       return NextResponse.redirect(url)
@@ -93,9 +103,43 @@ export async function updateSession(request: NextRequest) {
     }
     
     // その他のプライベートパスも同様に保護
+    if (isAPIRoute) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const url = request.nextUrl.clone()
     url.pathname = '/landing'
     return NextResponse.redirect(url)
+  }
+
+  // 管理画面へのアクセス制御
+  if (isAdminPath) {
+    // 認証済みかつ管理者かチェック
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/landing'
+      return NextResponse.redirect(url)
+    }
+
+    try {
+      const { data: adminData, error: adminError } = await supabase
+        .from('admins')
+        .select('*')
+        .eq('email', user.email)
+        .eq('is_active', true)
+        .single()
+
+      if (adminError || !adminData) {
+        console.warn(`Non-admin attempted to access admin path: ${request.nextUrl.pathname}`)
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        return NextResponse.redirect(url)
+      }
+    } catch (e) {
+      console.error('Admin check failed in middleware:', e)
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
   }
 
   // 認証済みユーザーが認証ページにアクセスしようとしている場合

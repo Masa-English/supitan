@@ -288,7 +288,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
 
   return (
     <AudioInitializer>
-      <div className="h-screen flex flex-col" style={{ minHeight: '100dvh' }}>
+      <div className="h-screen flex flex-col safe-bottom" style={{ minHeight: '100dvh' }}>
         {/* ヘッダー部分 */}
         <div className="flex-shrink-0 p-2 border-b border-border bg-background">
           <div className="max-w-6xl mx-auto">
@@ -467,7 +467,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
             </div>
             
             {/* ナビゲーションボタン */}
-            <div className="flex-shrink-0 flex items-center justify-center gap-2 sm:gap-4 py-3 sm:py-4 px-2 mt-auto sm:mt-0">
+            <div className="flex-shrink-0 flex items-center justify-center gap-2 sm:gap-4 py-3 sm:py-4 px-2 mt-auto sm:mt-0 safe-bottom">
               <Button
                 variant="outline"
                 onClick={handlePrevious}

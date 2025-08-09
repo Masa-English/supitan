@@ -60,6 +60,14 @@ const nextConfig: NextConfig = {
             value: 'camera=(), microphone=(), geolocation=(), payment=()',
           },
           {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'same-site',
+          },
+          {
             key: 'X-Permitted-Cross-Domain-Policies',
             value: 'none',
           },
@@ -81,7 +89,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=300, stale-while-revalidate=600',
+            value: 'no-store',
           },
         ],
       },

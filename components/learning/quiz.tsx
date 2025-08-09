@@ -241,7 +241,7 @@ export function Quiz({
 
   return (
     <AudioInitializer>
-      <div className="h-screen flex flex-col">
+      <div className="h-screen flex flex-col safe-bottom">
         {/* ヘッダー部分 - 進捗表示 */}
         <div className="flex-shrink-0 p-1 sm:p-2 lg:p-3 border-b border-border bg-background">
           <div className="max-w-6xl mx-auto">
@@ -410,7 +410,7 @@ export function Quiz({
 
         {/* 次へボタン - 画面右側に固定 */}
         {showResult && (
-          <div className="fixed bottom-4 right-4 z-50">
+          <div className="fixed bottom-4 right-4 z-50 safe-bottom">
             <Button
               onClick={handleNext}
               className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground touch-target rounded-full shadow-lg hover:shadow-xl transition-all duration-300 h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center"

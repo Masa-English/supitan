@@ -110,7 +110,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
           {/* 学習モード選択 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 mb-4 sm:mb-8">
-            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/flashcard`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/options?mode=flashcard`}>
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center gap-3 sm:gap-4">
@@ -130,7 +130,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
               </Card>
             </Link>
 
-            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/quiz`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/options?mode=quiz`}>
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center gap-3 sm:gap-4">

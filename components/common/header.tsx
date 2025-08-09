@@ -170,9 +170,9 @@ export function Header({
   const isLoggedIn = !!displayUserEmail;
 
   return (
-    <header className="bg-card/95 backdrop-blur-md border-b border-border sticky z-40 w-full">
+    <header className="bg-card/95 backdrop-blur-md border-b border-border sticky z-40 w-full" suppressHydrationWarning>
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 sm:h-18">
+        <div className="flex justify-between items-center h-16 sm:h-18" suppressHydrationWarning>
           {/* プログレス表示 */}
           {showProgress && (
             <div className="absolute top-full left-0 right-0 bg-muted/50 border-b border-border px-4 py-2">

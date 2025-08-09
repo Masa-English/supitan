@@ -55,7 +55,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" suppressHydrationWarning>
       {/* ヘッダー */}
       <Header 
         showMobileMenu={true}
@@ -65,7 +65,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
       />
 
       {/* メインコンテンツ */}
-      <div className="flex flex-1">
+      <div className="flex flex-1" suppressHydrationWarning>
         {/* サイドメニュー - デスクトップ */}
         {!isMobile && isClient && (
           <div className="hidden lg:block w-64 bg-card border-r border-border transition-all duration-300 ease-in-out">
@@ -73,12 +73,12 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
           </div>
         )}
 
-        {/* モバイルサイドメニュー */}
+      {/* モバイルサイドメニュー */}
         {isMobile && isClient && (
           <>
             {/* オーバーレイ */}
             <div 
-              className={`lg:hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ease-in-out ${
+              className={`lg:hidden fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 ease-in-out ${
                 isSideMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
               }`}
               onClick={toggleSideMenu}
@@ -86,7 +86,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
             
             {/* サイドメニュー */}
             <div 
-              className={`lg:hidden fixed left-0 top-0 h-full w-80 bg-card border-r border-border shadow-xl z-50 transition-transform duration-300 ease-in-out ${
+              className={`lg:hidden fixed left-0 top-0 h-full w-80 bg-card border-r border-border shadow-xl z-60 transition-transform duration-300 ease-in-out ${
                 isSideMenuOpen ? 'translate-x-0' : '-translate-x-full'
               }`}
             >

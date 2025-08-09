@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 export async function GET(_request: NextRequest) {
+  // 本番環境ではデバッグAPIを無効化
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { error: 'Debug API is not available in production' },
+      { status: 404 }
+    );
+  }
   try {
     const supabase = await createClient();
     

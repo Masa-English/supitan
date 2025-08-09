@@ -31,7 +31,7 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col safe-top safe-x">
       {/* ヘッダー */}
       <div className="p-4">
         <div className="flex items-center justify-end">
