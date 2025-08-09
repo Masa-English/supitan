@@ -41,14 +41,14 @@ function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
       {/* オーバーレイ（モバイル用） */}
       {isOpen && (
         <div 
-          className="fixed top-16 left-0 right-0 bottom-0 bg-black/50 z-40 lg:hidden"
+          className="fixed top-16 left-0 right-0 bottom-0 bg-black/50 z-[55] lg:hidden"
           onClick={onClose}
         />
       )}
       
       {/* サイドメニュー */}
       <div className={`
-        fixed top-16 left-0 h-[calc(100vh-4rem)] z-50 bg-background border-r border-border
+        fixed top-16 left-0 h-[calc(100vh-4rem)] z-[60] bg-background border-r border-border
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0 lg:static lg:z-auto lg:top-0 lg:h-full

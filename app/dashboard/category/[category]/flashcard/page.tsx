@@ -9,7 +9,8 @@ interface PageProps {
   searchParams?: Promise<{ sec?: string; size?: string; random?: string; count?: string }>;
 }
 
-export const dynamic = 'force-dynamic';
+// 静的最適化を有効化（学習条件はクエリで分岐するため）
+export const revalidate = 60; // 1分
 
 export default async function FlashcardPage({ params, searchParams }: PageProps) {
   const p = params ? await params : undefined;

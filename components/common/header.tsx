@@ -25,6 +25,7 @@ interface HeaderProps {
   userEmail?: string;
   onSignOut?: () => void;
   showUserInfo?: boolean;
+  showThemeSwitcher?: boolean;
   showMobileMenu?: boolean;
   onMobileMenuToggle?: () => void;
   showProgress?: boolean;
@@ -42,6 +43,7 @@ export function Header({
   userEmail,
   onSignOut,
   showUserInfo = true,
+  showThemeSwitcher = true,
   showMobileMenu = false,
   onMobileMenuToggle,
   showProgress: propShowProgress = false,
@@ -104,7 +106,14 @@ export function Header({
   const handleSignOut = async () => {
     try {
       await signOut();
+      // redirect('/landing') はサーバーアクション側で発火
     } catch (error) {
+      // Next.js は redirect 時に特殊なエラーを投げるため無視する
+      const digest = (error as { digest?: string } | undefined)?.digest || '';
+      const message = String((error as Error | undefined)?.message || '');
+      if (digest.startsWith('NEXT_REDIRECT') || message.includes('NEXT_REDIRECT')) {
+        return;
+      }
       console.error('ログアウトエラー:', error);
     }
   };
@@ -239,12 +248,12 @@ export function Header({
             </div>
           </div>
           
-          {showUserInfo && isClient && (
+          {isClient && (
             <div className="flex items-center gap-2 sm:gap-3">
-              <ThemeSwitcher />
-              
-              {isLoggedIn ? (
-                <DropdownMenu>
+              {showThemeSwitcher ? <ThemeSwitcher /> : null}
+              {showUserInfo ? (
+                isLoggedIn ? (
+                  <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="ghost" 
@@ -316,18 +325,19 @@ export function Header({
                       ログアウト
                     </DropdownMenuItem>
                   </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => router.push('/auth/login')} 
-                  className="border-border text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3 touch-target"
-                >
-                  <User className="h-4 w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">ログイン</span>
-                </Button>
-              )}
+                  </DropdownMenu>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => router.push('/auth/login')} 
+                    className="border-border text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3 touch-target"
+                  >
+                    <User className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">ログイン</span>
+                  </Button>
+                )
+              ) : null}
             </div>
           )}
         </div>

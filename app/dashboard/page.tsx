@@ -41,7 +41,7 @@ function MainActionCard({
   stats?: string;
 }) {
   return (
-    <Link href={href} className="block">
+    <Link href={href} prefetch className="block">
       <Card className="h-full hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-border bg-card">
         <CardContent className="p-6">
           <div className="flex items-start justify-between mb-4">

@@ -63,14 +63,6 @@ export default function LoginPage() {
                 >
                   ログイン
                 </Button>
-                <Button 
-                  type="submit" 
-                  formAction={signup}
-                  variant="outline"
-                  className="flex-1 border-border"
-                >
-                  新規登録
-                </Button>
               </div>
             </form>
             

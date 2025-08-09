@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Brain } from 'lucide-react';
-import { Word, Category } from '@/lib/types';
+import { Word } from '@/lib/types';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { UserProgressSection } from './user-progress-section';
@@ -27,27 +27,22 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   };
 }
 
-// 静的データ取得（cookiesを使用しない）
+// 静的データ取得（必要最小限）
 async function getStaticPageData(category: string): Promise<{
   words: Word[];
-  categories: Category[];
 }> {
   try {
     console.log(`Fetching data for category: ${category}`);
     
-    // 統一データプロバイダーを使用してデータを一括取得
-    const pageData = await dataProvider.getPageData('category', {
-      category,
-    });
+    // カテゴリー内の単語のみ取得（全カテゴリ集計は未使用のため省略）
+    const words = await dataProvider.getWordsByCategory(category);
 
     console.log(`Page data received:`, {
-      wordsCount: pageData.words?.length || 0,
-      categoriesCount: pageData.categories?.length || 0
+      wordsCount: words?.length || 0,
     });
 
     return {
-      words: pageData.words || [],
-      categories: pageData.categories || [],
+      words: words || [],
     };
   } catch (error) {
     console.error(`Error fetching data for category ${category}:`, error);
@@ -110,7 +105,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
           {/* 学習モード選択 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 mb-4 sm:mb-8">
-            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/options?mode=flashcard`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/options?mode=flashcard`} prefetch>
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center gap-3 sm:gap-4">
@@ -130,7 +125,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
               </Card>
             </Link>
 
-            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/options?mode=quiz`}>
+            <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/options?mode=quiz`} prefetch>
               <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border bg-card">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center gap-3 sm:gap-4">
@@ -157,7 +152,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
               <h2 className="text-lg sm:text-xl font-bold text-foreground">
                 単語一覧
               </h2>
-              <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/browse`}>
+              <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/browse`} prefetch>
                 <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
                   <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   詳細を見る
@@ -187,7 +182,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
 
             {words.length > 8 && (
               <div className="text-center mt-4 sm:mt-6">
-                <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/browse`}>
+                <Link href={`/dashboard/category/${encodeURIComponent(decodedCategory)}/browse`} prefetch>
                   <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
                     すべての単語を見る ({words.length}個)
                   </Button>

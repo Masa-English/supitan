@@ -31,10 +31,31 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
+  // セッション未所持時の 400/"Auth session missing" は正常系として扱う
+  let user: { email?: string } | null = null
+  let authError: unknown = null
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    user = data?.user ?? null
+    authError = error ?? null
+  } catch (e) {
+    authError = e
+  }
+
+  const isMissingSession = (() => {
+    if (!authError) return false
+    const err = authError as { [k: string]: unknown }
+    const name = String(err?.name ?? '')
+    const message = String(err?.message ?? '')
+    const status = Number((err as { status?: number }).status ?? 0)
+    const isFlag = (err as { __isAuthError?: boolean }).__isAuthError === true
+    return isFlag || status === 400 || name.includes('AuthSessionMissingError') || /Auth session missing/i.test(message)
+  })()
+  if (isMissingSession) {
+    // 未ログイン扱いとしてスルー（ノイズログを抑制）
+    user = null
+    authError = null
+  }
 
   // パブリックパスの定義
   const publicPaths = [
@@ -71,14 +92,14 @@ export async function updateSession(request: NextRequest) {
     console.log(`[Middleware] Path: ${request.nextUrl.pathname}`)
     console.log(`[Middleware] User: ${user ? 'authenticated' : 'not authenticated'}`)
     console.log(`[Middleware] IsPublicPath: ${isPublicPath}`)
-    if (error) {
-      console.log(`[Middleware] Auth error:`, error)
+    if (authError) {
+      console.warn(`[Middleware] Auth error:`, authError)
     }
   }
 
   // 認証エラーがある場合の処理
-  if (error) {
-    console.error('Middleware auth error:', error)
+  if (authError) {
+    console.error('Middleware auth error:', authError)
     
     // パブリックパスでない場合
     if (!isPublicPath) {

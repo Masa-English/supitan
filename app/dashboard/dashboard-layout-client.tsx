@@ -78,7 +78,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
           <>
             {/* オーバーレイ */}
             <div 
-              className={`lg:hidden fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 ease-in-out ${
+              className={`lg:hidden fixed inset-0 bg-black/50 z-[55] transition-opacity duration-300 ease-in-out ${
                 isSideMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
               }`}
               onClick={toggleSideMenu}
@@ -86,7 +86,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
             
             {/* サイドメニュー */}
             <div 
-              className={`lg:hidden fixed left-0 top-0 h-full w-80 bg-card border-r border-border shadow-xl z-60 transition-transform duration-300 ease-in-out ${
+              className={`lg:hidden fixed left-0 top-0 h-full w-80 bg-card border-r border-border shadow-xl z-[60] transition-transform duration-300 ease-in-out ${
                 isSideMenuOpen ? 'translate-x-0' : '-translate-x-full'
               }`}
             >

@@ -44,10 +44,10 @@ export function UpdatePasswordForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="border-amber-200 dark:border-amber-800 bg-white/80 dark:bg-amber-950/20 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl text-amber-900 dark:text-amber-100">パスワードをリセット</CardTitle>
-          <CardDescription className="text-amber-700 dark:text-amber-300">
+      <Card className="bg-card/90 backdrop-blur-sm border-primary/20 shadow-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl text-foreground">パスワードをリセット</CardTitle>
+          <CardDescription className="text-muted-foreground">
             新しいパスワードを入力してください。
           </CardDescription>
         </CardHeader>
@@ -55,7 +55,7 @@ export function UpdatePasswordForm({
           <form onSubmit={handleForgotPassword}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="password" className="text-amber-800 dark:text-amber-200">新しいパスワード</Label>
+                <Label htmlFor="password" className="text-foreground">新しいパスワード</Label>
                 <Input
                   id="password"
                   type="password"
@@ -63,13 +63,13 @@ export function UpdatePasswordForm({
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="border-amber-200 dark:border-amber-700 focus:border-amber-500 dark:focus:border-amber-400 bg-white/50 dark:bg-amber-950/30"
+                  className="border-border focus:border-primary focus:ring-primary bg-background"
                 />
               </div>
               {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
               <Button 
                 type="submit" 
-                className="w-full bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white" 
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" 
                 disabled={isLoading}
               >
                 {isLoading ? "保存中..." : "新しいパスワードを保存"}

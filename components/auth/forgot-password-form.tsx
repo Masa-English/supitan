@@ -47,22 +47,22 @@ export function ForgotPasswordForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       {success ? (
-        <Card className="border-amber-200 dark:border-amber-800 bg-white/80 dark:bg-amber-950/20 backdrop-blur-sm">
+        <Card className="bg-card/90 backdrop-blur-sm border-primary/20 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-2xl text-amber-900 dark:text-amber-100">メールを確認してください</CardTitle>
-            <CardDescription className="text-amber-700 dark:text-amber-300">パスワードリセットの手順をお送りしました</CardDescription>
+          <CardTitle className="text-2xl text-foreground">メールを確認してください</CardTitle>
+          <CardDescription className="text-muted-foreground">パスワードリセットの手順をお送りしました</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-amber-600 dark:text-amber-400">
+            <p className="text-sm text-muted-foreground">
               メールアドレスとパスワードで登録されている場合、パスワードリセット用のメールが送信されます。
             </p>
           </CardContent>
         </Card>
       ) : (
-        <Card className="border-amber-200 dark:border-amber-800 bg-white/80 dark:bg-amber-950/20 backdrop-blur-sm">
+        <Card className="bg-card/90 backdrop-blur-sm border-primary/20 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-2xl text-amber-900 dark:text-amber-100">パスワードをリセット</CardTitle>
-            <CardDescription className="text-amber-700 dark:text-amber-300">
+          <CardTitle className="text-2xl text-foreground">パスワードをリセット</CardTitle>
+          <CardDescription className="text-muted-foreground">
               メールアドレスを入力すると、パスワードリセット用のリンクをお送りします
             </CardDescription>
           </CardHeader>
@@ -70,7 +70,7 @@ export function ForgotPasswordForm({
             <form onSubmit={handleForgotPassword}>
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2">
-                  <Label htmlFor="email" className="text-amber-800 dark:text-amber-200">メールアドレス</Label>
+                  <Label htmlFor="email" className="text-foreground">メールアドレス</Label>
                   <Input
                     id="email"
                     type="email"
@@ -78,7 +78,7 @@ export function ForgotPasswordForm({
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="border-amber-200 dark:border-amber-700 focus:border-amber-500 dark:focus:border-amber-400 bg-white/50 dark:bg-amber-950/30"
+                    className="border-border focus:border-primary focus:ring-primary bg-background"
                   />
                 </div>
                 {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
@@ -91,10 +91,10 @@ export function ForgotPasswordForm({
                 </Button>
               </div>
               <div className="mt-4 text-center text-sm">
-                <span className="text-amber-700 dark:text-amber-300">アカウントをお持ちですか？ </span>
+                 <span className="text-muted-foreground">アカウントをお持ちですか？ </span>
                 <Link
                   href="/auth/login"
-                  className="text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 underline underline-offset-4"
+                  className="text-primary hover:text-primary/80 underline underline-offset-4"
                 >
                   ログイン
                 </Link>

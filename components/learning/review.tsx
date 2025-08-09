@@ -244,7 +244,7 @@ export function Review({ onComplete }: ReviewProps) {
           <div className="max-w-6xl mx-auto w-full h-auto flex flex-col">
             <div className="flex-1 flex items-center justify-center min-h-0 pb-6 sm:pb-0">
               <div className="w-full max-h-full overflow-y-auto">
-                <div className="bg-card border border-border shadow-lg rounded-xl p-4 relative">
+                <div className="bg-card border border-border shadow-lg rounded-xl mt-2 p-4 relative">
                   {/* 単語セクション */}
                   <div className="text-center mb-3">
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mb-2">

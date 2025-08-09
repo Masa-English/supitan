@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import type { Word } from '@/lib/types';
 
 interface FetchOptions {
@@ -10,7 +10,10 @@ interface FetchOptions {
 }
 
 export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]> {
-  const supabase = await createClient();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   const { category, sectionIndex, sectionSize, randomCount, sectionValue } = options;
 
   // ランダム優先

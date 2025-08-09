@@ -1,18 +1,20 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+// 認証不要の公開データ読み取りは cookies を使わないクライアントで行う
+import { createClient as createPublicClient } from '@supabase/supabase-js';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Layers, BookOpen, Brain } from 'lucide-react';
+import { ArrowRight, Layers, BookOpen, Brain, ArrowLeft } from 'lucide-react';
 
 interface PageProps {
   params?: Promise<{ category: string }>;
   searchParams?: Promise<{ mode?: string; size?: string }>;
 }
 
-export const dynamic = 'force-dynamic';
+// ISR/プリフェッチを活用するため動的レンダリングを外す
+export const revalidate = 300; // 5分
 
 export default async function OptionsPage({ params, searchParams }: PageProps) {
   const p = params ? await params : undefined;
@@ -21,9 +23,11 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
   const category = decodeURIComponent(p.category);
   const mode = sp.mode === 'quiz' ? 'quiz' : sp.mode === 'flashcard' ? 'flashcard' : null;
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) notFound();
+  // 認証は middleware で担保されるためここでは直接チェックしない
+  const supabase = createPublicClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   if (!mode) notFound();
 
   // 総件数を取得（カテゴリー内）
@@ -47,9 +51,19 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto p-4 space-y-6 safe-bottom">
-        <div className="space-y-2">
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-y-auto">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-4 sm:mb-6">
+          <Link
+            href="/dashboard/start-learning/category"
+            className="flex items-center text-muted-foreground hover:text-foreground transition-colors mb-4"
+            aria-label="カテゴリー選択に戻る"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            カテゴリー選択に戻る
+          </Link>
           <h1 className="text-2xl font-bold">学習オプション</h1>
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className="text-xs">
               <Layers className="h-3 w-3 mr-1" /> カテゴリー
@@ -61,16 +75,8 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
             </Badge>
             <span className="text-sm font-medium text-foreground">{mode}</span>
             <span className="flex-1" />
-            <Link
-              href={`/dashboard/category/${encodeURIComponent(category)}`}
-              className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4"
-              aria-label="カテゴリーに戻る"
-            >
-              カテゴリーへ戻る
-            </Link>
           </div>
-        </div>
-
+        <div className="space-y-6 sm:space-y-8 mt-4 sm:mt-6">
         {/* Step 1: セクションで開始 */}
         <Card className="bg-card border-border">
           <CardHeader className="pb-3">
@@ -105,7 +111,7 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
                 <p className="text-sm text-muted-foreground">このカテゴリーにはまだ単語がありません。</p>
                 <div className="mt-3 flex gap-2">
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/dashboard/category/${encodeURIComponent(category)}`}>カテゴリーに戻る</Link>
+                    <Link href="/dashboard/start-learning/category">カテゴリー選択に戻る</Link>
                   </Button>
                 </div>
               </div>
@@ -125,13 +131,15 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
                     <label className="text-sm font-medium" htmlFor="random-count">件数</label>
                     <Input id="random-count" type="number" name="count" min={1} defaultValue={10} className="w-full sm:w-40" />
                   </div>
-                  <Button type="submit" aria-label="ランダムで開始" disabled={wordsCount === 0} size="mobile">開始 <ArrowRight className="h-4 w-4 ml-1" /></Button>
+                  <Button type="submit" aria-label="ランダムで開始" disabled={wordsCount === 0} size="sm">開始 <ArrowRight className="h-4 w-4 ml-1" /></Button>
                 </form>
               </div>
             )}
           </CardContent>
         </Card>
-      </div>
+        </div>
+        </div>
+      </main>
     </div>
   );
 }

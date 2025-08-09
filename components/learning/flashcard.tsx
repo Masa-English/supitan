@@ -321,7 +321,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
           <div className="max-w-6xl mx-auto w-full h-auto flex flex-col">
             <div className="flex-1 flex items-center justify-center min-h-0 pb-6 sm:pb-0">
               <div className="w-full max-h-full overflow-y-auto">
-                <div className="bg-card border border-border shadow-lg rounded-xl p-4 relative">
+                <div className="bg-card border border-border shadow-lg rounded-xl mt-2 p-4 relative">
                   {/* お気に入りボタンのみ残す */}
                   <div className="absolute top-3 right-3 z-10">
                     <Button
