@@ -10,7 +10,20 @@ import { DatabaseService } from '@/lib/database';
 import { AudioInitializer } from './audio-initializer';
 import { useAudioStore } from '@/lib/audio-store';
 import { useToast } from '@/components/ui/toast';
-import { buildExampleAudioPath, fetchAudioFromStorage } from '@/lib/audio-utils';
+import { fetchAudioFromStorage } from '@/lib/audio-utils';
+
+// 例文音声パス生成（ローカルヘルパー）
+function buildPathFromAudioFile(audioFilePath: string, index: number): string {
+  const normalized = audioFilePath.replace(/\\/g, '/');
+  const base = normalized.replace(/\/[^/]+$/, '').replace(/\/$/, '');
+  const number = String(index).padStart(3, '0');
+  return `${base}/example${number}.mp3`;
+}
+
+function buildPathFromWord(word: string, index: number): string {
+  const number = String(index).padStart(3, '0');
+  return `${word}/example${number}.mp3`;
+}
 
 interface FlashcardProps {
   words: Word[];
@@ -244,7 +257,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     try {
       if (currentWord.audio_file) {
         const audio = new Audio(`/api/audio/${currentWord.id}`);
-        audio.volume = volume / 100;
+        audio.volume = volume;
         if (isMuted) audio.volume = 0;
         await audio.play();
       } else {
@@ -259,19 +272,37 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
   const playExampleAudio = useCallback(async (
     text: string,
     exampleIndex?: 1 | 2 | 3,
-    lang: 'en' | 'jp' = 'en'
+    _lang: 'en' | 'jp' = 'en'
   ) => {
     // ストレージ優先で取得し、失敗時にTTSへフォールバック
     try {
-      if (currentWord?.audio_file && exampleIndex) {
-        const path = buildExampleAudioPath(currentWord.audio_file, exampleIndex, lang);
-        const blob = await fetchAudioFromStorage(path);
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const audio = new Audio(url);
-          audio.volume = isMuted ? 0 : volume / 100;
-          await audio.play();
-          return;
+      if (exampleIndex) {
+        // 1) words.audio_file がある場合はそのフォルダを基準に探す
+        if (currentWord?.audio_file) {
+          const path = buildPathFromAudioFile(currentWord.audio_file, exampleIndex);
+          console.log('[Flashcard] Try example audio (by audio_file):', path);
+          const blob = await fetchAudioFromStorage(path);
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audio.volume = isMuted ? 0 : volume;
+            await audio.play();
+            return;
+          }
+        }
+
+        // 2) audio_file 未設定時は英単語フォルダ直下を探す（例: "break up/example001.mp3"）
+        if (currentWord?.word) {
+          const fallbackPath = buildPathFromWord(currentWord.word, exampleIndex);
+          console.log('[Flashcard] Try example audio (by word):', fallbackPath);
+          const blob2 = await fetchAudioFromStorage(fallbackPath);
+          if (blob2) {
+            const url = URL.createObjectURL(blob2);
+            const audio = new Audio(url);
+            audio.volume = isMuted ? 0 : volume;
+            await audio.play();
+            return;
+          }
         }
       }
     } catch (e) {
@@ -282,7 +313,8 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     } catch (error) {
       console.error('例文音声再生エラー:', error);
     }
-  }, [currentWord?.audio_file, volume, isMuted, fallbackToSpeechSynthesis]);
+  }, [currentWord?.audio_file, volume, isMuted, fallbackToSpeechSynthesis, currentWord?.word]);
+
 
   const handleExampleClick = useCallback((exampleKey: string) => {
     setFlippedExamples(prev => {
@@ -345,7 +377,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
               <div className="w-full max-h-full overflow-y-auto">
                 <div className="bg-card border border-border shadow-lg rounded-xl mt-2 p-4 relative">
                   {/* お気に入りボタンのみ残す */}
-                  <div className="absolute top-3 right-3 z-10">
+                  {/* <div className="absolute top-3 right-3 z-10">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -355,7 +387,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
                     >
                       {isFavorite ? <Star className="h-4 w-4" /> : <StarOff className="h-4 w-4" />}
                     </Button>
-                  </div>
+                  </div> */}
 
                   {/* 単語セクション */}
                   <div className="text-center mb-3">

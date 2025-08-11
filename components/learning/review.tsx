@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Volume2, Check, X, Clock, BookOpen } from 'lucide-react';
 import { AudioControls } from '@/components/common/audio-controls';
 import { AudioInitializer } from './audio-initializer';
+import { fetchAudioFromStorage } from '@/lib/audio-utils';
+import { useAudioStore } from '@/lib/audio-store';
 
 interface ReviewProps {
   onComplete: (results: { wordId: string; correct: boolean; difficulty: number }[]) => void;
@@ -27,6 +29,7 @@ export function Review({ onComplete }: ReviewProps) {
   const currentWord = words[currentIndex];
   const currentReviewWord = reviewWords[currentIndex];
   const db = useMemo(() => new DatabaseService(), []);
+  const { isMuted, volume } = useAudioStore();
 
   // セッション時間の計算
   const sessionDuration = useMemo(() => {
@@ -151,13 +154,60 @@ export function Review({ onComplete }: ReviewProps) {
   const playWordAudio = () => {
     if (currentWord) {
       const utterance = new SpeechSynthesisUtterance(currentWord.word);
-      utterance.lang = 'ja-JP'; // 日本語の発音を指定
+      utterance.lang = 'en-US';
       utterance.pitch = 1;
       utterance.rate = 1;
       utterance.volume = 1;
       window.speechSynthesis.speak(utterance);
     }
   };
+
+  const buildPathFromAudioFile = (audioFilePath: string, index: number) => {
+    const normalized = audioFilePath.replace(/\\/g, '/');
+    const base = normalized.replace(/\/[^/]+$/, '').replace(/\/$/, '');
+    const number = String(index).padStart(3, '0');
+    return `${base}/example${number}.mp3`;
+  };
+
+  const buildPathFromWord = (w: string, index: number) => {
+    const number = String(index).padStart(3, '0');
+    return `${w}/example${number}.mp3`;
+  };
+
+  const playExampleAudio = useCallback(async (index: 1 | 2 | 3 = 1) => {
+    if (!currentWord) return;
+    const tryPlay = async (path: string) => {
+      const blob = await fetchAudioFromStorage(path);
+      if (!blob) return false;
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.volume = isMuted ? 0 : volume;
+      await audio.play();
+      return true;
+    };
+
+    try {
+      if (currentWord.audio_file) {
+        const path = buildPathFromAudioFile(currentWord.audio_file, index);
+        if (await tryPlay(path)) return;
+      }
+      const fallback = buildPathFromWord(currentWord.word, index);
+      if (await tryPlay(fallback)) return;
+
+      const text =
+        index === 1 ? currentWord.example1 : index === 2 ? currentWord.example2 : currentWord.example3 || currentWord.word;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      const text = currentWord.example1 || currentWord.word;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      window.speechSynthesis.speak(utterance);
+    }
+  }, [currentWord, isMuted, volume]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -277,7 +327,17 @@ export function Review({ onComplete }: ReviewProps) {
                       
                       {currentWord.example1_jp && (
                         <div className="bg-accent rounded-lg p-3 border border-border mt-3">
-                          <h3 className="text-lg font-semibold text-foreground mb-2">例文</h3>
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="text-lg font-semibold text-foreground">例文</h3>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => playExampleAudio(1)}
+                              className="text-primary hover:bg-primary/10 hover:scale-110 transition-all duration-200 touch-target rounded-full p-1"
+                            >
+                              <Volume2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                           <p className="text-foreground font-medium text-sm leading-relaxed">
                             {currentWord.example1_jp}
                           </p>

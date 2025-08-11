@@ -116,6 +116,21 @@ export function buildExampleAudioPath(
 }
 
 /**
+ * 単語テキストから例文音声ファイルのパスを生成する（audio_file 未設定時のフォールバック用）
+ * 例: word が "run out of" の場合 → "run out of/example001(.mp3)"
+ */
+export function buildExampleAudioPathFromWord(
+  word: string,
+  index: number,
+  lang: 'en' | 'jp' = 'en'
+): string {
+  const number = String(index).padStart(3, '0');
+  const suffix = lang === 'jp' ? '-jp' : '';
+  // Supabase Storage はスペース・記号を含むパスでも問題ないため、そのまま使用
+  return `${word}/example${number}${suffix}.mp3`;
+}
+
+/**
  * 音声ファイルのURLを生成する
  * audio-filesバケットがPublicなので、getPublicUrlを使用
  */

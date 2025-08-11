@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { fetchAudioFromStorage } from '@/lib/audio-utils';
 import { Word, QuizQuestion } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,6 +32,7 @@ export function Quiz({
   
   // 音声ストア
   const { playCorrectSound, playIncorrectSound } = useAudioStore();
+  const { isMuted, volume } = useAudioStore();
 
   const currentQuestion = questions[currentIndex];
 
@@ -228,6 +230,57 @@ export function Quiz({
     }
   };
 
+  // 例文音声の再生（英語のみ）
+  const playExampleAudio = useCallback(async () => {
+    if (!currentQuestion || currentQuestion.type !== 'example') return;
+    const word = currentQuestion.word;
+
+    // 例文として選ばれている英語文は word.example1 に入る想定
+    // 音声ファイルは example001.mp3 〜 を探すが、どのインデックスかは固定できないため
+    // 1→2→3 の順に存在チェックして最初に見つかったものを再生
+    const buildPathFromAudioFile = (audioFilePath: string, index: number) => {
+      const normalized = audioFilePath.replace(/\\/g, '/');
+      const base = normalized.replace(/\/[^/]+$/, '').replace(/\/$/, '');
+      const number = String(index).padStart(3, '0');
+      return `${base}/example${number}.mp3`;
+    };
+    const buildPathFromWord = (w: string, index: number) => {
+      const number = String(index).padStart(3, '0');
+      return `${w}/example${number}.mp3`;
+    };
+
+    const tryPlay = async (path: string) => {
+      const blob = await fetchAudioFromStorage(path);
+      if (!blob) return false;
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.volume = isMuted ? 0 : volume;
+      await audio.play();
+      return true;
+    };
+
+    try {
+      for (const idx of [1, 2, 3] as const) {
+        if (word.audio_file) {
+          const path = buildPathFromAudioFile(word.audio_file, idx);
+          if (await tryPlay(path)) return;
+        }
+        const fallback = buildPathFromWord(word.word, idx);
+        if (await tryPlay(fallback)) return;
+      }
+      // 見つからない場合は TTS
+      const utterance = new SpeechSynthesisUtterance(currentQuestion.word.example1);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      speechSynthesis.speak(utterance);
+    } catch (e) {
+      const utterance = new SpeechSynthesisUtterance(currentQuestion.word.example1);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      speechSynthesis.speak(utterance);
+    }
+  }, [currentQuestion, isMuted, volume]);
+
   if (words.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -332,11 +385,24 @@ export function Quiz({
                        </div>
                      )}
                      
-                     {/* 問題文 */}
+                      {/* 問題文（例文問題では再生ボタンを追加） */}
                      <div className="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-lg p-2 sm:p-3 mb-2 sm:mb-3">
                        <p className="text-sm sm:text-base lg:text-lg text-foreground font-medium leading-relaxed">
                          {currentQuestion.question || (currentQuestion.type === 'meaning' ? `${currentQuestion.word.word}の意味を選んでください` : '正しい日本語訳を選んでください')}
                        </p>
+                        {currentQuestion.type === 'example' && (
+                          <div className="mt-2 flex items-center justify-center">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={playExampleAudio}
+                              className="text-primary hover:bg-primary/10 hover:scale-110 transition-all duration-200 touch-target rounded-full p-1"
+                            >
+                              <Volume2 className="h-4 w-4" />
+                              <span className="ml-1 text-xs">例文を再生</span>
+                            </Button>
+                          </div>
+                        )}
                      </div>
                    </div>
 
