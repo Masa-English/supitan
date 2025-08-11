@@ -97,6 +97,25 @@ export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob
 }
 
 /**
+ * 例文音声ファイルのパスを生成する
+ * 例: words.audio_file が "run out of/word.mp3" の場合、
+ *  - index=1, lang='en' -> "run out of/example001.mp3"
+ *  - index=1, lang='jp' -> "run out of/example001-jp.mp3"
+ */
+export function buildExampleAudioPath(
+  wordAudioPath: string,
+  index: number,
+  lang: 'en' | 'jp' = 'en'
+): string {
+  // 親ディレクトリを抽出（バックスラッシュをスラッシュに正規化）
+  const normalized = wordAudioPath.replace(/\\/g, '/');
+  const normalizedBase = normalized.replace(/\/[^/]+$/, '').replace(/\/$/, '');
+  const number = String(index).padStart(3, '0');
+  const suffix = lang === 'jp' ? '-jp' : '';
+  return `${normalizedBase}/example${number}${suffix}.mp3`;
+}
+
+/**
  * 音声ファイルのURLを生成する
  * audio-filesバケットがPublicなので、getPublicUrlを使用
  */

@@ -3,7 +3,7 @@ import Link from 'next/link';
 // 認証不要の公開データ読み取りは cookies を使わないクライアントで行う
 import { createClient as createPublicClient } from '@supabase/supabase-js';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Layers, BookOpen, Brain, ArrowLeft } from 'lucide-react';
@@ -83,17 +83,40 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
             <CardTitle className="text-base">1. セクションを選んで開始</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {sections.map((sec) => {
-                const href = `/dashboard/category/${encodeURIComponent(category)}/${mode}?sec=${encodeURIComponent(sec)}`;
-                return (
-                  <Link key={sec} href={href} className="border border-border rounded-lg p-3 bg-card hover:shadow-md hover:border-primary/40 transition-colors" aria-label={`セクション${sec}で開始`}>
-                    <div className="text-sm font-semibold text-foreground">セクション {sec}</div>
-                    <div className="mt-2 text-xs text-primary underline">開始</div>
+            {sections.length === 0 ? (
+              <div className="rounded-md border border-border bg-muted/30 p-4">
+                <p className="text-sm text-muted-foreground">このカテゴリーにはセクションがありません。</p>
+                {wordsCount === 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">単語が0件です。</p>
+                )}
+                <div className="mt-3 flex gap-2">
+                  <Link
+                    href="/dashboard/start-learning/category"
+                    className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                  >
+                    カテゴリー選択に戻る
                   </Link>
-                );
-              })}
-            </div>
+                  <Link
+                    href={`/dashboard/category/${encodeURIComponent(category)}/browse`}
+                    className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+                  >
+                    一覧を見る
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {sections.map((sec) => {
+                  const href = `/dashboard/category/${encodeURIComponent(category)}/${mode}?sec=${encodeURIComponent(sec)}`;
+                  return (
+                    <Link key={sec} href={href} className="border border-border rounded-lg p-3 bg-card hover:shadow-md hover:border-primary/40 transition-colors" aria-label={`セクション${sec}で開始`}>
+                      <div className="text-sm font-semibold text-foreground">セクション {sec}</div>
+                      <div className="mt-2 text-xs text-primary underline">開始</div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
             <div className="text-xs text-muted-foreground mt-3" aria-live="polite">
               総単語: {wordsCount} / セクション数: {sections.length}
             </div>
@@ -110,9 +133,12 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
               <div className="rounded-md border border-border bg-muted/30 p-4">
                 <p className="text-sm text-muted-foreground">このカテゴリーにはまだ単語がありません。</p>
                 <div className="mt-3 flex gap-2">
-                  <Button asChild variant="outline" size="sm">
-                    <Link href="/dashboard/start-learning/category">カテゴリー選択に戻る</Link>
-                  </Button>
+                  <Link
+                    href="/dashboard/start-learning/category"
+                    className={buttonVariants({ variant: 'outline', size: 'sm' })}
+                  >
+                    カテゴリー選択に戻る
+                  </Link>
                 </div>
               </div>
             ) : (

@@ -228,6 +228,14 @@ export function Quiz({
     }
   };
 
+  if (words.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-muted-foreground">出題できる問題がありません。前の画面に戻って条件を変更してください。</p>
+      </div>
+    );
+  }
+
   if (!currentQuestion) {
     return (
       <div className="text-center">
@@ -237,7 +245,7 @@ export function Quiz({
     );
   }
 
-  const progress = ((currentIndex + 1) / questions.length) * 100;
+  const progress = ((currentIndex + 1) / Math.max(questions.length, 1)) * 100;
 
   return (
     <AudioInitializer>

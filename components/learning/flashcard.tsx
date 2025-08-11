@@ -10,6 +10,7 @@ import { DatabaseService } from '@/lib/database';
 import { AudioInitializer } from './audio-initializer';
 import { useAudioStore } from '@/lib/audio-store';
 import { useToast } from '@/components/ui/toast';
+import { buildExampleAudioPath, fetchAudioFromStorage } from '@/lib/audio-utils';
 
 interface FlashcardProps {
   words: Word[];
@@ -31,7 +32,8 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
   const { showToast } = useToast();
   
   const currentWord = words[currentIndex];
-  const progress = ((currentIndex + 1) / words.length) * 100;
+  const total = Math.max(words.length, 1);
+  const progress = ((currentIndex + 1) / total) * 100;
   const isFavorite = favorites.has(currentWord?.id || '');
   const isInReview = reviewWords.has(currentWord?.id || '');
 
@@ -254,13 +256,33 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     }
   }, [currentWord, volume, isMuted, fallbackToSpeechSynthesis]);
 
-  const playExampleAudio = useCallback(async (text: string) => {
+  const playExampleAudio = useCallback(async (
+    text: string,
+    exampleIndex?: 1 | 2 | 3,
+    lang: 'en' | 'jp' = 'en'
+  ) => {
+    // ストレージ優先で取得し、失敗時にTTSへフォールバック
+    try {
+      if (currentWord?.audio_file && exampleIndex) {
+        const path = buildExampleAudioPath(currentWord.audio_file, exampleIndex, lang);
+        const blob = await fetchAudioFromStorage(path);
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const audio = new Audio(url);
+          audio.volume = isMuted ? 0 : volume / 100;
+          await audio.play();
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('例文音声の取得に失敗。TTSへフォールバックします:', e);
+    }
     try {
       fallbackToSpeechSynthesis(text);
     } catch (error) {
       console.error('例文音声再生エラー:', error);
     }
-  }, [fallbackToSpeechSynthesis]);
+  }, [currentWord?.audio_file, volume, isMuted, fallbackToSpeechSynthesis]);
 
   const handleExampleClick = useCallback((exampleKey: string) => {
     setFlippedExamples(prev => {
@@ -278,10 +300,10 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     setShowJapanese(prev => !prev);
   }, []);
 
-  if (!currentWord) {
+  if (words.length === 0 || !currentWord) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-muted-foreground">単語が見つかりません</p>
+        <p className="text-muted-foreground">単語が0件です。前の画面に戻って条件を変更してください。</p>
       </div>
     );
   }
@@ -395,7 +417,11 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              playExampleAudio(currentWord.example1!);
+                              playExampleAudio(
+                                flippedExamples.has('example1') ? currentWord.example1! : currentWord.example1_jp!,
+                                1,
+                                flippedExamples.has('example1') ? 'en' : 'jp'
+                              );
                             }}
                             className="text-primary h-6 w-6 p-1 flex-shrink-0"
                           >
@@ -422,7 +448,11 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              playExampleAudio(currentWord.example2!);
+                              playExampleAudio(
+                                flippedExamples.has('example2') ? currentWord.example2! : currentWord.example2_jp!,
+                                2,
+                                flippedExamples.has('example2') ? 'en' : 'jp'
+                              );
                             }}
                             className="text-primary h-6 w-6 p-1 flex-shrink-0"
                           >
@@ -449,7 +479,11 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              playExampleAudio(currentWord.example3!);
+                              playExampleAudio(
+                                flippedExamples.has('example3') ? currentWord.example3! : currentWord.example3_jp!,
+                                3,
+                                flippedExamples.has('example3') ? 'en' : 'jp'
+                              );
                             }}
                             className="text-primary h-6 w-6 p-1 flex-shrink-0"
                           >

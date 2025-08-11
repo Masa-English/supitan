@@ -38,6 +38,11 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
     randomCount: isRandom ? (randomCount ?? 10) : undefined,
   });
 
+  // 0件時はオプションへ戻す
+  if (!words || words.length === 0) {
+    redirect(`/dashboard/category/${encodeURIComponent(category)}/options?mode=quiz`);
+  }
+
   const listKey = `${category}-${sectionRaw ?? ''}-${randomCount ?? 0}-${isRandom}`;
 
   return (

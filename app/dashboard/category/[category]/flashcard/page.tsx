@@ -39,6 +39,11 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
     randomCount: isRandom ? (randomCount ?? 10) : undefined,
   });
 
+  // 0件時はオプションへ戻し、画面で案内
+  if (!words || words.length === 0) {
+    redirect(`/dashboard/category/${encodeURIComponent(category)}/options?mode=flashcard`);
+  }
+
   // key 生成の不要な未定義変数を除去
   const listKey = `${category}-${sectionRaw ?? ''}-${randomCount ?? 0}-${isRandom}`;
 
