@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Word } from '@/lib/types';
+import type { Word, QuizQuestion } from '@/lib/types';
 import { Quiz } from '@/components/learning/quiz';
 import { CompletionModal } from '@/components/learning/completion-modal';
 import { DatabaseService } from '@/lib/database';
@@ -10,9 +10,10 @@ import { useAuth } from '@/lib/hooks/use-auth';
 interface Props {
   category: string;
   words: Word[];
+  initialQuestions?: QuizQuestion[];
 }
 
-export default function QuizClient({ category, words }: Props) {
+export default function QuizClient({ category, words, initialQuestions }: Props) {
   const { user } = useAuth();
   const db = new DatabaseService();
   const [showCompletionModal, setShowCompletionModal] = useState(false);
@@ -47,7 +48,7 @@ export default function QuizClient({ category, words }: Props) {
 
   return (
     <div className="min-h-screen bg-background">
-      <Quiz words={words} onComplete={handleComplete} onAddToReview={handleAddToReview} />
+      <Quiz words={words} onComplete={handleComplete} onAddToReview={handleAddToReview} initialQuestions={initialQuestions} />
       {showCompletionModal && (
         <CompletionModal
           isOpen={showCompletionModal}

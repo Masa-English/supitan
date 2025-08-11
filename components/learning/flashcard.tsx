@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Word } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Volume2, Star, StarOff, Eye, EyeOff, BookOpen } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Volume2, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { AudioControls } from '@/components/common/audio-controls';
 import { createClient } from '@/lib/supabase/client';
 import { DatabaseService } from '@/lib/database';
@@ -47,7 +47,6 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
   const currentWord = words[currentIndex];
   const total = Math.max(words.length, 1);
   const progress = ((currentIndex + 1) / total) * 100;
-  const isFavorite = favorites.has(currentWord?.id || '');
   const isInReview = reviewWords.has(currentWord?.id || '');
 
   // お気に入りと復習状態を読み込み
@@ -193,54 +192,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     }
   }, [currentWord, isInReview, db, showToast]);
 
-  const handleToggleFavorite = useCallback(async () => {
-    if (!currentWord) return;
-
-    try {
-      const supabase = createClient();
-      
-      let user = null;
-      try {
-        const { data: { user: userData }, error } = await supabase.auth.getUser();
-        if (!error && userData) {
-          user = userData;
-        }
-      } catch {
-        console.debug('Session check skipped for favorite toggle');
-        return;
-      }
-      
-      if (!user) return;
-
-      const { error } = await supabase
-        .from('user_progress')
-        .upsert({
-          user_id: user.id,
-          word_id: currentWord.id,
-          is_favorite: !isFavorite,
-          mastery_level: 0,
-          study_count: 0,
-          correct_count: 0,
-          incorrect_count: 0,
-          last_studied: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
-
-      if (error) throw error;
-
-      if (isFavorite) {
-        setFavorites(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(currentWord.id);
-          return newSet;
-        });
-      } else {
-        setFavorites(prev => new Set([...prev, currentWord.id]));
-      }
-    } catch (error) {
-      console.error('お気に入り操作エラー:', error);
-    }
-  }, [currentWord, isFavorite]);
+  // お気に入り切り替え（現在UI非表示のため未使用）
 
   const fallbackToSpeechSynthesis = useCallback((text: string) => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {

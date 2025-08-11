@@ -28,18 +28,27 @@ export async function updateSession(request: NextRequest) {
   )
 
   // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
+  // supabase.auth.getUser() in flows that REQUIRE a refresh. ただし、
+  // セッションCookieが存在しない場合は getUser() をスキップして
+  // 例外や不要なノイズログを回避する。
+
+  // セッションCookieを簡易判定（sb- 系 or supabase-auth-token）
+  const cookieNames = request.cookies.getAll().map((c) => c.name)
+  const hasSupabaseSessionCookie = cookieNames.some((n) =>
+    n.includes('sb-') || n.includes('supabase-auth-token')
+  )
 
   // セッション未所持時の 400/"Auth session missing" は正常系として扱う
   let user: { email?: string } | null = null
   let authError: unknown = null
-  try {
-    const { data, error } = await supabase.auth.getUser()
-    user = data?.user ?? null
-    authError = error ?? null
-  } catch (e) {
-    authError = e
+  if (hasSupabaseSessionCookie) {
+    try {
+      const { data, error } = await supabase.auth.getUser()
+      user = data?.user ?? null
+      authError = error ?? null
+    } catch (e) {
+      authError = e
+    }
   }
 
   const isMissingSession = (() => {
@@ -114,7 +123,9 @@ export async function updateSession(request: NextRequest) {
 
   // ユーザーが未認証で、かつプライベートパスにアクセスしようとしている場合
   if (!user && !isPublicPath) {
-    console.log(`Unauthorized access attempt to: ${request.nextUrl.pathname}`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Unauthorized access attempt to: ${request.nextUrl.pathname}`)
+    }
     
     // ダッシュボード関連のパスへの未認証アクセスを特に厳格にチェック
     if (request.nextUrl.pathname.startsWith('/dashboard')) {

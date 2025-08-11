@@ -1,4 +1,4 @@
-import { fetchWordsForStudy } from '@/lib/server-word-fetcher';
+import { dataProvider } from '@/lib/data-provider';
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import FlashcardClient from './flashcard-client';
@@ -33,11 +33,25 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
     redirect(`/dashboard/category/${encodeURIComponent(category)}/options?mode=flashcard`);
   }
 
-  const words = await fetchWordsForStudy({
-    category,
-    sectionValue: isRandom ? undefined : sectionRaw,
-    randomCount: isRandom ? (randomCount ?? 10) : undefined,
-  });
+  // 統一データプロバイダ経由で取得（キャッシュ有効）
+  let words = await dataProvider.getWordsByCategory(category);
+
+  // セクション指定時はサーバー側でフィルタ
+  if (!isRandom && sectionRaw) {
+    words = words.filter((w) => String(w.section ?? '') === String(sectionRaw));
+  }
+
+  // ランダム指定時はサーバー側でサンプリング（DBクエリ不要）
+  if (isRandom) {
+    const count = Math.max(1, Math.min(randomCount ?? 10, words.length));
+    // フィッシャー–イェーツ
+    const shuffled = words.slice();
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    words = shuffled.slice(0, count).sort((a, b) => (a.word || '').localeCompare(b.word || ''));
+  }
 
   // 0件時はオプションへ戻し、画面で案内
   if (!words || words.length === 0) {

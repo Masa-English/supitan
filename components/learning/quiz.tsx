@@ -15,15 +15,17 @@ interface QuizProps {
   words: Word[];
   onComplete: (results: { wordId: string; correct: boolean }[]) => void;
   onAddToReview: (wordId: string) => void;
+  initialQuestions?: QuizQuestion[];
   key?: string | number; // リセット用のキーを追加
 }
 
 export function Quiz({
   words,
   onComplete,
-  onAddToReview
+  onAddToReview,
+  initialQuestions
 }: QuizProps) {
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [questions, setQuestions] = useState<QuizQuestion[]>(initialQuestions ?? []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -156,25 +158,22 @@ export function Quiz({
   }, [words, generateMeaningOptions, generateExampleOptions]);
 
   useEffect(() => {
-    if (words.length > 0) {
-      // クライアントサイドでのみ問題を生成
-      if (typeof window !== 'undefined') {
-        // 既に問題が生成されている場合はスキップ
-        if (questions.length > 0) {
-          return undefined;
-        }
-        
-        // タブ復元時は少し遅延して問題生成
-        const timeoutId = setTimeout(() => {
+    let timeoutId: number | null = null;
+    if (questions.length === 0) {
+      if (initialQuestions && initialQuestions.length > 0) {
+        setQuestions(initialQuestions);
+      } else if (words.length > 0 && typeof window !== 'undefined') {
+        timeoutId = window.setTimeout(() => {
           generateQuestions();
         }, 150);
-
-        return () => clearTimeout(timeoutId);
       }
-      return undefined;
     }
-    return undefined;
-  }, [generateQuestions, words.length, questions.length]);
+    return () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [generateQuestions, words.length, questions.length, initialQuestions]);
 
   useEffect(() => {
     setSelectedAnswer(null);
@@ -273,7 +272,7 @@ export function Quiz({
       utterance.lang = 'en-US';
       utterance.rate = 0.8;
       speechSynthesis.speak(utterance);
-    } catch (e) {
+    } catch {
       const utterance = new SpeechSynthesisUtterance(currentQuestion.word.example1);
       utterance.lang = 'en-US';
       utterance.rate = 0.8;
@@ -500,4 +499,4 @@ export function Quiz({
       </div>
     </AudioInitializer>
   );
-} 
+}
