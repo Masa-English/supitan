@@ -26,17 +26,13 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
   }, []);
 
   useEffect(() => {
-    if (isClient) {
-      const checkMobile = () => {
-        setIsMobile(window.innerWidth < 1024);
-      };
-
-      checkMobile();
-      window.addEventListener('resize', checkMobile);
-
-      return () => window.removeEventListener('resize', checkMobile);
-    }
-    return undefined;
+    if (!isClient) return undefined;
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, [isClient]);
 
   const navigationItems = [

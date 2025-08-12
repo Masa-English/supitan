@@ -13,6 +13,7 @@ import {
   User
 } from 'lucide-react';
 import Link from 'next/link';
+import { useNavigationStore } from '@/lib/navigation-store';
 
 // サイドメニューコンポーネント
 function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -93,19 +94,21 @@ function SideMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void })
 // リダイレクト処理を行うコンポーネント
 function RedirectHandler({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const startNavigating = useNavigationStore((s) => s.start);
   
   useEffect(() => {
     // クライアントサイドでのみ実行
     if (typeof window !== 'undefined') {
       // 保存されたリダイレクト先がある場合はそこに遷移
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-      if (redirectPath) {
+        if (redirectPath) {
         console.log('ダッシュボードから保存されたリダイレクト先に遷移:', redirectPath);
         sessionStorage.removeItem('redirectAfterLogin');
-        router.push(redirectPath);
+          startNavigating();
+          router.push(redirectPath);
       }
     }
-  }, [router]);
+  }, [router, startNavigating]);
 
   return <>{children}</>;
 }

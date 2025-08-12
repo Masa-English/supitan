@@ -54,7 +54,7 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
       <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-y-auto">
         <div className="max-w-4xl mx-auto">
           <div className="mb-4 sm:mb-6">
-          <Link
+            <Link
             href="/dashboard/start-learning/category"
             className="flex items-center text-muted-foreground hover:text-foreground transition-colors mb-4"
             aria-label="カテゴリー選択に戻る"
@@ -90,14 +90,14 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
                   <p className="text-xs text-muted-foreground mt-1">単語が0件です。</p>
                 )}
                 <div className="mt-3 flex gap-2">
-                  <Link
-                    href="/dashboard/start-learning/category"
+                    <Link
+                      href="/dashboard/start-learning/category"
                     className={buttonVariants({ variant: 'outline', size: 'sm' })}
                   >
                     カテゴリー選択に戻る
                   </Link>
-                  <Link
-                    href={`/dashboard/category/${encodeURIComponent(category)}/browse`}
+                    <Link
+                      href={`/dashboard/category/${encodeURIComponent(category)}/browse`}
                     className={buttonVariants({ variant: 'ghost', size: 'sm' })}
                   >
                     一覧を見る

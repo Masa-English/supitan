@@ -3,6 +3,8 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
+import { NavigationOverlay } from '@/components/common/navigation-overlay';
+import { NavigationEvents } from '@/components/common/navigation-events';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -88,6 +90,9 @@ export default function RootLayout({
           enableColorScheme={false}
         >
           <ToastProvider>
+            {/* グローバル遷移イベント/オーバーレイ */}
+            <NavigationEvents />
+            <NavigationOverlay />
             {children}
           </ToastProvider>
         </ThemeProvider>

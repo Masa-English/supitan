@@ -13,6 +13,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import Link from 'next/link';
+import { useNavigationStore } from '@/lib/navigation-store';
 import { 
   createAllCategoryStats, 
   encodeCategoryName,
@@ -96,6 +97,7 @@ export default function CategoryPage() {
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
+  const startNavigating = useNavigationStore((s) => s.start);
   const db = useMemo(() => new DatabaseService(), []);
   const supabase = createClient();
 
@@ -209,7 +211,7 @@ export default function CategoryPage() {
         <div className="max-w-7xl mx-auto">
           {/* ヘッダー */}
           <div className="mb-8">
-            <Link href="/dashboard">
+      <Link href="/dashboard" onClick={() => startNavigating()}>
               <Button variant="ghost" className="text-muted-foreground hover:bg-muted mb-4">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 ダッシュボードに戻る

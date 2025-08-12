@@ -6,6 +6,9 @@ import { CompletionModal } from '@/components/learning/completion-modal';
 import { DatabaseService } from '@/lib/database';
 import type { Word } from '@/lib/types';
 import { useAuth } from '@/lib/hooks/use-auth';
+import { AudioPreloader } from '@/components/learning/audio-preloader';
+import { useRouter } from 'next/navigation';
+import { useNavigationStore } from '@/lib/navigation-store';
 
 interface Props {
   category: string;
@@ -17,6 +20,8 @@ export default function FlashcardClient({ category, words }: Props) {
   const db = new DatabaseService();
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
+  const router = useRouter();
+  const startNavigating = useNavigationStore((s) => s.start);
 
   const handleComplete = async () => {
     if (!user) return;
@@ -39,6 +44,8 @@ export default function FlashcardClient({ category, words }: Props) {
 
   return (
     <div className="h-screen flex flex-col">
+      {/* 音声の事前読み込み中はオーバーレイを出す */}
+      <AudioPreloader words={words} />
       <main className="flex-1 flex flex-col justify-around sm:justify-around pb-safe">
         <Flashcard words={words} onComplete={handleComplete} category={category} />
       </main>
@@ -55,9 +62,9 @@ export default function FlashcardClient({ category, words }: Props) {
             ),
           }}
           onRetry={() => setShowCompletionModal(false)}
-          onBackToHome={() => (window.location.href = '/dashboard')}
-          onGoToReview={() => (window.location.href = '/dashboard/review')}
-          onBackToCategory={() => (window.location.href = '/dashboard')}
+          onBackToHome={() => { startNavigating(); router.push('/dashboard'); }}
+          onGoToReview={() => { startNavigating(); router.push('/dashboard/review'); }}
+          onBackToCategory={() => { startNavigating(); router.push(`/dashboard/category/${encodeURIComponent(category)}`); }}
         />
       )}
     </div>

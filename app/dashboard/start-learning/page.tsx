@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { AuthWrapper } from '@/components/auth';
 import { BookOpen, Brain, Play } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useNavigationStore } from '@/lib/navigation-store';
 
 // 学習モードの定義
 const learningModes = [
@@ -28,6 +29,7 @@ const learningModes = [
 
 export default function StartLearningPage() {
   const router = useRouter();
+  const startNavigating = useNavigationStore((s) => s.start);
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
 
@@ -56,6 +58,7 @@ export default function StartLearningPage() {
     console.log('学習モードが選択されました:', modeId);
     
     // カテゴリー選択ページに遷移
+    startNavigating();
     router.push('/dashboard/start-learning/category');
   };
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Zap, ArrowLeft, User, LogOut, Settings, UserCircle, Menu } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useNavigationStore } from '@/lib/navigation-store';
 import { ThemeSwitcher } from '@/components/common/theme-switcher';
 import { createClient } from '@/lib/supabase/client';
 import { User as SupabaseUser } from '@supabase/supabase-js';
@@ -59,6 +60,7 @@ export function Header({
   const [currentUser, setCurrentUser] = useState<SupabaseUser | null>(null);
   const [isClient, setIsClient] = useState(false);
   const supabase = createClient();
+  const startNavigating = useNavigationStore((s) => s.start);
   
   // デフォルト値を使用（SSR/CSR互換性のため）
   const title = propTitle;
@@ -161,16 +163,19 @@ export function Header({
     // 学習ページからはカテゴリーページに戻る
     if (pathname.match(/^\/dashboard\/category\/[^\/]+\/(flashcard|quiz|browse)$/)) {
       const category = pathname.split('/')[3];
+      startNavigating();
       router.push(`/dashboard/category/${category}`);
       return;
     }
     // カテゴリーページからはダッシュボードに戻る
     if (pathname.match(/^\/dashboard\/category\/[^\/]+$/)) {
+      startNavigating();
       router.push('/dashboard');
       return;
     }
     // start-learningページからはダッシュボードに戻る
     if (pathname === '/dashboard/start-learning') {
+      startNavigating();
       router.push('/dashboard');
       return;
     }
@@ -181,9 +186,11 @@ export function Header({
 
   const handleHomeClick = () => {
     if (currentUser) {
+      startNavigating();
       router.push('/dashboard');
       return;
     }
+    startNavigating();
     router.push('/landing');
   };
 
@@ -294,21 +301,21 @@ export function Header({
                     </div>
                     <DropdownMenuSeparator className="bg-border" />
                     <DropdownMenuItem 
-                      onClick={() => router.push('/dashboard/profile')}
+                      onClick={() => { startNavigating(); router.push('/dashboard/profile'); }}
                       className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
                     >
                       <UserCircle className="h-4 w-4 mr-2" />
                       プロフィール設定
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => router.push('/dashboard/review')}
+                      onClick={() => { startNavigating(); router.push('/dashboard/review'); }}
                       className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
                     >
                       <Zap className="h-4 w-4 mr-2" />
                       復習
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => router.push('/dashboard')}
+                      onClick={() => { startNavigating(); router.push('/dashboard'); }}
                       className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
                     >
                       <Settings className="h-4 w-4 mr-2" />
@@ -319,8 +326,10 @@ export function Header({
                         // 現在のパスからカテゴリーを取得してカテゴリーページに戻る
                         if (pathname.match(/^\/dashboard\/category\/[^\/]+\/(flashcard|quiz|browse)$/)) {
                           const category = pathname.split('/')[3];
+                          startNavigating();
                           router.push(`/dashboard/category/${category}`);
                         } else {
+                          startNavigating();
                           router.push('/dashboard');
                         }
                       }}
@@ -343,7 +352,7 @@ export function Header({
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => router.push('/auth/login')} 
+                    onClick={() => { startNavigating(); router.push('/auth/login'); }} 
                     className="border-border text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3 touch-target"
                   >
                     <User className="h-4 w-4 mr-1 sm:mr-2" />

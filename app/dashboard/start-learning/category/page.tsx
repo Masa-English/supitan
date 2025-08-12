@@ -8,6 +8,7 @@ import { CategoryCardSkeleton } from '@/components/ui/skeleton';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { StaticData } from '@/lib/static-data';
+import { useNavigationStore } from '@/lib/navigation-store';
 import { 
   getAllCategories, 
   encodeCategoryName
@@ -34,6 +35,7 @@ function CategoriesSkeleton() {
 
 export default function CategorySelectionPage() {
   const router = useRouter();
+  const startNavigating = useNavigationStore((s) => s.start);
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const [staticData, setStaticData] = useState<StaticData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -78,10 +80,12 @@ export default function CategorySelectionPage() {
     const encodedCategory = encodeCategoryName(categoryName);
     const targetUrl = `/dashboard/category/${encodedCategory}/options?mode=${selectedMode}`;
     console.log('遷移先URL:', targetUrl);
+    startNavigating();
     router.push(targetUrl);
   };
 
   const handleBackToModeSelection = () => {
+    startNavigating();
     router.push('/dashboard/start-learning');
   };
 

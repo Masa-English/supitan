@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useNavigationStore } from '@/lib/navigation-store';
 
 export function LoginForm({
   className,
@@ -28,6 +29,8 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const startNavigating = useNavigationStore((s) => s.start);
+  const stopNavigating = useNavigationStore((s) => s.stop);
 
   useEffect(() => {
     setIsMounted(true);
@@ -38,6 +41,8 @@ export function LoginForm({
     const supabase = createClient();
     setIsLoading(true);
     setError(null);
+    // 認証処理の開始をUIに反映
+    startNavigating();
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -51,13 +56,17 @@ export function LoginForm({
       if (redirectPath) {
         console.log('保存されたリダイレクト先に遷移:', redirectPath);
         sessionStorage.removeItem('redirectAfterLogin');
+        startNavigating();
         router.push(redirectPath);
       } else {
         console.log('デフォルトのダッシュボードに遷移');
+        startNavigating();
         router.push("/dashboard");
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "エラーが発生しました");
+      // 遷移しないのでオーバーレイを閉じる
+      stopNavigating();
     } finally {
       setIsLoading(false);
     }

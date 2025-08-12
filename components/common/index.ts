@@ -11,3 +11,5 @@ export { ThemeSwitcher } from './theme-switcher';
 export { TutorialModal } from './tutorial-modal';
 export { TutorialWrapper } from './tutorial-wrapper';
 export { CategoryBadge, CategoryDisplay, CategoryProgress } from './category-badge'; 
+export { NavigationOverlay } from './navigation-overlay';
+export { NavigationEvents } from './navigation-events';
