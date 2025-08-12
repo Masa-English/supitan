@@ -123,13 +123,25 @@ export function ContactForm({ className, variant = 'default', showTitle = true }
       let user = null;
       try {
         const { data: { user: userData }, error } = await supabase.auth.getUser();
-        if (!error && userData) {
+        if (error) {
+          const message = String((error as { message?: string }).message || '');
+          const code = String((error as { code?: string }).code || '');
+          const isExpected =
+            message.includes('Refresh Token Not Found') ||
+            message.includes('Invalid Refresh Token') ||
+            message.includes('Auth session missing') ||
+            code === 'refresh_token_not_found';
+          if (!isExpected && process.env.NODE_ENV === 'development') {
+            console.error('セッション確認エラー:', error);
+          }
+        } else if (userData) {
           user = userData;
         }
-             } catch {
-         // セッションエラーは静かに処理
-         console.debug('Session check skipped for contact form');
-       }
+      } catch (e) {
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('Session check skipped for contact form', e);
+        }
+      }
 
       // お問い合わせをデータベースに保存
       const { error } = await supabase

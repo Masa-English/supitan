@@ -52,23 +52,31 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // getSession()を使用してセッションを確認
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+        // getUser() を使用: リフレッシュトークン欠如時は静かにスルーしリダイレクト
+        const { data: { user }, error } = await supabase.auth.getUser();
         if (error) {
-          console.error('認証チェックエラー:', error);
+          const message = String((error as { message?: string }).message || '');
+          const code = String((error as { code?: string }).code || '');
+          const isExpected =
+            message.includes('Refresh Token Not Found') ||
+            message.includes('Invalid Refresh Token') ||
+            message.includes('Auth session missing') ||
+            code === 'refresh_token_not_found';
+          if (!isExpected && process.env.NODE_ENV === 'development') {
+            console.error('認証チェックエラー:', error);
+          }
           saveCurrentPath();
           router.push('/landing');
           return;
         }
 
-        if (!session || !session.user) {
+        if (!user) {
           saveCurrentPath();
           router.push('/landing');
           return;
         }
         
-        setUser(session.user);
+        setUser(user);
         setIsAuthenticated(true);
       } catch (error) {
         console.error('認証チェックエラー:', error);

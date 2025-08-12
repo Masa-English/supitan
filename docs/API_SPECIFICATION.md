@@ -957,62 +957,82 @@ export const apiClient = new APIClient();
 ### 1. ミドルウェア認証 (`middleware.ts`)
 
 ```typescript
-import { createServerClient } from '@/lib/supabase/middleware';
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-  
-  const supabase = createServerClient(request, response);
-  
-  // セッション確認
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  const isProtectedRoute = request.nextUrl.pathname.startsWith('/protected');
-  const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
-  const isAPIRoute = request.nextUrl.pathname.startsWith('/api');
-  
-  // 保護されたルートの認証チェック
-  if (isProtectedRoute && !session) {
-    const redirectUrl = new URL('/auth/login', request.url);
-    redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname);
-    return NextResponse.redirect(redirectUrl);
-  }
-  
-  // 認証済みユーザーの認証ページアクセス制御
-  if (isAuthRoute && session) {
-    return NextResponse.redirect(new URL('/protected', request.url));
-  }
-  
-  // API ルートの認証チェック
-  if (isAPIRoute && requiresAuth(request.nextUrl.pathname) && !session) {
-    return NextResponse.json(
-      { error: 'Unauthorized', code: 'AUTH_REQUIRED' },
-      { status: 401 }
-    );
-  }
-  
-  return response;
-}
+  const pathname = request.nextUrl.pathname
+  const cookieNames = request.cookies.getAll().map((c) => c.name)
+  const hasSupabaseSessionCookie = cookieNames.some((n) =>
+    n.includes('sb-') || n.includes('supabase-auth-token')
+  )
 
-function requiresAuth(pathname: string): boolean {
-  const protectedAPIs = [
-    '/api/data/user-progress',
-    '/api/data/quiz-questions'
-  ];
-  
-  return protectedAPIs.some(api => pathname.startsWith(api));
+  if (pathname === '/landing') {
+    return NextResponse.next({ request })
+  }
+
+  if (pathname === '/') {
+    const url = request.nextUrl.clone()
+    url.pathname = hasSupabaseSessionCookie ? '/dashboard' : '/landing'
+    return NextResponse.redirect(url)
+  }
+
+  let supabaseResponse = NextResponse.next({ request })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  let user: { email?: string } | null = null
+  if (hasSupabaseSessionCookie) {
+    const { data } = await supabase.auth.getUser()
+    user = data?.user ?? null
+  }
+
+  const isAPIRoute = request.nextUrl.pathname.startsWith('/api')
+  const isAdminPath = request.nextUrl.pathname.startsWith('/admin')
+
+  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/landing'
+    return NextResponse.redirect(url)
+  }
+
+  if (isAdminPath && !user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/landing'
+    return NextResponse.redirect(url)
+  }
+
+  if (user && request.nextUrl.pathname.startsWith('/auth')) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  return supabaseResponse
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json|landing|landing/.*|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$).*)'
   ],
-};
+}
 ```
 
 ### 2. RLS（Row Level Security）ポリシー

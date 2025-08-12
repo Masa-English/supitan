@@ -11,7 +11,7 @@
 ### ✅ 2. 認証・認可の不備（CWE-287） - 修正完了
 **修正内容：**
 - `app/api/data/[type]/route.ts`: 認証エラーの詳細チェックとユーザーID検証を追加
-- `lib/supabase/middleware.ts`: パブリックパスにAPIエンドポイントを追加
+ - `middleware.ts`: パブリックパスにAPIエンドポイントを追加
 
 ### ✅ 3. 入力値検証の不備（CWE-20） - 修正完了
 **修正内容：**
@@ -22,7 +22,7 @@
 **修正内容：**
 - `lib/supabase/client.ts`: 環境変数の存在確認を追加
 - `lib/supabase/server.ts`: 環境変数の存在確認を追加
-- `lib/supabase/middleware.ts`: 環境変数未設定時の適切なリダイレクト処理を追加
+ - `middleware.ts`: 環境変数未設定時の適切なリダイレクト処理を追加
 
 ### ✅ 5. ログ出力の脆弱性（CWE-532） - 修正完了
 **修正内容：**

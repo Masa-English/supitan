@@ -1,5 +1,7 @@
 import { Header } from '@/components/common';
 
+export const dynamic = 'force-static';
+
 export default function LandingLayout({
   children,
 }: {

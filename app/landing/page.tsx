@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import PrefetchClient from './prefetch-client';
 import { Button } from '@/components/ui/button';
 import { Zap, Target, Trophy, RotateCcw, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -14,9 +15,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const dynamic = 'force-static';
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
+      <PrefetchClient />
       {/* ヒーローセクション */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
@@ -30,13 +34,13 @@ export default function LandingPage() {
 
             {/* CTAボタン */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link href="/auth/login">
+              <Link href="/auth/login" prefetch>
                 <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground">
                   <Zap className="h-5 w-5 mr-2" />
                   学習を始める
                 </Button>
               </Link>
-              <Link href="/contact">
+              <Link href="/contact" prefetch>
                 <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-8 py-4 border-border">
                   お問い合わせ
                 </Button>
@@ -213,7 +217,7 @@ export default function LandingPage() {
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             学習法で効率的に英単語をマスターし、英語力を向上させましょう
           </p>
-          <Link href="/auth/login">
+          <Link href="/auth/login" prefetch>
             <Button size="lg" className="text-lg px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground">
               <ArrowRight className="h-5 w-5 mr-2" />
               さっそく始める

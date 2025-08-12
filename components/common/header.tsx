@@ -78,14 +78,27 @@ export function Header({
       // 現在のユーザーを取得
       const getCurrentUser = async () => {
         try {
-          const { data: { session }, error } = await supabase.auth.getSession();
+          const { data: { user }, error } = await supabase.auth.getUser();
           if (error) {
-            console.error('ユーザー取得エラー:', error);
-          } else if (session?.user) {
-            setCurrentUser(session.user);
+            const message = String((error as { message?: string }).message || '');
+            const code = String((error as { code?: string }).code || '');
+            const isExpected =
+              message.includes('Refresh Token Not Found') ||
+              message.includes('Invalid Refresh Token') ||
+              message.includes('Auth session missing') ||
+              code === 'refresh_token_not_found';
+            if (!isExpected && process.env.NODE_ENV === 'development') {
+              console.error('ユーザー取得エラー:', error);
+            }
+            return;
+          }
+          if (user) {
+            setCurrentUser(user);
           }
         } catch (error) {
-          console.error('ユーザー取得エラー:', error);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('ユーザー取得エラー:', error);
+          }
         }
       };
 

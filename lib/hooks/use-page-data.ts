@@ -40,13 +40,22 @@ export function usePageData(options: UsePageDataOptions): UsePageDataReturn {
   useEffect(() => {
     const getUser = async () => {
       try {
-        // getSession()を使用してセッションを確認
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // getUser() を使用し、想定内のリフレッシュエラーは抑制
+        const { data: { user }, error } = await supabase.auth.getUser();
         if (error) {
-          console.error('認証エラー:', error);
-          setError('認証に失敗しました');
-        } else if (session?.user) {
-          setUser(session.user);
+          const message = String((error as { message?: string }).message || '');
+          const code = String((error as { code?: string }).code || '');
+          const isExpected =
+            message.includes('Refresh Token Not Found') ||
+            message.includes('Invalid Refresh Token') ||
+            message.includes('Auth session missing') ||
+            code === 'refresh_token_not_found';
+          if (!isExpected && process.env.NODE_ENV === 'development') {
+            console.error('認証エラー:', error);
+          }
+          // 認証不要の画面ではユーザー未設定のまま継続
+        } else if (user) {
+          setUser(user);
         }
       } catch (err) {
         console.error('認証エラー:', err);

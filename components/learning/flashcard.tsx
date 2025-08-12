@@ -58,11 +58,26 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
         let user = null;
         try {
           const { data: { user: userData }, error } = await supabase.auth.getUser();
-          if (!error && userData) {
+          if (error) {
+            const message = String((error as { message?: string }).message || '');
+            const code = String((error as { code?: string }).code || '');
+            const isExpected =
+              message.includes('Refresh Token Not Found') ||
+              message.includes('Invalid Refresh Token') ||
+              message.includes('Auth session missing') ||
+              code === 'refresh_token_not_found';
+            if (!isExpected && process.env.NODE_ENV === 'development') {
+              console.error('ユーザー取得エラー:', error);
+            }
+            return;
+          }
+          if (userData) {
             user = userData;
           }
-        } catch {
-          console.debug('Session check skipped for user data loading');
+        } catch (e) {
+          if (process.env.NODE_ENV === 'development') {
+            console.debug('Session check skipped for user data loading', e);
+          }
           return;
         }
         
@@ -144,11 +159,26 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
       let user = null;
       try {
         const { data: { user: userData }, error } = await supabase.auth.getUser();
-        if (!error && userData) {
+        if (error) {
+          const message = String((error as { message?: string }).message || '');
+          const code = String((error as { code?: string }).code || '');
+          const isExpected =
+            message.includes('Refresh Token Not Found') ||
+            message.includes('Invalid Refresh Token') ||
+            message.includes('Auth session missing') ||
+            code === 'refresh_token_not_found';
+          if (!isExpected && process.env.NODE_ENV === 'development') {
+            console.error('ユーザー取得エラー:', error);
+          }
+          return;
+        }
+        if (userData) {
           user = userData;
         }
-      } catch {
-        console.debug('Session check skipped for review toggle');
+      } catch (e) {
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('Session check skipped for review toggle', e);
+        }
         return;
       }
       
