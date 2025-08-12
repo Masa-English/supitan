@@ -107,7 +107,7 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {sections.map((sec) => {
-                  const href = `/dashboard/category/${encodeURIComponent(category)}/${mode}?sec=${encodeURIComponent(sec)}`;
+                  const href = `/dashboard/category/${encodeURIComponent(category)}/${mode}/section/${encodeURIComponent(sec)}`;
                   return (
                     <Link key={sec} href={href} className="border border-border rounded-lg p-3 bg-card hover:shadow-md hover:border-primary/40 transition-colors" aria-label={`セクション${sec}で開始`}>
                       <div className="text-sm font-semibold text-foreground">セクション {sec}</div>

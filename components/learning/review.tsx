@@ -104,16 +104,8 @@ export function Review({ onComplete }: ReviewProps) {
 
     try {
       if (user) {
-        // 復習結果を更新
-        const newReviewCount = (currentReviewWord.review_count || 0) + 1;
-        const nextReview = db.calculateNextReview(difficulty, newReviewCount);
-
-        await db.updateReviewWord(user.id, currentWord.id, {
-          review_count: newReviewCount,
-          last_reviewed: new Date().toISOString(),
-          next_review: nextReview.toISOString(),
-          difficulty_level: difficulty
-        });
+        // 回答後はいったん復習リストから解除
+        await db.removeFromReview(user.id, currentWord.id);
 
         // セッション進捗を更新
         if (sessionId) {

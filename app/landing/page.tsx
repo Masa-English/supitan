@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   title: 'スピ単 - 効率的な英語学習アプリ',
   description: 'フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。音声機能付きで発音も学べます。',
   keywords: ['英語学習', 'フラッシュカード', 'クイズ', '復習', '英単語', '語学学習'],
+  robots: {
+    index: false,
+    follow: false,
+  },
   openGraph: {
     title: 'スピ単 - 効率的な英語学習アプリ',
     description: 'フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。音声機能付きで発音も学べます。',

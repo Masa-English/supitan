@@ -7,6 +7,10 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: 'よくある質問 - スピ単',
   description: 'スピ単に関するよくある質問と回答をご覧いただけます。',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 const faqData = [

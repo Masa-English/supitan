@@ -4,7 +4,13 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { path, token } = body as { path?: unknown; token?: string };
+    const { path, token, category, mode, sections } = body as {
+      path?: unknown;
+      token?: string;
+      category?: string;
+      mode?: 'quiz' | 'flashcard';
+      sections?: string[];
+    };
 
     // セキュリティトークンの検証
     if (token !== process.env.REVALIDATION_TOKEN) {
@@ -23,10 +29,16 @@ export async function POST(request: NextRequest) {
         );
       }
       revalidatePath(path);
+    } else if (category && mode && Array.isArray(sections) && sections.length > 0) {
+      // カテゴリ×モード×複数セクションの一括再検証
+      for (const sec of sections) {
+        const p = `/dashboard/category/${encodeURIComponent(category)}/${mode}/section/${encodeURIComponent(sec)}`;
+        revalidatePath(p);
+      }
     } else {
       // デフォルトでランディングページとカテゴリーページを再検証
       revalidatePath('/landing');
-      revalidatePath('/protected/category/[category]');
+      revalidatePath('/dashboard/category');
     }
 
     // 統一キャッシュシステムのキャッシュをクリア

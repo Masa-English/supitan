@@ -22,8 +22,16 @@ export const metadata: Metadata = {
   creator: "スピ単",
   publisher: "スピ単",
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+      'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
+    },
   },
   openGraph: {
     type: "website",

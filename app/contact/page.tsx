@@ -8,6 +8,10 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: 'お問い合わせ - スピ単',
   description: 'スピ単へのお問い合わせ、ご質問、バグ報告、機能リクエストなどございましたら、お気軽にお問い合わせください。',
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 const contactInfo = [
