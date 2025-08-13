@@ -6,7 +6,7 @@ import { Quiz } from '@/components/learning/quiz';
 import { CompletionModal } from '@/components/learning/completion-modal';
 import { DatabaseService } from '@/lib/database';
 import { useAuth } from '@/lib/hooks/use-auth';
-import { AudioPreloader } from '@/components/learning/audio-preloader';
+// import { AudioPreloader } from '@/components/learning/audio-preloader';
 import { useRouter } from 'next/navigation';
 import { useNavigationStore } from '@/lib/navigation-store';
 
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function QuizClient({ category, words, initialQuestions }: Props) {
-  const { user } = useAuth();
+  const { user, loading: authLoading, error: authError } = useAuth();
   const db = new DatabaseService();
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
@@ -51,10 +51,39 @@ export default function QuizClient({ category, words, initialQuestions }: Props)
 
   const closeAllModals = () => setShowCompletionModal(false);
 
+  // 認証のローディング中はローディング画面を表示
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-foreground font-medium">認証中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 認証エラーがある場合はエラーメッセージを表示
+  if (authError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">認証エラーが発生しました</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
+          >
+            再読み込み
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      {/* 音声ファイルの事前読み込み */}
-      <AudioPreloader words={words} />
+      {/* 音声ファイルの事前読み込みを一時的に無効化（無限ローディング防止） */}
+      {/* <AudioPreloader words={words} /> */}
       <Quiz words={words} onComplete={handleComplete} onAddToReview={handleAddToReview} initialQuestions={initialQuestions} />
       {/* 学習完了後のボタン操作で画面遷移するため、視覚的に遷移中を示すオーバーレイはグローバルで表示される */}
       {showCompletionModal && (
