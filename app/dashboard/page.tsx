@@ -12,14 +12,27 @@ import Link from 'next/link';
 
 // サーバーサイドでの認証確認
 async function getAuthenticatedUser() {
-  const supabase = await createClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
-  
-  if (error || !user) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error) {
+      console.error('認証エラー:', error);
+      redirect('/landing');
+    }
+    
+    if (!user) {
+      redirect('/landing');
+    }
+    
+    return user;
+  } catch (error) {
+    console.error('認証確認エラー:', error);
     redirect('/landing');
   }
   
-  return user;
+  // この行は到達不可能だが、TypeScriptの型チェックのために必要
+  throw new Error('認証に失敗しました');
 }
 
 // メインアクションカード
@@ -67,9 +80,10 @@ function MainActionCard({
 }
 
 export default async function DashboardPage() {
-  const user = await getAuthenticatedUser();
+  try {
+    const user = await getAuthenticatedUser();
 
-  return (
+    return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 sm:py-8">
         {/* ヘッダー */}
@@ -139,4 +153,8 @@ export default async function DashboardPage() {
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('ダッシュボードページエラー:', error);
+    redirect('/landing');
+  }
 }
