@@ -33,8 +33,7 @@ export function Quiz({
   const [isCorrect, setIsCorrect] = useState(false);
   
   // 音声ストア
-  const { playCorrectSound, playIncorrectSound } = useAudioStore();
-  const { isMuted, volume } = useAudioStore();
+  const { playCorrectSound, playIncorrectSound, playWordAudio, isMuted, volume } = useAudioStore();
 
   const currentQuestion = questions[currentIndex];
 
@@ -216,7 +215,6 @@ export function Quiz({
     if (currentQuestion?.word?.word) {
       // 音声ファイルがある場合は音声ファイルを再生、ない場合はWeb Speech APIを使用
       if (currentQuestion.word.audio_file) {
-        const { playWordAudio } = useAudioStore.getState();
         playWordAudio(currentQuestion.word.id);
       } else {
         // Web Speech APIを使用して音声を再生
