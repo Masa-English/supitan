@@ -129,10 +129,24 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       audio.volume = volume;
       audio.preload = 'auto';
 
-      // 音声の読み込み完了を待つ
+      // 音声の読み込み完了を待つ（タイムアウト付き）
       await new Promise((resolve, reject) => {
-        audio.addEventListener('canplaythrough', resolve, { once: true });
-        audio.addEventListener('error', reject, { once: true });
+        const timeout = setTimeout(() => {
+          reject(new Error('音声ファイルの読み込みがタイムアウトしました'));
+        }, 10000); // 10秒でタイムアウト
+
+        const handleCanPlayThrough = () => {
+          clearTimeout(timeout);
+          resolve(undefined);
+        };
+
+        const handleError = (error: Event) => {
+          clearTimeout(timeout);
+          reject(new Error(`音声ファイルの読み込みに失敗しました: ${error}`));
+        };
+
+        audio.addEventListener('canplaythrough', handleCanPlayThrough, { once: true });
+        audio.addEventListener('error', handleError, { once: true });
         audio.load();
       });
 

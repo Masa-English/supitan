@@ -80,15 +80,34 @@ export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob
     
     devLog.log(`[AudioUtils] 音声ファイルURL取得成功: ${urlData.publicUrl}`);
     
-    // URLからBlobを取得
-    const response = await fetch(urlData.publicUrl);
-    
-    if (!response.ok) {
-      devLog.error(`[AudioUtils] 音声ファイルのフェッチに失敗: ${audioFilePath}, status=${response.status}`);
+    // URLからBlobを取得（タイムアウト付き）
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒でタイムアウト
+
+    let blob: Blob;
+    try {
+      const response = await fetch(urlData.publicUrl, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        devLog.error(`[AudioUtils] 音声ファイルのフェッチに失敗: ${audioFilePath}, status=${response.status}`);
+        return null;
+      }
+      
+      blob = await response.blob();
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        devLog.error(`[AudioUtils] 音声ファイルのフェッチがタイムアウトしました: ${audioFilePath}`);
+      } else {
+        devLog.error(`[AudioUtils] 音声ファイルのフェッチエラー: ${audioFilePath}`, error);
+      }
       return null;
     }
     
-    const blob = await response.blob();
     devLog.log(`[AudioUtils] 音声ファイル取得成功: ${audioFilePath}, size=${blob.size} bytes`);
     return blob;
   } catch (error) {
