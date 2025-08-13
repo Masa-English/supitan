@@ -4,14 +4,12 @@ import { useState, useEffect } from 'react';
 import { Header } from '@/components/common';
 import { SideMenu } from '@/app/dashboard/side-menu';
 import { useHeader } from '@/lib/contexts/header-context';
-import { useNavigationStore } from '@/lib/navigation-store';
 import { 
   RotateCcw, 
   Search, 
   BarChart3, 
   User, 
-  Zap,
-  Loader2
+  Zap
 } from 'lucide-react';
 
 interface DashboardLayoutClientProps {
@@ -22,7 +20,6 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
   const { isSideMenuOpen, toggleSideMenu } = useHeader();
   const [isMobile, setIsMobile] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const isNavigating = useNavigationStore((s) => s.isNavigating);
 
   useEffect(() => {
     setIsClient(true);
@@ -54,17 +51,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background" suppressHydrationWarning>
-      {/* ナビゲーションローディングUI */}
-      {isNavigating && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-            <p className="text-foreground font-medium">ページを読み込み中...</p>
-          </div>
-        </div>
-      )}
-      
+    <div className="min-h-screen flex flex-col bg-background" suppressHydrationWarning>      
       {/* ヘッダー */}
       <Header 
         showMobileMenu={true}

@@ -41,7 +41,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
   const [flippedExamples, setFlippedExamples] = useState<Set<string>>(new Set());
   const [showJapanese, setShowJapanese] = useState(false);
   
-  const { volume, isMuted } = useAudioStore();
+  const { volume, isMuted, playWordAudio: playWordAudioFromStore } = useAudioStore();
   const db = useMemo(() => new DatabaseService(), []);
   const { showToast } = useToast();
   
@@ -234,23 +234,16 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     }
   }, []);
 
-  const playWordAudio = useCallback(async () => {
+  const playWordAudio = useCallback(() => {
     if (!currentWord) return;
 
-    try {
-      if (currentWord.audio_file) {
-        const audio = new Audio(`/api/audio/${currentWord.id}`);
-        audio.volume = volume;
-        if (isMuted) audio.volume = 0;
-        await audio.play();
-      } else {
-        fallbackToSpeechSynthesis(currentWord.word);
-      }
-    } catch (error) {
-      devLog.error('音声再生エラー:', error);
+    if (currentWord.audio_file) {
+      // audio-storeのplayWordAudioを使用してキャッシュ機能を活用
+      playWordAudioFromStore(currentWord.id);
+    } else {
       fallbackToSpeechSynthesis(currentWord.word);
     }
-  }, [currentWord, volume, isMuted, fallbackToSpeechSynthesis]);
+  }, [currentWord, playWordAudioFromStore, fallbackToSpeechSynthesis]);
 
   const playExampleAudio = useCallback(async (
     text: string,

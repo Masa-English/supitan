@@ -9,11 +9,13 @@ interface AudioState {
   correctAudio: HTMLAudioElement | null;
   incorrectAudio: HTMLAudioElement | null;
   wordAudioCache: Map<string, HTMLAudioElement>;
+  wordAudioPathCache: Map<string, string>; // 単語IDから音声パスへのキャッシュ
   isLoading: boolean;
   error: string | null;
   isInitialized: boolean;
   initializeAudio: () => Promise<void>;
   loadWordAudio: (wordId: string, audioFilePath: string) => Promise<HTMLAudioElement | null>;
+  preloadWordAudioPaths: (words: { id: string; audio_file: string | null }[]) => void;
   playCorrectSound: () => void;
   playIncorrectSound: () => void;
   playWordAudio: (wordId: string) => void;
@@ -28,6 +30,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   correctAudio: null,
   incorrectAudio: null,
   wordAudioCache: new Map(),
+  wordAudioPathCache: new Map(),
   isLoading: false,
   error: null,
   isInitialized: false,
@@ -163,8 +166,24 @@ export const useAudioStore = create<AudioState>((set, get) => ({
     }
   },
 
+  preloadWordAudioPaths: (words: { id: string; audio_file: string | null }[]) => {
+    const pathCache = new Map<string, string>();
+    
+    words.forEach(word => {
+      if (word.audio_file) {
+        pathCache.set(word.id, word.audio_file);
+      }
+    });
+    
+    set(state => ({
+      wordAudioPathCache: new Map([...state.wordAudioPathCache, ...pathCache])
+    }));
+    
+    devLog.log(`[AudioStore] 音声パスキャッシュ更新: ${pathCache.size}件追加`);
+  },
+
   playWordAudio: async (wordId: string) => {
-    const { wordAudioCache, isMuted, volume, loadWordAudio } = get();
+    const { wordAudioCache, wordAudioPathCache, isMuted, volume, loadWordAudio } = get();
     
     devLog.log(`[AudioStore] 音声再生開始: wordId=${wordId}, isMuted=${isMuted}`);
     
@@ -173,30 +192,45 @@ export const useAudioStore = create<AudioState>((set, get) => ({
     // キャッシュにない場合は動的に読み込み
     if (!audio) {
       devLog.log(`[AudioStore] キャッシュに音声ファイルなし、動的読み込み開始: ${wordId}`);
-      try {
-        // 単語IDから音声ファイルパスを取得
-        const supabase = createClient();
-        const { data: word, error: wordError } = await supabase
-          .from('words')
-          .select('audio_file')
-          .eq('id', wordId)
-          .single();
+      
+      // まず音声パスキャッシュから確認
+      let audioFilePath = wordAudioPathCache.get(wordId);
+      
+      if (!audioFilePath) {
+        try {
+          // データベースから音声ファイルパスを取得（フォールバック）
+          const supabase = createClient();
+          const { data: word, error: wordError } = await supabase
+            .from('words')
+            .select('audio_file')
+            .eq('id', wordId)
+            .single();
 
-        if (wordError || !word?.audio_file) {
-          devLog.warn(`[AudioStore] 音声ファイルが見つかりません: ${wordId}`, wordError);
+          if (wordError || !word?.audio_file) {
+            devLog.warn(`[AudioStore] 音声ファイルが見つかりません: ${wordId}`, wordError);
+            return;
+          }
+          
+          audioFilePath = word.audio_file;
+          devLog.log(`[AudioStore] データベースから音声ファイルパス取得: ${audioFilePath}`);
+        } catch (error) {
+          devLog.error(`[AudioStore] 音声ファイル取得エラー: ${wordId}`, error);
           return;
         }
+      } else {
+        devLog.log(`[AudioStore] キャッシュから音声ファイルパス取得: ${audioFilePath}`);
+      }
 
-        devLog.log(`[AudioStore] 音声ファイルパス取得: ${word.audio_file}`);
+      // 音声ファイルパスが確保できない場合は早期リターン
+      if (!audioFilePath) {
+        devLog.error(`[AudioStore] 音声ファイルパスが取得できませんでした: ${wordId}`);
+        return;
+      }
 
-        // 音声ファイルを読み込み
-        audio = await loadWordAudio(wordId, word.audio_file);
-        if (!audio) {
-          devLog.warn(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${word.audio_file}`);
-          return;
-        }
-      } catch (error) {
-        devLog.error(`[AudioStore] 音声ファイル取得エラー: ${wordId}`, error);
+      // 音声ファイルを読み込み
+      audio = await loadWordAudio(wordId, audioFilePath);
+      if (!audio) {
+        devLog.warn(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${audioFilePath}`);
         return;
       }
     } else {
@@ -332,6 +366,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       correctAudio: null,
       incorrectAudio: null,
       wordAudioCache: new Map(),
+      wordAudioPathCache: new Map(),
       isInitialized: false,
       isLoading: false,
       error: null
