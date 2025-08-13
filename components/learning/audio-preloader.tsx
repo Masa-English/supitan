@@ -65,7 +65,8 @@ export function AudioPreloader({ words, onLoadComplete, onLoadProgress }: AudioP
     };
 
     preloadAudioFiles();
-  }, [words, onLoadComplete, onLoadProgress, loadWordAudio]); // loadWordAudioを依存配列に追加
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [words, onLoadComplete, onLoadProgress]); // loadWordAudioを依存配列から削除（無限ループ防止）
 
   if (!isLoading) {
     return null;
