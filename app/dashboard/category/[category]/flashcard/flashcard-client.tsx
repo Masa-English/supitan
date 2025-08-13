@@ -23,7 +23,6 @@ export default function FlashcardClient({ category, words }: Props) {
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
   const router = useRouter();
   const startNavigating = useNavigationStore((s) => s.start);
-
   const handleComplete = async () => {
     if (!user) return;
     const results = words.map((w) => ({ wordId: w.id, correct: true }));
