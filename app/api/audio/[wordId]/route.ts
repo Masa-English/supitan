@@ -4,12 +4,12 @@ import { devLog } from '@/lib/utils';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { wordId: string } }
+  { params }: { params: Promise<{ wordId: string }> }
 ) {
   try {
     const supabase = await createClient();
     
-    const wordId = params.wordId;
+    const { wordId } = await params;
     
     devLog.log(`音声ファイル取得リクエスト: wordId=${wordId}`);
     
