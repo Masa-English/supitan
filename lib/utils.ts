@@ -231,3 +231,29 @@ export function secureStorageRemove(key: string): void {
     }
   }
 }
+
+/**
+ * 開発環境かどうかを判定する
+ */
+export const isDevelopment = process.env.NODE_ENV === 'development';
+
+/**
+ * 開発環境でのみコンソールログを出力する
+ */
+export const devLog = {
+  log: (...args: unknown[]) => {
+    if (isDevelopment) {
+      console.log(...args);
+    }
+  },
+  warn: (...args: unknown[]) => {
+    if (isDevelopment) {
+      console.warn(...args);
+    }
+  },
+  error: (...args: unknown[]) => {
+    if (isDevelopment) {
+      console.error(...args);
+    }
+  }
+};

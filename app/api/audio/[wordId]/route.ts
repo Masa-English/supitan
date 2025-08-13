@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { devLog } from '@/lib/utils';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ wordId: string }> }
+  { params }: { params: { wordId: string } }
 ) {
   try {
     const supabase = await createClient();
     
-    const resolvedParams = await params;
-    const wordId = resolvedParams.wordId;
+    const wordId = params.wordId;
     
-    console.log(`音声ファイル取得リクエスト: wordId=${wordId}`);
+    devLog.log(`音声ファイル取得リクエスト: wordId=${wordId}`);
     
     // 単語IDから音声ファイルパスを取得
     const { data: word, error: wordError } = await supabase
@@ -21,7 +21,7 @@ export async function GET(
       .single();
 
     if (wordError) {
-      console.error(`単語情報取得エラー (${wordId}):`, wordError);
+      devLog.error(`単語情報取得エラー (${wordId}):`, wordError);
       return NextResponse.json(
         { error: '単語情報の取得に失敗しました', details: wordError.message },
         { status: 404 }
@@ -29,14 +29,14 @@ export async function GET(
     }
 
     if (!word?.audio_file) {
-      console.warn(`音声ファイルが設定されていません: ${wordId} (${word?.word})`);
+      devLog.warn(`音声ファイルが設定されていません: ${wordId} (${word?.word})`);
       return NextResponse.json(
-        { error: '音声ファイルが設定されていません', word: word?.word },
+        { error: '音声ファイルが設定されていません' },
         { status: 404 }
       );
     }
 
-    console.log(`音声ファイルパス: ${word.audio_file} (${word.word})`);
+    devLog.log(`音声ファイルパス: ${word.audio_file} (${word.word})`);
 
     // audio-filesバケットから音声ファイルを取得
     const { data, error } = await supabase.storage
@@ -44,22 +44,22 @@ export async function GET(
       .download(word.audio_file);
 
     if (error) {
-      console.error(`音声ファイルダウンロードエラー (${word.audio_file}):`, error);
+      devLog.error(`音声ファイルダウンロードエラー (${word.audio_file}):`, error);
       return NextResponse.json(
-        { error: '音声ファイルの取得に失敗しました', details: error.message, path: word.audio_file },
-        { status: 404 }
+        { error: '音声ファイルのダウンロードに失敗しました' },
+        { status: 500 }
       );
     }
 
-    if (!data) {
-      console.error(`音声ファイルデータが空: ${word.audio_file}`);
+    if (!data || data.size === 0) {
+      devLog.error(`音声ファイルデータが空: ${word.audio_file}`);
       return NextResponse.json(
-        { error: '音声ファイルデータが空です', path: word.audio_file },
-        { status: 404 }
+        { error: '音声ファイルデータが空です' },
+        { status: 500 }
       );
     }
 
-    console.log(`音声ファイル取得成功: ${word.audio_file} (${data.size} bytes)`);
+    devLog.log(`音声ファイル取得成功: ${word.audio_file} (${data.size} bytes)`);
 
     // 音声ファイルを返す
     return new NextResponse(data, {
@@ -71,9 +71,9 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('音声ファイル取得エラー:', error);
+    devLog.error('音声ファイル取得エラー:', error);
     return NextResponse.json(
-      { error: '音声ファイルの取得に失敗しました', details: error instanceof Error ? error.message : '不明なエラー' },
+      { error: '音声ファイルの取得に失敗しました' },
       { status: 500 }
     );
   }

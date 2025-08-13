@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createClient } from '@/lib/supabase/client';
 import { fetchAudioFromStorage } from '@/lib/audio-utils';
+import { devLog } from '@/lib/utils';
 
 interface AudioState {
   isMuted: boolean;
@@ -55,7 +56,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
 
       // 音声ファイルの取得に失敗した場合のフォールバック処理
       if (correctError || incorrectError) {
-        console.warn('効果音ファイルの取得に失敗しました。Web Speech APIを使用します。', {
+        devLog.warn('効果音ファイルの取得に失敗しました。Web Speech APIを使用します。', {
           correctError,
           incorrectError
         });
@@ -94,7 +95,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       });
 
     } catch (error) {
-      console.error('音声初期化エラー:', error);
+      devLog.error('音声初期化エラー:', error);
       set({
         isLoading: false,
         error: error instanceof Error ? error.message : '音声の初期化に失敗しました',
@@ -116,7 +117,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       const blob = await fetchAudioFromStorage(audioFilePath);
       
       if (!blob) {
-        console.warn(`[AudioStore] 音声ファイルが見つかりません: ${audioFilePath}`);
+        devLog.warn(`[AudioStore] 音声ファイルが見つかりません: ${audioFilePath}`);
         return null;
       }
 
@@ -143,7 +144,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       return audio;
 
     } catch (error) {
-      console.error(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${audioFilePath}`, error);
+      devLog.error(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${audioFilePath}`, error);
       return null;
     }
   },
@@ -151,13 +152,13 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   playWordAudio: async (wordId: string) => {
     const { wordAudioCache, isMuted, volume, loadWordAudio } = get();
     
-    console.log(`[AudioStore] 音声再生開始: wordId=${wordId}, isMuted=${isMuted}`);
+    devLog.log(`[AudioStore] 音声再生開始: wordId=${wordId}, isMuted=${isMuted}`);
     
     let audio = wordAudioCache.get(wordId) || null;
     
     // キャッシュにない場合は動的に読み込み
     if (!audio) {
-      console.log(`[AudioStore] キャッシュに音声ファイルなし、動的読み込み開始: ${wordId}`);
+      devLog.log(`[AudioStore] キャッシュに音声ファイルなし、動的読み込み開始: ${wordId}`);
       try {
         // 単語IDから音声ファイルパスを取得
         const supabase = createClient();
@@ -168,36 +169,36 @@ export const useAudioStore = create<AudioState>((set, get) => ({
           .single();
 
         if (wordError || !word?.audio_file) {
-          console.warn(`[AudioStore] 音声ファイルが見つかりません: ${wordId}`, wordError);
+          devLog.warn(`[AudioStore] 音声ファイルが見つかりません: ${wordId}`, wordError);
           return;
         }
 
-        console.log(`[AudioStore] 音声ファイルパス取得: ${word.audio_file}`);
+        devLog.log(`[AudioStore] 音声ファイルパス取得: ${word.audio_file}`);
 
         // 音声ファイルを読み込み
         audio = await loadWordAudio(wordId, word.audio_file);
         if (!audio) {
-          console.warn(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${word.audio_file}`);
+          devLog.warn(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${word.audio_file}`);
           return;
         }
       } catch (error) {
-        console.error(`[AudioStore] 音声ファイル取得エラー: ${wordId}`, error);
+        devLog.error(`[AudioStore] 音声ファイル取得エラー: ${wordId}`, error);
         return;
       }
     } else {
-      console.log(`[AudioStore] キャッシュから音声ファイル取得: ${wordId}`);
+      devLog.log(`[AudioStore] キャッシュから音声ファイル取得: ${wordId}`);
     }
     
     // 音声を再生
     if (audio && !isMuted) {
-      console.log(`[AudioStore] 音声再生実行: ${wordId}`);
+      devLog.log(`[AudioStore] 音声再生実行: ${wordId}`);
       audio.volume = volume;
       audio.currentTime = 0;
       audio.play().catch(error => {
-        console.error('[AudioStore] 単語音声再生エラー:', error);
+        devLog.error('[AudioStore] 単語音声再生エラー:', error);
       });
     } else {
-      console.log(`[AudioStore] 音声再生スキップ: audio=${!!audio}, isMuted=${isMuted}`);
+      devLog.log(`[AudioStore] 音声再生スキップ: audio=${!!audio}, isMuted=${isMuted}`);
     }
   },
 
@@ -225,7 +226,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       correctAudio.volume = volume;
       correctAudio.currentTime = 0;
       correctAudio.play().catch(error => {
-        console.error('正解音再生エラー:', error);
+        devLog.error('正解音再生エラー:', error);
       });
     }
   },
@@ -254,7 +255,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       incorrectAudio.volume = volume;
       incorrectAudio.currentTime = 0;
       incorrectAudio.play().catch(error => {
-        console.error('不正解音再生エラー:', error);
+        devLog.error('不正解音再生エラー:', error);
       });
     }
   },

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
+import { devLog } from '@/lib/utils';
 
 export interface AudioFileInfo {
   wordId: string;
@@ -31,7 +32,7 @@ export async function fetchBatchAudioFiles(wordIds: string[]): Promise<BatchAudi
 
     return await response.json();
   } catch (error) {
-    console.error('音声ファイル一括取得エラー:', error);
+    devLog.error('音声ファイル一括取得エラー:', error);
     throw error;
   }
 }
@@ -52,7 +53,7 @@ export async function fetchWordAudio(wordId: string): Promise<Blob | null> {
 
     return await response.blob();
   } catch (error) {
-    console.error(`音声ファイル取得エラー (${wordId}):`, error);
+    devLog.error(`音声ファイル取得エラー (${wordId}):`, error);
     return null;
   }
 }
@@ -63,7 +64,7 @@ export async function fetchWordAudio(wordId: string): Promise<Blob | null> {
  */
 export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob | null> {
   try {
-    console.log(`[AudioUtils] Supabase Storageから音声ファイルを取得開始: ${audioFilePath}`);
+    devLog.log(`[AudioUtils] Supabase Storageから音声ファイルを取得開始: ${audioFilePath}`);
     
     const supabase = createClient();
     
@@ -73,25 +74,25 @@ export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob
       .getPublicUrl(audioFilePath);
     
     if (!urlData?.publicUrl) {
-      console.error(`[AudioUtils] 音声ファイルのURL取得に失敗: ${audioFilePath}`);
+      devLog.error(`[AudioUtils] 音声ファイルのURL取得に失敗: ${audioFilePath}`);
       return null;
     }
     
-    console.log(`[AudioUtils] 音声ファイルURL取得成功: ${urlData.publicUrl}`);
+    devLog.log(`[AudioUtils] 音声ファイルURL取得成功: ${urlData.publicUrl}`);
     
     // URLからBlobを取得
     const response = await fetch(urlData.publicUrl);
     
     if (!response.ok) {
-      console.error(`[AudioUtils] 音声ファイルのフェッチに失敗: ${audioFilePath}, status=${response.status}`);
+      devLog.error(`[AudioUtils] 音声ファイルのフェッチに失敗: ${audioFilePath}, status=${response.status}`);
       return null;
     }
     
     const blob = await response.blob();
-    console.log(`[AudioUtils] 音声ファイル取得成功: ${audioFilePath}, size=${blob.size} bytes`);
+    devLog.log(`[AudioUtils] 音声ファイル取得成功: ${audioFilePath}, size=${blob.size} bytes`);
     return blob;
   } catch (error) {
-    console.error(`[AudioUtils] 音声ファイル取得エラー (${audioFilePath}):`, error);
+    devLog.error(`[AudioUtils] 音声ファイル取得エラー (${audioFilePath}):`, error);
     return null;
   }
 }
@@ -144,14 +145,14 @@ export async function generateAudioUrl(audioFilePath: string, _expiresIn: number
       .getPublicUrl(audioFilePath);
 
     if (!data?.publicUrl) {
-      console.warn(`音声ファイルURL生成エラー: ${audioFilePath}`);
+      devLog.warn(`音声ファイルURL生成エラー: ${audioFilePath}`);
       return null;
     }
 
-    console.log(`[AudioUtils] 音声ファイルURL生成成功: ${data.publicUrl}`);
+    devLog.log(`[AudioUtils] 音声ファイルURL生成成功: ${data.publicUrl}`);
     return data.publicUrl;
   } catch (error) {
-    console.error(`音声ファイルURL生成エラー (${audioFilePath}):`, error);
+    devLog.error(`音声ファイルURL生成エラー (${audioFilePath}):`, error);
     return null;
   }
 }
@@ -171,13 +172,13 @@ export async function checkAudioFileExists(audioFilePath: string): Promise<boole
       });
 
     if (error) {
-      console.warn(`音声ファイル存在確認エラー: ${audioFilePath}`, error);
+      devLog.warn(`音声ファイル存在確認エラー: ${audioFilePath}`, error);
       return false;
     }
 
     return data && data.length > 0;
   } catch (error) {
-    console.error(`音声ファイル存在確認エラー (${audioFilePath}):`, error);
+    devLog.error(`音声ファイル存在確認エラー (${audioFilePath}):`, error);
     return false;
   }
 }
@@ -202,7 +203,7 @@ export async function getAudioFileMetadata(audioFilePath: string) {
 
     return data[0];
   } catch (error) {
-    console.error(`音声ファイルメタデータ取得エラー (${audioFilePath}):`, error);
+    devLog.error(`音声ファイルメタデータ取得エラー (${audioFilePath}):`, error);
     return null;
   }
 }
@@ -266,7 +267,7 @@ export async function getAudioFileInfo(audioFilePath: string) {
  */
 export async function getWordAudioInfo(wordId: string) {
   try {
-    console.log(`[AudioUtils] 単語音声情報取得開始: wordId=${wordId}`);
+    devLog.log(`[AudioUtils] 単語音声情報取得開始: wordId=${wordId}`);
     
     const supabase = createClient();
     
@@ -278,7 +279,7 @@ export async function getWordAudioInfo(wordId: string) {
       .single();
 
     if (wordError || !word) {
-      console.error(`[AudioUtils] 単語情報取得エラー: ${wordId}`, wordError);
+      devLog.error(`[AudioUtils] 単語情報取得エラー: ${wordId}`, wordError);
       return {
         wordId,
         word: null,
@@ -288,10 +289,10 @@ export async function getWordAudioInfo(wordId: string) {
       };
     }
 
-    console.log(`[AudioUtils] 単語情報取得成功: ${word.word}, audio_file=${word.audio_file}`);
+    devLog.log(`[AudioUtils] 単語情報取得成功: ${word.word}, audio_file=${word.audio_file}`);
 
     if (!word.audio_file) {
-      console.log(`[AudioUtils] 音声ファイル未設定: ${word.word}`);
+      devLog.log(`[AudioUtils] 音声ファイル未設定: ${word.word}`);
       return {
         wordId,
         word: word.word,
@@ -302,9 +303,9 @@ export async function getWordAudioInfo(wordId: string) {
     }
 
     // 音声ファイル情報を取得
-    console.log(`[AudioUtils] 音声ファイル情報取得開始: ${word.audio_file}`);
+    devLog.log(`[AudioUtils] 音声ファイル情報取得開始: ${word.audio_file}`);
     const audioInfo = await getAudioFileInfo(word.audio_file);
-    console.log(`[AudioUtils] 音声ファイル情報取得結果:`, audioInfo);
+    devLog.log(`[AudioUtils] 音声ファイル情報取得結果:`, audioInfo);
 
     return {
       wordId,
@@ -314,7 +315,7 @@ export async function getWordAudioInfo(wordId: string) {
       error: null
     };
   } catch (error) {
-    console.error(`[AudioUtils] 単語音声情報取得エラー: ${wordId}`, error);
+    devLog.error(`[AudioUtils] 単語音声情報取得エラー: ${wordId}`, error);
     return {
       wordId,
       word: null,

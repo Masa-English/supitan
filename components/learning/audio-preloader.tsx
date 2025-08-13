@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Word } from '@/lib/types';
 import { useAudioStore } from '@/lib/audio-store';
+import { devLog } from '@/lib/utils';
 
 interface AudioPreloaderProps {
   words: Word[];
@@ -41,7 +42,7 @@ export function AudioPreloader({ words, onLoadComplete, onLoadProgress }: AudioP
               return newCount;
             });
           } catch (error) {
-            console.warn(`音声ファイル読み込みエラー: ${word.word}`, error);
+            devLog.warn(`音声ファイル読み込みエラー: ${word.word}`, error);
             // エラーが発生してもカウントを進める
             setLoadedCount(prev => {
               const newCount = prev + 1;
@@ -57,7 +58,7 @@ export function AudioPreloader({ words, onLoadComplete, onLoadProgress }: AudioP
         await Promise.allSettled(loadPromises);
         onLoadComplete?.();
       } catch (error) {
-        console.error('音声ファイル事前読み込みエラー:', error);
+        devLog.error('音声ファイル事前読み込みエラー:', error);
       } finally {
         setIsLoading(false);
       }

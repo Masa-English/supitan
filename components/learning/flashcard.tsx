@@ -11,6 +11,7 @@ import { AudioInitializer } from './audio-initializer';
 import { useAudioStore } from '@/lib/audio-store';
 import { useToast } from '@/components/ui/toast';
 import { fetchAudioFromStorage } from '@/lib/audio-utils';
+import { devLog } from '@/lib/utils';
 
 // 例文音声パス生成（ローカルヘルパー）
 function buildPathFromAudioFile(audioFilePath: string, index: number): string {
@@ -246,7 +247,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
         fallbackToSpeechSynthesis(currentWord.word);
       }
     } catch (error) {
-      console.error('音声再生エラー:', error);
+      devLog.error('音声再生エラー:', error);
       fallbackToSpeechSynthesis(currentWord.word);
     }
   }, [currentWord, volume, isMuted, fallbackToSpeechSynthesis]);
@@ -288,7 +289,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
         }
       }
     } catch (e) {
-      console.warn('例文音声の取得に失敗。TTSへフォールバックします:', e);
+      devLog.warn('例文音声の取得に失敗。TTSへフォールバックします:', e);
     }
     try {
       fallbackToSpeechSynthesis(text);
@@ -301,14 +302,45 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
   const handleExampleClick = useCallback((exampleKey: string) => {
     setFlippedExamples(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(exampleKey)) {
+      const wasFlipped = newSet.has(exampleKey);
+      
+      if (wasFlipped) {
         newSet.delete(exampleKey);
       } else {
         newSet.add(exampleKey);
+        // 日本語から英語に切り替えた時に自動で音声を再生
+        const currentWord = words[currentIndex];
+        if (currentWord) {
+          let exampleText = '';
+          let exampleIndex: 1 | 2 | 3 | undefined;
+          
+          switch (exampleKey) {
+            case 'example1':
+              exampleText = currentWord.example1 || '';
+              exampleIndex = 1;
+              break;
+            case 'example2':
+              exampleText = currentWord.example2 || '';
+              exampleIndex = 2;
+              break;
+            case 'example3':
+              exampleText = currentWord.example3 || '';
+              exampleIndex = 3;
+              break;
+          }
+          
+          if (exampleText) {
+            // 少し遅延させてから音声を再生（UIの切り替えが完了してから）
+            setTimeout(() => {
+              playExampleAudio(exampleText, exampleIndex, 'en');
+            }, 100);
+          }
+        }
       }
+      
       return newSet;
     });
-  }, []);
+  }, [words, currentIndex, playExampleAudio]);
 
   const handleToggleJapanese = useCallback(() => {
     setShowJapanese(prev => !prev);
@@ -417,98 +449,98 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
                   <div className="space-y-3">
                     <h3 className="text-lg font-semibold text-foreground">例文</h3>
                     
-                    {currentWord.example1 && (
-                      <div 
-                        className="bg-accent rounded-lg p-3 border border-border cursor-pointer"
-                        onClick={() => handleExampleClick('example1')}
-                      >
-                        <div className="flex items-start justify-between mb-1">
-                          <p className="text-foreground font-medium text-sm flex-1 pr-2 leading-relaxed">
-                            {flippedExamples.has('example1') ? currentWord.example1 : currentWord.example1_jp}
-                          </p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              playExampleAudio(
-                                flippedExamples.has('example1') ? currentWord.example1! : currentWord.example1_jp!,
-                                1,
-                                flippedExamples.has('example1') ? 'en' : 'jp'
-                              );
-                            }}
-                            className="text-primary h-6 w-6 p-1 flex-shrink-0"
-                          >
-                            <Volume2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <p className="text-muted-foreground text-xs">
-                          {flippedExamples.has('example1') ? currentWord.example1_jp : 'クリックして英語を表示'}
-                        </p>
-                      </div>
-                    )}
-                    
-                    {currentWord.example2 && (
-                      <div 
-                        className="bg-accent rounded-lg p-3 border border-border cursor-pointer"
-                        onClick={() => handleExampleClick('example2')}
-                      >
-                        <div className="flex items-start justify-between mb-1">
-                          <p className="text-foreground font-medium text-sm flex-1 pr-2 leading-relaxed">
-                            {flippedExamples.has('example2') ? currentWord.example2 : currentWord.example2_jp}
-                          </p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              playExampleAudio(
-                                flippedExamples.has('example2') ? currentWord.example2! : currentWord.example2_jp!,
-                                2,
-                                flippedExamples.has('example2') ? 'en' : 'jp'
-                              );
-                            }}
-                            className="text-primary h-6 w-6 p-1 flex-shrink-0"
-                          >
-                            <Volume2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <p className="text-muted-foreground text-xs">
-                          {flippedExamples.has('example2') ? currentWord.example2_jp : 'クリックして英語を表示'}
-                        </p>
-                      </div>
-                    )}
-                    
-                    {currentWord.example3 && (
-                      <div 
-                        className="bg-accent rounded-lg p-3 border border-border cursor-pointer"
-                        onClick={() => handleExampleClick('example3')}
-                      >
-                        <div className="flex items-start justify-between mb-1">
-                          <p className="text-foreground font-medium text-sm flex-1 pr-2 leading-relaxed">
-                            {flippedExamples.has('example3') ? currentWord.example3 : currentWord.example3_jp}
-                          </p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              playExampleAudio(
-                                flippedExamples.has('example3') ? currentWord.example3! : currentWord.example3_jp!,
-                                3,
-                                flippedExamples.has('example3') ? 'en' : 'jp'
-                              );
-                            }}
-                            className="text-primary h-6 w-6 p-1 flex-shrink-0"
-                          >
-                            <Volume2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <p className="text-muted-foreground text-xs">
-                          {flippedExamples.has('example3') ? currentWord.example3_jp : 'クリックして英語を表示'}
-                        </p>
-                      </div>
-                    )}
+                                         {currentWord.example1 && (
+                       <div 
+                         className="bg-accent rounded-lg p-3 border border-border cursor-pointer"
+                         onClick={() => handleExampleClick('example1')}
+                       >
+                         <div className="flex items-center justify-between mb-1">
+                           <p className="text-foreground font-medium text-sm flex-1 pr-2 leading-relaxed">
+                             {flippedExamples.has('example1') ? currentWord.example1 : currentWord.example1_jp}
+                           </p>
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               playExampleAudio(
+                                 flippedExamples.has('example1') ? currentWord.example1! : currentWord.example1_jp!,
+                                 1,
+                                 flippedExamples.has('example1') ? 'en' : 'jp'
+                               );
+                             }}
+                             className="text-primary h-8 w-8 p-1 flex-shrink-0 flex items-center justify-center"
+                           >
+                             <Volume2 className="h-4 w-4" />
+                           </Button>
+                         </div>
+                         <p className="text-muted-foreground text-xs">
+                           {flippedExamples.has('example1') ? currentWord.example1_jp : 'クリックして英語を表示'}
+                         </p>
+                       </div>
+                     )}
+                     
+                     {currentWord.example2 && (
+                       <div 
+                         className="bg-accent rounded-lg p-3 border border-border cursor-pointer"
+                         onClick={() => handleExampleClick('example2')}
+                       >
+                         <div className="flex items-center justify-between mb-1">
+                           <p className="text-foreground font-medium text-sm flex-1 pr-2 leading-relaxed">
+                             {flippedExamples.has('example2') ? currentWord.example2 : currentWord.example2_jp}
+                           </p>
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               playExampleAudio(
+                                 flippedExamples.has('example2') ? currentWord.example2! : currentWord.example2_jp!,
+                                 2,
+                                 flippedExamples.has('example2') ? 'en' : 'jp'
+                               );
+                             }}
+                             className="text-primary h-8 w-8 p-1 flex-shrink-0 flex items-center justify-center"
+                           >
+                             <Volume2 className="h-4 w-4" />
+                           </Button>
+                         </div>
+                         <p className="text-muted-foreground text-xs">
+                           {flippedExamples.has('example2') ? currentWord.example2_jp : 'クリックして英語を表示'}
+                         </p>
+                       </div>
+                     )}
+                     
+                     {currentWord.example3 && (
+                       <div 
+                         className="bg-accent rounded-lg p-3 border border-border cursor-pointer"
+                         onClick={() => handleExampleClick('example3')}
+                       >
+                         <div className="flex items-center justify-between mb-1">
+                           <p className="text-foreground font-medium text-sm flex-1 pr-2 leading-relaxed">
+                             {flippedExamples.has('example3') ? currentWord.example3 : currentWord.example3_jp}
+                           </p>
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               playExampleAudio(
+                                 flippedExamples.has('example3') ? currentWord.example3! : currentWord.example3_jp!,
+                                 3,
+                                 flippedExamples.has('example3') ? 'en' : 'jp'
+                               );
+                             }}
+                             className="text-primary h-8 w-8 p-1 flex-shrink-0 flex items-center justify-center"
+                           >
+                             <Volume2 className="h-4 w-4" />
+                           </Button>
+                         </div>
+                         <p className="text-muted-foreground text-xs">
+                           {flippedExamples.has('example3') ? currentWord.example3_jp : 'クリックして英語を表示'}
+                         </p>
+                       </div>
+                     )}
                   </div>
                 </div>
               </div>

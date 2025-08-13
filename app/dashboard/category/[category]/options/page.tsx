@@ -2,11 +2,12 @@ import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 // 認証不要の公開データ読み取りは cookies を使わないクライアントで行う
 import { createClient as createPublicClient } from '@supabase/supabase-js';
-import { Input } from '@/components/ui/input';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Layers, BookOpen, Brain, ArrowLeft } from 'lucide-react';
+import { SectionLink } from './section-link';
+import { RandomInput } from './random-input';
 
 interface PageProps {
   params?: Promise<{ category: string }>;
@@ -17,24 +18,29 @@ interface PageProps {
 export const revalidate = 300; // 5分
 
 export default async function OptionsPage({ params, searchParams }: PageProps) {
+  // パラメータの取得と検証
   const p = params ? await params : undefined;
   const sp = searchParams ? await searchParams : {};
+  
   if (!p?.category) notFound();
+  
   const category = decodeURIComponent(p.category);
   const mode = sp.mode === 'quiz' ? 'quiz' : sp.mode === 'flashcard' ? 'flashcard' : null;
 
-  // 認証は middleware で担保されるためここでは直接チェックしない
+  if (!mode) notFound();
+
+  // Supabaseクライアントの初期化
   const supabase = createPublicClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
-  if (!mode) notFound();
 
   // 総件数を取得（カテゴリー内）
   const { count: totalCount, error: countErr } = await supabase
     .from('words')
     .select('id', { count: 'exact', head: true })
     .eq('category', category);
+  
   if (countErr) notFound();
   const wordsCount = totalCount || 0;
 
@@ -44,8 +50,16 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
     .select('section')
     .eq('category', category)
     .order('section', { ascending: true });
+  
   if (secErr) notFound();
-  const sections = Array.from(new Set((sectionsRaw || []).map(r => String((r as { section: number | string | null }).section ?? '未設定'))));
+  
+  const sections = Array.from(
+    new Set(
+      (sectionsRaw || []).map((r: { section: number | string | null }) => 
+        String(r.section ?? '未設定')
+      )
+    )
+  );
 
   const base = `/dashboard/category/${encodeURIComponent(category)}/${mode}`;
 
@@ -106,13 +120,10 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {sections.map((sec) => {
+                {sections.map((sec: string) => {
                   const href = `/dashboard/category/${encodeURIComponent(category)}/${mode}/section/${encodeURIComponent(sec)}`;
                   return (
-                    <Link key={sec} href={href} className="border border-border rounded-lg p-3 bg-card hover:shadow-md hover:border-primary/40 transition-colors" aria-label={`セクション${sec}で開始`}>
-                      <div className="text-sm font-semibold text-foreground">セクション {sec}</div>
-                      <div className="mt-2 text-xs text-primary underline">開始</div>
-                    </Link>
+                    <SectionLink key={sec} href={href} section={sec} />
                   );
                 })}
               </div>
@@ -147,17 +158,36 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
                 <form
                   action={async (formData) => {
                     'use server';
-                    const count = Math.max(1, Number(formData.get('count') || '10'));
+                    
+                    // フォームデータから件数を取得し、制約を適用
+                    const inputCount = Number(formData.get('count') || '10');
+                    const count = Math.max(1, Math.min(wordsCount, inputCount));
+                    
+                    // リダイレクトURLを生成
                     const url = `${base}?random=1&count=${count}`;
                     redirect(url);
                   }}
-                  className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3"
+                  className="space-y-3"
                 >
-                  <div>
-                    <label className="text-sm font-medium" htmlFor="random-count">件数</label>
-                    <Input id="random-count" type="number" name="count" min={1} defaultValue={10} className="w-full sm:w-40" />
+                                     <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+                     <div>
+                       <label className="text-sm font-medium" htmlFor="random-count">件数</label>
+                       <RandomInput 
+                         wordsCount={wordsCount}
+                         defaultValue={Math.min(10, wordsCount)}
+                       />
+                     </div>
+                     <Button type="submit" aria-label="ランダムで開始" disabled={wordsCount === 0} size="sm">
+                       開始 <ArrowRight className="h-4 w-4 ml-1" />
+                     </Button>
+                   </div>
+                  
+
+                  
+                  {/* 制約情報 */}
+                  <div className="text-xs text-muted-foreground">
+                    設定可能範囲: 1 ～ {wordsCount}問
                   </div>
-                  <Button type="submit" aria-label="ランダムで開始" disabled={wordsCount === 0} size="sm">開始 <ArrowRight className="h-4 w-4 ml-1" /></Button>
                 </form>
               </div>
             )}

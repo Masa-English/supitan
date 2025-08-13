@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { devLog } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
             audioFile: word.audio_file
           };
         } catch (error) {
-          console.warn(`音声ファイルURL生成エラー: ${word.audio_file}`, error);
+          devLog.warn(`音声ファイルURL生成エラー: ${word.audio_file}`, error);
           return {
             wordId: word.id,
             audioUrl: null,
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('音声ファイル一括取得エラー:', error);
+    devLog.error('音声ファイル一括取得エラー:', error);
     return NextResponse.json(
       { error: '音声ファイルの一括取得に失敗しました' },
       { status: 500 }
