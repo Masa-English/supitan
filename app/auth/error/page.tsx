@@ -44,18 +44,11 @@ export default async function Page({
               )}
             </div>
             
-            <div className="space-y-3">
-              <Link href="/auth/login">
-                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                  ログインページに戻る
-                </Button>
-              </Link>
-              <Link href="/landing">
-                <Button variant="outline" className="w-full border-border">
-                  ランディングページに戻る
-                </Button>
-              </Link>
-            </div>
+            <Link href="/auth/login">
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                ログインページに戻る
+              </Button>
+            </Link>
           </CardContent>
         </Card>
 
