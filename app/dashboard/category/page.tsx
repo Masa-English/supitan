@@ -211,12 +211,17 @@ export default function CategoryPage() {
         <div className="max-w-7xl mx-auto">
           {/* ヘッダー */}
           <div className="mb-8">
-      <Link href="/dashboard" onClick={() => startNavigating()}>
-              <Button variant="ghost" className="text-muted-foreground hover:bg-muted mb-4">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                ダッシュボードに戻る
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost" 
+              className="text-muted-foreground hover:bg-muted mb-4" 
+              onClick={() => {
+                startNavigating();
+                router.push('/dashboard');
+              }}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              ダッシュボードに戻る
+            </Button>
             
             <div className="flex items-center gap-4 mb-6">
               <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">

@@ -51,7 +51,13 @@ export default function Error({
             </Button>
             <Button
               variant="outline"
-              onClick={() => { startNavigating(); router.push('/'); }}
+              onClick={() => {
+                // 既にルートページにいる場合は遷移しない
+                if (window.location.pathname !== '/') {
+                  startNavigating();
+                  router.push('/');
+                }
+              }}
               className="border-red-200 text-red-600 hover:bg-red-50"
             >
               ホームに戻る

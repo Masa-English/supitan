@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Layers, BookOpen, Brain } from 'lucide-react';
+import { ArrowLeft, Layers, BookOpen } from 'lucide-react';
 
 // オプションページ用のスケルトン
 export default function OptionsPageLoading() {

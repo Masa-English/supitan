@@ -56,11 +56,9 @@ export function LoginForm({
       if (redirectPath) {
         console.log('保存されたリダイレクト先に遷移:', redirectPath);
         sessionStorage.removeItem('redirectAfterLogin');
-        startNavigating();
         router.push(redirectPath);
       } else {
         console.log('デフォルトのダッシュボードに遷移');
-        startNavigating();
         router.push("/dashboard");
       }
     } catch (error: unknown) {

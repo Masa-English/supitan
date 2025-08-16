@@ -101,11 +101,11 @@ function RedirectHandler({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       // 保存されたリダイレクト先がある場合はそこに遷移
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-        if (redirectPath) {
+      if (redirectPath && window.location.pathname !== redirectPath) {
         console.log('ダッシュボードから保存されたリダイレクト先に遷移:', redirectPath);
         sessionStorage.removeItem('redirectAfterLogin');
-          startNavigating();
-          router.push(redirectPath);
+        startNavigating();
+        router.push(redirectPath);
       }
     }
   }, [router, startNavigating]);
