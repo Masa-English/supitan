@@ -186,8 +186,16 @@ export function Header({
 
   const handleHomeClick = () => {
     if (currentUser) {
+      // 既にダッシュボードページにいる場合は遷移しない
+      if (pathname === '/dashboard') {
+        return;
+      }
       startNavigating();
       router.push('/dashboard');
+      return;
+    }
+    // 既にランディングページにいる場合は遷移しない  
+    if (pathname === '/landing') {
       return;
     }
     startNavigating();
@@ -301,21 +309,36 @@ export function Header({
                     </div>
                     <DropdownMenuSeparator className="bg-border" />
                     <DropdownMenuItem 
-                      onClick={() => { startNavigating(); router.push('/dashboard/profile'); }}
+                      onClick={() => {
+                        if (pathname !== '/dashboard/profile') {
+                          startNavigating();
+                          router.push('/dashboard/profile');
+                        }
+                      }}
                       className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
                     >
                       <UserCircle className="h-4 w-4 mr-2" />
                       プロフィール設定
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => { startNavigating(); router.push('/dashboard/review'); }}
+                      onClick={() => {
+                        if (pathname !== '/dashboard/review') {
+                          startNavigating();
+                          router.push('/dashboard/review');
+                        }
+                      }}
                       className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
                     >
                       <Zap className="h-4 w-4 mr-2" />
                       復習
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => { startNavigating(); router.push('/dashboard'); }}
+                      onClick={() => {
+                        if (pathname !== '/dashboard') {
+                          startNavigating();
+                          router.push('/dashboard');
+                        }
+                      }}
                       className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
                     >
                       <Settings className="h-4 w-4 mr-2" />

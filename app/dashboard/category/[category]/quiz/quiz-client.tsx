@@ -7,7 +7,7 @@ import { CompletionModal } from '@/components/learning/completion-modal';
 import { DatabaseService } from '@/lib/database';
 import { useAuth } from '@/lib/hooks/use-auth';
 // import { AudioPreloader } from '@/components/learning/audio-preloader';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useNavigationStore } from '@/lib/navigation-store';
 
 interface Props {
@@ -22,6 +22,7 @@ export default function QuizClient({ category, words, initialQuestions }: Props)
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
   const router = useRouter();
+  const pathname = usePathname();
   const startNavigating = useNavigationStore((s) => s.start);
 
   const handleComplete = async (results: { wordId: string; correct: boolean }[]) => {
@@ -97,9 +98,25 @@ export default function QuizClient({ category, words, initialQuestions }: Props)
             accuracy: Math.round((sessionResults.filter((r) => r.correct).length / Math.max(sessionResults.length, 1)) * 100),
           }}
           onRetry={() => setShowCompletionModal(false)}
-          onBackToHome={() => { startNavigating(); router.push('/dashboard'); }}
-          onGoToReview={() => { startNavigating(); router.push('/dashboard/review'); }}
-          onBackToCategory={() => { startNavigating(); router.push(`/dashboard/category/${encodeURIComponent(category)}`); }}
+          onBackToHome={() => {
+            if (pathname !== '/dashboard') {
+              startNavigating();
+              router.push('/dashboard');
+            }
+          }}
+          onGoToReview={() => {
+            if (pathname !== '/dashboard/review') {
+              startNavigating();
+              router.push('/dashboard/review');
+            }
+          }}
+          onBackToCategory={() => {
+            const targetPath = `/dashboard/category/${encodeURIComponent(category)}`;
+            if (pathname !== targetPath) {
+              startNavigating();
+              router.push(targetPath);
+            }
+          }}
         />
       )}
     </div>
