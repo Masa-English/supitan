@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useNavigationStore } from '@/lib/navigation-store';
+import { useNavigationStore } from '@/lib/stores';
 
 /**
  * ルーター遷移やフォーム送信などの開始/完了をフックして、

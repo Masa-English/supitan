@@ -35,6 +35,9 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
 
   // 統一データプロバイダ経由で取得（キャッシュ有効）
   let words = await dataProvider.getWordsByCategory(category);
+  
+  // カテゴリー全体のセクション情報を取得
+  const allSections = [...new Set(words.map(w => String(w.section ?? '')))].filter(Boolean).sort();
 
   // セクション指定時はサーバー側でフィルタ
   if (!isRandom && sectionRaw) {
@@ -65,6 +68,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
     <FlashcardClient
       category={category}
       words={words}
+      allSections={allSections}
       key={listKey}
     />
   );

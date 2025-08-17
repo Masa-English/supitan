@@ -1,5 +1,12 @@
 import type { Json } from './database.types';
 
+export interface User {
+  id: string;
+  email?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface UserProfile {
   id: string;
   user_id: string | null;
@@ -40,6 +47,9 @@ export interface Word {
   trivia_content_jp: string | null;
   created_at: string | null;
   updated_at: string | null;
+  is_favorite?: boolean;
+  mastery_level?: number | null;
+  study_count?: number | null;
 }
 
 export interface UserProgress {
@@ -69,8 +79,7 @@ export interface StudySession {
   created_at: string | null;
 }
 
-export interface ReviewWord {
-  id: string;
+export interface ReviewWord extends Word {
   user_id: string | null;
   word_id: string | null;
   added_at: string | null;
@@ -92,16 +101,20 @@ export interface ReviewSession {
 }
 
 export interface Category {
-  name: string;
+  category: string;
   count: number;
+  englishName: string;
   pos: string;
+  description: string;
+  color: string;
+  icon: string;
 }
 
 export interface QuizQuestion {
   word: Word;
   options: string[];
   correct_answer: string;
-  type: 'meaning' | 'example';
+  type: 'meaning' | 'example' | 'japanese_to_english';
   question?: string; // 問題文（例文問題の場合）
 }
 
@@ -111,6 +124,15 @@ export interface AppStats {
   mastered_words: number;
   study_time_minutes: number;
   review_count: number;
+  total_words_studied: number;
+  total_correct_answers: number;
+  total_incorrect_answers: number;
+  current_streak: number;
+  longest_streak: number;
+  total_study_sessions: number;
+  average_accuracy: number;
+  words_mastered: number;
+  favorite_words_count: number;
 }
 
 export interface Trivia {

@@ -1,18 +1,25 @@
+'use client';
+
 import { create } from 'zustand';
 import { createClient } from '@/lib/supabase/client';
 import { fetchAudioFromStorage } from '@/lib/audio-utils';
 import { devLog } from '@/lib/utils';
 
 interface AudioState {
+  // 音声状態
   isMuted: boolean;
   volume: number;
   correctAudio: HTMLAudioElement | null;
   incorrectAudio: HTMLAudioElement | null;
   wordAudioCache: Map<string, HTMLAudioElement>;
-  wordAudioPathCache: Map<string, string>; // 単語IDから音声パスへのキャッシュ
+  wordAudioPathCache: Map<string, string>;
+  
+  // 状態管理
   isLoading: boolean;
   error: string | null;
   isInitialized: boolean;
+  
+  // アクション
   initializeAudio: () => Promise<void>;
   loadWordAudio: (wordId: string, audioFilePath: string) => Promise<HTMLAudioElement | null>;
   preloadWordAudioPaths: (words: { id: string; audio_file: string | null }[]) => void;
@@ -25,6 +32,7 @@ interface AudioState {
 }
 
 export const useAudioStore = create<AudioState>((set, get) => ({
+  // 初期状態
   isMuted: false,
   volume: 0.7,
   correctAudio: null,
@@ -35,10 +43,10 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   error: null,
   isInitialized: false,
 
+  // 音声初期化
   initializeAudio: async () => {
     const { isInitialized } = get();
     
-    // 既に初期化済みの場合は何もしない
     if (isInitialized) {
       return;
     }
@@ -64,7 +72,6 @@ export const useAudioStore = create<AudioState>((set, get) => ({
           incorrectError
         });
         
-        // エラーを設定するが、アプリケーションは継続動作
         set({
           isLoading: false,
           error: '効果音ファイルの取得に失敗しました。Web Speech APIを使用します。',
@@ -86,108 +93,144 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       // 音声の設定
       correctAudio.volume = get().volume;
       incorrectAudio.volume = get().volume;
-      correctAudio.preload = 'auto';
-      incorrectAudio.preload = 'auto';
 
       set({
         correctAudio,
         incorrectAudio,
         isLoading: false,
-        error: null,
-        isInitialized: true
+        isInitialized: true,
+        error: null
       });
 
+      devLog.log('[AudioStore] 音声初期化完了');
     } catch (error) {
-      devLog.error('音声初期化エラー:', error);
+      console.error('音声初期化エラー:', error);
       set({
         isLoading: false,
-        error: error instanceof Error ? error.message : '音声の初期化に失敗しました',
+        error: '音声の初期化に失敗しました',
         isInitialized: true
       });
     }
   },
 
+  // 単語音声読み込み
   loadWordAudio: async (wordId: string, audioFilePath: string) => {
-    const { wordAudioCache, volume } = get();
-    
-    // キャッシュに既に存在する場合はそれを返す
-    if (wordAudioCache.has(wordId)) {
-      return wordAudioCache.get(wordId) || null;
-    }
-
     try {
-      // 新しいユーティリティ関数を使用して音声ファイルを取得
-      const blob = await fetchAudioFromStorage(audioFilePath);
-      
-      if (!blob) {
-        devLog.warn(`[AudioStore] 音声ファイルが見つかりません: ${audioFilePath}`);
-        return null;
+      const audioBlob = await fetchAudioFromStorage(audioFilePath);
+      if (audioBlob) {
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        const { wordAudioCache } = get();
+        wordAudioCache.set(wordId, audio);
+        set({ wordAudioCache: new Map(wordAudioCache) });
+        devLog.log(`[AudioStore] 単語音声読み込み完了: ${wordId}`);
+        return audio;
       }
-
-      // BlobからAudioオブジェクトを作成
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      
-      // 音声の設定
-      audio.volume = volume;
-      audio.preload = 'auto';
-
-      // 音声の読み込み完了を待つ（タイムアウト付き）
-      await new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error('音声ファイルの読み込みがタイムアウトしました'));
-        }, 10000); // 10秒でタイムアウト
-
-        const handleCanPlayThrough = () => {
-          clearTimeout(timeout);
-          resolve(undefined);
-        };
-
-        const handleError = (error: Event) => {
-          clearTimeout(timeout);
-          reject(new Error(`音声ファイルの読み込みに失敗しました: ${error}`));
-        };
-
-        audio.addEventListener('canplaythrough', handleCanPlayThrough, { once: true });
-        audio.addEventListener('error', handleError, { once: true });
-        audio.load();
-      });
-
-      // キャッシュに保存
-      const newCache = new Map(wordAudioCache);
-      newCache.set(wordId, audio);
-      set({ wordAudioCache: newCache });
-
-      return audio;
-
+      return null;
     } catch (error) {
-      devLog.error(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${audioFilePath}`, error);
+      console.error(`単語音声読み込みエラー: ${wordId}`, error);
       return null;
     }
   },
 
+  // 音声パス事前読み込み
   preloadWordAudioPaths: (words: { id: string; audio_file: string | null }[]) => {
-    const pathCache = new Map<string, string>();
+    const { wordAudioPathCache } = get();
+    const pathCache = new Map(wordAudioPathCache);
     
     words.forEach(word => {
-      if (word.audio_file) {
+      if (word.audio_file && !pathCache.has(word.id)) {
         pathCache.set(word.id, word.audio_file);
       }
     });
     
-    set(state => ({
-      wordAudioPathCache: new Map([...state.wordAudioPathCache, ...pathCache])
-    }));
-    
+    set({ wordAudioPathCache: pathCache });
     devLog.log(`[AudioStore] 音声パスキャッシュ更新: ${pathCache.size}件追加`);
   },
 
+  // 正解音再生
+  playCorrectSound: () => {
+    const { correctAudio, isMuted, volume } = get();
+    
+    if (isMuted) return;
+    
+    try {
+      if (correctAudio) {
+        correctAudio.volume = volume;
+        correctAudio.currentTime = 0;
+        correctAudio.play().catch(error => {
+          console.error('正解音再生エラー:', error);
+          // フォールバックとしてWeb Speech APIを使用
+          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance('正解です！');
+            utterance.lang = 'ja-JP';
+            utterance.volume = volume;
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
+            speechSynthesis.speak(utterance);
+          }
+        });
+      } else {
+        // フォールバックとしてWeb Speech APIを使用
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+          const utterance = new SpeechSynthesisUtterance('正解です！');
+          utterance.lang = 'ja-JP';
+          utterance.volume = volume;
+          utterance.rate = 0.9;
+          utterance.pitch = 1.1;
+          speechSynthesis.speak(utterance);
+        }
+      }
+    } catch (error) {
+      console.error('正解音再生エラー:', error);
+    }
+  },
+
+  // 不正解音再生
+  playIncorrectSound: () => {
+    const { incorrectAudio, isMuted, volume } = get();
+    
+    if (isMuted) return;
+    
+    try {
+      if (incorrectAudio) {
+        incorrectAudio.volume = volume;
+        incorrectAudio.currentTime = 0;
+        incorrectAudio.play().catch(error => {
+          console.error('不正解音再生エラー:', error);
+          // フォールバックとしてWeb Speech APIを使用
+          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance('不正解です');
+            utterance.lang = 'ja-JP';
+            utterance.volume = volume;
+            utterance.rate = 0.9;
+            utterance.pitch = 0.9;
+            speechSynthesis.speak(utterance);
+          }
+        });
+      } else {
+        // フォールバックとしてWeb Speech APIを使用
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+          const utterance = new SpeechSynthesisUtterance('不正解です');
+          utterance.lang = 'ja-JP';
+          utterance.volume = volume;
+          utterance.rate = 0.9;
+          utterance.pitch = 0.9;
+          speechSynthesis.speak(utterance);
+        }
+      }
+    } catch (error) {
+      console.error('不正解音再生エラー:', error);
+    }
+  },
+
+  // 単語音声再生
   playWordAudio: async (wordId: string) => {
     const { wordAudioCache, wordAudioPathCache, isMuted, volume, loadWordAudio } = get();
-    
-    devLog.log(`[AudioStore] 音声再生開始: wordId=${wordId}, isMuted=${isMuted}`);
-    
-    let audio = wordAudioCache.get(wordId) || null;
+
+    if (isMuted) return;
+
+    let audio = wordAudioCache.get(wordId);
     
     // キャッシュにない場合は動的に読み込み
     if (!audio) {
@@ -228,7 +271,8 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       }
 
       // 音声ファイルを読み込み
-      audio = await loadWordAudio(wordId, audioFilePath);
+      const loadedAudio = await loadWordAudio(wordId, audioFilePath);
+      audio = loadedAudio || undefined;
       if (!audio) {
         devLog.warn(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${audioFilePath}`);
         return;
@@ -239,100 +283,38 @@ export const useAudioStore = create<AudioState>((set, get) => ({
     
     // 音声を再生
     if (audio && !isMuted) {
-      devLog.log(`[AudioStore] 音声再生実行: ${wordId}`);
-      audio.volume = volume;
-      audio.currentTime = 0;
-      audio.play().catch(error => {
-        devLog.error('[AudioStore] 単語音声再生エラー:', error);
-      });
-    } else {
-      devLog.log(`[AudioStore] 音声再生スキップ: audio=${!!audio}, isMuted=${isMuted}`);
-    }
-  },
-
-  playCorrectSound: () => {
-    const { correctAudio, isMuted, volume, error, isInitialized } = get();
-    
-    // 初期化されていない場合は初期化を試行
-    if (!isInitialized) {
-      get().initializeAudio();
-      return;
-    }
-    
-    // 音声ファイルが利用できない場合はWeb Speech APIを使用
-    if (!correctAudio && !error) {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance('Correct!');
-        utterance.lang = 'en-US';
-        utterance.volume = volume;
-        speechSynthesis.speak(utterance);
+      try {
+        audio.volume = volume;
+        audio.currentTime = 0;
+        await audio.play();
+        devLog.log(`[AudioStore] 単語音声再生完了: ${wordId}`);
+      } catch (error) {
+        console.error(`単語音声再生エラー: ${wordId}`, error);
       }
-      return;
-    }
-    
-    if (correctAudio && !isMuted) {
-      correctAudio.volume = volume;
-      correctAudio.currentTime = 0;
-      correctAudio.play().catch(error => {
-        devLog.error('正解音再生エラー:', error);
-      });
     }
   },
 
-  playIncorrectSound: () => {
-    const { incorrectAudio, isMuted, volume, error, isInitialized } = get();
-    
-    // 初期化されていない場合は初期化を試行
-    if (!isInitialized) {
-      get().initializeAudio();
-      return;
-    }
-    
-    // 音声ファイルが利用できない場合はWeb Speech APIを使用
-    if (!incorrectAudio && !error) {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance('Incorrect');
-        utterance.lang = 'en-US';
-        utterance.volume = volume;
-        speechSynthesis.speak(utterance);
-      }
-      return;
-    }
-    
-    if (incorrectAudio && !isMuted) {
-      incorrectAudio.volume = volume;
-      incorrectAudio.currentTime = 0;
-      incorrectAudio.play().catch(error => {
-        devLog.error('不正解音再生エラー:', error);
-      });
-    }
-  },
-
+  // ミュート切り替え
   toggleMute: () => {
     set(state => ({ isMuted: !state.isMuted }));
   },
 
+  // 音量設定
   setVolume: (volume: number) => {
-    const { correctAudio, incorrectAudio, wordAudioCache } = get();
-    set({ volume });
+    const clampedVolume = Math.max(0, Math.min(1, volume));
+    set({ volume: clampedVolume });
     
-    if (correctAudio) {
-      correctAudio.volume = volume;
-    }
-    if (incorrectAudio) {
-      incorrectAudio.volume = volume;
-    }
-    
-    // キャッシュされた単語音声の音量も更新
-    wordAudioCache.forEach(audio => {
-      audio.volume = volume;
-    });
+    // 既存の音声オブジェクトの音量も更新
+    const { correctAudio, incorrectAudio } = get();
+    if (correctAudio) correctAudio.volume = clampedVolume;
+    if (incorrectAudio) incorrectAudio.volume = clampedVolume;
   },
 
+  // クリーンアップ
   cleanup: () => {
     const { correctAudio, incorrectAudio, wordAudioCache } = get();
     
-    // Audioオブジェクトのクリーンアップ
+    // 音声オブジェクトの停止とリソース解放
     if (correctAudio) {
       correctAudio.pause();
       correctAudio.src = '';
@@ -342,34 +324,21 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       incorrectAudio.src = '';
     }
     
-    // 単語音声のクリーンアップ
+    // キャッシュされた音声の停止
     wordAudioCache.forEach(audio => {
       audio.pause();
       audio.src = '';
     });
     
-    // URLオブジェクトの解放
-    if (correctAudio?.src) {
-      URL.revokeObjectURL(correctAudio.src);
-    }
-    if (incorrectAudio?.src) {
-      URL.revokeObjectURL(incorrectAudio.src);
-    }
-    
-    wordAudioCache.forEach(audio => {
-      if (audio.src) {
-        URL.revokeObjectURL(audio.src);
-      }
-    });
-    
+    // 状態リセット
     set({
       correctAudio: null,
       incorrectAudio: null,
       wordAudioCache: new Map(),
       wordAudioPathCache: new Map(),
       isInitialized: false,
-      isLoading: false,
-      error: null
     });
-  }
-})); 
+    
+    devLog.log('[AudioStore] クリーンアップ完了');
+  },
+}));

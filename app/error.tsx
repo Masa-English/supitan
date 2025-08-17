@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useNavigationStore } from '@/lib/navigation-store';
+import { useNavigationStore } from '@/lib/stores';
 
 export default function Error({
   error,

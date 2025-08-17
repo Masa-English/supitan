@@ -3,7 +3,7 @@
 import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Volume2, VolumeX, Volume1, Volume } from 'lucide-react';
-import { useAudioStore } from '@/lib/audio-store';
+import { useAudioStore } from '@/lib/stores';
 
 interface AudioControlsProps {
   className?: string;

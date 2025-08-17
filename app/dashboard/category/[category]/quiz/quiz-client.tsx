@@ -1,22 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { Word, QuizQuestion } from '@/lib/types';
-import { Quiz } from '@/components/learning/quiz';
-import { CompletionModal } from '@/components/learning/completion-modal';
+import { Quiz } from '@/components/features/learning/quiz';
+import { CompletionModal } from '@/components/features/learning/completion-modal';
 import { DatabaseService } from '@/lib/database';
 import { useAuth } from '@/lib/hooks/use-auth';
 // import { AudioPreloader } from '@/components/learning/audio-preloader';
 import { useRouter, usePathname } from 'next/navigation';
-import { useNavigationStore } from '@/lib/navigation-store';
+import { useNavigationStore, useLearningSessionStore } from '@/lib/stores';
 
 interface Props {
   category: string;
   words: Word[];
   initialQuestions?: QuizQuestion[];
+  allSections?: string[];
 }
 
-export default function QuizClient({ category, words, initialQuestions }: Props) {
+export default function QuizClient({ category, words, initialQuestions, allSections }: Props) {
   const { user, loading: authLoading, error: authError } = useAuth();
   const db = new DatabaseService();
   const [showCompletionModal, setShowCompletionModal] = useState(false);
@@ -24,6 +25,52 @@ export default function QuizClient({ category, words, initialQuestions }: Props)
   const router = useRouter();
   const pathname = usePathname();
   const startNavigating = useNavigationStore((s) => s.start);
+  
+  // 学習セッションストア
+  const {
+    setLearningSession,
+    getNextSection,
+    category: _storeCategory,
+    currentSection: storeCurrentSection,
+    sections: _storeSections,
+    learningMode: storeLearningMode,
+    hasNextSection: storeHasNextSection
+  } = useLearningSessionStore();
+
+  // 現在のセクションを取得
+  const { currentSection, sections } = useMemo(() => {
+    if (words.length === 0) {
+      return { currentSection: null, sections: [] };
+    }
+
+    // allSectionsが渡されている場合はそれを使用、そうでなければwordsから計算
+    const sectionList = allSections || [...new Set(words.map(w => String(w.section || '')))].sort();
+    const currentSection = words[0]?.section ? String(words[0].section) : null;
+
+    console.log('セクション情報:', {
+      sections: sectionList,
+      currentSection,
+      totalSections: sectionList.length,
+      words: words.length,
+      allSectionsProvided: !!allSections
+    });
+
+    return { currentSection, sections: sectionList };
+  }, [words, allSections]);
+
+  // 学習セッション情報をストアに保存
+  useEffect(() => {
+    if (currentSection && sections.length > 0) {
+      const learningMode = sessionStorage.getItem('selectedLearningMode') as 'flashcard' | 'quiz' || 'quiz';
+      
+      setLearningSession({
+        category,
+        currentSection,
+        sections: sections,
+        learningMode,
+      });
+    }
+  }, [category, currentSection, sections, setLearningSession]);
 
   const handleComplete = async (results: { wordId: string; correct: boolean }[]) => {
     if (!user) return;
@@ -50,7 +97,29 @@ export default function QuizClient({ category, words, initialQuestions }: Props)
     } catch {}
   };
 
-  const closeAllModals = () => setShowCompletionModal(false);
+  const handleNextSection = () => {
+    // ストアから次のセクション情報を取得
+    const nextSectionFromStore = getNextSection();
+    
+    if (!nextSectionFromStore) {
+      console.warn('次のセクションが見つかりません');
+      return;
+    }
+    
+    // 学習モードを取得（ストアまたはセッションストレージから）
+    const learningMode = storeLearningMode || sessionStorage.getItem('selectedLearningMode') || 'quiz';
+    const targetPath = `/dashboard/category/${encodeURIComponent(category)}/${learningMode}/section/${encodeURIComponent(nextSectionFromStore)}`;
+    
+    console.log('次のセクションに移動:', {
+      from: storeCurrentSection,
+      to: nextSectionFromStore,
+      path: targetPath,
+      learningMode
+    });
+    
+    startNavigating();
+    router.push(targetPath);
+  };
 
   // 認証のローディング中はローディング画面を表示
   if (authLoading) {
@@ -90,33 +159,20 @@ export default function QuizClient({ category, words, initialQuestions }: Props)
       {showCompletionModal && (
         <CompletionModal
           isOpen={showCompletionModal}
-          onClose={closeAllModals}
+          onClose={() => setShowCompletionModal(false)}
           category={category}
-          results={{
-            totalWords: words.length,
-            correctCount: sessionResults.filter((r) => r.correct).length,
-            accuracy: Math.round((sessionResults.filter((r) => r.correct).length / Math.max(sessionResults.length, 1)) * 100),
-          }}
+          results={sessionResults}
+          totalQuestions={words.length}
+          section={currentSection || ''}
           onRetry={() => setShowCompletionModal(false)}
-          onBackToHome={() => {
+          onGoHome={() => {
             if (pathname !== '/dashboard') {
               startNavigating();
               router.push('/dashboard');
             }
           }}
-          onGoToReview={() => {
-            if (pathname !== '/dashboard/review') {
-              startNavigating();
-              router.push('/dashboard/review');
-            }
-          }}
-          onBackToCategory={() => {
-            const targetPath = `/dashboard/category/${encodeURIComponent(category)}`;
-            if (pathname !== targetPath) {
-              startNavigating();
-              router.push(targetPath);
-            }
-          }}
+          onNextSection={handleNextSection}
+          hasNextSection={storeHasNextSection}
         />
       )}
     </div>

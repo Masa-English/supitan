@@ -2,7 +2,7 @@
 
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useNavigationStore } from '@/lib/navigation-store';
+import { useNavigationStore } from '@/lib/stores';
 
 export function NavigationOverlay() {
   const isNavigating = useNavigationStore((s) => s.isNavigating);

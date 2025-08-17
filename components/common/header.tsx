@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Zap, ArrowLeft, User, LogOut, Settings, UserCircle, Menu } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useNavigationStore } from '@/lib/navigation-store';
+import { useNavigationStore } from '@/lib/stores';
 import { ThemeSwitcher } from '@/components/common/theme-switcher';
 import { createClient } from '@/lib/supabase/client';
 import { User as SupabaseUser } from '@supabase/supabase-js';
