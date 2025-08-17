@@ -224,7 +224,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     }
   }, [currentWord, isInReview, db, showToast]);
 
-  const fallbackToSpeechSynthesis = useCallback((text: string) => {
+  const _fallbackToSpeechSynthesis = useCallback((text: string) => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-US';
@@ -239,10 +239,8 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     if (currentWord.audio_file) {
       // audio-storeのplayWordAudioを使用してキャッシュ機能を活用
       playWordAudioFromStore(currentWord.id);
-    } else {
-      fallbackToSpeechSynthesis(currentWord.word);
     }
-  }, [currentWord, playWordAudioFromStore, fallbackToSpeechSynthesis]);
+  }, [currentWord, playWordAudioFromStore]);
 
   const playExampleAudio = useCallback(async (
     text: string,
@@ -281,14 +279,9 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
         }
       }
     } catch (e) {
-      devLog.warn('例文音声の取得に失敗。TTSへフォールバックします:', e);
+      devLog.warn('例文音声の取得に失敗しました:', e);
     }
-    try {
-      fallbackToSpeechSynthesis(text);
-    } catch (error) {
-      console.error('例文音声再生エラー:', error);
-    }
-  }, [currentWord?.audio_file, volume, isMuted, fallbackToSpeechSynthesis, currentWord?.word]);
+  }, [currentWord?.audio_file, volume, isMuted, currentWord?.word]);
 
   const handleExampleClick = useCallback((exampleKey: string) => {
     setFlippedExamples(prev => {
@@ -355,7 +348,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
               <span className="hidden sm:inline text-sm font-medium text-foreground">
                 {currentIndex + 1} / {words.length}
               </span>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 {Math.round(progress)}% 完了
               </div>
             </div>
@@ -451,7 +444,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
                           <Volume2 className="h-4 w-4" />
                         </Button>
                       </div>
-                      <p className="text-muted-foreground text-xs">
+                      <p className="text-muted-foreground text-sm">
                         {flippedExamples.has('example1') ? currentWord.example1_jp : 'クリックして英語を表示'}
                       </p>
                     </div>
@@ -482,7 +475,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
                           <Volume2 className="h-4 w-4" />
                         </Button>
                       </div>
-                      <p className="text-muted-foreground text-xs">
+                      <p className="text-muted-foreground text-sm">
                         {flippedExamples.has('example2') ? currentWord.example2_jp : 'クリックして英語を表示'}
                       </p>
                     </div>
@@ -513,7 +506,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
                           <Volume2 className="h-4 w-4" />
                         </Button>
                       </div>
-                      <p className="text-muted-foreground text-xs">
+                      <p className="text-muted-foreground text-sm">
                         {flippedExamples.has('example3') ? currentWord.example3_jp : 'クリックして英語を表示'}
                       </p>
                     </div>

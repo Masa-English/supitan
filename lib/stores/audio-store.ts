@@ -18,6 +18,7 @@ interface AudioState {
   isLoading: boolean;
   error: string | null;
   isInitialized: boolean;
+  isAudioEnabled: boolean; // 音声再生を完全に無効化するフラグ
   
   // アクション
   initializeAudio: () => Promise<void>;
@@ -28,6 +29,7 @@ interface AudioState {
   playWordAudio: (wordId: string) => void;
   toggleMute: () => void;
   setVolume: (volume: number) => void;
+  toggleAudioEnabled: () => void; // 音声有効/無効を切り替え
   cleanup: () => void;
 }
 
@@ -42,21 +44,28 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   isLoading: false,
   error: null,
   isInitialized: false,
+  isAudioEnabled: true, // 初期状態では音声再生を無効にする
 
   // 音声初期化
   initializeAudio: async () => {
     const { isInitialized } = get();
     
+    console.log('[AudioStore] initializeAudio呼び出し', { isInitialized });
+    
     if (isInitialized) {
+      console.log('[AudioStore] 既に初期化済みのためスキップ');
       return;
     }
 
+    console.log('[AudioStore] 音声初期化開始');
     set({ isLoading: true, error: null });
     
     try {
       const supabase = createClient();
+      console.log('[AudioStore] Supabaseクライアント作成完了');
       
       // Supabase Storageから効果音ファイルを取得
+      console.log('[AudioStore] 効果音ファイル取得開始');
       const { data: correctData, error: correctError } = await supabase.storage
         .from('se')
         .download('collect.mp3');
@@ -65,21 +74,34 @@ export const useAudioStore = create<AudioState>((set, get) => ({
         .from('se')
         .download('error.mp3');
 
-      // 音声ファイルの取得に失敗した場合のフォールバック処理
+      console.log('[AudioStore] 効果音ファイル取得結果', {
+        correctData: !!correctData,
+        correctError,
+        incorrectData: !!incorrectData,
+        incorrectError
+      });
+
+      // 音声ファイルの取得に失敗した場合の処理
       if (correctError || incorrectError) {
-        devLog.warn('効果音ファイルの取得に失敗しました。Web Speech APIを使用します。', {
+        devLog.warn('効果音ファイルの取得に失敗しました。', {
+          correctError,
+          incorrectError
+        });
+        
+        console.error('[AudioStore] 効果音ファイル取得エラー', {
           correctError,
           incorrectError
         });
         
         set({
           isLoading: false,
-          error: '効果音ファイルの取得に失敗しました。Web Speech APIを使用します。',
+          error: '効果音ファイルの取得に失敗しました。',
           isInitialized: true
         });
         return;
       }
 
+      console.log('[AudioStore] BlobからAudioオブジェクト作成開始');
       // BlobからAudioオブジェクトを作成
       const correctBlob = new Blob([correctData], { type: 'audio/mpeg' });
       const incorrectBlob = new Blob([incorrectData], { type: 'audio/mpeg' });
@@ -94,6 +116,12 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       correctAudio.volume = get().volume;
       incorrectAudio.volume = get().volume;
 
+      console.log('[AudioStore] Audioオブジェクト作成完了', {
+        correctAudio: !!correctAudio,
+        incorrectAudio: !!incorrectAudio,
+        volume: get().volume
+      });
+
       set({
         correctAudio,
         incorrectAudio,
@@ -103,8 +131,9 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       });
 
       devLog.log('[AudioStore] 音声初期化完了');
+      console.log('[AudioStore] 音声初期化完了');
     } catch (error) {
-      console.error('音声初期化エラー:', error);
+      console.error('[AudioStore] 音声初期化エラー:', error);
       set({
         isLoading: false,
         error: '音声の初期化に失敗しました',
@@ -150,85 +179,97 @@ export const useAudioStore = create<AudioState>((set, get) => ({
 
   // 正解音再生
   playCorrectSound: () => {
-    const { correctAudio, isMuted, volume } = get();
+    const { correctAudio, isMuted, volume, isInitialized, isAudioEnabled } = get();
     
-    if (isMuted) return;
+    console.log('[AudioStore] playCorrectSound呼び出し', {
+      correctAudio: !!correctAudio,
+      isMuted,
+      volume,
+      isInitialized,
+      isAudioEnabled
+    });
+    
+    // 音声が初期化されていない場合はスキップ
+    if (!isInitialized) {
+      console.log('[AudioStore] 音声が初期化されていないため音声再生をスキップ');
+      return;
+    }
+    
+    if (!isAudioEnabled) {
+      console.log('[AudioStore] 音声再生が無効化されているため音声再生をスキップ');
+      return;
+    }
+
+    if (isMuted) {
+      console.log('[AudioStore] ミュート中なので音声再生をスキップ');
+      return;
+    }
     
     try {
       if (correctAudio) {
         correctAudio.volume = volume;
         correctAudio.currentTime = 0;
         correctAudio.play().catch(error => {
-          console.error('正解音再生エラー:', error);
-          // フォールバックとしてWeb Speech APIを使用
-          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance('正解です！');
-            utterance.lang = 'ja-JP';
-            utterance.volume = volume;
-            utterance.rate = 0.9;
-            utterance.pitch = 1.1;
-            speechSynthesis.speak(utterance);
-          }
+          console.error('[AudioStore] 正解音再生エラー:', error);
         });
+        console.log('[AudioStore] 正解音再生開始');
       } else {
-        // フォールバックとしてWeb Speech APIを使用
-        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance('正解です！');
-          utterance.lang = 'ja-JP';
-          utterance.volume = volume;
-          utterance.rate = 0.9;
-          utterance.pitch = 1.1;
-          speechSynthesis.speak(utterance);
-        }
+        console.warn('[AudioStore] 正解音Audioオブジェクトが存在しません');
       }
     } catch (error) {
-      console.error('正解音再生エラー:', error);
+      console.error('[AudioStore] 正解音再生エラー:', error);
     }
   },
 
   // 不正解音再生
   playIncorrectSound: () => {
-    const { incorrectAudio, isMuted, volume } = get();
+    const { incorrectAudio, isMuted, volume, isInitialized, isAudioEnabled } = get();
     
-    if (isMuted) return;
+    console.log('[AudioStore] playIncorrectSound呼び出し', {
+      incorrectAudio: !!incorrectAudio,
+      isMuted,
+      volume,
+      isInitialized,
+      isAudioEnabled
+    });
+    
+    // 音声が初期化されていない場合はスキップ
+    if (!isInitialized) {
+      console.log('[AudioStore] 音声が初期化されていないため音声再生をスキップ');
+      return;
+    }
+    
+    if (!isAudioEnabled) {
+      console.log('[AudioStore] 音声再生が無効化されているため音声再生をスキップ');
+      return;
+    }
+
+    if (isMuted) {
+      console.log('[AudioStore] ミュート中なので音声再生をスキップ');
+      return;
+    }
     
     try {
       if (incorrectAudio) {
         incorrectAudio.volume = volume;
         incorrectAudio.currentTime = 0;
         incorrectAudio.play().catch(error => {
-          console.error('不正解音再生エラー:', error);
-          // フォールバックとしてWeb Speech APIを使用
-          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance('不正解です');
-            utterance.lang = 'ja-JP';
-            utterance.volume = volume;
-            utterance.rate = 0.9;
-            utterance.pitch = 0.9;
-            speechSynthesis.speak(utterance);
-          }
+          console.error('[AudioStore] 不正解音再生エラー:', error);
         });
+        console.log('[AudioStore] 不正解音再生開始');
       } else {
-        // フォールバックとしてWeb Speech APIを使用
-        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance('不正解です');
-          utterance.lang = 'ja-JP';
-          utterance.volume = volume;
-          utterance.rate = 0.9;
-          utterance.pitch = 0.9;
-          speechSynthesis.speak(utterance);
-        }
+        console.warn('[AudioStore] 不正解音Audioオブジェクトが存在しません');
       }
     } catch (error) {
-      console.error('不正解音再生エラー:', error);
+      console.error('[AudioStore] 不正解音再生エラー:', error);
     }
   },
 
   // 単語音声再生
   playWordAudio: async (wordId: string) => {
-    const { wordAudioCache, wordAudioPathCache, isMuted, volume, loadWordAudio } = get();
+    const { wordAudioCache, wordAudioPathCache, isMuted, volume, loadWordAudio, isAudioEnabled } = get();
 
-    if (isMuted) return;
+    if (!isAudioEnabled) return;
 
     let audio = wordAudioCache.get(wordId);
     
@@ -310,6 +351,12 @@ export const useAudioStore = create<AudioState>((set, get) => ({
     if (incorrectAudio) incorrectAudio.volume = clampedVolume;
   },
 
+  // 音声有効/無効を切り替え
+  toggleAudioEnabled: () => {
+    set(state => ({ isAudioEnabled: !state.isAudioEnabled }));
+    devLog.log(`[AudioStore] 音声再生有効/無効切り替え: ${get().isAudioEnabled ? '有効' : '無効'}`);
+  },
+
   // クリーンアップ
   cleanup: () => {
     const { correctAudio, incorrectAudio, wordAudioCache } = get();
@@ -337,6 +384,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       wordAudioCache: new Map(),
       wordAudioPathCache: new Map(),
       isInitialized: false,
+      isAudioEnabled: true, // クリーンアップ後も音声再生を無効にする
     });
     
     devLog.log('[AudioStore] クリーンアップ完了');

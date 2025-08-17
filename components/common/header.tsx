@@ -266,7 +266,7 @@ export function Header({
                 {isClient && (
                   <>
                     {title && title !== "英単語学習" && title !== "" && (
-                      <p className="text-xs sm:text-sm text-muted-foreground -mt-0.5">
+                      <p className="text-sm sm:text-base text-muted-foreground -mt-0.5">
                         {title}
                       </p>
                     )}
@@ -303,7 +303,7 @@ export function Header({
                       <p className="text-sm font-medium text-foreground">
                         {displayUserEmail?.split('@')[0] || 'ユーザー'}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="text-sm text-muted-foreground truncate">
                         {displayUserEmail}
                       </p>
                     </div>

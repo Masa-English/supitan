@@ -37,7 +37,7 @@ export function CategoryBadge({
     >
       {showIcon && icon && <span className="mr-1">{icon}</span>}
       <span>{categoryName}</span>
-      {showPos && pos && <span className="ml-1 text-xs opacity-70">({pos})</span>}
+      {showPos && pos && <span className="ml-1 text-sm opacity-70">({pos})</span>}
     </Badge>
   );
 }
@@ -74,7 +74,7 @@ export function CategoryDisplay({
         <div className="flex items-center gap-2">
           <span className="font-medium">{config.name}</span>
           {pos && (
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-sm">
               {pos}
             </Badge>
           )}
@@ -85,7 +85,7 @@ export function CategoryDisplay({
           </span>
         )}
         {showDescription && (
-          <span className="text-xs text-muted-foreground mt-1">
+          <span className="text-sm text-muted-foreground mt-1">
             {config.description}
           </span>
         )}
@@ -114,7 +114,7 @@ export function CategoryProgress({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <div className="flex justify-between items-center text-xs text-muted-foreground">
+      <div className="flex justify-between items-center text-sm text-muted-foreground">
         <span>学習進捗</span>
         <span>{current} / {total}</span>
       </div>
@@ -128,7 +128,7 @@ export function CategoryProgress({
         />
       </div>
       {showPercentage && (
-        <div className="text-xs text-muted-foreground">
+        <div className="text-sm text-muted-foreground">
           {percentage}% 完了
         </div>
       )}

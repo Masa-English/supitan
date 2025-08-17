@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { fetchAudioFromStorage } from '@/lib/audio-utils';
 import { Word, QuizQuestion } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Volume2, Check, CheckCircle, Brain, ArrowRight, XCircle } from 'lucide-react';
+import { Check, CheckCircle, Brain, ArrowRight, XCircle } from 'lucide-react';
 import { useAudioStore } from '@/lib/stores';
 import { AudioControls } from '@/components/common/audio-controls';
 
@@ -24,6 +23,8 @@ export function Quiz({
   onAddToReview,
   initialQuestions
 }: QuizProps) {
+  console.log('[Quiz] コンポーネントマウント', { wordsLength: words.length });
+  
   const [questions, setQuestions] = useState<QuizQuestion[]>(initialQuestions ?? []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -32,13 +33,24 @@ export function Quiz({
   const [isCorrect, setIsCorrect] = useState(false);
 
   // 音声ストア
-  const { playCorrectSound, playIncorrectSound, playWordAudio, isMuted, volume } = useAudioStore();
+  const { playCorrectSound, playIncorrectSound, initializeAudio, isInitialized } = useAudioStore();
+
+  // 音声初期化
+  useEffect(() => {
+    console.log('[Quiz] 音声初期化チェック', { isInitialized });
+    if (!isInitialized) {
+      console.log('[Quiz] 音声初期化開始');
+      initializeAudio();
+    }
+  }, [initializeAudio, isInitialized]);
 
   const currentQuestion = questions[currentIndex];
 
-  const generateMeaningOptions = useCallback((correctWord: Word): string[] => {
+
+
+  const generateJapaneseToEnglishOptions = useCallback((correctWord: Word): string[] => {
     // 正解を必ず含める
-    const options = [correctWord.japanese];
+    const options = [correctWord.word];
 
     // 他の単語から3つの選択肢を追加
     const otherWords = words.filter(w => w.id !== correctWord.id);
@@ -46,121 +58,58 @@ export function Quiz({
 
     // 3つの選択肢を追加（重複を避ける）
     for (let i = 0; i < shuffled.length && options.length < 4; i++) {
-      if (!options.includes(shuffled[i].japanese)) {
-        options.push(shuffled[i].japanese);
+      if (!options.includes(shuffled[i].word)) {
+        options.push(shuffled[i].word);
       }
     }
 
     // 選択肢が4つ未満の場合は、正解を複製して追加
     while (options.length < 4) {
-      options.push(correctWord.japanese);
+      options.push(correctWord.word);
     }
 
     return options.sort(() => Math.random() - 0.5);
   }, [words]);
 
-  const generateExampleOptions = useCallback((correctWord: Word): string[] => {
-    // 利用可能な例文から1つをランダムに選択
-    const availableExamples = [
-      correctWord.example1_jp,
-      correctWord.example2_jp,
-      correctWord.example3_jp
-    ].filter((example): example is string => Boolean(example));
-
-    // 正解の例文が存在しない場合は空の配列を返す
-    if (availableExamples.length === 0) {
-      return [];
-    }
-
-    const selectedExample = availableExamples[Math.floor(Math.random() * availableExamples.length)];
-    const options = [selectedExample];
-
-    // 他の単語から3つの選択肢を追加
-    const otherWords = words.filter(w => w.id !== correctWord.id);
-    const shuffled = otherWords.sort(() => Math.random() - 0.5);
-
-    // 3つの選択肢を追加（重複を避ける）
-    for (let i = 0; i < shuffled.length && options.length < 4; i++) {
-      const otherExamples = [
-        shuffled[i].example1_jp,
-        shuffled[i].example2_jp,
-        shuffled[i].example3_jp
-      ].filter((example): example is string => Boolean(example));
-
-      if (otherExamples.length > 0) {
-        const randomExample = otherExamples[Math.floor(Math.random() * otherExamples.length)];
-        if (!options.includes(randomExample)) {
-          options.push(randomExample);
-        }
-      }
-    }
-
-    // 選択肢が4つ未満の場合は、正解の例文を複製して追加
-    while (options.length < 4) {
-      options.push(selectedExample);
-    }
-
-    return options.sort(() => Math.random() - 0.5);
-  }, [words]);
+  // 問題タイプの強制統一（既存の問題データがある場合の対策）
+  const normalizedQuestion = currentQuestion ? {
+    ...currentQuestion,
+    type: 'japanese_to_english' as const,
+    options: currentQuestion.type === 'meaning' 
+      ? generateJapaneseToEnglishOptions(currentQuestion.word)
+      : currentQuestion.options,
+    correct_answer: currentQuestion.type === 'meaning'
+      ? currentQuestion.word.word
+      : currentQuestion.correct_answer,
+    question: `${currentQuestion.word.japanese}の英語を選んでください`
+  } : null;
 
   const generateQuestions = useCallback(() => {
     const newQuestions: QuizQuestion[] = [];
 
     words.forEach(word => {
-      // 意味を問う問題
-      const meaningOptions = generateMeaningOptions(word);
-      const meaningQuestion: QuizQuestion = {
+      // 日本語から英語を選ぶ問題
+      const japaneseToEnglishOptions = generateJapaneseToEnglishOptions(word);
+      
+      const japaneseToEnglishQuestion: QuizQuestion = {
         word,
-        options: meaningOptions,
-        correct_answer: word.japanese,
-        type: 'meaning',
-        question: `${word.word}の意味を選んでください`
+        options: japaneseToEnglishOptions,
+        correct_answer: word.word,
+        type: 'japanese_to_english',
+        question: `${word.japanese}の英語を選んでください`
       };
-      newQuestions.push(meaningQuestion);
-
-      // 例文を問う問題（ランダムに選択）
-      if (Math.random() > 0.5) {
-        // 利用可能な例文ペアから1つをランダムに選択
-        const examplePairs = [
-          { jp: word.example1_jp, en: word.example1 },
-          { jp: word.example2_jp, en: word.example2 },
-          { jp: word.example3_jp, en: word.example3 }
-        ].filter((pair): pair is { jp: string; en: string } => Boolean(pair.jp && pair.en));
-
-        if (examplePairs.length > 0) {
-          const selectedPair = examplePairs[Math.floor(Math.random() * examplePairs.length)];
-          const exampleOptions = generateExampleOptions(word);
-
-          // 例文の選択肢が生成できた場合のみ問題を追加
-          if (exampleOptions.length > 0) {
-            const exampleQuestion: QuizQuestion = {
-              word: {
-                ...word,
-                example1: selectedPair.en, // 選択された英語例文を使用
-                example1_jp: selectedPair.jp // 選択された日本語例文を使用
-              },
-              options: exampleOptions,
-              correct_answer: selectedPair.jp,
-              type: 'example',
-              question: `${selectedPair.en}の日本語訳を選んでください`
-            };
-            newQuestions.push(exampleQuestion);
-          }
-        }
-      }
+      newQuestions.push(japaneseToEnglishQuestion);
     });
 
     // 問題をシャッフル
     const shuffled = newQuestions.sort(() => Math.random() - 0.5);
     setQuestions(shuffled);
-  }, [words, generateMeaningOptions, generateExampleOptions]);
+  }, [words, generateJapaneseToEnglishOptions]);
 
   useEffect(() => {
     let timeoutId: number | null = null;
     if (questions.length === 0) {
-      if (initialQuestions && initialQuestions.length > 0) {
-        setQuestions(initialQuestions);
-      } else if (words.length > 0 && typeof window !== 'undefined') {
+      if (words.length > 0 && typeof window !== 'undefined') {
         timeoutId = window.setTimeout(() => {
           generateQuestions();
         }, 150);
@@ -171,111 +120,59 @@ export function Quiz({
         window.clearTimeout(timeoutId);
       }
     };
-  }, [generateQuestions, words.length, questions.length, initialQuestions]);
+  }, [generateQuestions, words.length, questions.length]);
 
   useEffect(() => {
     setSelectedAnswer(null);
     setShowResult(false);
   }, [currentIndex]);
 
-  const handleAnswerSelect = (answer: string) => {
-    if (selectedAnswer || showResult) return;
+     const handleAnswerSelect = (answer: string) => {
+     if (selectedAnswer || showResult || !normalizedQuestion) return;
 
-    setSelectedAnswer(answer);
-    const correct = answer === currentQuestion.correct_answer;
-    setIsCorrect(correct);
-    setShowResult(true);
+     console.log('[Quiz] 回答選択', { answer, correctAnswer: normalizedQuestion.correct_answer });
+     
+     setSelectedAnswer(answer);
+     const correct = answer === normalizedQuestion.correct_answer;
+     setIsCorrect(correct);
+     setShowResult(true);
 
-    // 正解音・不正解音の再生
-    if (correct) {
-      playCorrectSound();
-    } else {
-      playIncorrectSound();
-    }
-  };
+     console.log('[Quiz] 音声再生開始', { correct, isInitialized });
+     // 音声が初期化されている場合のみ音声再生
+     if (isInitialized) {
+       if (correct) {
+         console.log('[Quiz] 正解音再生呼び出し');
+         playCorrectSound();
+       } else {
+         console.log('[Quiz] 不正解音再生呼び出し');
+         playIncorrectSound();
+       }
+     } else {
+       console.log('[Quiz] 音声が初期化されていないため音声再生をスキップ');
+     }
+   };
 
-  const handleNext = () => {
-    const correct = selectedAnswer === currentQuestion.correct_answer;
-    const newResults = [...results, { wordId: currentQuestion.word.id, correct }];
-    setResults(newResults);
+     const handleNext = () => {
+     if (!normalizedQuestion) return;
+     const correct = selectedAnswer === normalizedQuestion.correct_answer;
+     const newResults = [...results, { wordId: normalizedQuestion.word.id, correct }];
+     setResults(newResults);
 
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      onComplete(newResults);
-    }
-  };
+     if (currentIndex < questions.length - 1) {
+       setCurrentIndex(currentIndex + 1);
+     } else {
+       onComplete(newResults);
+     }
+   };
 
-  const handleAddToReview = () => {
-    onAddToReview(currentQuestion.word.id);
-  };
+   const handleAddToReview = () => {
+     if (!normalizedQuestion) return;
+     onAddToReview(normalizedQuestion.word.id);
+   };
 
-  const playAudio = () => {
-    if (currentQuestion?.word?.word) {
-      // 音声ファイルがある場合は音声ファイルを再生、ない場合はWeb Speech APIを使用
-      if (currentQuestion.word.audio_file) {
-        playWordAudio(currentQuestion.word.id);
-      } else {
-        // Web Speech APIを使用して音声を再生
-        const utterance = new SpeechSynthesisUtterance(currentQuestion.word.word);
-        utterance.lang = 'en-US';
-        utterance.rate = 0.8;
-        utterance.pitch = 1.0;
-        speechSynthesis.speak(utterance);
-      }
-    }
-  };
 
-  // 例文音声の再生（英語のみ）
-  const playExampleAudio = useCallback(async () => {
-    if (!currentQuestion || currentQuestion.type !== 'example') return;
-    const word = currentQuestion.word;
 
-    // 例文として選ばれている英語文は word.example1 に入る想定
-    // 音声ファイルは example001.mp3 〜 を探すが、どのインデックスかは固定できないため
-    // 1→2→3 の順に存在チェックして最初に見つかったものを再生
-    const buildPathFromAudioFile = (audioFilePath: string, index: number) => {
-      const normalized = audioFilePath.replace(/\\/g, '/');
-      const base = normalized.replace(/\/[^/]+$/, '').replace(/\/$/, '');
-      const number = String(index).padStart(3, '0');
-      return `${base}/example${number}.mp3`;
-    };
-    const buildPathFromWord = (w: string, index: number) => {
-      const number = String(index).padStart(3, '0');
-      return `${w}/example${number}.mp3`;
-    };
 
-    const tryPlay = async (path: string) => {
-      const blob = await fetchAudioFromStorage(path);
-      if (!blob) return false;
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audio.volume = isMuted ? 0 : volume;
-      await audio.play();
-      return true;
-    };
-
-    try {
-      for (const idx of [1, 2, 3] as const) {
-        if (word.audio_file) {
-          const path = buildPathFromAudioFile(word.audio_file, idx);
-          if (await tryPlay(path)) return;
-        }
-        const fallback = buildPathFromWord(word.word, idx);
-        if (await tryPlay(fallback)) return;
-      }
-      // 見つからない場合は TTS
-      const utterance = new SpeechSynthesisUtterance(currentQuestion.word.example1);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.8;
-      speechSynthesis.speak(utterance);
-    } catch {
-      const utterance = new SpeechSynthesisUtterance(currentQuestion.word.example1);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.8;
-      speechSynthesis.speak(utterance);
-    }
-  }, [currentQuestion, isMuted, volume]);
 
   if (words.length === 0) {
     return (
@@ -285,7 +182,7 @@ export function Quiz({
     );
   }
 
-  if (!currentQuestion) {
+  if (!normalizedQuestion) {
     return (
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -299,38 +196,43 @@ export function Quiz({
   return (
     <div className="h-screen flex flex-col safe-bottom">
       {/* ヘッダー部分 - 進捗表示 */}
-      <div className="flex-shrink-0 p-1 sm:p-2 lg:p-3 border-b border-border bg-background">
-        <div className="max-w-6xl mx-auto">
+      <div className="flex-shrink-0 p-4 border-b border-border bg-background">
+        <div className="max-w-4xl mx-auto">
           {/* 進捗情報 */}
-          <div className="flex items-center justify-between mb-1 sm:mb-2">
-            <div className="flex items-center gap-1 sm:gap-2">
-              {/* スマホでは問題番号を非表示 */}
-              <span className="hidden sm:inline text-xs sm:text-sm lg:text-base font-medium text-foreground">
-                問題 {currentIndex + 1} / {questions.length}
-              </span>
-              <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
-                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-                {Math.round(progress)}% 完了
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-semibold text-foreground">
+                  {currentIndex + 1}
+                </span>
+                <span className="text-muted-foreground">/ {questions.length}</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span className="font-medium">{Math.round(progress)}%</span>
               </div>
             </div>
 
             {/* 音声コントロール */}
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-3">
               <AudioControls />
-              <Badge
-                variant="outline"
-                className="px-1 sm:px-2 py-1 border-primary text-primary bg-primary/10 text-xs"
-              >
-                <Brain className="h-3 w-3 mr-1" />
-                {currentQuestion.type === 'meaning' ? '意味問題' : '例文問題'}
-              </Badge>
             </div>
           </div>
 
+          <div className="flex items-center justify-end mb-3">
+            <Badge
+                variant="outline"
+                className="px-3 py-1.5 border-primary text-primary bg-primary/10 text-sm font-medium"
+              >
+                <Brain className="h-4 w-4 mr-1.5" />
+                日本語→英語
+              </Badge>
+          </div>
+
           {/* 進捗バー */}
-          <div className="w-full bg-muted rounded-full h-1.5 sm:h-2 overflow-hidden">
+          <div className="w-full rounded-full h-2 overflow-hiddenw-full bg-muted rounded-full h-2 overflow-hidden">
             <div
-              className="bg-primary h-1.5 sm:h-2 rounded-full transition-all duration-500 ease-out"
+              className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -338,98 +240,58 @@ export function Quiz({
       </div>
 
       {/* メインコンテンツ - スクロール可能なエリア */}
-      <div className="flex-1 overflow-y-auto p-1 sm:p-2 lg:p-3">
-        <div className="max-w-6xl mx-auto min-h-full flex flex-col">
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="max-w-4xl mx-auto min-h-full flex flex-col">
           {/* 問題カード */}
-          <div className="flex-1 mb-2 sm:mb-3">
+          <div className="flex-1 mb-4">
             <Card className="bg-card border-border shadow-lg h-full">
-              <CardContent className="p-2 sm:p-3 lg:p-4 h-full flex flex-col">
+              <CardContent className="p-6 h-full flex flex-col">
                 {/* 問題文セクション */}
-                <div className="text-center mb-2 sm:mb-3 flex-shrink-0">
-                  {/* 単語と音声ボタン */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-2">
-                    <div className="relative">
-                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground break-words bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                        {currentQuestion.word.word}
-                      </h2>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={playAudio}
-                      className="text-primary hover:bg-primary/10 hover:scale-110 transition-all duration-200 touch-target rounded-full p-1"
-                    >
-                      <Volume2 className="h-4 w-4" />
-                    </Button>
+                <div className="text-center mb-6 flex-shrink-0">
+                  {/* 日本語の出題 */}
+                  <div className="mb-4">
+                    <h2 className="text-3xl font-bold text-foreground break-words bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                      {normalizedQuestion.word.japanese}
+                    </h2>
                   </div>
 
-                  {/* 発音記号と音声ボタンを横並び */}
-                  {currentQuestion.word.phonetic && (
-                    <div className="mb-1 sm:mb-2 flex items-center justify-center gap-2">
-                      <p className="text-xs sm:text-sm text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded-full">
-                        /{currentQuestion.word.phonetic}/
-                      </p>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={playAudio}
-                        className="text-primary hover:bg-primary/10 hover:scale-110 transition-all duration-200 touch-target rounded-full p-1"
-                      >
-                        <Volume2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* 問題文（例文問題では再生ボタンを追加） */}
-                  <div className="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-lg p-2 sm:p-3 mb-2 sm:mb-3">
-                    <p className="text-sm sm:text-base lg:text-lg text-foreground font-medium leading-relaxed">
-                      {currentQuestion.question || (currentQuestion.type === 'meaning' ? `${currentQuestion.word.word}の意味を選んでください` : '正しい日本語訳を選んでください')}
+                  {/* 問題文 */}
+                  <div className="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-lg p-4 mb-4">
+                    <p className="text-lg text-foreground font-medium">
+                      {normalizedQuestion.question || `${normalizedQuestion.word.japanese}の英語を選んでください`}
                     </p>
-                    {currentQuestion.type === 'example' && (
-                      <div className="mt-2 flex items-center justify-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={playExampleAudio}
-                          className="text-primary hover:bg-primary/10 hover:scale-110 transition-all duration-200 touch-target rounded-full p-1"
-                        >
-                          <Volume2 className="h-4 w-4" />
-                          <span className="ml-1 text-xs">例文を再生</span>
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 </div>
 
                 {/* 選択肢 */}
-                <div className="flex-1 space-y-1 sm:space-y-2">
-                  {currentQuestion.options.map((option, index) => (
+                <div className="flex-1 space-y-3">
+                  {normalizedQuestion.options.map((option, index) => (
                     <Button
                       key={index}
                       variant="outline"
                       onClick={() => handleAnswerSelect(option)}
                       disabled={selectedAnswer !== null}
-                      className={`w-full h-10 sm:h-12 text-left justify-start p-2 sm:p-3 text-sm sm:text-base font-medium transition-all duration-300 rounded-xl border-2 hover:shadow-md ${
+                      className={`w-full h-14 text-left justify-start p-4 text-lg font-medium transition-all duration-300 rounded-lg border-2 hover:shadow-md ${
                         selectedAnswer === option
-                          ? option === currentQuestion.correct_answer
+                          ? option === normalizedQuestion.correct_answer
                             ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300 text-green-800 shadow-lg dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-600 dark:text-green-300'
                             : 'bg-gradient-to-r from-red-50 to-rose-50 border-red-300 text-red-800 shadow-lg dark:from-red-900/20 dark:to-rose-900/20 dark:border-red-600 dark:text-red-300'
                           : 'hover:bg-gradient-to-r hover:from-primary/5 hover:to-primary/10 hover:border-primary/50 hover:text-primary'
                       } touch-target group`}
                     >
                       <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                             {String.fromCharCode(65 + index)}
                           </div>
-                          <span className="flex-1 leading-relaxed">{option}</span>
+                          <span className="flex-1">{option}</span>
                         </div>
                         {selectedAnswer === option && (
-                          <div className="ml-2 sm:ml-3">
-                            {option === currentQuestion.correct_answer ? (
-                              <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 animate-bounce" />
+                          <div className="ml-3">
+                            {option === normalizedQuestion.correct_answer ? (
+                              <CheckCircle className="h-6 w-6 text-green-600 animate-bounce" />
                             ) : (
-                              <XCircle className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 animate-bounce" />
+                              <XCircle className="h-6 w-6 text-red-600 animate-bounce" />
                             )}
                           </div>
                         )}
@@ -439,21 +301,22 @@ export function Quiz({
                 </div>
               </CardContent>
             </Card>
+
             {/* 結果表示 */}
             {showResult && (
-              <Card className={`mb-2 sm:mb-3 flex-shrink-0 border-2 ${
+              <Card className={`mb-4 flex-shrink-0 border-2 ${
                 isCorrect
                   ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-700'
                   : 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200 dark:from-red-900/20 dark:to-rose-900/20 dark:border-red-700'
               } shadow-lg`}>
-                <CardContent className="p-2 sm:p-3">
+                <CardContent className="p-4">
                   <div className="text-center">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-3 border border-border mb-2">
-                      <p className="text-xs sm:text-sm font-medium text-foreground mb-1">
-                        正解: <span className="text-primary font-bold">{currentQuestion.correct_answer}</span>
+                    <div className="bg-card rounded-lg p-4 mb-3 border border-border">
+                      <p className="text-base font-medium text-foreground mb-2">
+                        正解: <span className="text-primary font-bold">{normalizedQuestion.correct_answer}</span>
                       </p>
                       {!isCorrect && (
-                        <p className="text-muted-foreground text-xs">
+                        <p className="text-sm text-muted-foreground">
                           あなたの回答: <span className="text-red-600 dark:text-red-400 font-medium">{selectedAnswer}</span>
                         </p>
                       )}
@@ -463,9 +326,9 @@ export function Quiz({
                         variant="outline"
                         size="sm"
                         onClick={handleAddToReview}
-                        className="border-primary text-primary hover:bg-primary/10 text-xs sm:text-sm h-7 sm:h-9 rounded-lg"
+                        className="border-primary text-primary hover:bg-primary/10 text-sm h-9 rounded-lg"
                       >
-                        <Brain className="h-3 w-3 mr-1 sm:mr-2" />
+                        <Brain className="h-3 w-3 mr-2" />
                         復習リストに追加
                       </Button>
                     )}
@@ -482,12 +345,12 @@ export function Quiz({
         <div className="fixed bottom-4 right-4 z-50 safe-bottom">
           <Button
             onClick={handleNext}
-            className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground touch-target rounded-full shadow-lg hover:shadow-xl transition-all duration-300 h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center"
+            className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground touch-target rounded-full shadow-lg hover:shadow-xl transition-all duration-300 h-14 w-14 flex items-center justify-center"
           >
             {currentIndex === questions.length - 1 ? (
-              <Check className="h-5 w-5" />
+              <Check className="h-6 w-6" />
             ) : (
-              <ArrowRight className="h-5 w-5" />
+              <ArrowRight className="h-6 w-6" />
             )}
           </Button>
         </div>
