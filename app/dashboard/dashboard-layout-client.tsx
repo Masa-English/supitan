@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Header } from '@/components/common';
 import { SideMenu } from '@/app/dashboard/side-menu';
 import { useHeader } from '@/lib/contexts/header-context';
+import { AudioInitializer } from '@/components/features/learning/audio-initializer';
 import { 
   RotateCcw, 
   Search, 
@@ -51,51 +52,53 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background" suppressHydrationWarning>      
-      {/* ヘッダー */}
-      <Header 
-        showMobileMenu={true}
-        onMobileMenuToggle={toggleSideMenu}
-        _isSideMenuOpen={isSideMenuOpen}
-        _onSideMenuToggle={toggleSideMenu}
-      />
+    <AudioInitializer>
+      <div className="min-h-screen flex flex-col bg-background" suppressHydrationWarning>      
+        {/* ヘッダー */}
+        <Header 
+          showMobileMenu={true}
+          onMobileMenuToggle={toggleSideMenu}
+          _isSideMenuOpen={isSideMenuOpen}
+          _onSideMenuToggle={toggleSideMenu}
+        />
 
-      {/* メインコンテンツ */}
-      <div className="flex flex-1" suppressHydrationWarning>
-        {/* サイドメニュー - デスクトップ */}
-        {!isMobile && isClient && (
-          <div className="hidden lg:block w-64 bg-card border-r border-border transition-all duration-300 ease-in-out">
-            <SideMenu navigationItems={navigationItems} />
-          </div>
-        )}
-
-      {/* モバイルサイドメニュー */}
-        {isMobile && isClient && (
-          <>
-            {/* オーバーレイ */}
-            <div 
-              className={`lg:hidden fixed inset-0 bg-black/50 z-[55] transition-opacity duration-300 ease-in-out ${
-                isSideMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-              }`}
-              onClick={toggleSideMenu}
-            />
-            
-            {/* サイドメニュー */}
-            <div 
-              className={`lg:hidden fixed left-0 top-0 h-full w-80 bg-card border-r border-border shadow-xl z-[60] transition-transform duration-300 ease-in-out ${
-                isSideMenuOpen ? 'translate-x-0' : '-translate-x-full'
-              }`}
-            >
+        {/* メインコンテンツ */}
+        <div className="flex flex-1" suppressHydrationWarning>
+          {/* サイドメニュー - デスクトップ */}
+          {!isMobile && isClient && (
+            <div className="hidden lg:block w-64 bg-card border-r border-border transition-all duration-300 ease-in-out">
               <SideMenu navigationItems={navigationItems} />
             </div>
-          </>
-        )}
+          )}
 
-        {/* メインコンテンツエリア */}
-        <main className="flex-1 min-w-0 transition-all duration-300 ease-in-out">
-          {children}
-        </main>
+        {/* モバイルサイドメニュー */}
+          {isMobile && isClient && (
+            <>
+              {/* オーバーレイ */}
+              <div 
+                className={`lg:hidden fixed inset-0 bg-black/50 z-[55] transition-opacity duration-300 ease-in-out ${
+                  isSideMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                onClick={toggleSideMenu}
+              />
+              
+              {/* サイドメニュー */}
+              <div 
+                className={`lg:hidden fixed left-0 top-0 h-full w-80 bg-card border-r border-border shadow-xl z-[60] transition-transform duration-300 ease-in-out ${
+                  isSideMenuOpen ? 'translate-x-0' : '-translate-x-full'
+                }`}
+              >
+                <SideMenu navigationItems={navigationItems} />
+              </div>
+            </>
+          )}
+
+          {/* メインコンテンツエリア */}
+          <main className="flex-1 min-w-0 transition-all duration-300 ease-in-out">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </AudioInitializer>
   );
 } 

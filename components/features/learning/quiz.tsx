@@ -23,6 +23,8 @@ export function Quiz({
   onAddToReview,
   initialQuestions
 }: QuizProps) {
+  console.log('[Quiz] コンポーネントマウント', { wordsLength: words.length });
+  
   const [questions, setQuestions] = useState<QuizQuestion[]>(initialQuestions ?? []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -31,7 +33,16 @@ export function Quiz({
   const [isCorrect, setIsCorrect] = useState(false);
 
   // 音声ストア
-  const { playCorrectSound, playIncorrectSound } = useAudioStore();
+  const { playCorrectSound, playIncorrectSound, initializeAudio, isInitialized } = useAudioStore();
+
+  // 音声初期化
+  useEffect(() => {
+    console.log('[Quiz] 音声初期化チェック', { isInitialized });
+    if (!isInitialized) {
+      console.log('[Quiz] 音声初期化開始');
+      initializeAudio();
+    }
+  }, [initializeAudio, isInitialized]);
 
   const currentQuestion = questions[currentIndex];
 
@@ -119,16 +130,25 @@ export function Quiz({
      const handleAnswerSelect = (answer: string) => {
      if (selectedAnswer || showResult || !normalizedQuestion) return;
 
+     console.log('[Quiz] 回答選択', { answer, correctAnswer: normalizedQuestion.correct_answer });
+     
      setSelectedAnswer(answer);
      const correct = answer === normalizedQuestion.correct_answer;
      setIsCorrect(correct);
      setShowResult(true);
 
-     // 正解音・不正解音の再生
-     if (correct) {
-       playCorrectSound();
+     console.log('[Quiz] 音声再生開始', { correct, isInitialized });
+     // 音声が初期化されている場合のみ音声再生
+     if (isInitialized) {
+       if (correct) {
+         console.log('[Quiz] 正解音再生呼び出し');
+         playCorrectSound();
+       } else {
+         console.log('[Quiz] 不正解音再生呼び出し');
+         playIncorrectSound();
+       }
      } else {
-       playIncorrectSound();
+       console.log('[Quiz] 音声が初期化されていないため音声再生をスキップ');
      }
    };
 
