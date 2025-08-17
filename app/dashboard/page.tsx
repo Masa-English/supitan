@@ -10,6 +10,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+// 動的レンダリングを明示的に指定
+export const dynamic = 'force-dynamic';
+
 // サーバーサイドでの認証確認
 async function getAuthenticatedUser() {
   try {

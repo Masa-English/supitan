@@ -155,10 +155,11 @@ const nextConfig: NextConfig = {
       hints: false, // パフォーマンス警告を無効化
     };
 
-    // Edge Runtime警告の抑制
+    // Edge Runtime警告とDynamic Server Usage警告の抑制
     config.ignoreWarnings = [
       /A Node\.js API is used.*which is not supported in the Edge Runtime/,
       /Serializing big strings.*impacts deserialization performance/,
+      /Route.*couldn't be rendered statically because it used `cookies`/,
     ];
     
     return config;
