@@ -65,16 +65,16 @@ export const useAudioStore = create<AudioState>((set, get) => ({
         .from('se')
         .download('error.mp3');
 
-      // 音声ファイルの取得に失敗した場合のフォールバック処理
+      // 音声ファイルの取得に失敗した場合の処理
       if (correctError || incorrectError) {
-        devLog.warn('効果音ファイルの取得に失敗しました。Web Speech APIを使用します。', {
+        devLog.warn('効果音ファイルの取得に失敗しました。', {
           correctError,
           incorrectError
         });
         
         set({
           isLoading: false,
-          error: '効果音ファイルの取得に失敗しました。Web Speech APIを使用します。',
+          error: '効果音ファイルの取得に失敗しました。',
           isInitialized: true
         });
         return;
@@ -160,26 +160,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
         correctAudio.currentTime = 0;
         correctAudio.play().catch(error => {
           console.error('正解音再生エラー:', error);
-          // フォールバックとしてWeb Speech APIを使用
-          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance('正解です！');
-            utterance.lang = 'ja-JP';
-            utterance.volume = volume;
-            utterance.rate = 0.9;
-            utterance.pitch = 1.1;
-            speechSynthesis.speak(utterance);
-          }
         });
-      } else {
-        // フォールバックとしてWeb Speech APIを使用
-        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance('正解です！');
-          utterance.lang = 'ja-JP';
-          utterance.volume = volume;
-          utterance.rate = 0.9;
-          utterance.pitch = 1.1;
-          speechSynthesis.speak(utterance);
-        }
       }
     } catch (error) {
       console.error('正解音再生エラー:', error);
@@ -198,26 +179,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
         incorrectAudio.currentTime = 0;
         incorrectAudio.play().catch(error => {
           console.error('不正解音再生エラー:', error);
-          // フォールバックとしてWeb Speech APIを使用
-          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance('不正解です');
-            utterance.lang = 'ja-JP';
-            utterance.volume = volume;
-            utterance.rate = 0.9;
-            utterance.pitch = 0.9;
-            speechSynthesis.speak(utterance);
-          }
         });
-      } else {
-        // フォールバックとしてWeb Speech APIを使用
-        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance('不正解です');
-          utterance.lang = 'ja-JP';
-          utterance.volume = volume;
-          utterance.rate = 0.9;
-          utterance.pitch = 0.9;
-          speechSynthesis.speak(utterance);
-        }
       }
     } catch (error) {
       console.error('不正解音再生エラー:', error);

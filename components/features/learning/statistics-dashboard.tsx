@@ -65,7 +65,7 @@ export function StatisticsDashboard({ stats, isLoading = false }: StatisticsDash
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{total_words_studied}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               総単語数: {total_words}
             </p>
           </CardContent>
@@ -78,7 +78,7 @@ export function StatisticsDashboard({ stats, isLoading = false }: StatisticsDash
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{overallAccuracy.toFixed(1)}%</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               平均: {average_accuracy.toFixed(1)}%
             </p>
           </CardContent>
@@ -91,7 +91,7 @@ export function StatisticsDashboard({ stats, isLoading = false }: StatisticsDash
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{current_streak}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               最長: {longest_streak}日
             </p>
           </CardContent>
@@ -104,7 +104,7 @@ export function StatisticsDashboard({ stats, isLoading = false }: StatisticsDash
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{total_study_sessions}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               総学習時間: {study_time_minutes}分
             </p>
           </CardContent>

@@ -115,6 +115,21 @@ export default {
           "sans-serif"
         ],
       },
+      fontSize: {
+        'xs': ['0.75rem', { lineHeight: '1.4' }],
+        'sm': ['0.875rem', { lineHeight: '1.5' }],
+        'base': ['1.125rem', { lineHeight: '1.7' }], // 基本サイズを18px相当に
+        'lg': ['1.25rem', { lineHeight: '1.6' }],
+        'xl': ['1.5rem', { lineHeight: '1.4' }],
+        '2xl': ['1.875rem', { lineHeight: '1.3' }],
+        '3xl': ['2.25rem', { lineHeight: '1.2' }],
+        '4xl': ['3rem', { lineHeight: '1.1' }],
+        '5xl': ['3.75rem', { lineHeight: '1' }],
+        '6xl': ['4.5rem', { lineHeight: '1' }],
+        '7xl': ['6rem', { lineHeight: '1' }],
+        '8xl': ['8rem', { lineHeight: '1' }],
+        '9xl': ['9rem', { lineHeight: '1' }],
+      },
     },
   },
   plugins: [tailwindcssAnimate],
