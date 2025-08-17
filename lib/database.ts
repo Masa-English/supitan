@@ -379,7 +379,18 @@ export class DatabaseService {
       studied_words: studiedWords,
       mastered_words: masteredWords,
       study_time_minutes: studyTimeMinutes,
-      review_count: reviewCount
+      review_count: reviewCount,
+      total_words_studied: studiedWords,
+      total_correct_answers: progress.reduce((total, p) => total + (p.correct_count || 0), 0),
+      total_incorrect_answers: progress.reduce((total, p) => total + (p.incorrect_count || 0), 0),
+      current_streak: 0, // TODO: 実装
+      longest_streak: 0, // TODO: 実装
+      total_study_sessions: 0, // TODO: 実装
+      average_accuracy: studiedWords > 0 ? 
+        (progress.reduce((total, p) => total + (p.correct_count || 0), 0) / 
+         progress.reduce((total, p) => total + (p.correct_count || 0) + (p.incorrect_count || 0), 0)) * 100 : 0,
+      words_mastered: masteredWords,
+      favorite_words_count: progress.filter(p => p.is_favorite).length
     };
   }
 

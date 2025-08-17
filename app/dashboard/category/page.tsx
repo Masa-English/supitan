@@ -13,7 +13,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import Link from 'next/link';
-import { useNavigationStore } from '@/lib/navigation-store';
+import { useNavigationStore } from '@/lib/stores';
 import { 
   createAllCategoryStats, 
   encodeCategoryName,

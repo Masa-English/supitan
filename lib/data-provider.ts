@@ -159,10 +159,14 @@ export class UnifiedDataProvider {
           categoryMap.set(word.category, (categoryMap.get(word.category) || 0) + 1);
         });
 
-        return Array.from(categoryMap.entries()).map(([name, count]) => ({
-          name,
+        return Array.from(categoryMap.entries()).map(([category, count]) => ({
+          category,
           count,
-          pos: this.getPosSymbol(name)
+          englishName: category,
+          pos: this.getPosSymbol(category),
+          description: `${category}の単語`,
+          color: '#3b82f6',
+          icon: '📚'
         }));
       } catch (error) {
         console.error('カテゴリー取得エラー:', error instanceof Error ? error.message : 'Unknown error');

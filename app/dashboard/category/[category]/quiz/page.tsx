@@ -35,6 +35,9 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
 
   // 統一データプロバイダ経由で取得（キャッシュ有効）
   let words = await dataProvider.getWordsByCategory(category);
+  
+  // カテゴリー全体のセクション情報を取得
+  const allSections = [...new Set(words.map(w => String(w.section ?? '')))].filter(Boolean).sort();
 
   // セクション指定時はサーバー側でフィルタ
   if (!isRandom && sectionRaw) {
@@ -63,6 +66,7 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
     <QuizClient
       category={category}
       words={words}
+      allSections={allSections}
       initialQuestions={generateQuestionsServer(words)}
       key={listKey}
     />

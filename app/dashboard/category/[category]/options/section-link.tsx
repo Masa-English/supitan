@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useNavigationStore } from '@/lib/navigation-store';
+import { useNavigationStore } from '@/lib/stores';
 
 interface SectionLinkProps {
   href: string;

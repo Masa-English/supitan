@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { AuthWrapper } from '@/components/auth';
 import { BookOpen, Brain, Play } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useNavigationStore } from '@/lib/navigation-store';
+import { useNavigationStore } from '@/lib/stores';
 
 // 学習モードの定義
 const learningModes = [

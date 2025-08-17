@@ -8,7 +8,7 @@ import { CategoryCardSkeleton } from '@/components/ui/skeleton';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { StaticData } from '@/lib/static-data';
-import { useNavigationStore } from '@/lib/navigation-store';
+import { useNavigationStore } from '@/lib/stores';
 import { 
   getAllCategories, 
   encodeCategoryName
