@@ -127,7 +127,7 @@ export function Quiz({
     setShowResult(false);
   }, [currentIndex]);
 
-     const handleAnswerSelect = (answer: string) => {
+     const handleAnswerSelect = async (answer: string) => {
      if (selectedAnswer || showResult || !normalizedQuestion) return;
 
      console.log('[Quiz] 回答選択', { answer, correctAnswer: normalizedQuestion.correct_answer });
@@ -140,12 +140,16 @@ export function Quiz({
      console.log('[Quiz] 音声再生開始', { correct, isInitialized });
      // 音声が初期化されている場合のみ音声再生
      if (isInitialized) {
-       if (correct) {
-         console.log('[Quiz] 正解音再生呼び出し');
-         playCorrectSound();
-       } else {
-         console.log('[Quiz] 不正解音再生呼び出し');
-         playIncorrectSound();
+       try {
+         if (correct) {
+           console.log('[Quiz] 正解音再生呼び出し');
+           await playCorrectSound();
+         } else {
+           console.log('[Quiz] 不正解音再生呼び出し');
+           await playIncorrectSound();
+         }
+       } catch (error) {
+         console.error('[Quiz] 音声再生エラー:', error);
        }
      } else {
        console.log('[Quiz] 音声が初期化されていないため音声再生をスキップ');

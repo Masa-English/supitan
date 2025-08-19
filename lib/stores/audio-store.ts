@@ -18,14 +18,14 @@ interface AudioState {
   isLoading: boolean;
   error: string | null;
   isInitialized: boolean;
-  isAudioEnabled: boolean; // 音声再生を完全に無効化するフラグ
+  isAudioEnabled: boolean; // 音声再生の有効/無効フラグ
   
   // アクション
   initializeAudio: () => Promise<void>;
   loadWordAudio: (wordId: string, audioFilePath: string) => Promise<HTMLAudioElement | null>;
   preloadWordAudioPaths: (words: { id: string; audio_file: string | null }[]) => void;
-  playCorrectSound: () => void;
-  playIncorrectSound: () => void;
+  playCorrectSound: () => Promise<void>;
+  playIncorrectSound: () => Promise<void>;
   playWordAudio: (wordId: string) => void;
   toggleMute: () => void;
   setVolume: (volume: number) => void;
@@ -44,7 +44,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   isLoading: false,
   error: null,
   isInitialized: false,
-  isAudioEnabled: true, // 初期状態では音声再生を無効にする
+  isAudioEnabled: true, // 初期状態では音声再生を有効にする
 
   // 音声初期化
   initializeAudio: async () => {
@@ -109,6 +109,15 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       const correctUrl = URL.createObjectURL(correctBlob);
       const incorrectUrl = URL.createObjectURL(incorrectBlob);
 
+      // 既存の音声がある場合はURLを解放
+      const { correctAudio: existingCorrect, incorrectAudio: existingIncorrect } = get();
+      if (existingCorrect && existingCorrect.src.startsWith('blob:')) {
+        URL.revokeObjectURL(existingCorrect.src);
+      }
+      if (existingIncorrect && existingIncorrect.src.startsWith('blob:')) {
+        URL.revokeObjectURL(existingIncorrect.src);
+      }
+
       const correctAudio = new Audio(correctUrl);
       const incorrectAudio = new Audio(incorrectUrl);
 
@@ -149,7 +158,14 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       if (audioBlob) {
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
+        
+        // 既存の音声がある場合はURLを解放
         const { wordAudioCache } = get();
+        const existingAudio = wordAudioCache.get(wordId);
+        if (existingAudio && existingAudio.src.startsWith('blob:')) {
+          URL.revokeObjectURL(existingAudio.src);
+        }
+        
         wordAudioCache.set(wordId, audio);
         set({ wordAudioCache: new Map(wordAudioCache) });
         devLog.log(`[AudioStore] 単語音声読み込み完了: ${wordId}`);
@@ -178,7 +194,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   },
 
   // 正解音再生
-  playCorrectSound: () => {
+  playCorrectSound: async () => {
     const { correctAudio, isMuted, volume, isInitialized, isAudioEnabled } = get();
     
     console.log('[AudioStore] playCorrectSound呼び出し', {
@@ -209,8 +225,10 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       if (correctAudio) {
         correctAudio.volume = volume;
         correctAudio.currentTime = 0;
-        correctAudio.play().catch(error => {
+        await correctAudio.play().catch(error => {
           console.error('[AudioStore] 正解音再生エラー:', error);
+          // ユーザーに音声再生エラーを通知（必要に応じて）
+          devLog.warn('[AudioStore] 正解音再生に失敗しました', error);
         });
         console.log('[AudioStore] 正解音再生開始');
       } else {
@@ -218,11 +236,12 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       }
     } catch (error) {
       console.error('[AudioStore] 正解音再生エラー:', error);
+      devLog.error('[AudioStore] 正解音再生で予期しないエラーが発生しました', error);
     }
   },
 
   // 不正解音再生
-  playIncorrectSound: () => {
+  playIncorrectSound: async () => {
     const { incorrectAudio, isMuted, volume, isInitialized, isAudioEnabled } = get();
     
     console.log('[AudioStore] playIncorrectSound呼び出し', {
@@ -253,8 +272,10 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       if (incorrectAudio) {
         incorrectAudio.volume = volume;
         incorrectAudio.currentTime = 0;
-        incorrectAudio.play().catch(error => {
+        await incorrectAudio.play().catch(error => {
           console.error('[AudioStore] 不正解音再生エラー:', error);
+          // ユーザーに音声再生エラーを通知（必要に応じて）
+          devLog.warn('[AudioStore] 不正解音再生に失敗しました', error);
         });
         console.log('[AudioStore] 不正解音再生開始');
       } else {
@@ -262,6 +283,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       }
     } catch (error) {
       console.error('[AudioStore] 不正解音再生エラー:', error);
+      devLog.error('[AudioStore] 不正解音再生で予期しないエラーが発生しました', error);
     }
   },
 
@@ -365,16 +387,28 @@ export const useAudioStore = create<AudioState>((set, get) => ({
     if (correctAudio) {
       correctAudio.pause();
       correctAudio.src = '';
+      // URL.createObjectURLで作成されたURLを解放
+      if (correctAudio.src.startsWith('blob:')) {
+        URL.revokeObjectURL(correctAudio.src);
+      }
     }
     if (incorrectAudio) {
       incorrectAudio.pause();
       incorrectAudio.src = '';
+      // URL.createObjectURLで作成されたURLを解放
+      if (incorrectAudio.src.startsWith('blob:')) {
+        URL.revokeObjectURL(incorrectAudio.src);
+      }
     }
     
-    // キャッシュされた音声の停止
+    // キャッシュされた音声の停止とリソース解放
     wordAudioCache.forEach(audio => {
       audio.pause();
       audio.src = '';
+      // URL.createObjectURLで作成されたURLを解放
+      if (audio.src.startsWith('blob:')) {
+        URL.revokeObjectURL(audio.src);
+      }
     });
     
     // 状態リセット
@@ -384,7 +418,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       wordAudioCache: new Map(),
       wordAudioPathCache: new Map(),
       isInitialized: false,
-      isAudioEnabled: true, // クリーンアップ後も音声再生を無効にする
+      isAudioEnabled: true, // クリーンアップ後も音声再生を有効にする
     });
     
     devLog.log('[AudioStore] クリーンアップ完了');
