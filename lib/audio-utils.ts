@@ -98,6 +98,12 @@ export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob
       }
       
       blob = await response.blob();
+      
+      // ファイルサイズの検証
+      if (blob.size === 0) {
+        devLog.error(`[AudioUtils] 音声ファイルが空です: ${audioFilePath}`);
+        return null;
+      }
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === 'AbortError') {
