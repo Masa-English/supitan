@@ -1,0 +1,42 @@
+# Page snapshot
+
+```yaml
+- navigation:
+  - button "previous" [disabled]:
+    - img "previous"
+  - text: 1/1
+  - button "next" [disabled]:
+    - img "next"
+- img
+- img
+- text: Next.js 15.5.2 Webpack
+- img
+- dialog "Runtime ReferenceError":
+  - text: Runtime ReferenceError
+  - button "Copy Error Info":
+    - img
+  - button "No related documentation found" [disabled]:
+    - img
+  - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools":
+    - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+    - img
+  - paragraph: exports is not defined
+  - paragraph: Call Stack 11
+  - button "Show 9 ignore-listed frame(s)":
+    - text: Show 9 ignore-listed frame(s)
+    - img
+  - text: <unknown> .next\server\lib.js (9) <unknown> .next\server\lib.js (9:1)
+- contentinfo:
+  - region "Error feedback":
+    - paragraph:
+      - link "Was this helpful?":
+        - /url: https://nextjs.org/telemetry#error-feedback
+    - button "Mark as helpful"
+    - button "Mark as not helpful"
+- button "Open Next.js Dev Tools":
+  - img
+- button "Open issues overlay": 1 Issue
+- button "Collapse issues badge":
+  - img
+- alert
+```

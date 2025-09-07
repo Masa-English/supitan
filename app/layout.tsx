@@ -1,10 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { ToastProvider } from "@/components/ui/toast";
+import { ToastProvider } from "@/components/ui/feedback/toast";
 import "./globals.css";
-import { NavigationOverlay } from '@/components/common/navigation-overlay';
-import { NavigationEvents } from '@/components/common/navigation-events';
+import { NavigationOverlay, NavigationEvents } from '@/components/shared';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`

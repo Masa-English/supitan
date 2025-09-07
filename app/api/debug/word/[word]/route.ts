@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createServerClient } from '@/lib/api/supabase/server';
 
 export async function GET(
   request: NextRequest,
@@ -14,7 +14,7 @@ export async function GET(
   }
   try {
     const { word } = await params;
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     
     console.log(`[Debug] 単語情報取得: ${word}`);
     
@@ -57,7 +57,7 @@ export async function PATCH(
   try {
     const { word } = await params;
     const body = await request.json();
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     
     console.log(`[Debug] 単語更新: ${word}`, body);
     

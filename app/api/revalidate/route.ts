@@ -32,13 +32,13 @@ export async function POST(request: NextRequest) {
     } else if (category && mode && Array.isArray(sections) && sections.length > 0) {
       // カテゴリ×モード×複数セクションの一括再検証
       for (const sec of sections) {
-        const p = `/dashboard/category/${encodeURIComponent(category)}/${mode}/section/${encodeURIComponent(sec)}`;
+        const p = `/learning/${encodeURIComponent(category)}/${mode}/section/${encodeURIComponent(sec)}`;
         revalidatePath(p);
       }
     } else {
       // デフォルトでランディングページとカテゴリーページを再検証
       revalidatePath('/landing');
-      revalidatePath('/dashboard/category');
+      revalidatePath('/learning/categories');
     }
 
     // 統一キャッシュシステムのキャッシュをクリア

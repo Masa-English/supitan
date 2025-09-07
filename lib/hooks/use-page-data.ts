@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { DatabaseService } from '@/lib/database';
+import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
+import { DatabaseService } from '@/lib/api/database';
 import { Word, UserProgress, ReviewWord } from '@/lib/types';
 
-interface UsePageDataOptions {
+export interface UsePageDataOptions {
   category?: string;
   type: 'flashcard' | 'quiz' | 'review';
   prefetchedData?: {
@@ -14,7 +14,7 @@ interface UsePageDataOptions {
   };
 }
 
-interface UsePageDataReturn {
+export interface UsePageDataReturn {
   words: Word[];
   userProgress: Record<string, UserProgress>;
   loading: boolean;
@@ -33,7 +33,7 @@ export function usePageData(options: UsePageDataOptions): UsePageDataReturn {
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
 
-  const supabase = createClient();
+  const supabase = createBrowserClient();
   const db = useMemo(() => new DatabaseService(), []);
 
   // ユーザー認証の確認

@@ -1,0 +1,92 @@
+// Main types export file
+
+// Database types
+export type {
+  Json,
+  Database,
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+  Enums,
+  CompositeTypes,
+  User,
+  UserProfile,
+  Word,
+  UserProgress,
+  StudySession,
+  ReviewWord,
+  ReviewSession,
+  Category,
+  Trivia,
+  UserTriviaProgress,
+} from './database';
+
+// API types
+export type {
+  QuizQuestion,
+  AppStats,
+  ApiResponse,
+  PaginatedResponse,
+  StudySessionRequest,
+  ProgressUpdateRequest,
+  ContactFormData,
+  StudyMode,
+  MasteryFilter,
+  TriviaFilter,
+  TriviaDifficulty,
+  SearchFilters,
+  SortOptions,
+} from './api';
+
+// Component types
+export type {
+  BaseComponentProps,
+  ButtonProps,
+  ModalProps,
+  ToastProps,
+  FormFieldProps,
+  FlashcardProps,
+  QuizProps,
+  ReviewProps,
+  CompletionModalProps,
+  StatisticsDashboardProps,
+  AudioControlsProps,
+  AudioProviderProps,
+  LoginFormProps,
+  ProfileFormProps,
+  AuthWrapperProps,
+  HeaderProps,
+  FooterProps,
+  SidebarProps,
+  CategoryBadgeProps,
+  CategoryDisplayProps,
+  CategoryProgressProps,
+  ContactFormProps,
+  ThemeSwitcherProps,
+  TutorialModalProps,
+  TutorialStep,
+  TutorialWrapperProps,
+  SuspenseWrapperProps,
+  LoadingSpinnerProps,
+  ErrorBoundaryProps,
+  NavigationItem,
+  BreadcrumbItem,
+} from './components';
+
+// Store types
+export type {
+  UserState,
+  DataState,
+  UIState,
+  ToastState,
+  SettingsState,
+  StudySettings,
+  AudioSettings,
+  NotificationSettings,
+  DisplaySettings,
+  AudioState,
+  NavigationState,
+  StoreSlice,
+  StoreActions,
+  StoreState,
+} from './stores';

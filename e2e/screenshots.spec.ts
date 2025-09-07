@@ -54,9 +54,9 @@ test.describe('主要画面スクリーンショット', () => {
     await page.screenshot({ path: `${dir}/10-dashboard-home.png`, fullPage: true });
 
     // 学習開始
-    await page.goto(`${baseURL}/dashboard/start-learning`);
+    await page.goto(`${baseURL}/learning`);
     await page.waitForLoadState('networkidle');
-    await page.screenshot({ path: `${dir}/11-start-learning.png`, fullPage: true });
+    await page.screenshot({ path: `${dir}/11-learning.png`, fullPage: true });
 
     // プロフィール
     await page.goto(`${baseURL}/dashboard/profile`);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import { devLog } from '@/lib/utils';
 
 export async function GET(
@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ wordId: string }> }
 ) {
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     
     const { wordId } = await params;
     

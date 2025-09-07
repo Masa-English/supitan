@@ -1,8 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import { createClient } from '@/lib/supabase/client';
-import { fetchAudioFromStorage } from '@/lib/audio-utils';
+import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
+import { fetchAudioFromStorage } from '@/lib/utils/audio';
 import { devLog } from '@/lib/utils';
 
 interface AudioState {
@@ -61,7 +61,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      const supabase = createClient();
+      const supabase = createBrowserClient();
       console.log('[AudioStore] Supabaseクライアント作成完了');
       
       // Supabase Storageから効果音ファイルを取得
@@ -305,7 +305,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       if (!audioFilePath) {
         try {
           // データベースから音声ファイルパスを取得（フォールバック）
-          const supabase = createClient();
+          const supabase = createBrowserClient();
           const { data: word, error: wordError } = await supabase
             .from('words')
             .select('audio_file')

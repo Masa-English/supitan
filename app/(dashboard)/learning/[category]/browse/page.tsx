@@ -1,0 +1,156 @@
+import Link from 'next/link';
+import { dataProvider } from '@/lib/api/services';
+import { Word } from '@/lib/types';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/navigation/badge';
+import { 
+  Heart, 
+  Search, 
+  ArrowLeft, 
+  Users, 
+  Target, 
+  LucideIcon
+} from 'lucide-react';
+
+// 単語カードコンポーネント
+function WordCard({ word }: { word: Word }) {
+  return (
+    <Card className="group hover:shadow-lg transition-all duration-300 border-border bg-card h-full min-h-[240px]">
+      <CardHeader className="pb-2 sm:pb-3">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 leading-tight">
+              {word.word}
+            </h3>
+            <Badge variant="outline" className="text-xs sm:text-sm border-border text-muted-foreground px-2 py-1">
+              {word.phonetic}
+            </Badge>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0 space-y-3 sm:space-y-4">
+        <div className="bg-muted rounded-lg p-3">
+          <p className="text-foreground text-base sm:text-lg font-semibold text-center">
+            {word.japanese}
+          </p>
+        </div>
+        {word.example1 && (
+          <div className="space-y-2 sm:space-y-3">
+            <div className="bg-muted/50 rounded-lg p-2 sm:p-3 border border-border">
+              <p className="text-xs sm:text-sm text-muted-foreground italic mb-1 sm:mb-2 leading-relaxed">
+                &ldquo;{word.example1}&rdquo;
+              </p>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {word.example1_jp}
+              </p>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// 統計カードコンポーネント
+function StatCard({ icon: Icon, label, value }: { icon: LucideIcon, label: string, value: string | number }) {
+  return (
+    <Card className="bg-card border-border shadow-md">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex flex-col items-center text-center gap-1 sm:gap-2">
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+          <div>
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">{label}</p>
+            <p className="text-lg sm:text-2xl font-bold text-foreground">{value}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export const revalidate = 300; // 5分
+
+export default async function BrowsePage({ params }: { params: Promise<{ category: string }> }) {
+  const { category } = await params;
+  const decodedCategory = decodeURIComponent(category);
+  const words = await dataProvider.getWordsByCategory(decodedCategory);
+  const totalWords = words.length;
+  const withExamples = words.filter(w => w.example1).length;
+
+  return (
+    <div className="h-screen flex flex-col bg-background">
+      {/* ヘッダー */}
+      <header className="bg-card border-b border-border flex-shrink-0">
+        <div className="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-3 sm:py-4">
+          <div className="text-center">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
+              {decodedCategory}の単語一覧
+            </h1>
+            <div className="flex items-center justify-center gap-2 sm:gap-4 text-muted-foreground">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="text-xs sm:text-sm">{totalWords}個の単語</span>
+              </div>
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Target className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="text-xs sm:text-sm">学習準備完了</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 flex flex-col w-full px-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-3 sm:py-4 min-h-0">
+        {/* 統計セクション */}
+        <div className="mb-4 sm:mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+            <StatCard icon={Users} label="総単語数" value={totalWords} />
+            <StatCard icon={Target} label="例文付き" value={withExamples} />
+            <StatCard icon={Search} label="学習可能" value={totalWords} />
+            <StatCard icon={Heart} label="お気に入り" value="0" />
+          </div>
+        </div>
+
+        {/* ナビゲーション */}
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link href={`/learning/${encodeURIComponent(decodedCategory)}`} prefetch>
+              <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
+                <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                カテゴリーに戻る
+              </Button>
+            </Link>
+            <Link href="/learning/categories">
+              <Button variant="ghost" className="text-muted-foreground hover:bg-muted text-xs sm:text-sm">
+                カテゴリー一覧
+              </Button>
+            </Link>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Link href={`/learning/${encodeURIComponent(decodedCategory)}/options?mode=flashcard`} prefetch>
+              <Button className="bg-primary hover:bg-primary/90 text-xs sm:text-sm">
+                フラッシュカード学習
+              </Button>
+            </Link>
+            <Link href={`/learning/${encodeURIComponent(decodedCategory)}/options?mode=quiz`} prefetch>
+              <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
+                クイズ学習
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* 単語一覧 */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+            {words.map((word) => (
+              <WordCard key={word.id} word={word} />
+            ))}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

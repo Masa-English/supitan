@@ -17,7 +17,7 @@
     "lib": "@/lib",
     "hooks": "@/lib/hooks",
     "contexts": "@/lib/contexts",
-    "supabase": "@/lib/supabase",
+    "supabase": "@/lib/api/supabase",
     "types": "@/lib/types"
   },
   "iconLibrary": "lucide"

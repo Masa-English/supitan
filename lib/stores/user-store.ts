@@ -1,8 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import { createClient } from '@/lib/supabase/client';
-import { DatabaseService } from '@/lib/database';
+import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
+import { DatabaseService } from '@/lib/api/database';
 import type { User, UserProfile, UserProgress, AppStats } from '@/lib/types';
 
 interface UserState {
@@ -55,7 +55,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
   // 初期化
   initialize: async () => {
-    const supabase = createClient();
+    const supabase = createBrowserClient();
     
     try {
       set({ loading: true, error: null });
@@ -100,7 +100,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
   // サインアウト
   signOut: async () => {
-    const supabase = createClient();
+    const supabase = createBrowserClient();
     try {
       await supabase.auth.signOut();
       get().clearUserData();

@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import { DatabaseService } from '@/lib/database';
+import { DatabaseService } from '@/lib/api/database';
 import type { Word, Category, ReviewWord } from '@/lib/types';
 
 interface DataState {

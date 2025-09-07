@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createServerClient } from '@/lib/api/supabase/server';
 
 export async function GET(_request: NextRequest) {
   // 本番環境ではデバッグAPIを無効化
@@ -11,7 +11,7 @@ export async function GET(_request: NextRequest) {
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
 
     // words サンプルと総数、カテゴリ別件数
     const [

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { dataProvider } from '@/lib/data-provider';
-import { createClient } from '@/lib/supabase/server';
+import { dataProvider } from '@/lib/api/services';
+import { createClient as createServerClient } from '@/lib/api/supabase/server';
 
 // キャッシュ設定
 export const revalidate = 300; // 5分
@@ -15,7 +15,7 @@ export async function GET(
     const category = searchParams.get('category');
 
     // 認証確認
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { data: { session }, error: authError } = await supabase.auth.getSession();
 
     if (authError || !session?.user) {

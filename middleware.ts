@@ -1,24 +1,22 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { hasValidSessionCookie, setSessionHeaders, isSessionMissingError } from '@/lib/auth/session-utils'
 
 export async function middleware(request: NextRequest) {
   // 事前にパスとCookieを評価して、重い認証問い合わせを回避できる場合は早期リダイレクト
   const pathname = request.nextUrl.pathname
-  const cookieNames = request.cookies.getAll().map((c) => c.name)
-  const hasSupabaseSessionCookie = cookieNames.some((n) =>
-    n.includes('sb-') || n.includes('supabase-auth-token')
-  )
+  
+  // より正確なSupabaseセッションCookie検出
+  const hasSupabaseSessionCookie = hasValidSessionCookie(request)
 
-  // ランディングは初回即表示を最優先: すべて素通し
-  if (pathname === '/landing') {
-    return NextResponse.next({ request })
-  }
-
-  // ルートアクセスは即座に目的地へ（未ログイン: /landing, ログイン済み: /dashboard）
+  // ルートアクセス時の最適化されたリダイレクト処理
   if (pathname === '/') {
-    const url = request.nextUrl.clone()
-    url.pathname = hasSupabaseSessionCookie ? '/dashboard' : '/landing'
-    return NextResponse.redirect(url)
+    // セッションCookieが存在する場合のみ、後続の認証チェックを行う
+    // セッションCookieがない場合は、ルートページでログインフォームを表示
+    if (!hasSupabaseSessionCookie) {
+      return NextResponse.next({ request })
+    }
+    // セッションCookieがある場合は後続の認証チェックに進む
   }
 
   let supabaseResponse = NextResponse.next({
@@ -54,27 +52,35 @@ export async function middleware(request: NextRequest) {
   // セッション未所持時の 400/"Auth session missing" は正常系として扱う
   let user: { email?: string } | null = null
   let authError: unknown = null
+  
+  // セッションCookieがある場合のみ認証チェックを実行
   if (hasSupabaseSessionCookie) {
     try {
       const { data, error } = await supabase.auth.getUser()
       user = data?.user ?? null
       authError = error ?? null
+      
+      // セッション状態の維持を強化
+      if (user && !error) {
+        // 有効なセッションの場合、レスポンスヘッダーでセッション維持を指示
+        supabaseResponse.headers.set('x-session-valid', 'true')
+        
+        // ルートパスで認証済みユーザーをダッシュボードにリダイレクト
+        if (pathname === '/') {
+          const url = request.nextUrl.clone()
+          url.pathname = '/dashboard'
+          const response = NextResponse.redirect(url)
+          setSessionHeaders(response)
+          response.headers.set('x-authenticated-redirect', 'true')
+          return response
+        }
+      }
     } catch (e) {
       authError = e
     }
   }
 
-  const isMissingSession = (() => {
-    if (!authError) return false
-    const err = authError as { [k: string]: unknown }
-    const name = String(err?.name ?? '')
-    const message = String(err?.message ?? '')
-    const status = Number((err as { status?: number }).status ?? 0)
-    const isFlag = (err as { __isAuthError?: boolean }).__isAuthError === true
-    const code = String((err as { code?: string }).code ?? '')
-    const tokenMissing = /refresh[_-]?token/i.test(code) || /Invalid Refresh Token/i.test(message)
-    return isFlag || status === 400 || tokenMissing || name.includes('AuthSessionMissingError') || /Auth session missing/i.test(message)
-  })()
+  const isMissingSession = isSessionMissingError(authError)
   if (isMissingSession) {
     // 未ログイン扱いとしてスルー（ノイズログを抑制）
     user = null
@@ -83,7 +89,9 @@ export async function middleware(request: NextRequest) {
 
   // パブリックパスの定義
   const publicPaths = [
+    '/',
     '/auth',
+    '/login',
     '/landing',
     '/contact',
     '/faq',
@@ -134,7 +142,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
       const url = request.nextUrl.clone()
-      url.pathname = '/landing'
+      url.pathname = '/login'
       return NextResponse.redirect(url)
     }
   }
@@ -148,7 +156,7 @@ export async function middleware(request: NextRequest) {
     // ダッシュボード関連のパスへの未認証アクセスを特に厳格にチェック
     if (request.nextUrl.pathname.startsWith('/dashboard')) {
       const url = request.nextUrl.clone()
-      url.pathname = '/landing'
+      url.pathname = '/login'
       return NextResponse.redirect(url)
     }
     
@@ -157,7 +165,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     const url = request.nextUrl.clone()
-    url.pathname = '/landing'
+    url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
@@ -166,7 +174,7 @@ export async function middleware(request: NextRequest) {
     // 認証済みかつ管理者かチェック
     if (!user) {
       const url = request.nextUrl.clone()
-      url.pathname = '/landing'
+      url.pathname = '/'
       return NextResponse.redirect(url)
     }
 
@@ -221,7 +229,9 @@ export const config = {
      * - images and other static assets
      * Feel free to modify this pattern to include more paths.
      */
-    // ランディングはミドルウェアを完全バイパスして最速表示
-    '/((?!_next/static|_next/image|favicon.ico|manifest.json|landing|landing/.*|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$).*)'
+    // ルートパスと認証が必要なパスを処理、ランディングは引き続きバイパス
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json|landing|landing/.*|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$).*)',
+    // ルートパスを明示的に含める
+    '/'
   ],
 }

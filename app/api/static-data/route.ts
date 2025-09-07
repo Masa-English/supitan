@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getStaticData } from '@/lib/static-data';
+import { getStaticData } from '@/lib/constants/static-data';
 
 // キャッシュ設定
 export const revalidate = 900; // 15分間キャッシュ

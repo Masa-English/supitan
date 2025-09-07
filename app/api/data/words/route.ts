@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createServerClient } from '@/lib/api/supabase/server';
 
 // 動的レンダリングを強制（cookies()を使用するため）
 export const dynamic = 'force-dynamic';
@@ -9,7 +9,7 @@ export const revalidate = 300; // 5分
 
 export async function GET() {
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     
     // 単語データを取得
     const { data: words, error } = await supabase

@@ -1,7 +1,7 @@
-export { AuthWrapper } from './auth-wrapper';
-export { LoginForm } from './login-form';
-export { SignUpForm } from './sign-up-form';
-export { ForgotPasswordForm } from './forgot-password-form';
-export { UpdatePasswordForm } from './update-password-form';
-export { ProfileForm } from './profile-form';
-export { LogoutButton } from './logout-button'; 
+export { LoginForm } from '../features/auth/login-form';
+export { SignUpForm } from '../features/auth/sign-up-form';
+export { ForgotPasswordForm } from '../features/auth/forgot-password-form';
+export { UpdatePasswordForm } from '../features/auth/update-password-form';
+export { ProfileForm } from '../features/auth/profile-form';
+export { InlineLoginForm } from '../features/auth/inline-login-form';
+export { AuthWrapper } from '../features/auth/auth-wrapper';

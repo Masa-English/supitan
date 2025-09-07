@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
 import { User } from '@supabase/supabase-js';
 
-interface UseAuthOptions {
+export interface UseAuthOptions {
   redirectTo?: string;
   requireAuth?: boolean;
 }
 
-interface UseAuthReturn {
+export interface UseAuthReturn {
   user: User | null;
   loading: boolean;
   error: string | null;
@@ -16,14 +16,14 @@ interface UseAuthReturn {
 }
 
 export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
-  const { redirectTo = '/auth/login', requireAuth = true } = options;
+  const { redirectTo = '/login', requireAuth = true } = options;
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = createBrowserClient();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -33,8 +33,10 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
 
         // パブリックページの場合は認証チェックをスキップ
         const publicPaths = [
+          '/',
           '/landing',
           '/contact',
+          '/login',
           '/auth/login',
           '/auth/sign-up',
           '/auth/forgot-password',
@@ -54,10 +56,35 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
           return;
         }
 
-        // セキュリティ上の理由でgetUser()を使用
+        // セッション状態の維持を強化 - getSession()とgetUser()の組み合わせ
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          // 認証が不要なページではエラーを無視
+          if (!requireAuth) {
+            setLoading(false);
+            return;
+          }
+          throw sessionError;
+        }
+
+        // セッションが存在する場合、ユーザー情報を取得
+        if (session?.user) {
+          setUser(session.user);
+          setIsAuthenticated(true);
+          return;
+        }
+
+        // セッションがない場合、getUser()で最終確認
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         
         if (userError) {
+          // 認証が不要なページではエラーを無視
+          if (!requireAuth) {
+            setLoading(false);
+            return;
+          }
+          
           // refresh_token_not_foundエラーは一般的で、ログに出力しない
           if (userError.message?.includes('Refresh Token Not Found') || userError.code === 'refresh_token_not_found') {
             if (requireAuth) {
@@ -103,6 +130,12 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
         setUser(user);
         setIsAuthenticated(true);
       } catch (err) {
+        // 認証が不要なページではエラーを無視
+        if (!requireAuth) {
+          setLoading(false);
+          return;
+        }
+        
         // 開発環境でのみログ出力
         if (process.env.NODE_ENV === 'development') {
           console.error('認証チェックエラー:', err);
@@ -124,11 +157,11 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
 
     checkAuth();
 
-    // 認証状態の変更を監視
+    // 認証状態の変更を監視（セッション状態維持の強化）
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         // イベントタイプに基づいて適切に処理
-        if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
+        if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
           setUser(null);
           setIsAuthenticated(false);
           if (requireAuth) {
@@ -138,9 +171,25 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
           if (session?.user) {
             setUser(session.user);
             setIsAuthenticated(true);
+            
+            // ルートページにいる認証済みユーザーを自動リダイレクト
+            const currentPath = window.location.pathname;
+            if (currentPath === '/' && event === 'SIGNED_IN') {
+              // 保存されたリダイレクト先があればそこに、なければダッシュボードに
+              const savedRedirect = sessionStorage.getItem('redirectAfterLogin');
+              if (savedRedirect && savedRedirect !== '/') {
+                sessionStorage.removeItem('redirectAfterLogin');
+                router.replace(savedRedirect);
+              } else {
+                router.replace('/dashboard');
+              }
+            }
           }
+        } else if (event === 'INITIAL_SESSION' && session?.user) {
+          // 初期セッション時の処理を追加
+          setUser(session.user);
+          setIsAuthenticated(true);
         }
-        // その他のイベント（INITIAL_SESSION等）は無視
       }
     );
 
