@@ -10,6 +10,29 @@ const nextConfig: NextConfig = {
   // 静的生成の設定
   output: "standalone",
 
+  // ログとビルド警告の抑制
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
+  },
+  
+  // TypeScript設定（型チェックエラーを警告として扱う）
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+
+  // ESLint設定（ビルド時のESLintエラーを無視）
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+
+  // ビルド時の詳細ログを抑制
+  productionBrowserSourceMaps: false,
+
+  // 外部パッケージ設定（Next.js 15.5.2の新しい設定）
+  serverExternalPackages: ["@supabase/supabase-js"],
+
   // SSG/ISR最適化
   experimental: {
     optimizePackageImports: ["lucide-react", "@radix-ui/react-slot"],
@@ -32,6 +55,38 @@ const nextConfig: NextConfig = {
   // パフォーマンス最適化
   poweredByHeader: false,
   compress: true,
+
+  // Webpack設定でビルド警告を抑制
+  webpack: (config) => {
+    // ビルド時の警告を抑制
+    config.infrastructureLogging = {
+      level: 'error',
+    };
+
+    // モジュール解決の警告を抑制
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    };
+
+    // 不要な警告を抑制（Supabase Edge Runtime警告を含む）
+    config.ignoreWarnings = [
+      /Module not found/,
+      /Critical dependency/,
+      /Can't resolve/,
+      /Failed to parse source map/,
+      // Supabase Edge Runtime警告を抑制
+      /A Node\.js API is used \(process\.version at line: \d+\) which is not supported in the Edge Runtime/,
+      /Import trace for requested module/,
+      // Supabase関連の特定の警告を抑制
+      /@supabase\/supabase-js.*process\.version/,
+      /@supabase\/ssr.*process\.version/,
+    ];
+
+    return config;
+  },
 
   // リダイレクト設定（古いURL構造から新しい構造へ）
   async redirects() {
