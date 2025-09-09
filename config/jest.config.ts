@@ -3,12 +3,13 @@ import nextJest from 'next/jest'
 
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files
-  dir: './',
+  dir: '../',
 })
 
 // Add any custom config to be passed to Jest
 const customJestConfig: Config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  rootDir: '../',
   testEnvironment: 'jest-environment-jsdom',
   // 新しいディレクトリ構造に対応したモジュールマッピング
   moduleNameMapper: {
