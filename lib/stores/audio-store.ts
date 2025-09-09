@@ -30,6 +30,7 @@ interface AudioState {
   toggleMute: () => void;
   setVolume: (volume: number) => void;
   toggleAudioEnabled: () => void; // 音声有効/無効を切り替え
+  clearCache: () => void; // キャッシュクリア
   cleanup: () => void;
 }
 
@@ -377,6 +378,27 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   toggleAudioEnabled: () => {
     set(state => ({ isAudioEnabled: !state.isAudioEnabled }));
     devLog.log(`[AudioStore] 音声再生有効/無効切り替え: ${get().isAudioEnabled ? '有効' : '無効'}`);
+  },
+
+  // キャッシュクリア
+  clearCache: () => {
+    const { wordAudioCache } = get();
+    
+    // キャッシュされた音声の停止とリソース解放
+    wordAudioCache.forEach(audio => {
+      audio.pause();
+      if (audio.src.startsWith('blob:')) {
+        URL.revokeObjectURL(audio.src);
+      }
+    });
+    
+    // キャッシュをクリア
+    set({
+      wordAudioCache: new Map(),
+      wordAudioPathCache: new Map(),
+    });
+    
+    devLog.log('[AudioStore] キャッシュクリア完了');
   },
 
   // クリーンアップ

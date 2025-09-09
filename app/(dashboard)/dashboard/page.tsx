@@ -91,7 +91,7 @@ export default async function DashboardPage() {
       <div className="container mx-auto px-4 py-6 sm:py-8">
         {/* ヘッダー */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
             ようこそ、{user?.email?.split('@')[0] || 'ユーザー'}さん
           </h1>
           <p className="text-muted-foreground">

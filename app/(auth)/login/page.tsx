@@ -1,9 +1,9 @@
 "use client";
 
-import { LoginForm } from '@/components/features/auth';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Zap, ArrowLeft } from 'lucide-react';
+import { LoginForm } from "@/components/features/auth";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Zap, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   return (
@@ -12,12 +12,19 @@ export default function LoginPage() {
       <header className="border-b border-border/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Link
+              href="/"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
               <Zap className="h-6 w-6 text-primary" />
               <h1 className="text-2xl font-bold text-foreground">スピ単</h1>
             </Link>
             <Link href="/">
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground"
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 戻る
               </Button>
@@ -29,16 +36,6 @@ export default function LoginPage() {
       {/* メインコンテンツ */}
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          {/* タイトルセクション */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-foreground mb-3">
-              ログイン
-            </h2>
-            <p className="text-muted-foreground">
-              アカウントにログインして学習を開始しましょう
-            </p>
-          </div>
-
           {/* ログインフォーム */}
           <LoginForm variant="card" showCard={true} />
         </div>
@@ -47,9 +44,7 @@ export default function LoginPage() {
       {/* ミニマルなフッター */}
       <footer className="border-t border-border/50 py-4">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            © 2024 スピ単
-          </p>
+          <p className="text-sm text-muted-foreground">© 2024 スピ単</p>
         </div>
       </footer>
     </div>
