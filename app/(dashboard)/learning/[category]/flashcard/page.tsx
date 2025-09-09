@@ -1,7 +1,24 @@
 import { redirect } from 'next/navigation';
 import { createClient as createServerClient } from '@/lib/api/supabase/server';
+import { dataProvider } from '@/lib/api/services';
 import FlashcardClient from './flashcard-client';
 import type { Word } from '@/lib/types';
+
+// ISR設定 - 30分ごとに再生成
+export const revalidate = 1800;
+
+// 静的パスの生成
+export async function generateStaticParams() {
+  try {
+    const categories = await dataProvider.getCategories();
+    return categories.map((category) => ({
+      category: encodeURIComponent(category.category),
+    }));
+  } catch (error) {
+    console.error('Error generating static params for flashcard:', error);
+    return [];
+  }
+}
 
 interface PageProps {
   params: Promise<{ category: string }>;

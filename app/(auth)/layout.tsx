@@ -1,5 +1,3 @@
-import { Header } from '@/components/layout';
-
 export default function AuthLayout({
   children,
 }: {
@@ -7,10 +5,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col">
-      <Header showUserInfo={false} />
-      <main className="flex-1">
-        {children}
-      </main>
+      {children}
     </div>
   );
 }

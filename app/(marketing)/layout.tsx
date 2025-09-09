@@ -1,6 +1,5 @@
-import { Header } from '@/components/layout';
-
-export const dynamic = 'force-static';
+// SSG設定
+export const revalidate = false; // 完全静的
 
 export default function MarketingLayout({
   children,
@@ -9,10 +8,7 @@ export default function MarketingLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col">
-      <Header showUserInfo={false} />
-      <main className="flex-1">
-        {children}
-      </main>
+      {children}
     </div>
   );
 }

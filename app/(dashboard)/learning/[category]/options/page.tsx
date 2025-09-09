@@ -14,8 +14,8 @@ interface PageProps {
   searchParams?: Promise<{ mode?: string; size?: string; sec?: string; random?: string; count?: string; error?: string }>;
 }
 
-// ISR/プリフェッチを活用するため動的レンダリングを外す
-export const revalidate = 300; // 5分
+// ISR設定 - 1時間ごとに再生成
+export const revalidate = 3600;
 
 // 静的パスの生成
 export async function generateStaticParams() {

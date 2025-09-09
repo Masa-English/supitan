@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  // 基本設定のみ
+  // 基本設定
   trailingSlash: false,
   
   // ワークスペースルートの明示的な設定
@@ -10,13 +10,28 @@ const nextConfig: NextConfig = {
   // 静的生成の設定
   output: 'standalone',
   
+  // SSG/ISR最適化
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-slot'],
+    staleTimes: {
+      dynamic: 30, // 30秒
+      static: 180, // 3分
+    },
+  },
+  
   // 画像最適化
   images: {
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 86400, // 24時間
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+  
+  // パフォーマンス最適化
+  poweredByHeader: false,
+  compress: true,
 
   // リダイレクト設定（古いURL構造から新しい構造へ）
   async redirects() {

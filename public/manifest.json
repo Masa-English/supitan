@@ -1,20 +1,22 @@
 {
   "name": "スピ単 - 効率的な英語学習アプリ",
   "short_name": "スピ単",
-  "description": "フラッシュカード、クイズ、復習システムで効率的に英語を学習しましょう。音声機能付きで発音も学べます。",
+  "description": "フラッシュカード、クイズ、復習システムで効率的に英語を学習",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#d97706",
-  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/favicon.ico",
-      "sizes": "any",
+      "sizes": "48x48",
       "type": "image/x-icon"
     }
   ],
-  "categories": ["education", "productivity"],
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "lang": "ja",
-  "dir": "ltr"
+  "orientation": "portrait-primary"
 }

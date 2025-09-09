@@ -10,8 +10,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-// 動的レンダリングを明示的に指定
-export const dynamic = 'force-dynamic';
+// ISR設定 - 30分ごとに再生成
+export const revalidate = 1800;
 
 // サーバーサイドでの認証確認
 async function getAuthenticatedUser() {

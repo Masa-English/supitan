@@ -6,6 +6,19 @@ export async function middleware(request: NextRequest) {
   // 事前にパスとCookieを評価して、重い認証問い合わせを回避できる場合は早期リダイレクト
   const pathname = request.nextUrl.pathname
   
+  // 静的リソースのキャッシュ設定
+  if (pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)$/)) {
+    const response = NextResponse.next()
+    response.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
+    return response
+  }
+  
+  // API ルートのキャッシュ設定
+  if (pathname.startsWith('/api/static-data')) {
+    const response = NextResponse.next()
+    response.headers.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=7200')
+  }
+  
   // より正確なSupabaseセッションCookie検出
   const hasSupabaseSessionCookie = hasValidSessionCookie(request)
 

@@ -1,28 +1,12 @@
-"use client";
-
-import { useAuth } from '@/lib/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, Zap } from 'lucide-react';
 
+// SSG設定 - 静的生成
+export const revalidate = false; // 完全静的
+
 export default function HomePage() {
-  const { loading } = useAuth({ requireAuth: false });
-
-
-
-  // 認証チェック中のローディング表示
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">読み込み中...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // シンプルなランディングページ
+  // 静的ランディングページ
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex flex-col">
       {/* シンプルなヘッダー */}

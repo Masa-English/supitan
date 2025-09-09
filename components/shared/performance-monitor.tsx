@@ -1,86 +1,55 @@
 'use client';
 
-/**
- * Performance Monitor Component
- * Tracks and displays Core Web Vitals metrics
- */
+import { useEffect } from 'react';
 
-import React from 'react';
-import { initWebVitals, type WebVitalsMetric } from '@/lib/utils/web-vitals';
-
-interface PerformanceMonitorProps {
-  showMetrics?: boolean;
-  onMetric?: (metric: WebVitalsMetric) => void;
-}
-
-export function PerformanceMonitor({ 
-  showMetrics = false, 
-  onMetric 
-}: PerformanceMonitorProps) {
-  const [metrics, setMetrics] = React.useState<WebVitalsMetric[]>([]);
-
-  React.useEffect(() => {
-    initWebVitals((metric) => {
-      setMetrics(prev => {
-        const existing = prev.find(m => m.name === metric.name);
-        if (existing) {
-          return prev.map(m => m.name === metric.name ? metric : m);
+export function PerformanceMonitor() {
+  useEffect(() => {
+    // Web Vitals の監視
+    if (typeof window !== 'undefined' && 'performance' in window) {
+      // Core Web Vitals の測定
+      const observer = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (entry.entryType === 'navigation') {
+            const navEntry = entry as PerformanceNavigationTiming;
+            console.log('Navigation Timing:', {
+              domContentLoaded: navEntry.domContentLoadedEventEnd - navEntry.domContentLoadedEventStart,
+              loadComplete: navEntry.loadEventEnd - navEntry.loadEventStart,
+              firstPaint: navEntry.domContentLoadedEventEnd - navEntry.fetchStart,
+            });
+          }
+          
+          if (entry.entryType === 'paint') {
+            console.log(`${entry.name}: ${entry.startTime}ms`);
+          }
+          
+          if (entry.entryType === 'largest-contentful-paint') {
+            console.log(`LCP: ${entry.startTime}ms`);
+          }
         }
-        return [...prev, metric];
       });
 
-      // Call custom callback
-      if (onMetric) {
-        onMetric(metric);
+      // 各種パフォーマンス指標を監視
+      try {
+        observer.observe({ entryTypes: ['navigation', 'paint', 'largest-contentful-paint'] });
+      } catch (error) {
+        console.warn('Performance Observer not supported:', error);
       }
-    });
-  }, [onMetric]);
 
-  // Don't render anything in production unless explicitly requested
-  if (!showMetrics && process.env.NODE_ENV === 'production') {
-    return null;
-  }
+      // メモリ使用量の監視（Chrome のみ）
+      if ('memory' in performance) {
+        const memoryInfo = (performance as unknown as { memory: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
+        console.log('Memory Usage:', {
+          used: Math.round(memoryInfo.usedJSHeapSize / 1048576) + ' MB',
+          total: Math.round(memoryInfo.totalJSHeapSize / 1048576) + ' MB',
+          limit: Math.round(memoryInfo.jsHeapSizeLimit / 1048576) + ' MB',
+        });
+      }
 
-  // Only show in development or when explicitly requested
-  if (!showMetrics && process.env.NODE_ENV !== 'development') {
-    return null;
-  }
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, []);
 
-  return (
-    <div className="fixed bottom-4 right-4 z-50 bg-black/80 text-white p-3 rounded-lg text-xs font-mono max-w-xs">
-      <div className="font-semibold mb-2">Core Web Vitals</div>
-      {metrics.length === 0 ? (
-        <div className="text-gray-400">Loading metrics...</div>
-      ) : (
-        <div className="space-y-1">
-          {metrics.map((metric) => (
-            <div key={metric.name} className="flex justify-between items-center">
-              <span className="text-gray-300">{metric.name}:</span>
-              <span className={`font-semibold ${
-                metric.rating === 'good' ? 'text-green-400' :
-                metric.rating === 'needs-improvement' ? 'text-yellow-400' :
-                'text-red-400'
-              }`}>
-                {formatMetricValue(metric.name, metric.value)}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function formatMetricValue(metricName: string, value: number): string {
-  switch (metricName) {
-    case 'CLS':
-      return value.toFixed(3);
-    case 'FID':
-    case 'FCP':
-    case 'LCP':
-    case 'TTFB':
-      return `${Math.round(value)}ms`;
-    default:
-      return value.toString();
-  }
+  return null;
 }

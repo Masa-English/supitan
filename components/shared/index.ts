@@ -18,3 +18,4 @@ export { StatisticsWrapper } from './statistics-wrapper';
 export { LoadingSpinner, FullPageSpinner, InlineSpinner } from './loading-spinner';
 export { ErrorBoundary, ErrorFallback } from './error-boundary';
 export { PerformanceMonitor } from './performance-monitor';
+export { PreloadResources } from './preload-resources';
