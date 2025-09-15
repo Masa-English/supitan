@@ -160,17 +160,41 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
     // 認証状態の変更を監視（セッション状態維持の強化）
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('[useAuth] 認証状態変更:', { event, hasSession: !!session, hasUser: !!session?.user });
+        
         // イベントタイプに基づいて適切に処理
         if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+          console.log('[useAuth] ログアウト状態を検出');
           setUser(null);
           setIsAuthenticated(false);
+          setError(null);
+          
+          // ストレージを再度クリア（念のため）
+          if (typeof window !== 'undefined') {
+            sessionStorage.clear();
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && key.startsWith('sb-')) {
+                keysToRemove.push(key);
+              }
+            }
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+          }
+          
           if (requireAuth) {
-            router.push(redirectTo);
+            const currentPath = window.location.pathname;
+            // ログインページ以外にいる場合のみリダイレクト
+            if (!currentPath.startsWith('/login') && !currentPath.startsWith('/auth')) {
+              router.push(redirectTo);
+            }
           }
         } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           if (session?.user) {
+            console.log('[useAuth] ログイン状態を検出');
             setUser(session.user);
             setIsAuthenticated(true);
+            setError(null);
             
             // ルートページにいる認証済みユーザーを自動リダイレクト
             const currentPath = window.location.pathname;
@@ -187,8 +211,15 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
           }
         } else if (event === 'INITIAL_SESSION' && session?.user) {
           // 初期セッション時の処理を追加
+          console.log('[useAuth] 初期セッション検出');
           setUser(session.user);
           setIsAuthenticated(true);
+          setError(null);
+        } else if (event === 'INITIAL_SESSION' && !session) {
+          // 初期セッションがない場合
+          console.log('[useAuth] 初期セッションなし');
+          setUser(null);
+          setIsAuthenticated(false);
         }
       }
     );

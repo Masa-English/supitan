@@ -16,12 +16,12 @@ import { devLog } from '@/lib/utils';
 function buildPathFromAudioFile(audioFilePath: string, index: number): string {
   const normalized = audioFilePath.replace(/\\/g, '/');
   const base = normalized.replace(/\/[^/]+$/, '').replace(/\/$/, '');
-  const number = String(index).padStart(3, '0');
+  const number = String(index).padStart(5, '0');
   return `${base}/example${number}.mp3`;
 }
 
 function buildPathFromWord(word: string, index: number): string {
-  const number = String(index).padStart(3, '0');
+  const number = String(index).padStart(5, '0');
   return `${word}/example${number}.mp3`;
 }
 

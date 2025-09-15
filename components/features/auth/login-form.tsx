@@ -58,6 +58,16 @@ export function LoginForm({
       });
       if (error) throw error;
       
+      // ログイン成功時にキャッシュをクリア（古いセッションデータを削除）
+      if (typeof window !== 'undefined') {
+        // 古いリダイレクト情報以外のセッションストレージをクリア
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        sessionStorage.clear();
+        if (redirectPath) {
+          sessionStorage.setItem('redirectAfterLogin', redirectPath);
+        }
+      }
+      
       // 保存されたリダイレクト先がある場合はそこに遷移、なければダッシュボード
       const redirectPath = sessionStorage.getItem('redirectAfterLogin');
       if (redirectPath) {

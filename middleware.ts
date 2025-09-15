@@ -77,6 +77,10 @@ export async function middleware(request: NextRequest) {
       if (user && !error) {
         // 有効なセッションの場合、レスポンスヘッダーでセッション維持を指示
         supabaseResponse.headers.set('x-session-valid', 'true')
+        // キャッシュ制御を追加
+        supabaseResponse.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+        supabaseResponse.headers.set('Pragma', 'no-cache')
+        supabaseResponse.headers.set('Expires', '0')
         
         // ルートパスで認証済みユーザーをダッシュボードにリダイレクト
         if (pathname === '/') {
@@ -85,6 +89,8 @@ export async function middleware(request: NextRequest) {
           const response = NextResponse.redirect(url)
           setSessionHeaders(response)
           response.headers.set('x-authenticated-redirect', 'true')
+          // リダイレクト時もキャッシュ制御
+          response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
           return response
         }
       }
@@ -217,7 +223,12 @@ export async function middleware(request: NextRequest) {
   if (user && request.nextUrl.pathname.startsWith('/auth')) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
+    const response = NextResponse.redirect(url)
+    // 認証状態変更時のキャッシュクリア
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    return response
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
