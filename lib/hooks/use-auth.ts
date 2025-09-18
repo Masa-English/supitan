@@ -184,8 +184,8 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
           
           if (requireAuth) {
             const currentPath = window.location.pathname;
-            // ログインページ以外にいる場合のみリダイレクト
-            if (!currentPath.startsWith('/login') && !currentPath.startsWith('/auth')) {
+            // ログインページやルートページ以外にいる場合のみリダイレクト
+            if (!currentPath.startsWith('/login') && !currentPath.startsWith('/auth') && currentPath !== '/') {
               router.push(redirectTo);
             }
           }
@@ -196,17 +196,19 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
             setIsAuthenticated(true);
             setError(null);
             
-            // ルートページにいる認証済みユーザーを自動リダイレクト
+            // ルートページにいる認証済みユーザーを自動リダイレクト（SIGNED_INイベント時のみ）
             const currentPath = window.location.pathname;
             if (currentPath === '/' && event === 'SIGNED_IN') {
-              // 保存されたリダイレクト先があればそこに、なければダッシュボードに
-              const savedRedirect = sessionStorage.getItem('redirectAfterLogin');
-              if (savedRedirect && savedRedirect !== '/') {
-                sessionStorage.removeItem('redirectAfterLogin');
-                router.replace(savedRedirect);
-              } else {
-                router.replace('/dashboard');
-              }
+              // 少し待ってからリダイレクト（認証状態が完全に確定するまで）
+              setTimeout(() => {
+                const savedRedirect = sessionStorage.getItem('redirectAfterLogin');
+                if (savedRedirect && savedRedirect !== '/') {
+                  sessionStorage.removeItem('redirectAfterLogin');
+                  router.replace(savedRedirect);
+                } else {
+                  router.replace('/dashboard');
+                }
+              }, 100);
             }
           }
         } else if (event === 'INITIAL_SESSION' && session?.user) {

@@ -220,7 +220,14 @@ export async function middleware(request: NextRequest) {
   }
 
   // 認証済みユーザーが認証ページにアクセスしようとしている場合
-  if (user && request.nextUrl.pathname.startsWith('/auth')) {
+  if (user && (request.nextUrl.pathname.startsWith('/auth') || request.nextUrl.pathname === '/login')) {
+    console.log('🔀 [Middleware] 認証済みユーザーを自動リダイレクト', {
+      from: request.nextUrl.pathname,
+      to: '/dashboard',
+      userEmail: user.email,
+      timestamp: new Date().toISOString()
+    });
+    
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     const response = NextResponse.redirect(url)

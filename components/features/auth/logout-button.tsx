@@ -1,6 +1,6 @@
 "use client";
 
-import { createClient as createBrowserClient } from "@/lib/api/supabase/client";
+import { createClient as createBrowserClient, resetSupabaseClient } from "@/lib/api/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   useNavigationStore,
@@ -18,8 +18,19 @@ export function LogoutButton() {
     try {
       start();
 
-      // まずストレージを先にクリア（Supabaseクライアントが古いトークンを使わないように）
-      console.log("[LogoutButton] ブラウザストレージを事前クリア");
+      // Supabaseクライアントを作成
+      const supabase = createBrowserClient();
+
+      console.log("[LogoutButton] Supabaseからログアウト実行");
+      // Supabaseからログアウト（scope: 'global'で全てのタブからログアウト）
+      const { error } = await supabase.auth.signOut({ scope: "global" });
+      if (error) {
+        console.error("[LogoutButton] Supabaseログアウトエラー:", error);
+        // エラーがあっても処理を続行
+      }
+
+      // Supabaseログアウト後にストレージをクリア
+      console.log("[LogoutButton] ブラウザストレージをクリア");
       if (typeof window !== "undefined") {
         // セッションストレージを完全にクリア
         sessionStorage.clear();
@@ -40,17 +51,6 @@ export function LogoutButton() {
         // 追加でよく使われるキーも削除
         localStorage.removeItem("supabase.auth.token");
         localStorage.removeItem("redirectAfterLogin");
-      }
-
-      // ストレージクリア後に新しいSupabaseクライアントを作成
-      const supabase = createBrowserClient();
-
-      console.log("[LogoutButton] Supabaseからログアウト実行");
-      // Supabaseからログアウト（scope: 'global'で全てのタブからログアウト）
-      const { error } = await supabase.auth.signOut({ scope: "global" });
-      if (error) {
-        console.error("[LogoutButton] Supabaseログアウトエラー:", error);
-        // エラーがあっても処理を続行
       }
 
       // サーバーサイドでもログアウト処理を実行
@@ -82,6 +82,10 @@ export function LogoutButton() {
         // ストアエラーも無視して処理を続行
       }
 
+      // Supabaseクライアントインスタンスをリセット
+      console.log("[LogoutButton] Supabaseクライアントをリセット");
+      resetSupabaseClient();
+
       console.log("[LogoutButton] ナビゲーション状態を停止");
       stop();
 
@@ -90,7 +94,7 @@ export function LogoutButton() {
       setTimeout(() => {
         if (typeof window !== "undefined") {
           // location.replaceを使用してブラウザ履歴も置き換える
-          window.location.replace("/login");
+          window.location.replace("/");
         }
       }, 200);
     } catch (error) {
@@ -114,7 +118,7 @@ export function LogoutButton() {
       setTimeout(() => {
         if (typeof window !== "undefined") {
           console.log("[LogoutButton] エラー時の強制リダイレクト");
-          window.location.replace("/login");
+          window.location.replace("/");
         }
       }, 200);
     }

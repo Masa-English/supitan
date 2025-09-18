@@ -45,17 +45,41 @@ export function LoginForm({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createBrowserClient();
+    
+    console.log('🚀 [LoginForm] ログイン処理開始', {
+      email,
+      currentPath: window.location.pathname,
+      currentUrl: window.location.href,
+      timestamp: new Date().toISOString()
+    });
+    
+    // ローディング状態とエラーをリセット
     setIsLoading(true);
     setError(null);
+
     // 認証処理の開始をUIに反映
     startNavigating();
+    console.log('🔄 [LoginForm] ナビゲーション開始');
+
+    // 新しいSupabaseクライアントインスタンスを取得
+    const supabase = createBrowserClient();
+    console.log('📡 [LoginForm] Supabaseクライアント作成完了');
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('🔐 [LoginForm] Supabase認証リクエスト開始');
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      
+      console.log('🔐 [LoginForm] Supabase認証レスポンス', {
+        hasError: !!error,
+        hasUser: !!data?.user,
+        hasSession: !!data?.session,
+        userId: data?.user?.id,
+        error: error?.message
+      });
+      
       if (error) throw error;
       
       // ログイン成功時にキャッシュをクリア（古いセッションデータを削除）
@@ -68,21 +92,73 @@ export function LoginForm({
         }
       }
       
-      // 保存されたリダイレクト先がある場合はそこに遷移、なければダッシュボード
-      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-      if (redirectPath) {
-        console.log('保存されたリダイレクト先に遷移:', redirectPath);
-        sessionStorage.removeItem('redirectAfterLogin');
-        router.push(redirectPath);
-      } else {
-        console.log('デフォルトのダッシュボードに遷移');
-        router.push("/dashboard");
-      }
+      console.log('✅ [LoginForm] ログイン成功 - リダイレクト処理開始', {
+        currentPath: window.location.pathname,
+        currentUrl: window.location.href,
+        timestamp: new Date().toISOString()
+      });
+      
+      // 少し待ってからリダイレクト（Supabaseの認証状態が確定するまで）
+      setTimeout(() => {
+        console.log('⏰ [LoginForm] リダイレクトタイマー実行', {
+          currentPath: window.location.pathname,
+          currentUrl: window.location.href,
+          timestamp: new Date().toISOString()
+        });
+        
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        console.log('📍 [LoginForm] リダイレクト先確認', {
+          savedRedirectPath: redirectPath,
+          willRedirectTo: redirectPath && redirectPath !== '/' ? redirectPath : '/dashboard'
+        });
+        
+        if (redirectPath && redirectPath !== '/') {
+          console.log('🔄 [LoginForm] 保存されたリダイレクト先に遷移:', redirectPath);
+          sessionStorage.removeItem('redirectAfterLogin');
+          
+          // router.replace() と window.location.href の両方を試行
+          console.log('🔄 [LoginForm] router.replace() 実行中...');
+          router.replace(redirectPath);
+          
+          // フォールバックとして window.location.href も使用
+          setTimeout(() => {
+            console.log('🔄 [LoginForm] フォールバック: window.location.href 使用');
+            window.location.href = redirectPath;
+          }, 1000);
+          
+        } else {
+          console.log('🏠 [LoginForm] デフォルトのダッシュボードに遷移');
+          
+          // router.replace() と window.location.href の両方を試行
+          console.log('🏠 [LoginForm] router.replace("/dashboard") 実行中...');
+          router.replace("/dashboard");
+          
+          // フォールバックとして window.location.href も使用
+          setTimeout(() => {
+            console.log('🏠 [LoginForm] フォールバック: window.location.href 使用');
+            window.location.href = "/dashboard";
+          }, 1000);
+        }
+        
+        // リダイレクト実行後の状態をログ
+        setTimeout(() => {
+          console.log('📍 [LoginForm] リダイレクト実行後の状態', {
+            currentPath: window.location.pathname,
+            currentUrl: window.location.href,
+            timestamp: new Date().toISOString()
+          });
+        }, 100);
+        
+      }, 500); // 500ms待機してSupabaseの状態変更を待つ
+      
+      // ナビゲーション状態は NavigationEvents で自動的に停止される
     } catch (error: unknown) {
+      console.error('[LoginForm] ログインエラー:', error);
       setError(error instanceof Error ? error.message : "エラーが発生しました");
       // 遷移しないのでオーバーレイを閉じる
       stopNavigating();
     } finally {
+      // 必ずローディング状態を解除
       setIsLoading(false);
     }
   };

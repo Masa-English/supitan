@@ -35,9 +35,13 @@ export function InlineLoginForm({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createBrowserClient();
+    
+    // ローディング状態とエラーをリセット
     setIsLoading(true);
     setError(null);
+
+    // 新しいSupabaseクライアントインスタンスを取得
+    const supabase = createBrowserClient();
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -46,17 +50,25 @@ export function InlineLoginForm({
       });
       if (error) throw error;
       
-      // 保存されたリダイレクト先がある場合はそこに遷移、なければダッシュボード
-      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
-      if (redirectPath) {
-        sessionStorage.removeItem('redirectAfterLogin');
-        router.push(redirectPath);
-      } else {
-        router.push("/dashboard");
-      }
+      console.log('ログイン成功 - リダイレクト処理開始');
+      
+      // 少し待ってからリダイレクト（Supabaseの認証状態が確定するまで）
+      setTimeout(() => {
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        if (redirectPath && redirectPath !== '/') {
+          console.log('保存されたリダイレクト先に遷移:', redirectPath);
+          sessionStorage.removeItem('redirectAfterLogin');
+          router.replace(redirectPath);
+        } else {
+          console.log('デフォルトのダッシュボードに遷移');
+          router.replace("/dashboard");
+        }
+      }, 500); // 500ms待機してSupabaseの状態変更を待つ
     } catch (error: unknown) {
+      console.error('[InlineLoginForm] ログインエラー:', error);
       setError(error instanceof Error ? error.message : "エラーが発生しました");
     } finally {
+      // 必ずローディング状態を解除
       setIsLoading(false);
     }
   };

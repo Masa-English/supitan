@@ -39,8 +39,14 @@ interface LearningSessionState {
 // ナビゲーション状態管理
 export const useNavigationStore = create<NavigationState>((set) => ({
   isNavigating: false,
-  start: () => set({ isNavigating: true }),
-  stop: () => set({ isNavigating: false }),
+  start: () => {
+    console.log('▶️  [NavigationStore] ナビゲーション開始');
+    set({ isNavigating: true });
+  },
+  stop: () => {
+    console.log('⏹️  [NavigationStore] ナビゲーション停止');
+    set({ isNavigating: false });
+  },
 }));
 
 // 学習セッション状態管理

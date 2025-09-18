@@ -16,7 +16,12 @@ export function NavigationEvents() {
 
   useEffect(() => {
     // ルートが変わったということは、遷移が完了したとみなせる
+    console.log('🛤️  [NavigationEvents] パス変更検出', {
+      newPathname: pathname,
+      timestamp: new Date().toISOString()
+    });
     stop();
+    console.log('⏹️  [NavigationEvents] ナビゲーション停止');
   }, [pathname, stop]);
 
   useEffect(() => {
@@ -25,12 +30,20 @@ export function NavigationEvents() {
     const originalReplace: typeof router.replace = router.replace.bind(router);
 
     (router as unknown as { push: typeof router.push }).push = (...args: Parameters<typeof router.push>) => {
+      console.log('🚀 [NavigationEvents] router.push() 呼び出し', {
+        destination: args[0],
+        timestamp: new Date().toISOString()
+      });
       start();
       return originalPush(...args);
     };
     (router as unknown as { replace: typeof router.replace }).replace = (
       ...args: Parameters<typeof router.replace>
     ) => {
+      console.log('🔄 [NavigationEvents] router.replace() 呼び出し', {
+        destination: args[0],
+        timestamp: new Date().toISOString()
+      });
       start();
       return originalReplace(...args);
     };
