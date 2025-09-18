@@ -127,11 +127,16 @@ export default async function StatisticsPage() {
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         {/* ヘッダー */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
-            <BarChart3 className="w-8 h-8" />
-            学習統計
-          </h1>
-          <p className="text-muted-foreground">詳細な学習進捗と分析データを確認できます</p>
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
+              <BarChart3 className="w-8 h-8" />
+              学習統計
+            </h1>
+            <span className="inline-flex items-center rounded-md bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
+              開発中
+            </span>
+          </div>
+          <p className="text-muted-foreground">このページは現在開発中です。一部のデータや機能は変更される可能性があります。</p>
         </div>
 
         {/* 概要統計 */}

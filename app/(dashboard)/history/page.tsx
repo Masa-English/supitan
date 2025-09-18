@@ -213,12 +213,17 @@ export default async function HistoryPage() {
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         {/* ヘッダー */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
-            <History className="w-8 h-8" />
-            学習履歴
-          </h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
+              <History className="w-8 h-8" />
+              学習履歴
+            </h1>
+            <span className="inline-flex items-center rounded-md bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
+              開発中
+            </span>
+          </div>
           <p className="text-muted-foreground">
-            これまでの学習の軌跡と成長を確認できます
+            このページは現在開発中です。一部のデータや機能は変更される可能性があります。
           </p>
         </div>
 
