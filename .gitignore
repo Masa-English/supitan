@@ -49,3 +49,7 @@ next-env.d.ts
 /supabase/.branches/
 /supabase/.output/
 .env.production
+
+# logs
+/logs/
+*.log

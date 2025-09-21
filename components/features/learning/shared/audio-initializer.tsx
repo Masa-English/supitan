@@ -1,6 +1,7 @@
 'use client';
 
 import { useAudio } from '@/lib/hooks';
+import clientLogger from '@/lib/utils/client-logger';
 
 interface AudioInitializerProps {
   children: React.ReactNode;
@@ -11,7 +12,8 @@ export function AudioInitializer({ children }: AudioInitializerProps) {
     autoInitialize: true 
   });
 
-  console.log('[AudioInitializer] コンポーネントレンダリング', { isInitialized, isLoading });
+  // 新しいログシステムを使用
+  clientLogger.audio('AudioInitializer コンポーネントレンダリング', { isInitialized, isLoading });
 
   // Audio initialization is now handled automatically by the hook
   // through the autoInitialize option

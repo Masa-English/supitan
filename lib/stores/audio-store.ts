@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
 import { fetchAudioFromStorage } from '@/lib/utils/audio';
 import { devLog } from '@/lib/utils';
+import clientLogger, { LogCategory } from '@/lib/utils/client-logger';
 
 interface AudioState {
   // 音声状態
@@ -51,22 +52,22 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   initializeAudio: async () => {
     const { isInitialized } = get();
     
-    console.log('[AudioStore] initializeAudio呼び出し', { isInitialized });
+    clientLogger.audio('initializeAudio呼び出し', { isInitialized });
     
     if (isInitialized) {
-      console.log('[AudioStore] 既に初期化済みのためスキップ');
+      clientLogger.audio('既に初期化済みのためスキップ');
       return;
     }
 
-    console.log('[AudioStore] 音声初期化開始');
+    clientLogger.audio('音声初期化開始');
     set({ isLoading: true, error: null });
     
     try {
       const supabase = createBrowserClient();
-      console.log('[AudioStore] Supabaseクライアント作成完了');
+      clientLogger.audio('Supabaseクライアント作成完了');
       
       // Supabase Storageから効果音ファイルを取得
-      console.log('[AudioStore] 効果音ファイル取得開始');
+      clientLogger.audio('効果音ファイル取得開始');
       const { data: correctData, error: correctError } = await supabase.storage
         .from('se')
         .download('collect.mp3');
@@ -126,7 +127,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       correctAudio.volume = get().volume;
       incorrectAudio.volume = get().volume;
 
-      console.log('[AudioStore] Audioオブジェクト作成完了', {
+      clientLogger.audio('Audioオブジェクト作成完了', {
         correctAudio: !!correctAudio,
         incorrectAudio: !!incorrectAudio,
         volume: get().volume
@@ -141,9 +142,9 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       });
 
       devLog.log('[AudioStore] 音声初期化完了');
-      console.log('[AudioStore] 音声初期化完了');
+      clientLogger.audio('音声初期化完了');
     } catch (error) {
-      console.error('[AudioStore] 音声初期化エラー:', error);
+      clientLogger.error('音声初期化エラー', LogCategory.ERROR, { error: error instanceof Error ? error.message : String(error) });
       set({
         isLoading: false,
         error: '音声の初期化に失敗しました',

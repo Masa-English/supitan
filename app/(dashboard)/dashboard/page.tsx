@@ -9,9 +9,10 @@ import {
   Search
 } from 'lucide-react';
 import Link from 'next/link';
+import serverLog, { LogCategory } from '@/lib/utils/server-logger';
 
-// ISR設定 - 30分ごとに再生成
-export const revalidate = 1800;
+// 動的レンダリングを強制（認証が必要なため）
+export const dynamic = 'force-dynamic';
 
 // サーバーサイドでの認証確認
 async function getAuthenticatedUser() {
@@ -20,7 +21,7 @@ async function getAuthenticatedUser() {
     const { data: { user }, error } = await supabase.auth.getUser();
     
     if (error) {
-      console.error('認証エラー:', error);
+      serverLog.error('認証エラー', LogCategory.AUTH, { error: error.message });
       redirect('/login');
       return null; // This line won't be reached, but satisfies TypeScript
     }
@@ -32,7 +33,7 @@ async function getAuthenticatedUser() {
     
     return user;
   } catch (error) {
-    console.error('認証確認エラー:', error);
+    serverLog.error('認証確認エラー', LogCategory.AUTH, { error: error instanceof Error ? error.message : String(error) });
     redirect('/login');
     return null; // This line won't be reached, but satisfies TypeScript
   }
@@ -154,7 +155,7 @@ export default async function DashboardPage() {
     </div>
   );
   } catch (error) {
-    console.error('ダッシュボードページエラー:', error);
+    serverLog.error('ダッシュボードページエラー', LogCategory.ERROR, { error: error instanceof Error ? error.message : String(error) });
     redirect('/login');
   }
 }
