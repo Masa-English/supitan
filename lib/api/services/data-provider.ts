@@ -1,4 +1,4 @@
-import { Word, UserProgress, Category } from '@/lib/types';
+import { Word, UserProgress, Category, ReviewWord } from '@/lib/types';
 import { DatabaseService } from '@/lib/api/database';
 
 // 実行環境の判定
@@ -143,6 +143,24 @@ export class UnifiedDataProvider {
       return await this.db.getUserProgress(userId);
     } catch (error) {
       console.error('ユーザー進捗取得エラー:', error instanceof Error ? error.message : 'Unknown error');
+      return [];
+    }
+  }
+
+  /**
+   * 復習リストの単語を取得（認証付き、キャッシュ付き）
+   */
+  async getReviewWords(userId: string): Promise<ReviewWord[]> {
+    await initializeCache();
+    
+    if (isServer && unstable_cache) {
+      return this.getCachedReviewWords(userId);
+    }
+    // クライアントサイドでは直接データベースアクセス
+    try {
+      return await this.db.getReviewWords(userId);
+    } catch (error) {
+      console.error('復習リスト取得エラー:', error instanceof Error ? error.message : 'Unknown error');
       return [];
     }
   }
@@ -320,6 +338,29 @@ export class UnifiedDataProvider {
       return await this.db.getUserProgress(userId);
     } catch (error) {
       console.error('ユーザー進捗取得エラー:', error instanceof Error ? error.message : 'Unknown error');
+      return [];
+    }
+  };
+
+  private getCachedReviewWords = isServer && unstable_cache ? unstable_cache(
+    async (userId: string): Promise<ReviewWord[]> => {
+      try {
+        return await this.db.getReviewWords(userId);
+      } catch (error) {
+        console.error('復習リスト取得エラー:', error instanceof Error ? error.message : 'Unknown error');
+        return [];
+      }
+    },
+    ['review-words'],
+    {
+      tags: ['review-words', 'user-progress'],
+      ...CACHE_CONFIG.SHORT,
+    }
+  ) : async (userId: string) => {
+    try {
+      return await this.db.getReviewWords(userId);
+    } catch (error) {
+      console.error('復習リスト取得エラー:', error instanceof Error ? error.message : 'Unknown error');
       return [];
     }
   };

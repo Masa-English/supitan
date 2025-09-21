@@ -113,6 +113,7 @@ export default function FlashcardClient({ category, words, allSections }: Props)
     // ユーザー情報がある場合のみセッションを保存
     if (user?.id) {
       try {
+        // 学習セッションを記録
         await db.createStudySession({
           user_id: user.id,
           category,
@@ -123,6 +124,43 @@ export default function FlashcardClient({ category, words, allSections }: Props)
           start_time: new Date().toISOString(),
           end_time: new Date().toISOString(),
         });
+
+        // 各単語の進捗を更新
+        for (const result of results) {
+          try {
+            // 現在の進捗を取得
+            const currentProgress = await db.getWordProgress(user.id, result.wordId);
+            
+            // 習熟度を計算（正解なら+0.1、不正解なら-0.2）
+            const currentMasteryLevel = currentProgress?.mastery_level || 0;
+            const newMasteryLevel = result.correct 
+              ? Math.min(1.0, currentMasteryLevel + 0.1)
+              : Math.max(0.0, currentMasteryLevel - 0.2);
+
+            // 進捗を更新または作成
+            await db.upsertProgress({
+              user_id: user.id,
+              word_id: result.wordId,
+              mastery_level: newMasteryLevel,
+              study_count: (currentProgress?.study_count || 0) + 1,
+              correct_count: (currentProgress?.correct_count || 0) + (result.correct ? 1 : 0),
+              incorrect_count: (currentProgress?.incorrect_count || 0) + (result.correct ? 0 : 1),
+              last_studied: new Date().toISOString(),
+              is_favorite: currentProgress?.is_favorite || false,
+            });
+
+            // 不正解の場合は復習リストに追加
+            if (!result.correct) {
+              try {
+                await db.addToReview(user.id, result.wordId);
+              } catch (reviewError) {
+                console.warn('復習リスト追加エラー:', reviewError);
+              }
+            }
+          } catch (progressError) {
+            console.error('進捗更新エラー:', progressError);
+          }
+        }
       } catch (error) {
         console.warn('セッション保存に失敗しましたが、継続します:', error);
       }

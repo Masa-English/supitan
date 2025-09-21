@@ -168,10 +168,15 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
         setIncorrectWords([]); // リセット
       } else {
         // 再出題モードが終了、または間違えた問題がない場合
-        onComplete([]);
+        // フラッシュカードでは全て正解として扱う（復習リストに追加されたものは別途処理）
+        const results = words.map(word => ({
+          wordId: word.id,
+          correct: !incorrectWords.some(incorrect => incorrect.id === word.id)
+        }));
+        onComplete(results);
       }
     }
-  }, [currentIndex, currentWordList.length, onComplete, onIndexChange, isInRetryMode, incorrectWords]);
+  }, [currentIndex, currentWordList.length, onComplete, onIndexChange, isInRetryMode, incorrectWords, words]);
 
 
 
