@@ -47,6 +47,11 @@ export class LogCleanupManager {
 
   // ログディレクトリの存在確認と作成
   private ensureLogDirectory(): void {
+    // Vercel環境ではファイルシステムへの書き込みを無効化
+    if (process.env.VERCEL === '1') {
+      return;
+    }
+    
     if (!fs.existsSync(this.logDir)) {
       fs.mkdirSync(this.logDir, { recursive: true });
     }
@@ -54,6 +59,11 @@ export class LogCleanupManager {
 
   // ログファイル情報の取得
   private getLogFiles(): LogFileInfo[] {
+    // Vercel環境ではファイル操作を無効化
+    if (process.env.VERCEL === '1') {
+      return [];
+    }
+    
     this.ensureLogDirectory();
     
     const files: LogFileInfo[] = [];
@@ -97,6 +107,11 @@ export class LogCleanupManager {
 
   // 古いログファイルの削除
   private deleteOldFiles(): { deleted: number; freedSpace: number } {
+    // Vercel環境ではファイル操作を無効化
+    if (process.env.VERCEL === '1') {
+      return { deleted: 0, freedSpace: 0 };
+    }
+    
     const files = this.getLogFiles();
     const now = new Date();
     let deletedCount = 0;
@@ -123,6 +138,11 @@ export class LogCleanupManager {
 
   // 大きなログファイルの圧縮
   private compressLargeFiles(): { compressed: number; savedSpace: number } {
+    // Vercel環境ではファイル操作を無効化
+    if (process.env.VERCEL === '1') {
+      return { compressed: 0, savedSpace: 0 };
+    }
+    
     const files = this.getLogFiles();
     let compressedCount = 0;
     let savedSpace = 0;
@@ -165,6 +185,11 @@ export class LogCleanupManager {
 
   // 緊急クリーンアップ（ディレクトリサイズが閾値を超えた場合）
   private emergencyCleanup(): { deleted: number; freedSpace: number } {
+    // Vercel環境ではファイル操作を無効化
+    if (process.env.VERCEL === '1') {
+      return { deleted: 0, freedSpace: 0 };
+    }
+    
     const files = this.getLogFiles();
     const totalSize = this.getDirectorySize();
     const sizeInMB = totalSize / (1024 * 1024);
@@ -263,6 +288,16 @@ export class LogCleanupManager {
     sizeInMB: number;
     files: LogFileInfo[];
   } {
+    // Vercel環境では空の結果を返す
+    if (process.env.VERCEL === '1') {
+      return {
+        totalFiles: 0,
+        totalSize: 0,
+        sizeInMB: 0,
+        files: []
+      };
+    }
+    
     const files = this.getLogFiles();
     const totalSize = files.reduce((total, file) => total + file.size, 0);
     
@@ -278,7 +313,7 @@ export class LogCleanupManager {
 // シングルトンインスタンス
 export const logCleanupManager = new LogCleanupManager();
 
-// サーバー起動時の自動開始
-if (typeof window === 'undefined' && process.env.NODE_ENV === 'production') {
+// サーバー起動時の自動開始（Vercel環境では無効化）
+if (typeof window === 'undefined' && process.env.NODE_ENV === 'production' && process.env.VERCEL !== '1') {
   logCleanupManager.startPeriodicCleanup();
 }

@@ -112,8 +112,26 @@ const createFileTransport = (filename: string, level: string) => {
 const createServerLogger = () => {
   const isDevelopment = process.env.NODE_ENV === 'development';
   const isProduction = process.env.NODE_ENV === 'production';
+  const isVercel = process.env.VERCEL === '1';
 
-  // ログディレクトリの確保
+  // Vercel環境ではファイル出力を無効化
+  if (isVercel) {
+    return winston.createLogger({
+      level: 'info',
+      format: createCustomFormat(false),
+      transports: [
+        new winston.transports.Console({
+          level: 'info',
+          format: createCustomFormat(true)
+        })
+      ],
+      // ファイル出力を無効化
+      exceptionHandlers: [],
+      rejectionHandlers: []
+    });
+  }
+
+  // ログディレクトリの確保（Vercel以外の環境のみ）
   ensureLogDirectory();
 
   const transports: winston.transport[] = [];
@@ -128,8 +146,8 @@ const createServerLogger = () => {
     );
   }
 
-  // 本番環境: ファイル出力
-  if (isProduction) {
+  // 本番環境: ファイル出力（Vercel以外）
+  if (isProduction && !isVercel) {
     transports.push(
       createFileTransport('error', 'error'),
       createFileTransport('combined', 'info'),
@@ -142,11 +160,11 @@ const createServerLogger = () => {
     format: createCustomFormat(false),
     transports,
     // 未キャッチ例外の処理
-    exceptionHandlers: isProduction ? [
+    exceptionHandlers: isProduction && !isVercel ? [
       createFileTransport('exceptions', 'error')
     ] : [],
     // 未ハンドルPromise拒否の処理
-    rejectionHandlers: isProduction ? [
+    rejectionHandlers: isProduction && !isVercel ? [
       createFileTransport('rejections', 'error')
     ] : []
   });
@@ -155,8 +173,8 @@ const createServerLogger = () => {
 // ロガーインスタンス
 const logger = createServerLogger();
 
-// 本番環境での自動クリーンアップ開始
-if (process.env.NODE_ENV === 'production') {
+// 本番環境での自動クリーンアップ開始（Vercel環境では無効化）
+if (process.env.NODE_ENV === 'production' && process.env.VERCEL !== '1') {
   logCleanupManager.startPeriodicCleanup();
 }
 
