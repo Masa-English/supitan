@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
-import { Category } from '@/lib/types';
+import { CategoryWithStats } from '@/lib/types';
 import { CategoryCardSkeleton } from '@/components/ui/feedback';
 
 interface Props {
-  categories: Category[];
+  categories: CategoryWithStats[];
 }
 
 export default function CategoriesClient({ categories }: Props) {

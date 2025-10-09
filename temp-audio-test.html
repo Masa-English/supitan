@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz音声再生テスト</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Quiz音声再生テスト</h1>
+    
+    <div class="test-section">
+        <h3>効果音テスト</h3>
+        <button onclick="testSoundEffect('se/collect.mp3', 'correct')">正解音テスト</button>
+        <button onclick="testSoundEffect('se/error.mp3', 'incorrect')">不正解音テスト</button>
+        <div id="soundEffectResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>単語音声テスト</h3>
+        <button onclick="testWordAudio()">単語音声テスト</button>
+        <div id="wordAudioResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Web Speech APIテスト</h3>
+        <button onclick="testWebSpeechAPI()">Web Speech APIテスト</button>
+        <div id="webSpeechResult"></div>
+    </div>
+    
+    <script>
+        const SUPABASE_URL = 'https://yuzoaegfjjxoptytqtzq.supabase.co';
+        
+        async function testSoundEffect(path, type) {
+            const resultDiv = document.getElementById('soundEffectResult');
+            resultDiv.innerHTML = '<p>テスト中...</p>';
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/storage/v1/object/public/audio-files/${path}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                
+                audio.onloadstart = () => {
+                    resultDiv.innerHTML = '<p class="success">✅ 音声ファイル読み込み開始</p>';
+                };
+                
+                audio.oncanplaythrough = () => {
+                    resultDiv.innerHTML = '<p class="success">✅ 音声ファイル再生準備完了</p>';
+                };
+                
+                audio.onerror = (e) => {
+                    resultDiv.innerHTML = '<p class="error">❌ 音声再生エラー: ' + e.message + '</p>';
+                };
+                
+                await audio.play();
+                resultDiv.innerHTML = '<p class="success">✅ 音声再生成功</p>';
+                
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 1000);
+                
+            } catch (error) {
+                resultDiv.innerHTML = '<p class="error">❌ エラー: ' + error.message + '</p>';
+            }
+        }
+        
+        async function testWordAudio() {
+            const resultDiv = document.getElementById('wordAudioResult');
+            resultDiv.innerHTML = '<p>単語音声テスト中...</p>';
+            
+            // サンプル単語の音声ファイルをテスト
+            const testWords = ['apple/word.mp3', 'banana/word.mp3', 'cat/word.mp3'];
+            let successCount = 0;
+            
+            for (const wordPath of testWords) {
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/storage/v1/object/public/audio-files/${wordPath}`);
+                    if (response.ok) {
+                        successCount++;
+                    }
+                } catch (error) {
+                    console.error('単語音声テストエラー:', error);
+                }
+            }
+            
+            resultDiv.innerHTML = `<p class="success">✅ 単語音声テスト完了: ${successCount}/${testWords.length} 成功</p>`;
+        }
+        
+        function testWebSpeechAPI() {
+            const resultDiv = document.getElementById('webSpeechResult');
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance('Hello, this is a test');
+                utterance.lang = 'en-US';
+                utterance.rate = 0.8;
+                
+                utterance.onstart = () => {
+                    resultDiv.innerHTML = '<p class="success">✅ Web Speech API 再生開始</p>';
+                };
+                
+                utterance.onend = () => {
+                    resultDiv.innerHTML = '<p class="success">✅ Web Speech API 再生完了</p>';
+                };
+                
+                utterance.onerror = (e) => {
+                    resultDiv.innerHTML = '<p class="error">❌ Web Speech API エラー: ' + e.error + '</p>';
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                resultDiv.innerHTML = '<p class="error">❌ Web Speech API がサポートされていません</p>';
+            }
+        }
+    </script>
+</body>
+</html>
+  

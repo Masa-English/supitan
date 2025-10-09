@@ -1,4 +1,4 @@
-import { Word, UserProgress, Category, ReviewWord } from '@/lib/types';
+import { Word, UserProgress, CategoryWithStats, ReviewWord } from '@/lib/types';
 import { DatabaseService } from '@/lib/api/database';
 
 // 実行環境の判定
@@ -99,7 +99,7 @@ export class UnifiedDataProvider {
   /**
    * カテゴリー一覧の取得（キャッシュ付き）
    */
-  async getCategories(): Promise<Category[]> {
+  async getCategories(): Promise<CategoryWithStats[]> {
     await initializeCache();
     
     if (isServer && unstable_cache) {
@@ -174,7 +174,7 @@ export class UnifiedDataProvider {
   }): Promise<{
     words: Word[];
     userProgress?: UserProgress[];
-    categories?: Category[];
+    categories?: CategoryWithStats[];
   }> {
     switch (type) {
       case 'category':
@@ -267,7 +267,7 @@ export class UnifiedDataProvider {
   };
 
   private getCachedCategories = isServer && unstable_cache ? unstable_cache(
-    async (): Promise<Category[]> => {
+    async (): Promise<CategoryWithStats[]> => {
       try {
         const words = await this.db.getWords();
         const categoryMap = new Map<string, number>();

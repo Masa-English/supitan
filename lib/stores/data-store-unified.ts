@@ -14,7 +14,7 @@ import type {
   AsyncState, 
   CacheState 
 } from '@/lib/types/stores-unified';
-import type { Word, Category, ReviewWord } from '@/lib/types';
+import type { Word, CategoryWithStats, ReviewWord } from '@/lib/types';
 
 // ============================================================================
 // 定数とユーティリティ
@@ -63,7 +63,7 @@ export const useDataStore = create<DataStoreState>()(
     // ============================================================================
     
     words: createAsyncState<Record<string, Word[]>>({}),
-    categories: createAsyncState<Category[]>([]),
+    categories: createAsyncState<CategoryWithStats[]>([]),
     reviewWords: createAsyncState<ReviewWord[]>([]),
     
     search: {
@@ -341,19 +341,22 @@ export const useDataStore = create<DataStoreState>()(
         );
       }
 
-      // お気に入りフィルター
+      // TODO: お気に入りフィルター（UserProgressから取得する必要がある）
       if (filters.favoritesOnly) {
-        filteredWords = filteredWords.filter(word => word.is_favorite);
+        // UserProgressが利用可能になるまで一時的に無効化
+        filteredWords = [];
       }
 
-      // 習得済みフィルター
+      // TODO: 習得済みフィルター（UserProgressから取得する必要がある）
       if (filters.masteredOnly) {
-        filteredWords = filteredWords.filter(word => (word.mastery_level || 0) >= 5);
+        // UserProgressが利用可能になるまで一時的に無効化
+        filteredWords = [];
       }
 
-      // 未学習フィルター
+      // TODO: 未学習フィルター（UserProgressから取得する必要がある）
       if (filters.unstudiedOnly) {
-        filteredWords = filteredWords.filter(word => (word.study_count || 0) === 0);
+        // UserProgressが利用可能になるまで一時的に無効化
+        // 全ての単語を未学習として扱う
       }
 
       set(state => ({
@@ -417,7 +420,7 @@ export const useDataStore = create<DataStoreState>()(
     reset: () => {
       set({
         words: createAsyncState<Record<string, Word[]>>({}),
-        categories: createAsyncState<Category[]>([]),
+         categories: createAsyncState<CategoryWithStats[]>([]),
         reviewWords: createAsyncState<ReviewWord[]>([]),
         search: {
           query: '',

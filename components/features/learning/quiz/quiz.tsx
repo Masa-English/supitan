@@ -152,7 +152,7 @@ export function Quiz({
        } catch (error) {
          console.error('[Quiz] 音声再生エラー:', error);
          // 音声再生エラー時は警告ログを出力するが、クイズの進行は継続
-         devLog.warn('[Quiz] 音声再生に失敗しましたが、クイズは継続します', error);
+         console.warn('[Quiz] 音声再生に失敗しましたが、クイズは継続します', error);
        }
      } else {
        console.log('[Quiz] 音声が初期化されていないか読み込み中のため音声再生をスキップ', { isInitialized, audioLoading });

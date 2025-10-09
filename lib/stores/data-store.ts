@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { DatabaseService } from '@/lib/api/database';
-import type { Word, Category, ReviewWord } from '@/lib/types';
+import type { Word, CategoryWithStats, ReviewWord } from '@/lib/types';
 
 interface DataState {
   // 単語データ
@@ -11,7 +11,7 @@ interface DataState {
   wordsError: string | null;
   
   // カテゴリーデータ
-  categories: Category[];
+  categories: CategoryWithStats[];
   categoriesLoading: boolean;
   categoriesError: string | null;
   
@@ -216,23 +216,22 @@ export const useDataStore = create<DataState>((set, get) => ({
       );
     }
     
-    // お気に入りのみ
+    // TODO: お気に入りのみ（UserProgressから取得する必要がある）
     if (searchFilters.favoritesOnly) {
-      filtered = filtered.filter(word => word.is_favorite);
+      // UserProgressが利用可能になるまで一時的に無効化
+      filtered = [];
     }
     
-    // マスター済みのみ
+    // TODO: マスター済みのみ（UserProgressから取得する必要がある）
     if (searchFilters.masteredOnly) {
-      filtered = filtered.filter(word => 
-        word.mastery_level !== null && word.mastery_level !== undefined && word.mastery_level >= 0.8
-      );
+      // UserProgressが利用可能になるまで一時的に無効化
+      filtered = [];
     }
     
-    // 未学習のみ
+    // TODO: 未学習のみ（UserProgressから取得する必要がある）
     if (searchFilters.unstudiedOnly) {
-      filtered = filtered.filter(word => 
-        word.study_count === null || word.study_count === 0
-      );
+      // UserProgressが利用可能になるまで一時的に無効化
+      // 全ての単語を未学習として扱う
     }
     
     set({ filteredWords: filtered });

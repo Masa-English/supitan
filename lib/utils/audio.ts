@@ -65,19 +65,26 @@ export async function fetchWordAudio(wordId: string): Promise<Blob | null> {
 export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob | null> {
   try {
     devLog.log(`[AudioUtils] Supabase Storageから音声ファイルを取得開始: ${audioFilePath}`);
-    
+
+    // パスがエンコードされているかチェック
+    const originalPath = audioFilePath;
+    const needsEncoding = !originalPath.match(/^[a-zA-Z0-9\-_.\/]+$/);
+    const encodedPath = needsEncoding ? encodeURIComponent(originalPath) : originalPath;
+
+    devLog.log(`[AudioUtils] パス処理: original=${originalPath}, needsEncoding=${needsEncoding}, encoded=${encodedPath}`);
+
     const supabase = createBrowserClient();
-    
+
     // audio-filesバケットがPublicなので、getPublicUrlを使用
     const { data: urlData } = supabase.storage
       .from('audio-files')
-      .getPublicUrl(audioFilePath);
-    
+      .getPublicUrl(encodedPath);
+
     if (!urlData?.publicUrl) {
       devLog.error(`[AudioUtils] 音声ファイルのURL取得に失敗: ${audioFilePath}`);
       return null;
     }
-    
+
     devLog.log(`[AudioUtils] 音声ファイルURL取得成功: ${urlData.publicUrl}`);
     
     // URLからBlobを取得（タイムアウト付き）

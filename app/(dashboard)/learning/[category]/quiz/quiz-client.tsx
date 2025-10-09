@@ -18,6 +18,9 @@ interface Props {
 }
 
 export default function QuizClient({ category, words, initialQuestions, allSections }: Props) {
+  // URLエンコードされたカテゴリー名をデコード
+  const decodedCategory = decodeURIComponent(category);
+  
   const { user, loading: authLoading, error: authError } = useAuth();
   const db = new DatabaseService();
   const [showCompletionModal, setShowCompletionModal] = useState(false);
@@ -64,13 +67,13 @@ export default function QuizClient({ category, words, initialQuestions, allSecti
       const learningMode = sessionStorage.getItem('selectedLearningMode') as 'flashcard' | 'quiz' || 'quiz';
       
       setLearningSession({
-        category,
+        category: decodedCategory,
         currentSection,
         sections: sections,
         learningMode,
       });
     }
-  }, [category, currentSection, sections, setLearningSession]);
+  }, [decodedCategory, currentSection, sections, setLearningSession]);
 
   const handleComplete = async (results: { wordId: string; correct: boolean }[]) => {
     if (!user) return;
@@ -149,7 +152,7 @@ export default function QuizClient({ category, words, initialQuestions, allSecti
     
     // 学習モードを取得（ストアまたはセッションストレージから）
     const learningMode = storeLearningMode || sessionStorage.getItem('selectedLearningMode') || 'quiz';
-    const targetPath = `/learning/${encodeURIComponent(category)}/${learningMode}/section/${encodeURIComponent(nextSectionFromStore)}`;
+    const targetPath = `/learning/${encodeURIComponent(decodedCategory)}/${learningMode}/section/${encodeURIComponent(nextSectionFromStore)}`;
     
     console.log('次のセクションに移動:', {
       from: storeCurrentSection,
@@ -201,7 +204,7 @@ export default function QuizClient({ category, words, initialQuestions, allSecti
         <CompletionModal
           isOpen={showCompletionModal}
           onClose={() => setShowCompletionModal(false)}
-          category={category}
+          category={decodedCategory}
           results={sessionResults}
           totalQuestions={words.length}
           section={currentSection || ''}

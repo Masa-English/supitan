@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/form/label';
 import { Badge } from '@/components/ui/navigation/badge';
 import { Button } from '@/components/ui/button/button';
 import { dataProvider } from '@/lib/api/services/data-provider';
-import { Word, Category } from '@/lib/types';
+import { Word, CategoryWithStats } from '@/lib/types';
 import { 
   Search, 
   Filter, 
@@ -24,7 +24,7 @@ export default function SearchPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [showMeaning, setShowMeaning] = useState(false);
   const [words, setWords] = useState<Word[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

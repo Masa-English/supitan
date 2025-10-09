@@ -3,7 +3,7 @@ import { dataProvider } from '@/lib/api/services';
 import { Word } from '@/lib/types';
 import FlashcardClient from '../../flashcard-client';
 
-export const revalidate = 900; // 15分 - ISRで定期的に更新
+export const revalidate = 300; // 5分 - ISRで定期的に更新
 
 // 静的パラメータ生成を有効化
 export async function generateStaticParams() {

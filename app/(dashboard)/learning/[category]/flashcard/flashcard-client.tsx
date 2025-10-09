@@ -5,6 +5,7 @@ import type { Word } from '@/lib/types';
 import { Flashcard } from '@/components/features/learning/flashcard/flashcard';
 import { CompletionModal } from '@/components/features/learning/shared/completion-modal';
 import { DatabaseService } from '@/lib/api/database/database';
+import { ReloadButton } from '@/components/shared/reload-button';
 
 
 import { useRouter, usePathname } from 'next/navigation';
@@ -17,8 +18,11 @@ interface Props {
 }
 
 export default function FlashcardClient({ category, words, allSections }: Props) {
+  // URLエンコードされたカテゴリー名をデコード
+  const decodedCategory = decodeURIComponent(category);
+  
   console.log('FlashcardClient: レンダリング開始', { 
-    category, 
+    category: decodedCategory, 
     wordsCount: words.length, 
     allSections: allSections?.length 
   });
@@ -98,13 +102,13 @@ export default function FlashcardClient({ category, words, allSections }: Props)
       const learningMode = sessionStorage.getItem('selectedLearningMode') as 'flashcard' | 'quiz' || 'flashcard';
       
       setLearningSession({
-        category,
+        category: decodedCategory,
         currentSection,
         sections: sections,
         learningMode,
       });
     }
-  }, [category, currentSection, sections, setLearningSession]);
+  }, [decodedCategory, currentSection, sections, setLearningSession]);
 
   const handleComplete = async (results: { wordId: string; correct: boolean }[]) => {
     setSessionResults(results);
@@ -178,7 +182,7 @@ export default function FlashcardClient({ category, words, allSections }: Props)
     
     // 学習モードを取得（ストアまたはセッションストレージから）
     const learningMode = storeLearningMode || sessionStorage.getItem('selectedLearningMode') || 'flashcard';
-    const targetPath = `/learning/${encodeURIComponent(category)}/${learningMode}/section/${encodeURIComponent(nextSectionFromStore)}`;
+    const targetPath = `/learning/${encodeURIComponent(decodedCategory)}/${learningMode}/section/${encodeURIComponent(nextSectionFromStore)}`;
     
     console.log('次のセクションに移動:', {
       from: storeCurrentSection,
@@ -226,14 +230,22 @@ export default function FlashcardClient({ category, words, allSections }: Props)
       {/* {words.some(word => word.audio_file) && (
         <AudioPreloader words={words} />
       )} */}
+
+      {/* リロードボタン */}
+      <div className="absolute top-4 right-4 z-10">
+        <ReloadButton variant="outline" className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+          🔄 更新
+        </ReloadButton>
+      </div>
+
       <main className="flex-1 flex flex-col justify-around sm:justify-around pb-safe">
-        <Flashcard words={words} onComplete={handleComplete} category={category} />
+        <Flashcard words={words} onComplete={handleComplete} category={decodedCategory} />
       </main>
       {showCompletionModal && (
         <CompletionModal
           isOpen={showCompletionModal}
           onClose={() => setShowCompletionModal(false)}
-          category={category}
+          category={decodedCategory}
           section={currentSection || ''}
           results={sessionResults}
           totalQuestions={words.length}

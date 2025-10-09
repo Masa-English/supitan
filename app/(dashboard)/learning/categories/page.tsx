@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { dataProvider } from '@/lib/api/services';
-import { Category } from '@/lib/types';
+import { CategoryWithStats } from '@/lib/types';
 import CategoriesClient from './categories-client';
 
 // SSG + ISR設定
@@ -9,7 +9,7 @@ export const revalidate = 3600; // 1時間
 export default async function CategoriesPage() {
   try {
     // サーバーサイドでカテゴリーデータを取得
-    const categories: Category[] = await dataProvider.getCategories();
+    const categories: CategoryWithStats[] = await dataProvider.getCategories();
 
     return (
       <CategoriesClient categories={categories} />

@@ -4,8 +4,8 @@ import { dataProvider } from '@/lib/api/services';
 import FlashcardClient from './flashcard-client';
 import type { Word } from '@/lib/types';
 
-// ISR設定 - 30分ごとに再生成
-export const revalidate = 1800;
+// ISR設定 - 5分ごとに再生成（より頻繁に更新）
+export const revalidate = 300;
 
 // 静的パスの生成
 export async function generateStaticParams() {

@@ -3,7 +3,7 @@
  * 全ストアの型を一元管理し、一貫性を保つ
  */
 
-import type { User, UserProfile, UserProgress, Word, Category, ReviewWord } from './database';
+import type { User, UserProfile, UserProgress, Word, CategoryWithStats, ReviewWord } from './database';
 import type { AppStats } from './api';
 
 // ============================================================================
@@ -68,7 +68,7 @@ export interface DataStoreState extends BaseStoreActions {
   words: AsyncState<Record<string, Word[]>>;
   
   // カテゴリーデータ
-  categories: AsyncState<Category[]>;
+  categories: AsyncState<CategoryWithStats[]>;
   
   // 復習単語
   reviewWords: AsyncState<ReviewWord[]>;

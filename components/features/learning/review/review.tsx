@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/navigation/badge';
 import { Volume2, CheckCircle, XCircle } from 'lucide-react';
 import { useAudioStore } from '@/lib/stores';
-import type { ReviewWord } from '@/lib/types';
+import type { ReviewWordWithWord } from '@/lib/types';
 
 interface ReviewProps {
   onComplete: () => void;
 }
 
 export function Review({ onComplete }: ReviewProps) {
-  const [reviewWords, _setReviewWords] = useState<ReviewWord[]>([]);
+  const [reviewWords, _setReviewWords] = useState<ReviewWordWithWord[]>([]);
   const [onAddToReview] = useState<(wordId: string) => void>(() => (wordId: string) => {
     // 復習リストに追加する処理
     console.log('復習リストに追加:', wordId);
@@ -32,11 +32,11 @@ export function Review({ onComplete }: ReviewProps) {
   const options = useMemo(() => {
     if (!currentWord) return [];
     
-    const correctAnswer = currentWord.japanese;
+    const correctAnswer = currentWord.word.japanese;
     const otherWords = reviewWords.filter(w => w.id !== currentWord.id);
     const wrongOptions = otherWords
       .slice(0, 3)
-      .map(w => w.japanese)
+      .map(w => w.word.japanese)
       .filter(japanese => japanese !== correctAnswer);
     
     const allOptions = [correctAnswer, ...wrongOptions];
@@ -55,7 +55,7 @@ export function Review({ onComplete }: ReviewProps) {
     setSelectedAnswer(answer);
     setIsAnswered(true);
     
-    const isCorrect = answer === currentWord.japanese;
+    const isCorrect = answer === currentWord.word.japanese;
     
     // 結果を記録
     const newResult = {
@@ -113,12 +113,12 @@ export function Review({ onComplete }: ReviewProps) {
         <Card className="mb-6">
           <CardContent className="p-6">
             <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold mb-2">{currentWord.word}</h2>
-              {currentWord.phonetic && (
-                <p className="text-lg text-muted-foreground mb-4">
-                  [{currentWord.phonetic}]
-                </p>
-              )}
+               <h2 className="text-3xl font-bold mb-2">{currentWord.word.word}</h2>
+               {currentWord.word.phonetic && (
+                 <p className="text-lg text-muted-foreground mb-4">
+                   [{currentWord.word.phonetic}]
+                 </p>
+               )}
               <Button
                 variant="ghost"
                 size="lg"
@@ -131,13 +131,13 @@ export function Review({ onComplete }: ReviewProps) {
             </div>
             
             <p className="text-xl font-medium text-center mb-6">
-              {currentWord.word}の意味を選んでください
+               {currentWord.word.word}の意味を選んでください
             </p>
             
             <div className="grid gap-3">
               {options.map((option, index) => {
                 const isSelected = selectedAnswer === option;
-                const isCorrect = option === currentWord.japanese;
+                 const isCorrect = option === currentWord.word.japanese;
                 const showCorrect = isAnswered && isCorrect;
                 const showIncorrect = isAnswered && isSelected && !isCorrect;
                 

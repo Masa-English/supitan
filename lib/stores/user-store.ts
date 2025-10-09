@@ -3,7 +3,8 @@
 import { create } from 'zustand';
 import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
 import { DatabaseService } from '@/lib/api/database';
-import type { User, UserProfile, UserProgress, AppStats } from '@/lib/types';
+import type { UserProfile, UserProgress, AppStats } from '@/lib/types';
+import type { User } from '@supabase/supabase-js';
 
 interface UserState {
   // 認証状態

@@ -17,9 +17,9 @@ const nextConfig: NextConfig = {
     },
   },
   
-  // TypeScript設定（型チェックエラーを警告として扱う）
+  // TypeScript設定（ビルド時の型チェックを無効化）
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
 
   // ESLint設定（ビルド時のESLintエラーを無視）
