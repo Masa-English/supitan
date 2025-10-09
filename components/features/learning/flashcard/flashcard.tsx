@@ -186,8 +186,11 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     if (!currentWord) return;
 
     if (currentWord.audio_file) {
+      console.log('[Flashcard] 単語音声再生開始', { wordId: currentWord.id, audioFile: currentWord.audio_file });
       // audio-storeのplayWordAudioを使用してキャッシュ機能を活用
       playWordAudioFromStore(currentWord.id);
+    } else {
+      console.log('[Flashcard] 単語に音声ファイルが設定されていない', { wordId: currentWord.id, word: currentWord.word });
     }
   }, [currentWord, playWordAudioFromStore]);
 

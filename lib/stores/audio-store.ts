@@ -51,9 +51,9 @@ export const useAudioStore = create<AudioState>((set, get) => ({
   // 音声初期化
   initializeAudio: async () => {
     const { isInitialized } = get();
-    
+
     clientLogger.audio('initializeAudio呼び出し', { isInitialized });
-    
+
     if (isInitialized) {
       clientLogger.audio('既に初期化済みのためスキップ');
       return;
@@ -61,53 +61,65 @@ export const useAudioStore = create<AudioState>((set, get) => ({
 
     clientLogger.audio('音声初期化開始');
     set({ isLoading: true, error: null });
-    
+
     try {
       const supabase = createBrowserClient();
       clientLogger.audio('Supabaseクライアント作成完了');
-      
-      // Supabase Storageから効果音ファイルを取得
+
+      // 効果音ファイルの取得を並行して実行
       clientLogger.audio('効果音ファイル取得開始');
-      const { data: correctData, error: correctError } = await supabase.storage
-        .from('se')
-        .download('collect.mp3');
-      
-      const { data: incorrectData, error: incorrectError } = await supabase.storage
-        .from('se')
-        .download('error.mp3');
+      const [correctResult, incorrectResult] = await Promise.allSettled([
+        supabase.storage.from('se').download('collect.mp3'),
+        supabase.storage.from('se').download('error.mp3')
+      ]);
 
       console.log('[AudioStore] 効果音ファイル取得結果', {
-        correctData: !!correctData,
-        correctError,
-        incorrectData: !!incorrectData,
-        incorrectError
+        correctResult: correctResult.status === 'fulfilled' ? '成功' : correctResult.reason,
+        incorrectResult: incorrectResult.status === 'fulfilled' ? '成功' : incorrectResult.reason
       });
 
-      // 音声ファイルの取得に失敗した場合の処理
-      if (correctError || incorrectError) {
-        devLog.warn('効果音ファイルの取得に失敗しました。', {
-          correctError,
-          incorrectError
+      // 効果音ファイルの取得結果を処理
+      let correctData = null;
+      let incorrectData = null;
+      let hasAudioError = false;
+
+      if (correctResult.status === 'fulfilled' && correctResult.value.data) {
+        correctData = correctResult.value.data;
+      } else {
+        console.warn('[AudioStore] 正解音ファイル取得失敗:', correctResult.status === 'rejected' ? correctResult.reason : 'データなし');
+        hasAudioError = true;
+      }
+
+      if (incorrectResult.status === 'fulfilled' && incorrectResult.value.data) {
+        incorrectData = incorrectResult.value.data;
+      } else {
+        console.warn('[AudioStore] 不正解音ファイル取得失敗:', incorrectResult.status === 'rejected' ? incorrectResult.reason : 'データなし');
+        hasAudioError = true;
+      }
+
+      // 効果音ファイルが取得できない場合でも初期化を継続（フォールバック対応）
+      if (hasAudioError) {
+        devLog.warn('効果音ファイルの取得に失敗しましたが、初期化を継続します。', {
+          correctError: correctResult.status === 'rejected' ? correctResult.reason : null,
+          incorrectError: incorrectResult.status === 'rejected' ? incorrectResult.reason : null
         });
-        
-        console.error('[AudioStore] 効果音ファイル取得エラー', {
-          correctError,
-          incorrectError
-        });
-        
+
+        // 効果音なしで初期化を継続
         set({
           isLoading: false,
-          error: '効果音ファイルの取得に失敗しました。',
+          error: null, // エラーなしとして扱う
           isInitialized: true
         });
+        devLog.log('[AudioStore] 効果音なしで音声初期化完了');
+        clientLogger.audio('効果音なしで音声初期化完了');
         return;
       }
 
       console.log('[AudioStore] BlobからAudioオブジェクト作成開始');
       // BlobからAudioオブジェクトを作成
-      const correctBlob = new Blob([correctData], { type: 'audio/mpeg' });
-      const incorrectBlob = new Blob([incorrectData], { type: 'audio/mpeg' });
-      
+      const correctBlob = new Blob([correctData!], { type: 'audio/mpeg' });
+      const incorrectBlob = new Blob([incorrectData!], { type: 'audio/mpeg' });
+
       const correctUrl = URL.createObjectURL(correctBlob);
       const incorrectUrl = URL.createObjectURL(incorrectBlob);
 
@@ -145,11 +157,13 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       clientLogger.audio('音声初期化完了');
     } catch (error) {
       clientLogger.error('音声初期化エラー', LogCategory.ERROR, { error: error instanceof Error ? error.message : String(error) });
+      // エラーが発生した場合でも初期化済みとしてマーク（効果音なしで動作）
       set({
         isLoading: false,
-        error: '音声の初期化に失敗しました',
+        error: null,
         isInitialized: true
       });
+      devLog.log('[AudioStore] エラー発生後も初期化完了（効果音なしで動作）');
     }
   },
 
@@ -296,33 +310,33 @@ export const useAudioStore = create<AudioState>((set, get) => ({
     if (!isAudioEnabled) return;
 
     let audio = wordAudioCache.get(wordId);
-    
+
     // キャッシュにない場合は動的に読み込み
     if (!audio) {
       devLog.log(`[AudioStore] キャッシュに音声ファイルなし、動的読み込み開始: ${wordId}`);
-      
+
       // まず音声パスキャッシュから確認
       let audioFilePath = wordAudioPathCache.get(wordId);
-      
+
       if (!audioFilePath) {
         try {
-          // データベースから音声ファイルパスを取得（フォールバック）
+          // データベースから音声ファイルパスを取得
           const supabase = createBrowserClient();
           const { data: word, error: wordError } = await supabase
             .from('words')
-            .select('audio_file')
+            .select('audio_file, word')
             .eq('id', wordId)
             .single();
 
           if (wordError || !word?.audio_file) {
-            devLog.warn(`[AudioStore] 音声ファイルが見つかりません: ${wordId}`, wordError);
+            devLog.warn(`[AudioStore] データベースから音声ファイルパスが見つかりません: ${wordId}`, wordError);
             return;
           }
-          
+
           audioFilePath = word.audio_file;
-          devLog.log(`[AudioStore] データベースから音声ファイルパス取得: ${audioFilePath}`);
+          devLog.log(`[AudioStore] データベースから音声ファイルパス取得: ${audioFilePath} (${word.word})`);
         } catch (error) {
-          devLog.error(`[AudioStore] 音声ファイル取得エラー: ${wordId}`, error);
+          devLog.error(`[AudioStore] データベースからの音声ファイル取得エラー: ${wordId}`, error);
           return;
         }
       } else {
@@ -335,17 +349,62 @@ export const useAudioStore = create<AudioState>((set, get) => ({
         return;
       }
 
+      // パス解決を試行（データベースのパスが実際のStorage構造と一致しない場合のフォールバック）
+      let resolvedPath = audioFilePath;
+
+      // データベースのパスが「単語/word.mp3」形式だが、実際のファイルが「単語/example001.mp3」などである場合の対応
+      if (audioFilePath.endsWith('/word.mp3')) {
+        const folderPath = audioFilePath.replace('/word.mp3', '');
+        const wordName = folderPath; // フォルダ名が単語名
+
+        try {
+          // 実際のStorageから該当単語のファイル一覧を取得して最適なパスを特定
+          const supabase = createBrowserClient();
+          const { data: storageObjects, error: storageError } = await supabase.storage
+            .from('audio-files')
+            .list('', {
+              search: wordName,
+              limit: 10
+            });
+
+          if (!storageError && storageObjects && storageObjects.length > 0) {
+            // 実際の音声ファイル一覧を取得
+            const audioFiles = storageObjects.filter(obj =>
+              obj.name.endsWith('.mp3') &&
+              !obj.name.endsWith('.keep.mp3') &&
+              obj.name.includes(wordName)
+            );
+
+            if (audioFiles.length > 0) {
+              // 最初の音声ファイルを使用（通常はexample001.mp3）
+              const actualFile = audioFiles[0];
+              resolvedPath = `${wordName}/${actualFile.name}`;
+              devLog.log(`[AudioStore] パス解決成功: ${audioFilePath} → ${resolvedPath}`);
+            } else {
+              devLog.warn(`[AudioStore] 単語フォルダに音声ファイルが見つかりません: ${wordName}`);
+              return;
+            }
+          } else {
+            devLog.warn(`[AudioStore] Storageファイル一覧取得エラー: ${wordName}`, storageError);
+            // エラー時は元のまま試行
+          }
+        } catch (error) {
+          devLog.warn(`[AudioStore] パス解決中のエラー: ${wordName}`, error);
+          // エラー時は元のまま試行
+        }
+      }
+
       // 音声ファイルを読み込み
-      const loadedAudio = await loadWordAudio(wordId, audioFilePath);
+      const loadedAudio = await loadWordAudio(wordId, resolvedPath);
       audio = loadedAudio || undefined;
       if (!audio) {
-        devLog.warn(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${audioFilePath}`);
+        devLog.warn(`[AudioStore] 音声ファイルの読み込みに失敗しました: ${resolvedPath}`);
         return;
       }
     } else {
       devLog.log(`[AudioStore] キャッシュから音声ファイル取得: ${wordId}`);
     }
-    
+
     // 音声を再生
     if (audio && !isMuted) {
       try {
@@ -355,6 +414,7 @@ export const useAudioStore = create<AudioState>((set, get) => ({
         devLog.log(`[AudioStore] 単語音声再生完了: ${wordId}`);
       } catch (error) {
         console.error(`単語音声再生エラー: ${wordId}`, error);
+        devLog.error(`[AudioStore] 単語音声再生エラー: ${wordId}`, error);
       }
     }
   },

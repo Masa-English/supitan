@@ -33,16 +33,16 @@ export function Quiz({
   const [isCorrect, setIsCorrect] = useState(false);
 
   // 音声ストア
-  const { playCorrectSound, playIncorrectSound, initializeAudio, isInitialized } = useAudioStore();
+  const { playCorrectSound, playIncorrectSound, initializeAudio, isInitialized, isLoading: audioLoading } = useAudioStore();
 
   // 音声初期化
   useEffect(() => {
-    console.log('[Quiz] 音声初期化チェック', { isInitialized });
-    if (!isInitialized) {
+    console.log('[Quiz] 音声初期化チェック', { isInitialized, audioLoading });
+    if (!isInitialized && !audioLoading) {
       console.log('[Quiz] 音声初期化開始');
       initializeAudio();
     }
-  }, [initializeAudio, isInitialized]);
+  }, [initializeAudio, isInitialized, audioLoading]);
 
   const currentQuestion = questions[currentIndex];
 
@@ -137,9 +137,9 @@ export function Quiz({
      setIsCorrect(correct);
      setShowResult(true);
 
-     console.log('[Quiz] 音声再生開始', { correct, isInitialized });
+     console.log('[Quiz] 音声再生開始', { correct, isInitialized, audioLoading });
      // 音声が初期化されている場合のみ音声再生
-     if (isInitialized) {
+     if (isInitialized && !audioLoading) {
        try {
          if (correct) {
            console.log('[Quiz] 正解音再生呼び出し');
@@ -148,11 +148,14 @@ export function Quiz({
            console.log('[Quiz] 不正解音再生呼び出し');
            await playIncorrectSound();
          }
+         console.log('[Quiz] 音声再生成功');
        } catch (error) {
          console.error('[Quiz] 音声再生エラー:', error);
+         // 音声再生エラー時は警告ログを出力するが、クイズの進行は継続
+         devLog.warn('[Quiz] 音声再生に失敗しましたが、クイズは継続します', error);
        }
      } else {
-       console.log('[Quiz] 音声が初期化されていないため音声再生をスキップ');
+       console.log('[Quiz] 音声が初期化されていないか読み込み中のため音声再生をスキップ', { isInitialized, audioLoading });
      }
    };
 
