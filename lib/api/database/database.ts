@@ -22,7 +22,18 @@ export class DatabaseService {
   async getWords(): Promise<Word[]> {
     const { data, error } = await this.supabase
       .from('words')
-      .select('*')
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          description,
+          icon,
+          color,
+          sort_order,
+          is_active
+        )
+      `)
       .order('category', { ascending: true });
 
     if (error) throw error;
@@ -34,8 +45,19 @@ export class DatabaseService {
     
     const { data, error } = await this.supabase
       .from('words')
-      .select('*')
-      .eq('category', category)
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          description,
+          icon,
+          color,
+          sort_order,
+          is_active
+        )
+      `)
+      .or(`category_id.in.(select id from categories where name.eq.${category}),category.eq.${category}`)
       .order('word', { ascending: true });
 
     if (error) {

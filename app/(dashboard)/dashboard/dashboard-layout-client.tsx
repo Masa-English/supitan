@@ -8,11 +8,7 @@ import { AudioInitializer } from '@/components/features/learning/shared';
 import { 
   RotateCcw, 
   Search, 
-  BarChart3, 
-  User, 
   Zap,
-  Settings,
-  Clock,
   BookOpen
 } from 'lucide-react';
 
@@ -42,11 +38,11 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
     { label: '学習開始', href: '/learning', icon: Zap, color: 'text-primary' },
     { label: '復習', href: '/review', icon: RotateCcw, color: 'text-primary' },
     { label: '検索', href: '/search', icon: Search, color: 'text-primary' },
-    { label: '統計', href: '/statistics', icon: BarChart3, color: 'text-primary', badge: '開発中' },
-    { label: '学習履歴', href: '/history', icon: Clock, color: 'text-primary', badge: '開発中' },
+    // { label: '統計', href: '/statistics', icon: BarChart3, color: 'text-primary', badge: '開発中' },
+    // { label: '学習履歴', href: '/history', icon: Clock, color: 'text-primary', badge: '開発中' },
     { label: '単語一覧', href: '/learning/categories', icon: BookOpen, color: 'text-primary' },
-    { label: 'プロフィール', href: '/profile', icon: User, color: 'text-primary' },
-    { label: '設定', href: '/settings', icon: Settings, color: 'text-primary' },
+    // { label: 'プロフィール', href: '/profile', icon: User, color: 'text-primary' },
+    // { label: '設定', href: '/settings', icon: Settings, color: 'text-primary' },
   ];
 
   // SSR時は基本的なレイアウトのみ表示

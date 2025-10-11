@@ -113,7 +113,18 @@ export function useOptimizedData(options: UseOptimizedDataOptions = {}): UseOpti
     setError(prev => ({ ...prev, words: null }));
 
     try {
-      let query = supabase.from('words').select('*');
+      let query = supabase.from('words').select(`
+        *,
+        categories (
+          id,
+          name,
+          description,
+          icon,
+          color,
+          sort_order,
+          is_active
+        )
+      `);
       
       if (category) {
         query = query.eq('category', category);

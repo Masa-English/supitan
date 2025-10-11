@@ -965,7 +965,9 @@ export type CompositeTypes<
     : never
 
 // Export commonly used table types
-export type Word = Database['public']['Tables']['words']['Row']
+export type Word = Database['public']['Tables']['words']['Row'] & {
+  categories?: Database['public']['Tables']['categories']['Row']
+}
 export type WordInsert = Database['public']['Tables']['words']['Insert']
 export type WordUpdate = Database['public']['Tables']['words']['Update']
 

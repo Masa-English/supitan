@@ -16,8 +16,19 @@ export class DatabaseQueries {
   async findWordsByCategory(category: string) {
     return this.supabase
       .from('words')
-      .select('*')
-      .eq('category', category)
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          description,
+          icon,
+          color,
+          sort_order,
+          is_active
+        )
+      `)
+      .or(`category_id.in.(select id from categories where name.eq.${category}),category.eq.${category}`)
       .eq('is_active', true)
       .order('word', { ascending: true });
   }
@@ -25,7 +36,18 @@ export class DatabaseQueries {
   async findWordById(wordId: string) {
     return this.supabase
       .from('words')
-      .select('*')
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          description,
+          icon,
+          color,
+          sort_order,
+          is_active
+        )
+      `)
       .eq('id', wordId)
       .eq('is_active', true)
       .single();
@@ -34,7 +56,18 @@ export class DatabaseQueries {
   async searchWords(searchTerm: string, limit = 50) {
     return this.supabase
       .from('words')
-      .select('*')
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          description,
+          icon,
+          color,
+          sort_order,
+          is_active
+        )
+      `)
       .or(`word.ilike.%${searchTerm}%,japanese.ilike.%${searchTerm}%`)
       .eq('is_active', true)
       .limit(limit)
@@ -44,7 +77,18 @@ export class DatabaseQueries {
   async getWordsByDifficulty(difficultyLevel: number) {
     return this.supabase
       .from('words')
-      .select('*')
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          description,
+          icon,
+          color,
+          sort_order,
+          is_active
+        )
+      `)
       .eq('difficulty_level', difficultyLevel)
       .eq('is_active', true)
       .order('word', { ascending: true });

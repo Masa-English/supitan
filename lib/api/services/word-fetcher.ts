@@ -16,17 +16,34 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
   );
   const { category, sectionIndex, sectionSize, randomCount, sectionValue } = options;
 
+  // JOINクエリでカテゴリー情報も取得
+  const baseSelect = `
+    *,
+    categories (
+      id,
+      name,
+      description,
+      icon,
+      color,
+      sort_order,
+      is_active
+    )
+  `;
+
   // ランダム優先
   if (randomCount && randomCount > 0) {
     // 軽量にIDのみ取得 → サンプリング → 本体取得
     let idQuery = supabase.from('words').select('id');
-    if (category) idQuery = idQuery.eq('category', category);
+    if (category) {
+      // category_idを優先して検索、なければcategoryで検索
+      idQuery = idQuery.or(`category_id.in.(select id from categories where name.eq.${category}),category.eq.${category}`);
+    }
     const { data: ids, error: idsErr } = await idQuery;
     if (idsErr) throw idsErr;
     const pool = (ids ?? []).map((r) => r.id);
     const selected = sampleIds(pool, randomCount);
     if (selected.length === 0) return [];
-    const { data, error } = await supabase.from('words').select('*').in('id', selected);
+    const { data, error } = await supabase.from('words').select(baseSelect).in('id', selected);
     if (error) throw error;
     // 表示安定のため単語で並び替え
     return (data ?? []).sort((a, b) => (a.word || '').localeCompare(b.word || '')) as Word[];
@@ -34,8 +51,11 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
 
   // section列の値でフィルタ（推奨）
   if (sectionValue !== undefined && sectionValue !== null && sectionValue !== '') {
-    let q = supabase.from('words').select('*');
-    if (category) q = q.eq('category', category);
+    let q = supabase.from('words').select(baseSelect);
+    if (category) {
+      // category_idを優先して検索、なければcategoryで検索
+      q = q.or(`category_id.in.(select id from categories where name.eq.${category}),category.eq.${category}`);
+    }
     q = q.eq('section', sectionValue);
     const { data, error } = await q.order('word', { ascending: true });
     if (error) throw error;
@@ -48,10 +68,13 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
     const to = from + sectionSize - 1;
     let q = supabase
       .from('words')
-      .select('*')
+      .select(baseSelect)
       .order('word', { ascending: true })
       .range(from, to);
-    if (category) q = q.eq('category', category);
+    if (category) {
+      // category_idを優先して検索、なければcategoryで検索
+      q = q.or(`category_id.in.(select id from categories where name.eq.${category}),category.eq.${category}`);
+    }
     const { data, error } = await q;
     if (error) throw error;
     return (data ?? []) as Word[];
@@ -60,9 +83,12 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
   // カテゴリー全件（フォールバック）
   let q = supabase
     .from('words')
-    .select('*')
+    .select(baseSelect)
     .order('word', { ascending: true });
-  if (category) q = q.eq('category', category);
+  if (category) {
+    // category_idを優先して検索、なければcategoryで検索
+    q = q.or(`category_id.in.(select id from categories where name.eq.${category}),category.eq.${category}`);
+  }
   const { data, error } = await q;
   if (error) throw error;
   return (data ?? []) as Word[];

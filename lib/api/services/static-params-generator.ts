@@ -37,7 +37,12 @@ export async function getBuildTimeCategories(): Promise<string[]> {
     console.log('Fetching categories from database...');
     const { data, error } = await supabase
       .from('words')
-      .select('category')
+      .select(`
+        category,
+        categories (
+          name
+        )
+      `)
       .order('category');
     
     if (error) {
@@ -45,7 +50,7 @@ export async function getBuildTimeCategories(): Promise<string[]> {
       return ['句動詞', '動詞', '名詞', '形容詞', '副詞']; // フォールバック
     }
     
-    const categories = Array.from(new Set(data?.map(item => item.category).filter(Boolean) || []));
+    const categories = Array.from(new Set(data?.map(item => item.categories?.name || item.category).filter(Boolean) || []));
     console.log(`Build-time categories found: ${categories.length}`, categories);
     
     // データが取得できない場合はフォールバックを使用
@@ -79,7 +84,7 @@ export async function getBuildTimeSections(category: string): Promise<string[]> 
     const { data, error } = await supabase
       .from('words')
       .select('section')
-      .eq('category', decodedCategory)
+      .or(`category_id.in.(select id from categories where name.eq.${decodedCategory}),category.eq.${decodedCategory}`)
       .order('section');
     
     if (error) {

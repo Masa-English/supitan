@@ -11,10 +11,22 @@ export async function GET() {
   try {
     const supabase = await createServerClient();
     
-    // 単語データを取得
+    // 単語データを取得（カテゴリー情報もJOIN）
     const { data: words, error } = await supabase
       .from('words')
-      .select('*')
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          description,
+          icon,
+          color,
+          sort_order,
+          is_active
+        )
+      `)
+      .order('category_id', { ascending: true, nullsLast: true })
       .order('category', { ascending: true })
       .order('word', { ascending: true });
 

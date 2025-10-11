@@ -111,7 +111,9 @@ export class UnifiedDataProvider {
       const categoryMap = new Map<string, number>();
       
       words.forEach(word => {
-        categoryMap.set(word.category, (categoryMap.get(word.category) || 0) + 1);
+        // category_idが優先、なければcategoryを使用
+        const categoryName = word.categories?.name || word.category;
+        categoryMap.set(categoryName, (categoryMap.get(categoryName) || 0) + 1);
       });
 
       return Array.from(categoryMap.entries()).map(([category, count]) => ({
