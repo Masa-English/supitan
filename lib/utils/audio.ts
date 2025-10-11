@@ -66,8 +66,15 @@ export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob
   try {
     devLog.log(`[AudioUtils] Supabase Storageから音声ファイルを取得開始: ${audioFilePath}`);
 
+    // パス解決: フォルダ名のみの場合はword.mp3を追加
+    let resolvedPath = audioFilePath;
+    if (!audioFilePath.includes('/') && !audioFilePath.endsWith('.mp3')) {
+      resolvedPath = `${audioFilePath}/word.mp3`;
+      devLog.log(`[AudioUtils] フォルダ名のみのパスを修正: ${audioFilePath} → ${resolvedPath}`);
+    }
+
     // パスがエンコードされているかチェック
-    const originalPath = audioFilePath;
+    const originalPath = resolvedPath;
     const needsEncoding = !originalPath.match(/^[a-zA-Z0-9\-_.\/]+$/);
     const encodedPath = needsEncoding ? encodeURIComponent(originalPath) : originalPath;
 

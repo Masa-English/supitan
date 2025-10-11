@@ -8,6 +8,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { DatabaseService } from '@/lib/api/database';
 import { useAudioStore } from '@/lib/stores/audio-store';
+import { devLog } from '@/lib/utils';
 // Audio storage utilities (placeholder implementation)
 const fetchAudioFromStorage = async (path: string): Promise<Blob | null> => {
   try {
@@ -181,15 +182,18 @@ export function useFlashcard(
     goToNext();
   }, [currentWord, isInRetryMode, goToNext]);
 
-  // 単語音声再生 (簡素化実装)
+  // 単語音声再生
   const playWordAudio = useCallback(async () => {
     if (!currentWord) return;
 
     try {
-      // TODO: 実際の音声再生実装
-      console.log('Playing audio for word:', currentWord.word);
+      // AudioStoreを使用して音声を再生
+      const { playWordAudio } = useAudioStore.getState();
+      await playWordAudio(currentWord.id);
+      devLog.log('単語音声再生開始:', { wordId: currentWord.id, word: currentWord.word });
     } catch (error) {
       console.error('音声再生に失敗:', error);
+      devLog.error('単語音声再生エラー:', error);
     }
   }, [currentWord]);
 

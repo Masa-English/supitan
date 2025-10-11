@@ -352,46 +352,21 @@ export const useAudioStore = create<AudioState>((set, get) => ({
       // パス解決を試行（データベースのパスが実際のStorage構造と一致しない場合のフォールバック）
       let resolvedPath = audioFilePath;
 
-      // データベースのパスが「単語/word.mp3」形式だが、実際のファイルが「単語/example001.mp3」などである場合の対応
-      if (audioFilePath.endsWith('/word.mp3')) {
-        const folderPath = audioFilePath.replace('/word.mp3', '');
-        const wordName = folderPath; // フォルダ名が単語名
-
-        try {
-          // 実際のStorageから該当単語のファイル一覧を取得して最適なパスを特定
-          const supabase = createBrowserClient();
-          const { data: storageObjects, error: storageError } = await supabase.storage
-            .from('audio-files')
-            .list('', {
-              search: wordName,
-              limit: 10
-            });
-
-          if (!storageError && storageObjects && storageObjects.length > 0) {
-            // 実際の音声ファイル一覧を取得
-            const audioFiles = storageObjects.filter(obj =>
-              obj.name.endsWith('.mp3') &&
-              !obj.name.endsWith('.keep.mp3') &&
-              obj.name.includes(wordName)
-            );
-
-            if (audioFiles.length > 0) {
-              // 最初の音声ファイルを使用（通常はexample001.mp3）
-              const actualFile = audioFiles[0];
-              resolvedPath = `${wordName}/${actualFile.name}`;
-              devLog.log(`[AudioStore] パス解決成功: ${audioFilePath} → ${resolvedPath}`);
-            } else {
-              devLog.warn(`[AudioStore] 単語フォルダに音声ファイルが見つかりません: ${wordName}`);
-              return;
-            }
-          } else {
-            devLog.warn(`[AudioStore] Storageファイル一覧取得エラー: ${wordName}`, storageError);
-            // エラー時は元のまま試行
-          }
-        } catch (error) {
-          devLog.warn(`[AudioStore] パス解決中のエラー: ${wordName}`, error);
-          // エラー時は元のまま試行
-        }
+      // パス解決の優先順位:
+      // 1. フォルダ名のみの場合（例: "from_now_on"）→ "from_now_on/word.mp3" を試行
+      // 2. 既に"/word.mp3"で終わっている場合 → そのまま使用
+      // 3. その他の場合 → そのまま使用
+      
+      if (!audioFilePath.includes('/') && !audioFilePath.endsWith('.mp3')) {
+        // フォルダ名のみの場合（例: "from_now_on"）
+        resolvedPath = `${audioFilePath}/word.mp3`;
+        devLog.log(`[AudioStore] フォルダ名のみのパスを修正: ${audioFilePath} → ${resolvedPath}`);
+      } else if (audioFilePath.endsWith('/word.mp3')) {
+        // 既に"/word.mp3"で終わっている場合はそのまま使用
+        devLog.log(`[AudioStore] word.mp3パスをそのまま使用: ${audioFilePath}`);
+      } else {
+        // その他の場合はそのまま使用
+        devLog.log(`[AudioStore] パスをそのまま使用: ${audioFilePath}`);
       }
 
       // 音声ファイルを読み込み

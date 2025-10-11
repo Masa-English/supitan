@@ -38,13 +38,20 @@ export async function GET(
 
     devLog.log(`音声ファイルパス: ${word.audio_file} (${word.word})`);
 
+    // パス解決: フォルダ名のみの場合はword.mp3を追加
+    let resolvedPath = word.audio_file;
+    if (!word.audio_file.includes('/') && !word.audio_file.endsWith('.mp3')) {
+      resolvedPath = `${word.audio_file}/word.mp3`;
+      devLog.log(`音声ファイルパスを修正: ${word.audio_file} → ${resolvedPath}`);
+    }
+
     // audio-filesバケットから音声ファイルを取得
     const { data, error } = await supabase.storage
       .from('audio-files')
-      .download(word.audio_file);
+      .download(resolvedPath);
 
     if (error) {
-      devLog.error(`音声ファイルダウンロードエラー (${word.audio_file}):`, error);
+      devLog.error(`音声ファイルダウンロードエラー (${resolvedPath}):`, error);
       return NextResponse.json(
         { error: '音声ファイルのダウンロードに失敗しました' },
         { status: 500 }
@@ -52,14 +59,14 @@ export async function GET(
     }
 
     if (!data || data.size === 0) {
-      devLog.error(`音声ファイルデータが空: ${word.audio_file}`);
+      devLog.error(`音声ファイルデータが空: ${resolvedPath}`);
       return NextResponse.json(
         { error: '音声ファイルデータが空です' },
         { status: 500 }
       );
     }
 
-    devLog.log(`音声ファイル取得成功: ${word.audio_file} (${data.size} bytes)`);
+    devLog.log(`音声ファイル取得成功: ${resolvedPath} (${data.size} bytes)`);
 
     // 音声ファイルを返す
     return new NextResponse(data, {
