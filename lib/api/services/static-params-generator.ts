@@ -36,21 +36,17 @@ export async function getBuildTimeCategories(): Promise<string[]> {
 
     console.log('Fetching categories from database...');
     const { data, error } = await supabase
-      .from('words')
-      .select(`
-        category,
-        categories (
-          name
-        )
-      `)
-      .order('category');
+      .from('categories')
+      .select('name')
+      .eq('is_active', true)
+      .order('sort_order');
     
     if (error) {
       console.warn('Database query failed, using fallback:', error.message);
       return ['句動詞', '動詞', '名詞', '形容詞', '副詞']; // フォールバック
     }
     
-    const categories = Array.from(new Set(data?.map(item => item.categories?.name || item.category).filter(Boolean) || []));
+    const categories = Array.from(new Set(data?.map(item => item.name).filter(Boolean) || []));
     console.log(`Build-time categories found: ${categories.length}`, categories);
     
     // データが取得できない場合はフォールバックを使用
@@ -81,10 +77,23 @@ export async function getBuildTimeSections(category: string): Promise<string[]> 
     const decodedCategory = decodeURIComponent(category);
     console.log(`Querying sections for category: "${decodedCategory}" (original: "${category}")`);
 
+    // まずカテゴリーIDを取得
+    const { data: categoryData, error: categoryError } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('name', decodedCategory)
+      .single();
+    
+    if (categoryError || !categoryData) {
+      console.warn(`Category not found: ${decodedCategory}, using fallback`);
+      return ['1', '2', '3']; // フォールバック
+    }
+    
+    // カテゴリーIDでセクションを取得
     const { data, error } = await supabase
       .from('words')
       .select('section')
-      .or(`category_id.in.(select id from categories where name.eq.${decodedCategory}),category.eq.${decodedCategory}`)
+      .eq('category_id', categoryData.id)
       .order('section');
     
     if (error) {

@@ -119,7 +119,6 @@ export function useOptimizedData(options: UseOptimizedDataOptions = {}): UseOpti
           id,
           name,
           description,
-          icon,
           color,
           sort_order,
           is_active

@@ -15,6 +15,9 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
   const { category, sectionIndex, sectionSize, randomCount, sectionValue } = options;
+  
+  // URLデコードを確実に実行
+  const decodedCategory = category ? decodeURIComponent(category) : undefined;
 
   // JOINクエリでカテゴリー情報も取得
   const baseSelect = `
@@ -23,7 +26,6 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
       id,
       name,
       description,
-      icon,
       color,
       sort_order,
       is_active
@@ -34,9 +36,17 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
   if (randomCount && randomCount > 0) {
     // 軽量にIDのみ取得 → サンプリング → 本体取得
     let idQuery = supabase.from('words').select('id');
-    if (category) {
-      // category_idを優先して検索、なければcategoryで検索
-      idQuery = idQuery.or(`category_id.in.(select id from categories where name.eq.${category}),category.eq.${category}`);
+    if (decodedCategory) {
+      // まずカテゴリーIDを取得
+      const { data: categoryData } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('name', decodedCategory)
+        .single();
+      
+      if (categoryData) {
+        idQuery = idQuery.eq('category_id', categoryData.id);
+      }
     }
     const { data: ids, error: idsErr } = await idQuery;
     if (idsErr) throw idsErr;
@@ -52,9 +62,17 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
   // section列の値でフィルタ（推奨）
   if (sectionValue !== undefined && sectionValue !== null && sectionValue !== '') {
     let q = supabase.from('words').select(baseSelect);
-    if (category) {
-      // category_idを優先して検索、なければcategoryで検索
-      q = q.or(`category_id.in.(select id from categories where name.eq.${category}),category.eq.${category}`);
+    if (decodedCategory) {
+      // まずカテゴリーIDを取得
+      const { data: categoryData } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('name', decodedCategory)
+        .single();
+      
+      if (categoryData) {
+        q = q.eq('category_id', categoryData.id);
+      }
     }
     q = q.eq('section', sectionValue);
     const { data, error } = await q.order('word', { ascending: true });
@@ -71,9 +89,17 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
       .select(baseSelect)
       .order('word', { ascending: true })
       .range(from, to);
-    if (category) {
-      // category_idを優先して検索、なければcategoryで検索
-      q = q.or(`category_id.in.(select id from categories where name.eq.${category}),category.eq.${category}`);
+    if (decodedCategory) {
+      // まずカテゴリーIDを取得
+      const { data: categoryData } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('name', decodedCategory)
+        .single();
+      
+      if (categoryData) {
+        q = q.eq('category_id', categoryData.id);
+      }
     }
     const { data, error } = await q;
     if (error) throw error;
@@ -85,9 +111,17 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
     .from('words')
     .select(baseSelect)
     .order('word', { ascending: true });
-  if (category) {
-    // category_idを優先して検索、なければcategoryで検索
-    q = q.or(`category_id.in.(select id from categories where name.eq.${category}),category.eq.${category}`);
+  if (decodedCategory) {
+    // まずカテゴリーIDを取得
+    const { data: categoryData } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('name', decodedCategory)
+      .single();
+    
+    if (categoryData) {
+      q = q.eq('category_id', categoryData.id);
+    }
   }
   const { data, error } = await q;
   if (error) throw error;

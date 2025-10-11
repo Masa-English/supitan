@@ -14,6 +14,20 @@ export class DatabaseQueries {
 
   // Word queries
   async findWordsByCategory(category: string) {
+    // URLデコードを確実に実行
+    const decodedCategory = decodeURIComponent(category);
+    
+    // まずカテゴリーIDを取得
+    const { data: categoryData, error: categoryError } = await this.supabase
+      .from('categories')
+      .select('id')
+      .eq('name', decodedCategory)
+      .single();
+    
+    if (categoryError || !categoryData) {
+      throw new Error(`Category not found: ${decodedCategory}`);
+    }
+    
     return this.supabase
       .from('words')
       .select(`
@@ -22,13 +36,12 @@ export class DatabaseQueries {
           id,
           name,
           description,
-          icon,
           color,
           sort_order,
           is_active
         )
       `)
-      .or(`category_id.in.(select id from categories where name.eq.${category}),category.eq.${category}`)
+      .eq('category_id', categoryData.id)
       .eq('is_active', true)
       .order('word', { ascending: true });
   }
