@@ -8,7 +8,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { DatabaseService } from '@/lib/api/database';
 import { useAudioStore } from '@/lib/stores/audio-store';
-import { devLog } from '@/lib/utils';
+import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
 // Audio storage utilities (placeholder implementation)
 const fetchAudioFromStorage = async (path: string): Promise<Blob | null> => {
   try {
@@ -82,7 +82,8 @@ export function useFlashcard(
 
   // オーディオストア
   const { volume, isMuted } = useAudioStore();
-  const _db = useMemo(() => new DatabaseService(), []);
+  const db = useMemo(() => new DatabaseService(), []);
+  const supabase = useMemo(() => createBrowserClient(), []);
 
   // 計算値
   const currentWord = currentWordList[currentIndex] || null;
@@ -113,45 +114,71 @@ export function useFlashcard(
     }
   }, [canGoBack, currentIndex, handleIndexChange]);
 
-  // お気に入り管理 (簡素化実装)
+  // お気に入り管理
   const toggleFavorite = useCallback(async (wordId: string) => {
     try {
+      // 現在のユーザーを取得
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.error('ユーザー認証エラー:', userError);
+        return;
+      }
+
       const isFavorite = favorites.has(wordId);
       
-      // TODO: 実際のデータベース更新を実装
       if (isFavorite) {
+        // お気に入りから削除
+        await db.updateProgress(user.id, wordId, { is_favorite: false });
         setFavorites(prev => {
           const newSet = new Set(prev);
           newSet.delete(wordId);
           return newSet;
         });
+        devLog.log('お気に入りから削除:', { wordId, userId: user.id });
       } else {
+        // お気に入りに追加
+        await db.updateProgress(user.id, wordId, { is_favorite: true });
         setFavorites(prev => new Set(prev).add(wordId));
+        devLog.log('お気に入りに追加:', { wordId, userId: user.id });
       }
     } catch (error) {
       console.error('お気に入りの更新に失敗:', error);
+      devLog.warn('お気に入り更新エラー:', error);
     }
-  }, [favorites]);
+  }, [favorites, db, supabase]);
 
-  // 復習単語管理 (簡素化実装)
+  // 復習単語管理
   const toggleReviewWord = useCallback(async (wordId: string) => {
     try {
+      // 現在のユーザーを取得
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.error('ユーザー認証エラー:', userError);
+        return;
+      }
+
       const isReview = reviewWords.has(wordId);
       
-      // TODO: 実際のデータベース更新を実装
       if (isReview) {
+        // 復習リストから削除
+        await db.removeFromReview(user.id, wordId);
         setReviewWords(prev => {
           const newSet = new Set(prev);
           newSet.delete(wordId);
           return newSet;
         });
+        devLog.log('復習リストから削除:', { wordId, userId: user.id });
       } else {
+        // 復習リストに追加
+        await db.addToReview(user.id, wordId);
         setReviewWords(prev => new Set(prev).add(wordId));
+        devLog.log('復習リストに追加:', { wordId, userId: user.id });
       }
     } catch (error) {
       console.error('復習単語の更新に失敗:', error);
+      devLog.warn('復習単語更新エラー:', error);
     }
-  }, [reviewWords]);
+  }, [reviewWords, db, supabase]);
 
   // 日本語表示切り替え
   const toggleJapanese = useCallback(() => {
@@ -192,8 +219,7 @@ export function useFlashcard(
       await playWordAudio(currentWord.id);
       devLog.log('単語音声再生開始:', { wordId: currentWord.id, word: currentWord.word });
     } catch (error) {
-      console.error('音声再生に失敗:', error);
-      devLog.error('単語音声再生エラー:', error);
+      devLog.warn('単語音声再生エラー:', error);
     }
   }, [currentWord]);
 

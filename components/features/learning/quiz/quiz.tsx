@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Word, QuizQuestion } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/navigation/badge';
 import { Check, CheckCircle, Brain, ArrowRight, XCircle } from 'lucide-react';
 import { useAudioStore } from '@/lib/stores';
-import { AudioControls } from '@/components/shared/audio-controls';
 
 interface QuizProps {
   words: Word[];
@@ -72,17 +71,22 @@ export function Quiz({
   }, [words]);
 
   // 問題タイプの強制統一（既存の問題データがある場合の対策）
-  const normalizedQuestion = currentQuestion ? {
-    ...currentQuestion,
-    type: 'japanese_to_english' as const,
-    options: currentQuestion.type === 'meaning' 
-      ? generateJapaneseToEnglishOptions(currentQuestion.word)
-      : currentQuestion.options,
-    correct_answer: currentQuestion.type === 'meaning'
-      ? currentQuestion.word.word
-      : currentQuestion.correct_answer,
-    question: `${currentQuestion.word.japanese}の英語を選んでください`
-  } : null;
+  // 選択肢の再生成を防ぐため、useMemoでメモ化
+  const normalizedQuestion = useMemo(() => {
+    if (!currentQuestion) return null;
+    
+    return {
+      ...currentQuestion,
+      type: 'japanese_to_english' as const,
+      options: currentQuestion.type === 'meaning' 
+        ? generateJapaneseToEnglishOptions(currentQuestion.word)
+        : currentQuestion.options,
+      correct_answer: currentQuestion.type === 'meaning'
+        ? currentQuestion.word.word
+        : currentQuestion.correct_answer,
+      question: `${currentQuestion.word.japanese}の英語を選んでください`
+    };
+  }, [currentQuestion, generateJapaneseToEnglishOptions]);
 
   const generateQuestions = useCallback(() => {
     const newQuestions: QuizQuestion[] = [];
@@ -220,10 +224,6 @@ export function Quiz({
               </div>
             </div>
 
-            {/* 音声コントロール */}
-            <div className="flex items-center gap-3">
-              <AudioControls />
-            </div>
           </div>
 
           <div className="flex items-center justify-end mb-3">
@@ -237,7 +237,7 @@ export function Quiz({
           </div>
 
           {/* 進捗バー */}
-          <div className="w-full rounded-full h-2 overflow-hiddenw-full bg-muted rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
             <div
               className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
@@ -272,7 +272,7 @@ export function Quiz({
 
                 {/* 選択肢 */}
                 <div className="flex-1 space-y-3">
-                  {normalizedQuestion.options.map((option, index) => (
+                  {normalizedQuestion.options.map((option: string, index: number) => (
                     <Button
                       key={index}
                       variant="outline"
@@ -311,7 +311,7 @@ export function Quiz({
 
             {/* 結果表示 */}
             {showResult && (
-              <Card className={`mb-4 flex-shrink-0 border-2 ${
+              <Card className={`mt-4 mb-4 flex-shrink-0 border-2 ${
                 isCorrect
                   ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-700'
                   : 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200 dark:from-red-900/20 dark:to-rose-900/20 dark:border-red-700'

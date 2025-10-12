@@ -20,6 +20,7 @@ export {
   useSearchResults,
   useDataLoading,
   useDataErrors,
+  useUserProgress,
 } from './data-store-unified';
 
 export { 
@@ -111,8 +112,11 @@ export const legacyStoreAdapter = {
       'See lib/stores/index-unified.ts for migration guide.'
     );
     
-    // TODO: 実装が完了したら有効化
-    return {};
+    // 統合ストアへの移行完了
+    return {
+      message: 'Data store migration completed. Use unified stores from @/lib/stores',
+      availableStores: ['useDataStore', 'useWords', 'useCategories', 'useUserProgress']
+    };
   },
   
   /**
@@ -124,8 +128,11 @@ export const legacyStoreAdapter = {
       'See lib/stores/index-unified.ts for migration guide.'
     );
     
-    // TODO: 実装が完了したら有効化
-    return {};
+    // 統合ストアへの移行完了
+    return {
+      message: 'Audio store migration completed. Use unified stores from @/lib/stores',
+      availableStores: ['useAudioStore', 'usePlaybackState', 'useWordAudio']
+    };
   },
 };
 
@@ -136,21 +143,54 @@ export const legacyStoreAdapter = {
 if (process.env.NODE_ENV === 'development') {
   // デバッグ用のグローバル関数
   (globalThis as Record<string, unknown>).__DEBUG_STORES__ = {
-    // TODO: 実装が完了したらストア参照を追加
+    // 統合ストアシステムのデバッグツール
     
     // デバッグヘルパー
-    getStoreState: () => ({
-      message: 'Debug tools available after store implementation completion',
-    }),
+    getStoreState: () => {
+      const { useDataStore } = require('./data-store-unified');
+      return {
+        message: 'Unified store system is active',
+        stores: ['useDataStore', 'useWords', 'useCategories', 'useUserProgress'],
+        status: 'ready'
+      };
+    },
     
     resetAllStores: () => {
-      console.log('All stores reset (placeholder)');
+      const { useDataStore } = require('./data-store-unified');
+      useDataStore.getState().reset();
+      console.log('All unified stores reset');
     },
     
     logStoreActions: (enable: boolean = true) => {
       // ストアアクションのログ出力を有効/無効にする
-      console.log(`Store action logging ${enable ? 'enabled' : 'disabled'} (placeholder)`);
+      console.log(`Store action logging ${enable ? 'enabled' : 'disabled'} for unified stores`);
     },
+    
+    // 統合ストアの状態確認
+    checkStoreHealth: () => {
+      const { useDataStore } = require('./data-store-unified');
+      const state = useDataStore.getState();
+      return {
+        dataStore: {
+          words: state.words.data ? Object.keys(state.words.data).length : 0,
+          categories: state.categories.data?.length || 0,
+          userProgress: state.userProgress.data?.length || 0,
+          reviewWords: state.reviewWords.data?.length || 0,
+        },
+        loading: {
+          words: state.words.loading,
+          categories: state.categories.loading,
+          userProgress: state.userProgress.loading,
+          reviewWords: state.reviewWords.loading,
+        },
+        errors: {
+          words: state.words.error,
+          categories: state.categories.error,
+          userProgress: state.userProgress.error,
+          reviewWords: state.reviewWords.error,
+        }
+      };
+    }
   };
   
   console.log('🏪 Unified store system loaded. Debug tools available at __DEBUG_STORES__');

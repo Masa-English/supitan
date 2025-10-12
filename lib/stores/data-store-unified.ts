@@ -8,13 +8,14 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { DatabaseService } from '@/lib/api/database';
+import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
 import type { 
   DataStoreState, 
   SearchFilters, 
   AsyncState, 
   CacheState 
 } from '@/lib/types/stores-unified';
-import type { Word, CategoryWithStats, ReviewWord } from '@/lib/types';
+import type { Word, CategoryWithStats, ReviewWord, UserProgress } from '@/lib/types';
 
 // ============================================================================
 // 定数とユーティリティ
@@ -22,9 +23,10 @@ import type { Word, CategoryWithStats, ReviewWord } from '@/lib/types';
 
 /** キャッシュの有効期限（ミリ秒） */
 const CACHE_DURATION = {
-  WORDS: 10 * 60 * 1000,      // 10分
-  CATEGORIES: 30 * 60 * 1000, // 30分
-  REVIEW: 5 * 60 * 1000,      // 5分
+  WORDS: 15 * 60 * 1000,      // 15分（延長）
+  CATEGORIES: 60 * 60 * 1000, // 1時間（延長）
+  REVIEW: 10 * 60 * 1000,     // 10分（延長）
+  USER_PROGRESS: 5 * 60 * 1000, // 5分（ユーザー進捗は短め）
 } as const;
 
 /** 初期状態のヘルパー */
@@ -65,6 +67,7 @@ export const useDataStore = create<DataStoreState>()(
     words: createAsyncState<Record<string, Word[]>>({}),
     categories: createAsyncState<CategoryWithStats[]>([]),
     reviewWords: createAsyncState<ReviewWord[]>([]),
+    userProgress: createAsyncState<UserProgress[]>([]),
     
     search: {
       query: '',
@@ -272,6 +275,63 @@ export const useDataStore = create<DataStoreState>()(
       }
     },
 
+    fetchUserProgress: async (userId: string, forceRefresh = false) => {
+      const state = get();
+      const cacheKey = `user_progress_${userId}`;
+      const lastUpdated = state.cache.lastUpdated[cacheKey] || 0;
+      
+      // キャッシュチェック
+      if (
+        !forceRefresh &&
+        state.userProgress.data &&
+        state.userProgress.data.length >= 0 &&
+        isCacheValid(lastUpdated, CACHE_DURATION.USER_PROGRESS)
+      ) {
+        return;
+      }
+
+      set(state => ({
+        userProgress: {
+          ...state.userProgress,
+          loading: true,
+          error: null,
+        },
+      }));
+
+      try {
+        const db = new DatabaseService();
+        const userProgress = await db.getUserProgress(userId);
+        const now = Date.now();
+
+        set(state => ({
+          userProgress: {
+            data: userProgress,
+            loading: false,
+            error: null,
+          },
+          cache: {
+            ...state.cache,
+            lastUpdated: {
+              ...state.cache.lastUpdated,
+              [cacheKey]: now,
+            },
+          },
+        }));
+
+      } catch (error) {
+        const errorMessage = normalizeError(error);
+        console.error('Failed to fetch user progress:', error);
+
+        set(state => ({
+          userProgress: {
+            ...state.userProgress,
+            loading: false,
+            error: errorMessage,
+          },
+        }));
+      }
+    },
+
     // ============================================================================
     // データアクセサー
     // ============================================================================
@@ -308,9 +368,9 @@ export const useDataStore = create<DataStoreState>()(
       get().applyFilters();
     },
 
-    applyFilters: () => {
+    applyFilters: async () => {
       const state = get();
-      const { search, words } = state;
+      const { search, words, userProgress } = state;
       const { query, filters } = search;
       
       // 全単語を取得
@@ -341,22 +401,39 @@ export const useDataStore = create<DataStoreState>()(
         );
       }
 
-      // TODO: お気に入りフィルター（UserProgressから取得する必要がある）
-      if (filters.favoritesOnly) {
-        // UserProgressが利用可能になるまで一時的に無効化
-        filteredWords = [];
-      }
+      // UserProgressフィルター（お気に入り、習得済み、未学習）
+      if (userProgress.data && userProgress.data.length > 0) {
+        const progressMap = new Map(userProgress.data.map(p => [p.word_id, p]));
 
-      // TODO: 習得済みフィルター（UserProgressから取得する必要がある）
-      if (filters.masteredOnly) {
-        // UserProgressが利用可能になるまで一時的に無効化
-        filteredWords = [];
-      }
+        // お気に入りフィルター
+        if (filters.favoritesOnly) {
+          filteredWords = filteredWords.filter(word => {
+            const progress = progressMap.get(word.id);
+            return progress?.is_favorite === true;
+          });
+        }
 
-      // TODO: 未学習フィルター（UserProgressから取得する必要がある）
-      if (filters.unstudiedOnly) {
-        // UserProgressが利用可能になるまで一時的に無効化
-        // 全ての単語を未学習として扱う
+        // 習得済みフィルター
+        if (filters.masteredOnly) {
+          filteredWords = filteredWords.filter(word => {
+            const progress = progressMap.get(word.id);
+            return progress && (progress.mastery_level || 0) >= 0.8;
+          });
+        }
+
+        // 未学習フィルター
+        if (filters.unstudiedOnly) {
+          filteredWords = filteredWords.filter(word => {
+            const progress = progressMap.get(word.id);
+            return !progress || (progress.study_count || 0) === 0;
+          });
+        }
+      } else {
+        // UserProgressデータがない場合のフォールバック
+        if (filters.favoritesOnly || filters.masteredOnly) {
+          filteredWords = [];
+        }
+        // 未学習フィルターの場合は全ての単語を未学習として扱う
       }
 
       set(state => ({
@@ -399,11 +476,16 @@ export const useDataStore = create<DataStoreState>()(
       // カテゴリーを強制更新
       promises.push(get().fetchCategories(true));
 
-      // キャッシュされた全カテゴリーの単語を強制更新
+      // キャッシュされた全カテゴリーの単語を強制更新（並列実行数を制限）
       if (state.words.data) {
-        Object.keys(state.words.data).forEach(category => {
-          promises.push(get().fetchWords(category, true));
-        });
+        const categories = Object.keys(state.words.data);
+        // 一度に最大3つのカテゴリーを更新
+        const batchSize = 3;
+        for (let i = 0; i < categories.length; i += batchSize) {
+          const batch = categories.slice(i, i + batchSize);
+          const batchPromises = batch.map(category => get().fetchWords(category, true));
+          await Promise.all(batchPromises);
+        }
       }
 
       try {
@@ -422,6 +504,7 @@ export const useDataStore = create<DataStoreState>()(
         words: createAsyncState<Record<string, Word[]>>({}),
          categories: createAsyncState<CategoryWithStats[]>([]),
         reviewWords: createAsyncState<ReviewWord[]>([]),
+        userProgress: createAsyncState<UserProgress[]>([]),
         search: {
           query: '',
           filters: {
@@ -477,6 +560,7 @@ export const useDataLoading = () =>
     words: state.words.loading,
     categories: state.categories.loading,
     reviewWords: state.reviewWords.loading,
+    userProgress: state.userProgress.loading,
   }));
 
 /** エラー状態の取得 */
@@ -485,4 +569,9 @@ export const useDataErrors = () =>
     words: state.words.error,
     categories: state.categories.error,
     reviewWords: state.reviewWords.error,
+    userProgress: state.userProgress.error,
   }));
+
+/** ユーザー進捗データの取得 */
+export const useUserProgress = () => 
+  useDataStore(state => state.userProgress.data || []);

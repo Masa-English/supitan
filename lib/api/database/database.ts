@@ -420,10 +420,11 @@ export class DatabaseService {
 
   // 統計情報
   async getAppStats(userId: string): Promise<AppStats> {
-    const [words, progress, reviewWords] = await Promise.all([
+    const [words, progress, reviewWords, studySessions] = await Promise.all([
       this.getWords(),
       this.getUserProgress(userId),
-      this.getReviewWords(userId)
+      this.getReviewWords(userId),
+      this.getStudySessions(userId)
     ]);
 
     const totalWords = words.length;
@@ -431,6 +432,10 @@ export class DatabaseService {
     const masteredWords = progress.filter(p => (p.mastery_level || 0) >= 0.8).length;
     const studyTimeMinutes = progress.reduce((total, p) => total + ((p.study_count || 0) * 2), 0); // 仮の計算
     const reviewCount = reviewWords.length;
+
+    // ストリーク計算
+    const { currentStreak, longestStreak } = this.calculateStreaks(studySessions);
+    const totalStudySessions = studySessions.length;
 
     return {
       total_words: totalWords,
@@ -441,15 +446,81 @@ export class DatabaseService {
       total_words_studied: studiedWords,
       total_correct_answers: progress.reduce((total, p) => total + (p.correct_count || 0), 0),
       total_incorrect_answers: progress.reduce((total, p) => total + (p.incorrect_count || 0), 0),
-      current_streak: 0, // TODO: 実装
-      longest_streak: 0, // TODO: 実装
-      total_study_sessions: 0, // TODO: 実装
+      current_streak: currentStreak,
+      longest_streak: longestStreak,
+      total_study_sessions: totalStudySessions,
       average_accuracy: studiedWords > 0 ? 
         (progress.reduce((total, p) => total + (p.correct_count || 0), 0) / 
          progress.reduce((total, p) => total + (p.correct_count || 0) + (p.incorrect_count || 0), 0)) * 100 : 0,
       words_mastered: masteredWords,
       favorite_words_count: progress.filter(p => p.is_favorite).length
     };
+  }
+
+  // 学習セッション取得
+  async getStudySessions(userId: string): Promise<any[]> {
+    const { data, error } = await this.supabase
+      .from('study_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('start_time', { ascending: false });
+
+    if (error) {
+      console.error('getStudySessions error:', error);
+      return [];
+    }
+    return data || [];
+  }
+
+  // ストリーク計算
+  calculateStreaks(studySessions: any[]): { currentStreak: number; longestStreak: number } {
+    if (studySessions.length === 0) {
+      return { currentStreak: 0, longestStreak: 0 };
+    }
+
+    // 日付でソート（古い順）
+    const sortedSessions = studySessions
+      .map(session => ({
+        ...session,
+        date: new Date(session.start_time).toDateString()
+      }))
+      .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
+
+    // ユニークな日付のセッションを取得
+    const uniqueDates = Array.from(new Set(sortedSessions.map(s => s.date)));
+    
+    if (uniqueDates.length === 0) {
+      return { currentStreak: 0, longestStreak: 0 };
+    }
+
+    // 現在の日付
+    const today = new Date().toDateString();
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString();
+
+    // 現在のストリーク計算
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+
+    // 最新のセッション日から逆算
+    for (let i = uniqueDates.length - 1; i >= 0; i--) {
+      const sessionDate = uniqueDates[i];
+      const expectedDate = new Date(Date.now() - (uniqueDates.length - 1 - i) * 24 * 60 * 60 * 1000).toDateString();
+      
+      if (sessionDate === expectedDate || sessionDate === today || sessionDate === yesterday) {
+        tempStreak++;
+        if (i === uniqueDates.length - 1) {
+          currentStreak = tempStreak;
+        }
+      } else {
+        longestStreak = Math.max(longestStreak, tempStreak);
+        tempStreak = 0;
+      }
+    }
+
+    longestStreak = Math.max(longestStreak, tempStreak);
+
+    return { currentStreak, longestStreak };
   }
 
   // プロフィール関連

@@ -73,6 +73,9 @@ export interface DataStoreState extends BaseStoreActions {
   // 復習単語
   reviewWords: AsyncState<ReviewWord[]>;
   
+  // ユーザー進捗
+  userProgress: AsyncState<UserProgress[]>;
+  
   // 検索・フィルタリング
   search: {
     query: string;
@@ -87,10 +90,11 @@ export interface DataStoreState extends BaseStoreActions {
   fetchWords: (category: string, forceRefresh?: boolean) => Promise<void>;
   fetchCategories: (forceRefresh?: boolean) => Promise<void>;
   fetchReviewWords: (userId: string, forceRefresh?: boolean) => Promise<void>;
+  fetchUserProgress: (userId: string, forceRefresh?: boolean) => Promise<void>;
   getWordsByCategory: (category: string) => Word[];
   searchWords: (query: string) => void;
   updateFilters: (filters: Partial<SearchFilters>) => void;
-  applyFilters: () => void;
+  applyFilters: () => Promise<void>;
   clearSearch: () => void;
   clearCache: () => void;
   refreshData: () => Promise<void>;
