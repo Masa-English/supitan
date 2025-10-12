@@ -41,7 +41,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [reviewWords, setReviewWords] = useState<Set<string>>(new Set());
   const [flippedExamples, setFlippedExamples] = useState<Set<string>>(new Set());
-  const [showJapanese, setShowJapanese] = useState(true);
+  const [showJapanese, setShowJapanese] = useState(true); // 日本語表示切り替え default 展開
   
   // もう一度学習したい問題を記録する状態
   const [incorrectWords, setIncorrectWords] = useState<Word[]>([]);
@@ -115,13 +115,11 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     setCurrentWordList(words);
     setCurrentIndex(0);
     setIncorrectWords([]);
-    setIsInRetryMode(false);
   }, [words]);
 
   // 単語が変わったら例文の表示状態と日本語表示状態をリセット
   useEffect(() => {
     setFlippedExamples(new Set());
-    setShowJapanese(false);
   }, [currentIndex]);
 
   const handlePrevious = useCallback(() => {
