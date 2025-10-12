@@ -1,7 +1,8 @@
 User-agent: *
-Disallow: /api/
-Disallow: /admin/
-Disallow: /_next/
-Allow: /
+Disallow: /
 
-Sitemap: http://localhost:3000/sitemap.xml
+# 検索エンジンからのクロールを完全に禁止
+# すべてのページへのアクセスを拒否
+
+# サイトマップも無効化（検索エンジンに発見されないように）
+# Sitemap: http://localhost:3000/sitemap.xml

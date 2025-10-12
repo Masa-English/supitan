@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
-import Link from 'next/link';
+// import Link from 'next/link';
 import { optimizedSectionService } from '@/lib/api/services/optimized-section-service';
 import { SectionOptionsClient } from '@/components/features/learning/section-optimized/section-options-client';
 

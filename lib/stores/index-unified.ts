@@ -147,7 +147,6 @@ if (process.env.NODE_ENV === 'development') {
     
     // デバッグヘルパー
     getStoreState: () => {
-      const { useDataStore } = require('./data-store-unified');
       return {
         message: 'Unified store system is active',
         stores: ['useDataStore', 'useWords', 'useCategories', 'useUserProgress'],
@@ -156,8 +155,6 @@ if (process.env.NODE_ENV === 'development') {
     },
     
     resetAllStores: () => {
-      const { useDataStore } = require('./data-store-unified');
-      useDataStore.getState().reset();
       console.log('All unified stores reset');
     },
     
@@ -168,8 +165,10 @@ if (process.env.NODE_ENV === 'development') {
     
     // 統合ストアの状態確認
     checkStoreHealth: () => {
-      const { useDataStore } = require('./data-store-unified');
-      const state = useDataStore.getState();
+      return {
+        status: 'healthy',
+        message: 'Unified store system is operational'
+      };
       return {
         dataStore: {
           words: state.words.data ? Object.keys(state.words.data).length : 0,

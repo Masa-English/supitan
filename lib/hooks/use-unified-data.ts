@@ -78,8 +78,8 @@ export function useUnifiedData(options: UseUnifiedDataOptions = {}): UseUnifiedD
     updateInterval = 300000, // 5分
   } = options;
 
-  const supabase = createBrowserClient();
-  const db = useMemo(() => new DatabaseService(), []);
+  const _supabase = createBrowserClient();
+  const _db = useMemo(() => new DatabaseService(), []);
 
   // グローバルストアからデータを取得
   const {
@@ -118,8 +118,8 @@ export function useUnifiedData(options: UseUnifiedDataOptions = {}): UseUnifiedD
 
   // キャッシュ状態のチェック
   const cacheInfo = useMemo(() => {
-    const now = Date.now();
-    const cacheExpiry = 10 * 60 * 1000; // 10分
+    // const now = Date.now();
+    // const cacheExpiry = 10 * 60 * 1000; // 10分
 
     return {
       wordsCached: localWords.length > 0 && !loading.words,

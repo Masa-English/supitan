@@ -40,7 +40,7 @@ export function useRealtimeData(options: UseRealtimeDataOptions): UseRealtimeDat
     userId,
     category,
     autoRefresh = true,
-    refreshInterval = 30000, // 30秒
+    refreshInterval = 300000, // 5分（30秒から5分に延長）
   } = options;
 
   const supabase = createBrowserClient();
@@ -48,7 +48,7 @@ export function useRealtimeData(options: UseRealtimeDataOptions): UseRealtimeDat
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isConnectedRef = useRef(false);
 
-  const { fetchWords, fetchCategories, refreshData } = useDataStore();
+  const { fetchWords, fetchCategories: _fetchCategories, refreshData } = useDataStore();
 
   // データリフレッシュ関数
   const refresh = useCallback(async () => {
@@ -132,7 +132,7 @@ export function useRealtimeData(options: UseRealtimeDataOptions): UseRealtimeDat
         }
 
         // チャンネルにサブスクライブ
-        const subscription = channel.subscribe((status) => {
+        const _subscription = channel.subscribe((status) => {
           console.log(`[Realtime] Channel status:`, status);
           isConnectedRef.current = status === 'SUBSCRIBED';
         });

@@ -6,8 +6,7 @@ import { Zap, ArrowLeft, User, LogOut, Settings, UserCircle, Menu } from 'lucide
 import { useRouter, usePathname } from 'next/navigation';
 import { useNavigationStore } from '@/lib/stores';
 import { ThemeSwitcher } from '@/components/shared/theme-switcher';
-import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
-import { User as SupabaseUser } from '@supabase/supabase-js';
+import { useAuth } from '@/lib/providers/auth-provider';
 import { useHeader } from '@/lib/contexts/header-context';
 import { signOut } from '@/app/(auth)/auth/actions';
 
@@ -57,9 +56,8 @@ export function Header({
   const router = useRouter();
   const pathname = usePathname();
   const { toggleSideMenu } = useHeader();
-  const [currentUser, setCurrentUser] = useState<SupabaseUser | null>(null);
+  const { user: currentUser } = useAuth();
   const [isClient, setIsClient] = useState(false);
-  const supabase = createBrowserClient();
   const startNavigating = useNavigationStore((s) => s.start);
   
   // デフォルト値を使用（SSR/CSR互換性のため）
@@ -74,49 +72,7 @@ export function Header({
     setIsClient(true);
   }, []);
 
-  useEffect((): (() => void) | undefined => {
-    // クライアントサイドでのみ実行
-    if (isClient) {
-      // 現在のユーザーを取得
-      const getCurrentUser = async () => {
-        try {
-          const { data: { user }, error } = await supabase.auth.getUser();
-          if (error) {
-            const message = String((error as { message?: string }).message || '');
-            const code = String((error as { code?: string }).code || '');
-            const isExpected =
-              message.includes('Refresh Token Not Found') ||
-              message.includes('Invalid Refresh Token') ||
-              message.includes('Auth session missing') ||
-              code === 'refresh_token_not_found';
-            if (!isExpected && process.env.NODE_ENV === 'development') {
-              console.error('ユーザー取得エラー:', error);
-            }
-            return;
-          }
-          if (user) {
-            setCurrentUser(user);
-          }
-        } catch (error) {
-          if (process.env.NODE_ENV === 'development') {
-            console.error('ユーザー取得エラー:', error);
-          }
-        }
-      };
-
-      getCurrentUser();
-
-      // 認証状態の変更を監視
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          setCurrentUser(session?.user || null);
-        }
-      );
-
-      return () => subscription.unsubscribe();
-    }
-    return undefined;
-  }, [isClient, supabase.auth]);
+  // 認証状態はAuthProviderで管理されるため、このuseEffectは不要
 
   const handleSignOut = async () => {
     try {

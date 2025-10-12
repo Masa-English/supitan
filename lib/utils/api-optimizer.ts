@@ -6,7 +6,7 @@
 'use client';
 
 interface PendingRequest {
-  promise: Promise<any>;
+  promise: Promise<unknown>;
   timestamp: number;
 }
 
@@ -14,9 +14,9 @@ interface BatchRequest {
   key: string;
   requests: Array<{
     id: string;
-    params: any;
-    resolve: (value: any) => void;
-    reject: (error: any) => void;
+    params: unknown;
+    resolve: (value: unknown) => void;
+    reject: (error: unknown) => void;
   }>;
   timeout: NodeJS.Timeout;
 }
@@ -25,7 +25,7 @@ export class APIOptimizer {
   private static instance: APIOptimizer;
   private pendingRequests = new Map<string, PendingRequest>();
   private batchRequests = new Map<string, BatchRequest>();
-  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private cache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
   private requestStats = {
     totalRequests: 0,
     cacheHits: 0,
@@ -94,8 +94,8 @@ export class APIOptimizer {
   async batchRequest<T>(
     batchKey: string,
     requestId: string,
-    params: any,
-    batchFn: (requests: Array<{ id: string; params: any }>) => Promise<Array<{ id: string; data: T }>>,
+    params: unknown,
+    batchFn: (requests: Array<{ id: string; params: unknown }>) => Promise<Array<{ id: string; data: T }>>,
     batchDelay: number = 100 // 100msデフォルト
   ): Promise<T> {
     return new Promise((resolve, reject) => {
@@ -125,7 +125,7 @@ export class APIOptimizer {
    */
   private async processBatch<T>(
     batch: BatchRequest,
-    batchFn: (requests: Array<{ id: string; params: any }>) => Promise<Array<{ id: string; data: T }>>
+    batchFn: (requests: Array<{ id: string; params: unknown }>) => Promise<Array<{ id: string; data: T }>>
   ) {
     try {
       const requests = batch.requests.map(req => ({ id: req.id, params: req.params }));
@@ -284,7 +284,7 @@ export async function optimizedFetch<T>(
 export async function batchedApiCall<T>(
   endpoint: string,
   requestId: string,
-  params: any,
+  params: unknown,
   batchDelay: number = 100
 ): Promise<T> {
   return apiOptimizer.batchRequest(

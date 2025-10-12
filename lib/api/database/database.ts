@@ -458,7 +458,7 @@ export class DatabaseService {
   }
 
   // 学習セッション取得
-  async getStudySessions(userId: string): Promise<any[]> {
+  async getStudySessions(userId: string): Promise<unknown[]> {
     const { data, error } = await this.supabase
       .from('study_sessions')
       .select('*')
@@ -473,7 +473,7 @@ export class DatabaseService {
   }
 
   // ストリーク計算
-  calculateStreaks(studySessions: any[]): { currentStreak: number; longestStreak: number } {
+  calculateStreaks(studySessions: unknown[]): { currentStreak: number; longestStreak: number } {
     if (studySessions.length === 0) {
       return { currentStreak: 0, longestStreak: 0 };
     }

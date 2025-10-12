@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
+// import { redirect } from 'next/navigation';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/navigation/badge';
@@ -16,7 +16,7 @@ import { SectionLink } from '@/app/(dashboard)/learning/[category]/options/secti
 import { RandomInput } from '@/app/(dashboard)/learning/[category]/options/random-input';
 import { useSmartRealtimeWords } from '@/lib/hooks/use-smart-realtime';
 import { useDataStore } from '@/lib/stores/data-store-unified';
-import type { Word } from '@/lib/types';
+// import type { Word } from '@/lib/types';
 
 interface SectionInfo {
   section: string;
@@ -42,10 +42,10 @@ export function SectionOptionsClient({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
-  const { refreshData: storeRefreshData } = useDataStore();
+  const { refreshData: _storeRefreshData } = useDataStore();
   
   // スマートリアルタイム更新の設定
-  const { isConnected, refresh: realtimeRefresh, stats } = useSmartRealtimeWords(category);
+  const { isConnected, refresh: _realtimeRefresh, stats } = useSmartRealtimeWords(category);
 
   // データリフレッシュ関数
   const refreshData = useCallback(async () => {
@@ -55,7 +55,7 @@ export function SectionOptionsClient({
       const response = await fetch(`/api/sections/${encodeURIComponent(category)}`, {
         method: 'GET',
         headers: {
-          'Cache-Control': 'no-cache',
+          'Cache-Control': 'max-age=300', // 5分キャッシュ
         },
       });
       

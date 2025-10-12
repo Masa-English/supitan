@@ -5,11 +5,11 @@
 
 import { createClient as createBrowserClient } from '../supabase/client';
 import { createServiceClient } from '../supabase/service';
-import { Word, UserProgress, StudySession, ReviewWord, ReviewSession, AppStats, UserProfile } from '@/lib/types';
+import { Word, UserProgress, ReviewWord } from '@/lib/types';
 
 export class OptimizedDatabaseService {
   private supabase = this.getSupabaseClient();
-  private queryCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private queryCache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
 
   private getSupabaseClient() {
     // ビルド時やサーバーサイドではサービスロールクライアントを使用
@@ -160,7 +160,7 @@ export class OptimizedDatabaseService {
    */
   async getCategoriesOptimized(): Promise<{ category: string; count: number; englishName: string; pos: string; description: string; color: string; icon: string }[]> {
     const cacheKey = 'categories_with_counts';
-    const cached = this.getCached<any[]>(cacheKey);
+    const cached = this.getCached<{ category: string; count: number; englishName: string; pos: string; description: string; color: string; icon: string }[]>(cacheKey);
     if (cached) return cached;
 
     try {
@@ -286,16 +286,16 @@ export class OptimizedDatabaseService {
   }): Promise<{
     words: Word[];
     userProgress?: UserProgress[];
-    categories?: any[];
+    categories?: { category: string; count: number; englishName: string; pos: string; description: string; color: string; icon: string }[];
     reviewWords?: ReviewWord[];
   }> {
     const { type, category, userId } = params;
     const cacheKey = `page_data_${type}_${category || 'all'}_${userId || 'anonymous'}`;
-    const cached = this.getCached<any>(cacheKey);
+    const cached = this.getCached<{ words: Word[]; userProgress?: UserProgress[]; categories?: { category: string; count: number; englishName: string; pos: string; description: string; color: string; icon: string }[]; reviewWords?: ReviewWord[] }>(cacheKey);
     if (cached) return cached;
 
     try {
-      const promises: Promise<any>[] = [];
+      const promises: Promise<unknown>[] = [];
 
       // 単語データの取得
       if (type === 'category' || type === 'quiz' || type === 'flashcard') {
@@ -324,7 +324,7 @@ export class OptimizedDatabaseService {
 
       const results = await Promise.all(promises);
       
-      const response: any = {
+      const response: { words: Word[]; userProgress?: UserProgress[]; categories?: { category: string; count: number; englishName: string; pos: string; description: string; color: string; icon: string }[]; reviewWords?: ReviewWord[] } = {
         words: results[0] || [],
       };
 

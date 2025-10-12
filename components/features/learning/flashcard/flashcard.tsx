@@ -5,8 +5,9 @@ import { Word } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Volume2, Eye, EyeOff, BookOpen } from 'lucide-react';
 import { AudioControls } from '@/components/shared/audio-controls';
-import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
+import { useAuth } from '@/lib/providers/auth-provider';
 import { DatabaseService } from '@/lib/api/database';
+import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
 import { useAudioStore } from '@/lib/stores';
 
 import { fetchAudioFromStorage } from '@/lib/utils/audio';
@@ -54,40 +55,16 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
   const total = Math.max(currentWordList.length, 1);
   const progress = ((currentIndex + 1) / total) * 100;
 
+  const { user } = useAuth();
+
   // お気に入りと復習状態を読み込み
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        const supabase = createBrowserClient();
-
-        let user = null;
-        try {
-          const { data: { user: userData }, error } = await supabase.auth.getUser();
-          if (error) {
-            const message = String((error as { message?: string }).message || '');
-            const code = String((error as { code?: string }).code || '');
-            const isExpected =
-              message.includes('Refresh Token Not Found') ||
-              message.includes('Invalid Refresh Token') ||
-              message.includes('Auth session missing') ||
-              code === 'refresh_token_not_found';
-            if (!isExpected && process.env.NODE_ENV === 'development') {
-              console.error('ユーザー取得エラー:', error);
-            }
-            return;
-          }
-          if (userData) {
-            user = userData;
-          }
-        } catch (e) {
-          if (process.env.NODE_ENV === 'development') {
-            console.debug('Session check skipped for user data loading', e);
-          }
-          return;
-        }
-
         if (!user) return;
 
+        const supabase = createBrowserClient();
+        
         // お気に入りを取得
         const { data: progressData, error: progressError } = await supabase
           .from('user_progress')
@@ -131,7 +108,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [db, favorites.size, reviewWords.size]);
+  }, [db, favorites.size, reviewWords.size, user]);
 
   // 初期化時にcurrentWordListを設定
   useEffect(() => {

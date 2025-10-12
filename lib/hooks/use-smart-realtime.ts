@@ -48,7 +48,7 @@ export function useSmartRealtime(options: UseSmartRealtimeOptions): UseSmartReal
     userId,
     category,
     refreshInterval = 0, // デフォルトはリアルタイムのみ
-    batchInterval = 1000, // 1秒間隔でバッチ処理
+    batchInterval = 2000, // 2秒間隔でバッチ処理（1秒から2秒に延長）
     maxBatchSize = 10,
   } = options;
 
@@ -232,7 +232,7 @@ export function useSmartRealtime(options: UseSmartRealtimeOptions): UseSmartReal
         }
 
         // チャンネルにサブスクライブ
-        const subscription = channel.subscribe((status) => {
+        const _subscription = channel.subscribe((status) => {
           console.log(`[SmartRealtime] Channel status:`, status);
           isConnectedRef.current = status === 'SUBSCRIBED';
         });

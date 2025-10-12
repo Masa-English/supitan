@@ -8,7 +8,7 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { DatabaseService } from '@/lib/api/database';
-import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
+// import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
 import type { 
   DataStoreState, 
   SearchFilters, 
