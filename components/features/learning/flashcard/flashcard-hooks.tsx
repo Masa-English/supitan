@@ -75,7 +75,7 @@ export function useFlashcard(
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [reviewWords, setReviewWords] = useState<Set<string>>(new Set());
   const [flippedExamples, setFlippedExamples] = useState<Set<string>>(new Set());
-  const [showJapanese, setShowJapanese] = useState(false);
+  const [showJapanese, setShowJapanese] = useState(true);
   const [incorrectWords, setIncorrectWords] = useState<Word[]>([]);
   const [isInRetryMode, setIsInRetryMode] = useState(false);
   const [currentWordList, setCurrentWordList] = useState<Word[]>(words);

@@ -40,7 +40,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [reviewWords, setReviewWords] = useState<Set<string>>(new Set());
   const [flippedExamples, setFlippedExamples] = useState<Set<string>>(new Set());
-  const [showJapanese, setShowJapanese] = useState(false);
+  const [showJapanese, setShowJapanese] = useState(true);
   
   // もう一度学習したい問題を記録する状態
   const [incorrectWords, setIncorrectWords] = useState<Word[]>([]);
