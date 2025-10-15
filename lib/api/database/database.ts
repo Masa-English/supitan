@@ -458,7 +458,7 @@ export class DatabaseService {
   }
 
   // 学習セッション取得
-  async getStudySessions(userId: string): Promise<unknown[]> {
+  async getStudySessions(userId: string): Promise<StudySession[]> {
     const { data, error } = await this.supabase
       .from('study_sessions')
       .select('*')
@@ -469,18 +469,18 @@ export class DatabaseService {
       console.error('getStudySessions error:', error);
       return [];
     }
-    return data || [];
+    return (data || []) as StudySession[];
   }
 
   // ストリーク計算
-  calculateStreaks(studySessions: unknown[]): { currentStreak: number; longestStreak: number } {
+  calculateStreaks(studySessions: StudySession[]): { currentStreak: number; longestStreak: number } {
     if (studySessions.length === 0) {
       return { currentStreak: 0, longestStreak: 0 };
     }
 
     // 日付でソート（古い順）
     const sortedSessions = studySessions
-      .map(session => ({
+      .map((session: StudySession) => ({
         ...session,
         date: new Date(session.start_time).toDateString()
       }))

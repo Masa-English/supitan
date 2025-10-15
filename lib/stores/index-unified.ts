@@ -167,27 +167,8 @@ if (process.env.NODE_ENV === 'development') {
     checkStoreHealth: () => {
       return {
         status: 'healthy',
-        message: 'Unified store system is operational'
-      };
-      return {
-        dataStore: {
-          words: state.words.data ? Object.keys(state.words.data).length : 0,
-          categories: state.categories.data?.length || 0,
-          userProgress: state.userProgress.data?.length || 0,
-          reviewWords: state.reviewWords.data?.length || 0,
-        },
-        loading: {
-          words: state.words.loading,
-          categories: state.categories.loading,
-          userProgress: state.userProgress.loading,
-          reviewWords: state.reviewWords.loading,
-        },
-        errors: {
-          words: state.words.error,
-          categories: state.categories.error,
-          userProgress: state.userProgress.error,
-          reviewWords: state.reviewWords.error,
-        }
+        message: 'Unified store system is operational',
+        stores: ['useDataStore', 'useWords', 'useCategories', 'useUserProgress', 'useReviewWords']
       };
     }
   };

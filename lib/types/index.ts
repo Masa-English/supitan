@@ -18,8 +18,6 @@ export type {
   ReviewSession,
   Category,
   CategoryWithStats,
-  Trivia,
-  UserTriviaProgress,
 } from './database';
 
 // API types

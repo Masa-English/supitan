@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import type { Word } from '@/lib/types';
 import { Flashcard } from '@/components/features/learning/flashcard/flashcard';
 import { CompletionModal } from '@/components/features/learning/shared/completion-modal';
+import { Review } from '@/components/features/learning/review/review';
 import { DatabaseService } from '@/lib/api/database/database';
 import { ReloadButton } from '@/components/shared/reload-button';
 
@@ -33,6 +34,7 @@ export default function FlashcardClient({ category, words, allSections }: Props)
   const db = new DatabaseService();
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
+  const [showReviewMode, setShowReviewMode] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const startNavigating = useNavigationStore((s) => s.start);
@@ -112,8 +114,7 @@ export default function FlashcardClient({ category, words, allSections }: Props)
 
   const handleComplete = async (results: { wordId: string; correct: boolean }[]) => {
     setSessionResults(results);
-    setShowCompletionModal(true);
-    
+
     // ユーザー情報がある場合のみセッションを保存
     if (user?.id) {
       try {
@@ -169,6 +170,20 @@ export default function FlashcardClient({ category, words, allSections }: Props)
         console.warn('セッション保存に失敗しましたが、継続します:', error);
       }
     }
+
+    // 不正解の単語がある場合、復習モードを表示
+    const incorrectResults = results.filter(r => !r.correct);
+    if (incorrectResults.length > 0) {
+      setShowReviewMode(true);
+      return;
+    }
+
+    setShowCompletionModal(true);
+  };
+
+  const handleReviewComplete = () => {
+    setShowReviewMode(false);
+    setShowCompletionModal(true);
   };
 
   const handleNextSection = () => {
@@ -239,7 +254,11 @@ export default function FlashcardClient({ category, words, allSections }: Props)
       </div>
 
       <main className="flex-1 flex flex-col justify-around sm:justify-around pb-safe">
-        <Flashcard words={words} onComplete={handleComplete} category={decodedCategory} />
+        {showReviewMode ? (
+          <Review onComplete={handleReviewComplete} />
+        ) : (
+          <Flashcard words={words} onComplete={handleComplete} category={decodedCategory} />
+        )}
       </main>
       {showCompletionModal && (
         <CompletionModal

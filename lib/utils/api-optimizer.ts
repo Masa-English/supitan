@@ -10,12 +10,12 @@ interface PendingRequest {
   timestamp: number;
 }
 
-interface BatchRequest {
+interface BatchRequest<T> {
   key: string;
   requests: Array<{
     id: string;
     params: unknown;
-    resolve: (value: unknown) => void;
+    resolve: (value: T) => void;
     reject: (error: unknown) => void;
   }>;
   timeout: NodeJS.Timeout;
@@ -24,7 +24,7 @@ interface BatchRequest {
 export class APIOptimizer {
   private static instance: APIOptimizer;
   private pendingRequests = new Map<string, PendingRequest>();
-  private batchRequests = new Map<string, BatchRequest>();
+  private batchRequests = new Map<string, BatchRequest<unknown>>();
   private cache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
   private requestStats = {
     totalRequests: 0,
@@ -63,7 +63,7 @@ export class APIOptimizer {
     const pending = this.pendingRequests.get(key);
     if (pending) {
       this.requestStats.deduplicatedRequests++;
-      return pending.promise;
+      return pending.promise as Promise<T>;
     }
 
     // 新しいリクエストを作成
@@ -103,14 +103,14 @@ export class APIOptimizer {
 
       if (existingBatch) {
         // 既存のバッチに追加
-        existingBatch.requests.push({ id: requestId, params, resolve, reject });
+        existingBatch.requests.push({ id: requestId, params, resolve: resolve as (value: unknown) => void, reject });
         return;
       }
 
       // 新しいバッチを作成
-      const batch: BatchRequest = {
+      const batch: BatchRequest<unknown> = {
         key: batchKey,
-        requests: [{ id: requestId, params, resolve, reject }],
+        requests: [{ id: requestId, params, resolve: resolve as (value: unknown) => void, reject }],
         timeout: setTimeout(() => {
           this.processBatch(batch, batchFn);
         }, batchDelay),
@@ -124,7 +124,7 @@ export class APIOptimizer {
    * バッチリクエストを処理
    */
   private async processBatch<T>(
-    batch: BatchRequest,
+    batch: BatchRequest<T>,
     batchFn: (requests: Array<{ id: string; params: unknown }>) => Promise<Array<{ id: string; data: T }>>
   ) {
     try {

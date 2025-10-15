@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import type { Word, QuizQuestion } from '@/lib/types';
 import { Quiz } from '@/components/features/learning/quiz';
 import { CompletionModal } from '@/components/features/learning/shared';
+import { Review } from '@/components/features/learning/review/review';
 import { DatabaseService } from '@/lib/api/database';
 import { useAuth } from '@/lib/hooks/use-auth';
 // import { AudioPreloader } from '@/components/learning/audio-preloader';
@@ -24,6 +25,7 @@ export default function QuizClient({ category, words, initialQuestions, allSecti
   const { user, loading: authLoading, error: authError } = useAuth();
   const db = new DatabaseService();
   const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [showReviewMode, setShowReviewMode] = useState(false);
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
   const router = useRouter();
   const pathname = usePathname();
@@ -132,6 +134,20 @@ export default function QuizClient({ category, words, initialQuestions, allSecti
     } catch (error) {
       console.error('学習完了処理エラー:', error);
     }
+
+    // 不正解の単語がある場合、復習モードを表示
+    const incorrectResults = results.filter(r => !r.correct);
+    if (incorrectResults.length > 0) {
+      setShowReviewMode(true);
+      return;
+    }
+
+    setShowCompletionModal(true);
+  };
+
+  const handleReviewComplete = () => {
+    setShowReviewMode(false);
+    setShowCompletionModal(true);
   };
 
   const handleAddToReview = async (wordId: string) => {
@@ -198,7 +214,11 @@ export default function QuizClient({ category, words, initialQuestions, allSecti
     <div className="min-h-screen bg-background">
       {/* 音声ファイルの事前読み込みを一時的に無効化（無限ローディング防止） */}
       {/* <AudioPreloader words={words} /> */}
-      <Quiz words={words} onComplete={handleComplete} onAddToReview={handleAddToReview} initialQuestions={initialQuestions} />
+      {showReviewMode ? (
+        <Review onComplete={handleReviewComplete} />
+      ) : (
+        <Quiz words={words} onComplete={handleComplete} onAddToReview={handleAddToReview} initialQuestions={initialQuestions} />
+      )}
       {/* 学習完了後のボタン操作で画面遷移するため、視覚的に遷移中を示すオーバーレイはグローバルで表示される */}
       {showCompletionModal && (
         <CompletionModal

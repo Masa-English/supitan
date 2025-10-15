@@ -238,30 +238,15 @@ export class OptimizedDatabaseService {
     if (cached) return cached;
 
     try {
-      const now = new Date().toISOString();
-      
       const { data, error } = await this.supabase
-        .from('user_progress')
-        .select(`
-          word_id,
-          next_review_at,
-          mastery_level,
-          study_count,
-          last_studied_at
-        `)
+        .from('review_words')
+        .select('*')
         .eq('user_id', userId)
-        .lte('next_review_at', now)
-        .order('next_review_at', { ascending: true });
+        .order('added_at', { ascending: false });
 
       if (error) throw error;
 
-      const reviewWords = (data || []).map(item => ({
-        word_id: item.word_id,
-        next_review_at: item.next_review_at,
-        mastery_level: item.mastery_level || 0,
-        study_count: item.study_count || 0,
-        last_studied_at: item.last_studied_at,
-      }));
+      const reviewWords = (data || []) as ReviewWord[];
 
       // キャッシュに保存（2分間）
       this.setCache(cacheKey, reviewWords, 120000);
@@ -325,17 +310,17 @@ export class OptimizedDatabaseService {
       const results = await Promise.all(promises);
       
       const response: { words: Word[]; userProgress?: UserProgress[]; categories?: { category: string; count: number; englishName: string; pos: string; description: string; color: string; icon: string }[]; reviewWords?: ReviewWord[] } = {
-        words: results[0] || [],
+        words: (results[0] as Word[]) || [],
       };
 
       let index = 1;
       if (type === 'category') {
-        response.categories = results[index++] || [];
+        response.categories = (results[index++] as { category: string; count: number; englishName: string; pos: string; description: string; color: string; icon: string }[]) || [];
       }
       if (userId) {
-        response.userProgress = results[index++] || [];
+        response.userProgress = (results[index++] as UserProgress[]) || [];
         if (type === 'review') {
-          response.reviewWords = results[index++] || [];
+          response.reviewWords = (results[index++] as ReviewWord[]) || [];
         }
       }
 

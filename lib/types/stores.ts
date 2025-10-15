@@ -1,6 +1,13 @@
 // Store-related types
-import type { User, UserProfile, UserProgress, Word, Category } from './database';
+import type { UserProfile, UserProgress, Word, Category } from './database';
 import type { AppStats } from './api';
+
+// 認証ユーザー型（SupabaseのUser型に準拠）
+export interface User {
+  id: string;
+  email?: string;
+  created_at?: string;
+}
 
 // User store types
 export interface UserState {

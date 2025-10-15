@@ -61,14 +61,26 @@ export function usePrefetchData(options: PrefetchDataOptions): PrefetchDataResul
           }
         }
 
-        // ユーザー進捗の事前取得
-        if (options.userProgress && !userProgress.data) {
-          promises.push(fetchUserProgress());
+        // ユーザー認証状態を確認（実際の認証状態取得ロジックに置き換え）
+        // ここでは簡易的に実装
+        let currentUserId: string | null = null;
+        try {
+          const { createClient } = await import('@/lib/api/supabase/client');
+          const supabase = createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          currentUserId = user?.id || null;
+        } catch (error) {
+          console.warn('認証状態取得エラー:', error);
         }
 
-        // 復習単語の事前取得
-        if (options.reviewWords && !reviewWords.data) {
-          promises.push(fetchReviewWords());
+        // ユーザー進捗の事前取得（認証済みの場合のみ）
+        if (options.userProgress && !userProgress.data && currentUserId) {
+          promises.push(fetchUserProgress(currentUserId));
+        }
+
+        // 復習単語の事前取得（認証済みの場合のみ）
+        if (options.reviewWords && !reviewWords.data && currentUserId) {
+          promises.push(fetchReviewWords(currentUserId));
         }
 
         if (promises.length > 0) {

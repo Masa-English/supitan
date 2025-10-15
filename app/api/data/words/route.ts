@@ -26,7 +26,7 @@ export async function GET() {
           is_active
         )
       `)
-      .order('category_id', { ascending: true, nullsLast: true })
+      .order('category_id', { ascending: true })
       .order('category', { ascending: true })
       .order('word', { ascending: true });
 

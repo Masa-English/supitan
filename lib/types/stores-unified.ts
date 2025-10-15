@@ -3,7 +3,14 @@
  * 全ストアの型を一元管理し、一貫性を保つ
  */
 
-import type { User, UserProfile, UserProgress, Word, CategoryWithStats, ReviewWord } from './database';
+import type { UserProfile, UserProgress, Word, CategoryWithStats, ReviewWord } from './database';
+
+// 認証ユーザー型（SupabaseのUser型に準拠）
+export interface User {
+  id: string;
+  email?: string;
+  created_at?: string;
+}
 import type { AppStats } from './api';
 
 // ============================================================================

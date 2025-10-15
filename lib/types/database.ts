@@ -1003,6 +1003,32 @@ export type ReviewWord = Database['public']['Tables']['review_words']['Row']
 export type ReviewWordInsert = Database['public']['Tables']['review_words']['Insert']
 export type ReviewWordUpdate = Database['public']['Tables']['review_words']['Update']
 
+// 学習セッション
+export interface StudySession {
+  id: string;
+  user_id: string | null;
+  category: string;
+  mode: 'flashcard' | 'quiz';
+  total_words: number;
+  completed_words: number;
+  correct_answers: number;
+  start_time: string;
+  end_time: string | null;
+  created_at: string | null;
+}
+
+// 復習セッション
+export interface ReviewSession {
+  id: string;
+  user_id: string | null;
+  total_words: number;
+  completed_words: number;
+  correct_answers: number;
+  start_time: string;
+  end_time: string | null;
+  created_at: string | null;
+}
+
 // 復習単語とWord情報を結合した型
 export type ReviewWordWithWord = ReviewWord & {
   word: Word;

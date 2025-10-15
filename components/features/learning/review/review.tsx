@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/navigation/badge';
 import { Volume2, CheckCircle, XCircle } from 'lucide-react';
 import { useAudioStore } from '@/lib/stores';
+import { DatabaseService } from '@/lib/api/database/database';
+import { dataProvider } from '@/lib/api/services/data-provider';
+import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
 import type { ReviewWordWithWord } from '@/lib/types';
 
 interface ReviewProps {
@@ -13,17 +16,63 @@ interface ReviewProps {
 }
 
 export function Review({ onComplete }: ReviewProps) {
-  const [reviewWords, _setReviewWords] = useState<ReviewWordWithWord[]>([]);
-  const [onAddToReview] = useState<(wordId: string) => void>(() => (wordId: string) => {
-    // 復習リストに追加する処理
-    console.log('復習リストに追加:', wordId);
-  });
+  const [reviewWords, setReviewWords] = useState<ReviewWordWithWord[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
-  const [_results, _setResults] = useState<{ wordId: string; correct: boolean }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{ id: string } | null>(null);
+  const db = useMemo(() => new DatabaseService(), []);
 
   const { playWordAudio, playCorrectSound, playIncorrectSound } = useAudioStore();
+
+  // ユーザー認証と復習単語の読み込み
+  useEffect(() => {
+    const loadReviewData = async () => {
+      try {
+        setLoading(true);
+
+        // ユーザーの認証確認
+        const supabase = createBrowserClient();
+        const { data: { user: currentUser }, error } = await supabase.auth.getUser();
+
+        if (error || !currentUser) {
+          console.error('認証エラー:', error);
+          setLoading(false);
+          return;
+        }
+
+        setUser(currentUser);
+
+        // 復習リストの単語を取得
+        const reviewWordsData = await db.getReviewWords(currentUser.id);
+
+        // すべての単語を取得
+        const allWords = await dataProvider.getAllWords();
+
+        // 各復習単語にWord情報を結合
+        const reviewWordsWithWords: ReviewWordWithWord[] = [];
+
+        for (const reviewWord of reviewWordsData) {
+          const word = allWords.find(w => w.id === reviewWord.word_id);
+          if (word) {
+            reviewWordsWithWords.push({
+              ...reviewWord,
+              word
+            });
+          }
+        }
+
+        setReviewWords(reviewWordsWithWords);
+      } catch (error) {
+        console.error('復習データの読み込みエラー:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadReviewData();
+  }, [db]);
 
   const currentWord = reviewWords[currentIndex];
   const isLastWord = currentIndex === reviewWords.length - 1;
@@ -62,7 +111,7 @@ export function Review({ onComplete }: ReviewProps) {
       wordId: currentWord.id,
       correct: isCorrect,
     };
-    _setResults(prev => [...prev, newResult]);
+    setResults(prev => [...prev, newResult]);
     
     // 音声再生
     if (isCorrect) {
@@ -82,18 +131,27 @@ export function Review({ onComplete }: ReviewProps) {
     }
   }, [isLastWord, onComplete]);
 
-  const handleAddToReview = useCallback(() => {
-    onAddToReview(currentWord.id);
-  }, [currentWord.id, onAddToReview]);
+  const handleAddToReview = useCallback(async () => {
+    if (!user || !currentWord) return;
+
+    try {
+      await db.addToReview(user.id, currentWord.id);
+      console.log('復習リストに追加:', currentWord.id);
+    } catch (error) {
+      console.error('復習リスト追加エラー:', error);
+    }
+  }, [user, currentWord, db]);
 
   const handlePlayAudio = useCallback(() => {
     playWordAudio(currentWord.id);
   }, [currentWord.id, playWordAudio]);
 
-  if (!currentWord) {
+  if (loading || !currentWord) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">復習単語を読み込み中...</p>
+        <p className="text-muted-foreground">
+          {loading ? '復習単語を読み込み中...' : '復習単語がありません'}
+        </p>
       </div>
     );
   }
