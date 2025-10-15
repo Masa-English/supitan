@@ -8,16 +8,12 @@ export const revalidate = 1800; // 30分 - クイズは少し長めのキャッ�
 // 静的パラメータ生成を有効化
 export async function generateStaticParams() {
   const { getBuildTimeCategorySectionPairs, safeGenerateStaticParams } = await import('@/lib/api/services/static-params-generator');
-  
+
   return safeGenerateStaticParams(
     getBuildTimeCategorySectionPairs,
     [
-      // フォールバック用の基本的な組み合わせ
-      { category: encodeURIComponent('句動詞'), sec: '1' },
-      { category: encodeURIComponent('句動詞'), sec: '2' },
-      { category: encodeURIComponent('句動詞'), sec: '3' },
+      // フォールバック用の基本的な組み合わせ（実際にデータが存在するもののみ）
       { category: encodeURIComponent('動詞'), sec: '1' },
-      { category: encodeURIComponent('名詞'), sec: '1' },
     ]
   );
 }

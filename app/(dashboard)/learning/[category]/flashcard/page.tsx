@@ -7,13 +7,50 @@ import type { Word } from '@/lib/types';
 // ISR設定 - 5分ごとに再生成（より頻繁に更新）
 export const revalidate = 300;
 
-// 静的パスの生成
+// 静的パスの生成（実際に単語が存在するカテゴリーのみ）
 export async function generateStaticParams() {
   try {
-    const categories = await dataProvider.getCategories();
-    return categories.map((category) => ({
-      category: encodeURIComponent(category.category),
-    }));
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+
+    // カテゴリーと単語数の情報を取得
+    const { data: categoriesData, error } = await supabase
+      .from('categories')
+      .select(`
+        id,
+        name,
+        words:words(count)
+      `)
+      .eq('is_active', true)
+      .order('sort_order');
+
+    if (error) {
+      console.error('Error fetching categories:', error);
+      return [];
+    }
+
+    // 単語が存在するカテゴリーのみをフィルタリング
+    const validCategories = categoriesData
+      ?.filter((category: { id: string; name: string; words?: { count?: number }[] }) => (category.words?.[0]?.count || 0) > 0)
+      ?.map((category: { id: string; name: string; words?: { count?: number }[] }) => ({
+        category: encodeURIComponent(category.name),
+      })) || [];
+
+    console.log(`Generated ${validCategories.length} valid category params for flashcard`);
+    return validCategories;
   } catch (error) {
     console.error('Error generating static params for flashcard:', error);
     return [];
