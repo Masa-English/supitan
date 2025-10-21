@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, ArrowRight, RotateCcw, Home, BookOpen, Trophy, Target, TrendingUp } from 'lucide-react';
+import { CheckCircle, ArrowRight, RotateCcw, Home, BookOpen } from 'lucide-react';
 
 interface CompletionModalProps {
   isOpen: boolean;

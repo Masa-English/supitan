@@ -64,10 +64,8 @@ interface PageProps {
 }
 
 export default async function FlashcardPage({ params, searchParams }: PageProps) {
-  console.log('FlashcardPage: 関数開始 - try文の外');
-  
   try {
-    console.log('FlashcardPage: try文開始');
+    console.log('FlashcardPage: 関数開始');
     
     const { category } = await params;
     console.log('FlashcardPage: params取得完了', { category });
@@ -84,10 +82,10 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       level
     });
 
-  // カテゴリーパラメータをデコード
-  console.log('FlashcardPage: カテゴリーデコード開始');
-  const decodedCategory = decodeURIComponent(category);
-  console.log('FlashcardPage: カテゴリーデコード完了', { decodedCategory });
+    // カテゴリーパラメータをデコード
+    console.log('FlashcardPage: カテゴリーデコード開始');
+    const decodedCategory = decodeURIComponent(category);
+    console.log('FlashcardPage: カテゴリーデコード完了', { decodedCategory });
   
   console.log('カテゴリー名のエンコード/デコード確認:', {
     originalCategory: category,
@@ -199,35 +197,34 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
   
   console.log('FlashcardPage: 認証成功', { userId: user.id });
 
-  try {
-    let words: Word[] = [];
-    let allSections: string[] = [];
+  let words: Word[] = [];
+  let allSections: string[] = [];
 
-    // 復習モードの場合
-    if (isReviewMode) {
-      const userProgress = await dataProvider.getUserProgress(user.id);
-      const now = new Date();
+  // 復習モードの場合
+  if (isReviewMode) {
+    const userProgress = await dataProvider.getUserProgress(user.id);
+    const now = new Date();
+    
+    // 復習が必要な単語を特定
+    const reviewWords = userProgress.filter(progress => {
+      if (!progress.last_studied) return false;
+      const lastReview = new Date(progress.last_studied);
+      const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
       
-      // 復習が必要な単語を特定
-      const reviewWords = userProgress.filter(progress => {
-        if (!progress.last_studied) return false;
-        const lastReview = new Date(progress.last_studied);
-        const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
-        
-        // 習得レベルに応じた復習間隔
-        const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1;
-        const reviewInterval = {
-          1: 1, 2: 3, 3: 7, 4: 14, 5: 30
-        }[masteryLevel] || 1;
-        
-        // レベル指定がある場合はそのレベルのみ
-        if (reviewLevel && masteryLevel !== reviewLevel) return false;
-        
-        return daysSinceReview >= reviewInterval;
-      });
+      // 習得レベルに応じた復習間隔
+      const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1;
+      const reviewInterval = {
+        1: 1, 2: 3, 3: 7, 4: 14, 5: 30
+      }[masteryLevel] || 1;
       
-      // 復習対象の単語IDを取得
-      const reviewWordIds = new Set(reviewWords.map(p => p.word_id));
+      // レベル指定がある場合はそのレベルのみ
+      if (reviewLevel && masteryLevel !== reviewLevel) return false;
+      
+      return daysSinceReview >= reviewInterval;
+    });
+    
+    // 復習対象の単語IDを取得
+    const reviewWordIds = new Set(reviewWords.map(p => p.word_id));
       
       // カテゴリー内の復習対象単語のみを取得
       const { data: allWords } = await authSupabase
