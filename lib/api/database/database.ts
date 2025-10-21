@@ -40,19 +40,18 @@ export class DatabaseService {
   }
 
   async getWordsByCategory(category: string): Promise<Word[]> {
-    // URLデコードを確実に実行
-    const decodedCategory = decodeURIComponent(category);
-    console.log(`Database: Searching for category: "${decodedCategory}"`);
+    // エンコードされていないのでそのまま使用（Next.js設定でエンコードを避けているため）
+    console.log(`Database: Searching for category: "${category}"`);
     
     // まずカテゴリーIDを取得
     const { data: categoryData, error: categoryError } = await this.supabase
       .from('categories')
       .select('id')
-      .eq('name', decodedCategory)
+      .eq('name', category)
       .single();
     
     if (categoryError || !categoryData) {
-      console.error(`Category not found: "${decodedCategory}"`);
+      console.error(`Category not found: "${category}"`);
       return [];
     }
     
@@ -73,11 +72,11 @@ export class DatabaseService {
       .order('word', { ascending: true });
 
     if (error) {
-      console.error(`Database error for category "${decodedCategory}":`, error);
+      console.error(`Database error for category "${category}":`, error);
       throw error;
     }
     
-    console.log(`Database: Found ${data?.length || 0} words for category "${decodedCategory}"`);
+    console.log(`Database: Found ${data?.length || 0} words for category "${category}"`);
     return data || [];
   }
 

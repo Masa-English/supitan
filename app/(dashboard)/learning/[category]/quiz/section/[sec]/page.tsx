@@ -25,16 +25,16 @@ export default async function QuizSectionPage({
 }) {
   try {
     const p = await params;
-    const decodedCategory = decodeURIComponent(p.category);
+    const category = decodeURIComponent(p.category);
     const section = decodeURIComponent(p.sec);
 
-    console.log(`Loading quiz section: ${decodedCategory} - ${section}`);
+    console.log(`Loading quiz section: ${category} - ${section}`);
 
     // カテゴリー全体の単語を取得（セクション情報のため）
-    const allWords = await dataProvider.getWordsByCategory(decodedCategory);
+    const allWords = await dataProvider.getWordsByCategory(category);
     
     if (!allWords || allWords.length === 0) {
-      console.warn(`カテゴリー ${decodedCategory} の単語が見つかりません`);
+      console.warn(`カテゴリー ${category} の単語が見つかりません`);
       notFound();
     }
     
@@ -42,7 +42,7 @@ export default async function QuizSectionPage({
     const words = allWords.filter((w) => String(w.section ?? '') === section);
 
     if (!words || words.length === 0) {
-      console.warn(`セクション ${section} の単語が見つかりません: ${decodedCategory}`);
+      console.warn(`セクション ${section} の単語が見つかりません: ${category}`);
       notFound();
     }
 
@@ -51,15 +51,15 @@ export default async function QuizSectionPage({
 
     const initialQuestions = generateQuestionsServer(words);
 
-    console.log(`Generated ${initialQuestions.length} questions for section ${section} of ${decodedCategory}`);
+    console.log(`Generated ${initialQuestions.length} questions for section ${section} of ${category}`);
 
     return (
       <QuizClient
-        category={decodedCategory}
+        category={category}
         words={words}
         allSections={allSections}
         initialQuestions={initialQuestions}
-        key={`${decodedCategory}-${section}-quiz`}
+        key={`${category}-${section}-quiz`}
       />
     );
   } catch (error) {

@@ -73,8 +73,7 @@ export const revalidate = 300; // 5分
 
 export default async function BrowsePage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;
-  const decodedCategory = decodeURIComponent(category);
-  const words = await dataProvider.getWordsByCategory(decodedCategory);
+  const words = await dataProvider.getWordsByCategory(category);
   const totalWords = words.length;
   const withExamples = words.filter(w => w.example1).length;
 
@@ -85,7 +84,7 @@ export default async function BrowsePage({ params }: { params: Promise<{ categor
         <div className="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-3 sm:py-4">
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2">
-              {decodedCategory}の単語一覧
+              {category}の単語一覧
             </h1>
             <div className="flex items-center justify-center gap-2 sm:gap-4 text-muted-foreground">
               <div className="flex items-center gap-1 sm:gap-2">
@@ -115,7 +114,7 @@ export default async function BrowsePage({ params }: { params: Promise<{ categor
         {/* ナビゲーション */}
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-4">
-            <Link href={`/learning/${encodeURIComponent(decodedCategory)}`} prefetch>
+            <Link href={`/learning/${category}`} prefetch>
               <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
                 <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 カテゴリーに戻る
@@ -129,12 +128,12 @@ export default async function BrowsePage({ params }: { params: Promise<{ categor
           </div>
           
           <div className="flex items-center gap-2">
-            <Link href={`/learning/${encodeURIComponent(decodedCategory)}/options?mode=flashcard`} prefetch>
+            <Link href={`/learning/${category}/options?mode=flashcard`} prefetch>
               <Button className="bg-primary hover:bg-primary/90 text-xs sm:text-sm">
                 フラッシュカード学習
               </Button>
             </Link>
-            <Link href={`/learning/${encodeURIComponent(decodedCategory)}/options?mode=quiz`} prefetch>
+            <Link href={`/learning/${category}/options?mode=quiz`} prefetch>
               <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
                 クイズ学習
               </Button>

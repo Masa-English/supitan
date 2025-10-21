@@ -10,12 +10,11 @@ import { Button } from '@/components/ui/button/button';
 import { Progress } from '@/components/ui/feedback/progress';
 import { dataProvider } from '@/lib/api/services/data-provider';
 import type { Word, UserProgress } from '@/lib/types/database';
-import { 
-  RotateCcw, 
-  Clock, 
-  Target, 
+import {
+  RotateCcw,
+  Clock,
+  Target,
   BookOpen,
-  Brain,
   CheckCircle,
   AlertCircle,
   Calendar,
@@ -322,63 +321,7 @@ export default async function ReviewPage() {
               </Card>
             )}
 
-            {/* 緊急復習がある場合の警告 */}
-            {reviewData.urgentReviewWords > 0 && (
-              <Card className="mb-6 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <AlertCircle className="w-6 h-6 text-red-600" />
-                    <div>
-                      <h3 className="font-bold text-red-900 dark:text-red-100">
-                        緊急復習が必要です
-                      </h3>
-                      <p className="text-sm text-red-700 dark:text-red-300">
-                        {reviewData.urgentReviewWords}語が予定より大幅に遅れています。忘却を防ぐため、優先的に復習しましょう。
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              {/* 習得レベル別復習 */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="w-5 h-5" />
-                    習得レベル別復習
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {reviewData.reviewByLevel.map((level, index) => (
-                      <div key={index} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">レベル {level.level}</span>
-                            {level.level >= 3 && <CheckCircle className="w-4 h-4 text-green-600" />}
-                          </div>
-                          <Badge variant={level.count > 0 ? 'default' : 'secondary'}>
-                            {level.count}語
-                          </Badge>
-                        </div>
-                        {level.count > 0 && (
-                          <Link href={`/learning?mode=review&level=${level.level}`}>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="w-full"
-                            >
-                              レベル{level.level}を復習
-                            </Button>
-                          </Link>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
 
               {/* カテゴリー別復習 */}
               <Card>
@@ -404,10 +347,10 @@ export default async function ReviewPage() {
                           </div>
                         </div>
                         <Progress value={category.percentage} className="h-2" />
-                        <Link href={`/learning/${encodeURIComponent(category.category)}?mode=review`}>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                        <Link href={`/learning/${encodeURIComponent(category.category)}/review?mode=interval`}>
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="w-full"
                           >
                             {category.category}を復習
@@ -419,25 +362,24 @@ export default async function ReviewPage() {
                 </CardContent>
               </Card>
             </div>
-
             {/* アクションボタン */}
             <div className="flex flex-wrap gap-4 justify-center">
               {reviewData.reviewListWords > 0 && (
-                <Link href="/learning/categories?mode=review-list">
+                <Link href="/review/review-list">
                   <Button size="lg" className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700">
                     <RotateCcw className="w-5 h-5" />
                     復習リストを復習
                   </Button>
                 </Link>
               )}
-              <Link href="/learning?mode=review">
+              <Link href="/review/all">
                 <Button size="lg" className="flex items-center gap-2">
                   <Zap className="w-5 h-5" />
                   すべて復習開始
                 </Button>
               </Link>
               {reviewData.urgentReviewWords > 0 && (
-                <Link href="/learning?mode=urgent-review">
+                <Link href="/review/urgent">
                   <Button variant="destructive" size="lg" className="flex items-center gap-2">
                     <AlertCircle className="w-5 h-5" />
                     緊急復習開始

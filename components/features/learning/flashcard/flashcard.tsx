@@ -258,15 +258,27 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
   }, []);
 
   // もう一度学習したい場合の処理
-  const handleAddToRetry = useCallback(() => {
+  const handleAddToRetry = useCallback(async () => {
     if (!currentWord || isInRetryMode) return;
 
-    // 再出題リストに追加
-    setIncorrectWords(prev => [...prev, currentWord]);
-    
+    try {
+      // 復習リストに追加（データベースに保存）
+      await db.addToReview(user.id, currentWord.id);
+
+      // ローカルの復習リスト状態も更新
+      setReviewWords(prev => new Set(prev).add(currentWord.id));
+
+      // 再出題リストに追加（即時復習用）
+      setIncorrectWords(prev => [...prev, currentWord]);
+
+      console.log('復習リストに追加:', currentWord.id);
+    } catch (error) {
+      console.error('復習リスト追加エラー:', error);
+    }
+
     // 次の問題に進む
     handleNext();
-  }, [currentWord, isInRetryMode, handleNext]);
+  }, [currentWord, isInRetryMode, handleNext, user.id, db]);
 
   if (currentWordList.length === 0 || !currentWord) {
     return (

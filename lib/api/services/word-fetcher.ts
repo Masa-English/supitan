@@ -14,10 +14,10 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
-  const { category, sectionIndex, sectionSize, randomCount, sectionValue } = options;
-  
+  const { category: encodedCategory, sectionIndex, sectionSize, randomCount, sectionValue } = options;
+
   // URLデコードを確実に実行
-  const decodedCategory = category ? decodeURIComponent(category) : undefined;
+  const category = encodedCategory ? decodeURIComponent(encodedCategory) : undefined;
 
   // JOINクエリでカテゴリー情報も取得
   const baseSelect = `
@@ -36,12 +36,12 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
   if (randomCount && randomCount > 0) {
     // 軽量にIDのみ取得 → サンプリング → 本体取得
     let idQuery = supabase.from('words').select('id');
-    if (decodedCategory) {
+    if (category) {
       // まずカテゴリーIDを取得
       const { data: categoryData } = await supabase
         .from('categories')
         .select('id')
-        .eq('name', decodedCategory)
+        .eq('name', category)
         .single();
       
       if (categoryData) {
@@ -62,12 +62,12 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
   // section列の値でフィルタ（推奨）
   if (sectionValue !== undefined && sectionValue !== null && sectionValue !== '') {
     let q = supabase.from('words').select(baseSelect);
-    if (decodedCategory) {
+    if (category) {
       // まずカテゴリーIDを取得
       const { data: categoryData } = await supabase
         .from('categories')
         .select('id')
-        .eq('name', decodedCategory)
+        .eq('name', category)
         .single();
       
       if (categoryData) {
@@ -89,12 +89,12 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
       .select(baseSelect)
       .order('word', { ascending: true })
       .range(from, to);
-    if (decodedCategory) {
+    if (category) {
       // まずカテゴリーIDを取得
       const { data: categoryData } = await supabase
         .from('categories')
         .select('id')
-        .eq('name', decodedCategory)
+        .eq('name', category)
         .single();
       
       if (categoryData) {
@@ -111,12 +111,12 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
     .from('words')
     .select(baseSelect)
     .order('word', { ascending: true });
-  if (decodedCategory) {
+  if (category) {
     // まずカテゴリーIDを取得
     const { data: categoryData } = await supabase
       .from('categories')
       .select('id')
-      .eq('name', decodedCategory)
+      .eq('name', category)
       .single();
     
     if (categoryData) {
@@ -131,10 +131,15 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
 function sampleIds(ids: string[], count: number): string[] {
   if (count >= ids.length) return ids.slice();
   // Fisher–Yates
+  console.log('[word-fetcher] Fisher-Yates shuffle start:', { totalIds: ids.length, requestedCount: count });
   const arr = ids.slice();
   for (let i = arr.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const randomValue = Math.random();
+    const j = Math.floor(randomValue * (i + 1));
+    console.log(`[word-fetcher] Fisher-Yates step ${i}: random=${randomValue}, j=${j}, swapping ${arr[i]} with ${arr[j]}`);
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  return arr.slice(0, count);
+  const result = arr.slice(0, count);
+  console.log('[word-fetcher] Fisher-Yates shuffle result:', result);
+  return result;
 }

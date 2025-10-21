@@ -14,7 +14,10 @@ export function HeaderProvider({ children }: { children: ReactNode }) {
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
 
   const toggleSideMenu = () => {
-    setIsSideMenuOpen(!isSideMenuOpen);
+    console.log('HeaderContext: toggleSideMenuが呼ばれました。現在の状態:', isSideMenuOpen);
+    const newState = !isSideMenuOpen;
+    setIsSideMenuOpen(newState);
+    console.log('HeaderContext: 新しい状態:', newState);
   };
 
   return (

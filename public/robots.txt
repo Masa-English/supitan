@@ -1,5 +1,4 @@
 User-agent: *
-Disallow: /robots.txt
 Disallow: /api/
 Disallow: /admin/
 Disallow: /_next/

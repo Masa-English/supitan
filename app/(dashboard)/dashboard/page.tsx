@@ -112,9 +112,8 @@ export default async function DashboardPage() {
     const stats = await getUserStats(user.id);
 
     return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 sm:py-8">
-        {/* ヘッダー */}
+      <div className="space-y-6 p-4">
+        {/* ようこそメッセージ */}
         <div className="mb-8">
           <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
             ようこそ、{user?.email?.split('@')[0] || 'ユーザー'}さん
@@ -294,10 +293,9 @@ export default async function DashboardPage() {
           </Link>
         </div>
       </div>
-    </div>
-  );
+    );
   } catch (error) {
     serverLog.error('ダッシュボードページエラー', LogCategory.ERROR, { error: error instanceof Error ? error.message : String(error) });
-    redirect('/login');
+    throw error;
   }
 }

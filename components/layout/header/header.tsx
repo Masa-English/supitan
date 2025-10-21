@@ -58,6 +58,7 @@ export function Header({
   const { toggleSideMenu } = useHeader();
   const { user: currentUser } = useAuth();
   const [isClient, setIsClient] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const startNavigating = useNavigationStore((s) => s.start);
   
   // デフォルト値を使用（SSR/CSR互換性のため）
@@ -70,6 +71,16 @@ export function Header({
   // ハイドレーションエラーを防ぐため、クライアントサイドでのみ実行
   useEffect(() => {
     setIsClient(true);
+
+    // 初回マウント時にモバイル判定を実行（768pxを基準に）
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+    };
+    checkMobile();
+
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // 認証状態はAuthProviderで管理されるため、このuseEffectは不要
@@ -106,8 +117,14 @@ export function Header({
 
   // 現在のパスに基づいてモバイルメニューの表示を決定
   const shouldShowMobileMenu = () => {
-    // ダッシュボードページでもモバイルメニューを表示（サイドメニュー開閉用）
-    return showMobileMenu;
+    const result = showMobileMenu && isClient && isMobile;
+    console.log('shouldShowMobileMenu:', {
+      showMobileMenu,
+      isClient,
+      isMobile,
+      result
+    });
+    return result;
   };
 
   const handleBackClick = () => {
@@ -188,15 +205,37 @@ export function Header({
           
           <div className="flex items-center gap-3 sm:gap-4">
             {/* モバイルメニューボタン */}
-            {shouldShowMobileMenu() && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={_onSideMenuToggle || onMobileMenuToggle || toggleSideMenu}
-                className="lg:hidden text-muted-foreground hover:bg-accent transition-all duration-200 hover:scale-105 p-2 touch-target"
+            {(() => {
+              const show = shouldShowMobileMenu();
+              console.log('モバイルメニューボタンをレンダリング:', show);
+              return show;
+            })() && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('ハンバーガーボタンがクリックされました');
+                  console.log('isSideMenuOpen:', _isSideMenuOpen);
+                  console.log('isMobile:', isMobile);
+                  console.log('利用可能なハンドラー:', {
+                    _onSideMenuToggle,
+                    onMobileMenuToggle,
+                    toggleSideMenu
+                  });
+                  const handler = _onSideMenuToggle || onMobileMenuToggle || toggleSideMenu;
+                  if (handler) {
+                    console.log('ハンドラーを実行します');
+                    handler();
+                  } else {
+                    console.error('ハンドラーが見つかりません');
+                  }
+                }}
+                className="md:hidden text-muted-foreground hover:bg-accent transition-all duration-200 hover:scale-105 p-2 rounded-md"
+                aria-label="メニューを開く"
               >
-                <Menu className="h-5 w-5 transition-transform duration-200 hover:rotate-90" />
-              </Button>
+                <Menu className="h-5 w-5 duration-200" />
+              </button>
             )}
             
             {shouldShowBackButton() && (
@@ -204,7 +243,7 @@ export function Header({
                 variant="ghost"
                 size="sm"
                 onClick={handleBackClick}
-                className="text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3 touch-target"
+                className="text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3"
               >
                 <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">戻る</span>
@@ -242,7 +281,7 @@ export function Header({
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="text-muted-foreground hover:bg-accent transition-colors border border-border hover:border-primary/50 p-2 sm:px-3 touch-target"
+                      className="text-muted-foreground hover:bg-accent transition-colors border border-border hover:border-primary/50 p-2 sm:px-3 "
                     >
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
@@ -271,7 +310,7 @@ export function Header({
                           router.push('/dashboard/profile');
                         }
                       }}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent "
                     >
                       <UserCircle className="h-4 w-4 mr-2" />
                       プロフィール設定
@@ -283,7 +322,7 @@ export function Header({
                           router.push('/dashboard/review');
                         }
                       }}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent "
                     >
                       <Zap className="h-4 w-4 mr-2" />
                       復習
@@ -295,7 +334,7 @@ export function Header({
                           router.push('/dashboard');
                         }
                       }}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent "
                     >
                       <Settings className="h-4 w-4 mr-2" />
                       ダッシュボード
@@ -312,7 +351,7 @@ export function Header({
                           router.push('/dashboard');
                         }
                       }}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent touch-target"
+                      className="text-muted-foreground hover:bg-accent focus:bg-accent "
                     >
                       <Zap className="h-4 w-4 mr-2" />
                       カテゴリーに戻る
@@ -320,7 +359,7 @@ export function Header({
                     <DropdownMenuSeparator className="bg-border" />
                     <DropdownMenuItem 
                       onClick={onSignOut || handleSignOut} 
-                      className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 touch-target"
+                      className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 "
                     >
                       <LogOut className="h-4 w-4 mr-2" />
                       ログアウト
@@ -332,7 +371,7 @@ export function Header({
                     variant="outline" 
                     size="sm"
                     onClick={() => { startNavigating(); router.push('/auth/login'); }} 
-                    className="border-border text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3 touch-target"
+                    className="border-border text-muted-foreground hover:bg-accent transition-colors p-2 sm:px-3 "
                   >
                     <User className="h-4 w-4 mr-1 sm:mr-2" />
                     <span className="hidden sm:inline">ログイン</span>

@@ -73,19 +73,19 @@ export async function getBuildTimeSections(category: string): Promise<string[]> 
       return ['1', '2', '3']; // フォールバック
     }
 
-    // URLデコードしてからクエリ実行
-    const decodedCategory = decodeURIComponent(category);
-    console.log(`Querying sections for category: "${decodedCategory}" (original: "${category}")`);
+    // エンコードされていないのでそのまま使用（Next.js設定でエンコードを避けているため）
+    const category = category;
+    console.log(`Querying sections for category: "${category}")`);
 
     // まずカテゴリーIDを取得
     const { data: categoryData, error: categoryError } = await supabase
       .from('categories')
       .select('id')
-      .eq('name', decodedCategory)
+      .eq('name', category)
       .single();
     
     if (categoryError || !categoryData) {
-      console.warn(`Category not found: ${decodedCategory}, using fallback`);
+      console.warn(`Category not found: ${category}, using fallback`);
       return ['1', '2', '3']; // フォールバック
     }
     
@@ -97,7 +97,7 @@ export async function getBuildTimeSections(category: string): Promise<string[]> 
       .order('section');
     
     if (error) {
-      console.warn(`Section query failed for ${decodedCategory}, using fallback:`, error.message);
+      console.warn(`Section query failed for ${category}, using fallback:`, error.message);
       return ['1', '2', '3']; // フォールバック
     }
     
@@ -107,7 +107,7 @@ export async function getBuildTimeSections(category: string): Promise<string[]> 
       )
     ).sort();
     
-    console.log(`Build-time sections for ${decodedCategory}: ${sections.length} sections found:`, sections);
+    console.log(`Build-time sections for ${category}: ${sections.length} sections found:`, sections);
     return sections.length > 0 ? sections : ['1', '2', '3'];
   } catch (error) {
     console.warn(`Build-time section fetch failed for ${category}:`, error);
@@ -176,8 +176,8 @@ export async function getBuildTimeCategorySectionPairs(): Promise<{ category: st
 
       for (const section of sections) {
         pairs.push({
-          category: encodeURIComponent(category.name),
-          sec: encodeURIComponent(section)
+          category: category.name, // エンコードせずにそのまま使用（Next.js設定でエンコードを避けているため）
+          sec: section
         });
       }
     }
@@ -228,8 +228,8 @@ async function getFallbackCategorySectionPairs(): Promise<{ category: string; se
         categoryMap.forEach((sections, category) => {
           sections.forEach(section => {
             pairs.push({
-              category: encodeURIComponent(category),
-              sec: encodeURIComponent(section)
+              category: category, // エンコードせずにそのまま使用（Next.js設定でエンコードを避けているため）
+              sec: section
             });
           });
         });
@@ -247,7 +247,7 @@ async function getFallbackCategorySectionPairs(): Promise<{ category: string; se
   // 最終フォールバック
   console.warn('Using minimal fallback pairs');
   return [
-    { category: encodeURIComponent('動詞'), sec: '1' },
+    { category: '動詞', sec: '1' }, // エンコードせずにそのまま使用（Next.js設定でエンコードを避けているため）
   ];
 }
 

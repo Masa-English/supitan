@@ -25,16 +25,16 @@ export default async function FlashcardSectionPage({
 }) {
   try {
     const p = await params;
-    const decodedCategory = decodeURIComponent(p.category);
+    const category = decodeURIComponent(p.category);
     const section = decodeURIComponent(p.sec);
 
-    console.log(`Loading flashcard section: ${decodedCategory} - ${section}`);
+    console.log(`Loading flashcard section: ${category} - ${section}`);
 
     // カテゴリー全体の単語を取得（セクション情報のため）
-    const allWords: Word[] = await dataProvider.getWordsByCategory(decodedCategory);
+    const allWords: Word[] = await dataProvider.getWordsByCategory(category);
     
     if (!allWords || allWords.length === 0) {
-      console.warn(`カテゴリー ${decodedCategory} の単語が見つかりません`);
+      console.warn(`カテゴリー ${category} の単語が見つかりません`);
       notFound();
     }
     
@@ -42,21 +42,21 @@ export default async function FlashcardSectionPage({
     const words = allWords.filter((w) => String(w.section ?? '') === section);
 
     if (!words || words.length === 0) {
-      console.warn(`セクション ${section} の単語が見つかりません: ${decodedCategory}`);
+      console.warn(`セクション ${section} の単語が見つかりません: ${category}`);
       notFound();
     }
 
     // カテゴリー全体のセクション情報を取得
     const allSections = [...new Set(allWords.map(w => String(w.section ?? '')))].filter(Boolean).sort();
 
-    console.log(`Found ${words.length} words in section ${section} of ${decodedCategory}`);
+    console.log(`Found ${words.length} words in section ${section} of ${category}`);
 
     return (
       <FlashcardClient
-        category={decodedCategory}
+        category={category}
         words={words}
         allSections={allSections}
-        key={`${decodedCategory}-${section}-flashcard`}
+        key={`${category}-${section}-flashcard`}
       />
     );
   } catch (error) {

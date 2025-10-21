@@ -82,7 +82,10 @@ export function useLearning(options: UseLearningOptions): UseLearningReturn {
     
     // Shuffle if requested
     if (shuffleWords) {
-      filteredWords = [...filteredWords].sort(() => Math.random() - 0.5);
+      const randomValue = Math.random();
+      console.log('[useLearning] Shuffling words, Math.random() value:', randomValue);
+      filteredWords = [...filteredWords].sort(() => randomValue - 0.5);
+      console.log('[useLearning] Shuffled words count:', filteredWords.length);
     }
     
     return filteredWords;
@@ -112,12 +115,16 @@ export function useLearning(options: UseLearningOptions): UseLearningReturn {
     words.forEach(word => {
       // Generate Japanese to English question
       const otherWords = words.filter(w => w.id !== word.id);
+      const randomValue1 = Math.random();
+      console.log('[useLearning] Generating quiz options for word:', word.word, 'Math.random() value:', randomValue1);
       const wrongOptions = otherWords
-        .sort(() => Math.random() - 0.5)
+        .sort(() => randomValue1 - 0.5)
         .slice(0, 3)
         .map(w => w.word);
       
-      const allOptions = [word.word, ...wrongOptions].sort(() => Math.random() - 0.5);
+      const randomValue2 = Math.random();
+      console.log('[useLearning] Shuffling all options for word:', word.word, 'Math.random() value:', randomValue2);
+      const allOptions = [word.word, ...wrongOptions].sort(() => randomValue2 - 0.5);
       
       newQuestions.push({
         word,
@@ -145,7 +152,9 @@ export function useLearning(options: UseLearningOptions): UseLearningReturn {
     });
     
     // Shuffle questions
-    const shuffledQuestions = newQuestions.sort(() => Math.random() - 0.5);
+    const randomValue3 = Math.random();
+    console.log('[useLearning] Shuffling questions, Math.random() value:', randomValue3, 'questions count:', newQuestions.length);
+    const shuffledQuestions = newQuestions.sort(() => randomValue3 - 0.5);
     setQuestions(shuffledQuestions);
   }, [words, mode]);
 

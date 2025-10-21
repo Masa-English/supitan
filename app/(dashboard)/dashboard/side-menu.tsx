@@ -45,8 +45,9 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
       return;
     }
 
-    // モバイルの場合のみサイドメニューを閉じる
-    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+    // モバイルの場合のみサイドメニューを閉じる（768px基準に変更）
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      console.log('サイドメニューを閉じます（リンククリック時）');
       toggleSideMenu();
     }
   };
@@ -60,8 +61,11 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={toggleSideMenu}
-            className="lg:hidden text-muted-foreground hover:bg-accent transition-all duration-200 hover:scale-105 p-2"
+            onClick={() => {
+              console.log('サイドメニュー閉じるボタンがクリックされました');
+              toggleSideMenu();
+            }}
+            className="md:hidden text-muted-foreground hover:bg-accent transition-all duration-200 hover:scale-105 p-2"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -78,7 +82,7 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
             const isImplemented = isFeatureImplemented(item.href);
             
             return (
-              <li key={item.href}>
+              <li key={`${item.href}-${item.label}`}>
                 {isImplemented ? (
                   <Link
                     href={item.href}
@@ -139,19 +143,6 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
           効率的な英語学習
         </p>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   );
 } 

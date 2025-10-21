@@ -19,15 +19,15 @@ export async function generateStaticParams() {
     async () => {
       const categories = await getBuildTimeCategories();
       return categories.map((category) => ({
-        category: encodeURIComponent(category),
+        category: category, // エンコードせずにそのまま使用（Next.js設定でエンコードを避けているため）
       }));
     },
     [
-      { category: encodeURIComponent('句動詞') },
-      { category: encodeURIComponent('動詞') },
-      { category: encodeURIComponent('名詞') },
-      { category: encodeURIComponent('形容詞') },
-      { category: encodeURIComponent('副詞') },
+      { category: '句動詞' },
+      { category: '動詞' },
+      { category: '名詞' },
+      { category: '形容詞' },
+      { category: '副詞' },
     ]
   );
 }
@@ -38,7 +38,7 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
   const sp = searchParams ? await searchParams : {};
   
   if (!p?.category) notFound();
-  
+
   const category = decodeURIComponent(p.category);
   const mode = sp.mode === 'quiz' ? 'quiz' : sp.mode === 'flashcard' ? 'flashcard' : null;
 

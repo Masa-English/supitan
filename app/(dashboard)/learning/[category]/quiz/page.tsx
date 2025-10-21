@@ -151,12 +151,17 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
     // ランダム指定時はサーバー側でサンプリング
     if (isRandom) {
       const count = Math.max(1, Math.min(randomCount ?? 10, words.length));
+      console.log('[QuizPage] Random sampling:', { totalWords: words.length, requestedCount: count, randomCount, isRandom });
       const shuffled = words.slice();
       for (let i = shuffled.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const randomValue = Math.random();
+        const j = Math.floor(randomValue * (i + 1));
+        console.log(`[QuizPage] Fisher-Yates shuffle step ${i}: random=${randomValue}, j=${j}`);
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
-      words = shuffled.slice(0, count).sort((a, b) => (a.word || '').localeCompare(b.word || ''));
+      const sampledWords = shuffled.slice(0, count).sort((a, b) => (a.word || '').localeCompare(b.word || ''));
+      console.log('[QuizPage] Sampled words:', sampledWords.map(w => ({ id: w.id, word: w.word })));
+      words = sampledWords;
     }
   }
 
@@ -180,6 +185,10 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
       allSections={allSections}
       initialQuestions={generateQuestionsServer(words)}
       key={listKey}
+      reviewMode={isReviewMode}
+      reviewListMode={isReviewListMode}
+      reviewLevel={reviewLevel}
+      urgentReviewMode={sp.mode === 'urgent-review'}
     />
   );
 }

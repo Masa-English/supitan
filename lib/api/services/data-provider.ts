@@ -61,17 +61,13 @@ export class UnifiedDataProvider {
   async getWordsByCategory(category: string): Promise<Word[]> {
     // キャッシュを初期化
     await initializeCache();
-    
-    // URLデコードを確実に実行
-    const decodedCategory = decodeURIComponent(category);
-    console.log(`[DataProvider] Getting words for category: "${decodedCategory}" (original: "${category}")`);
-    
+       
     if (isServer && unstable_cache) {
-      return this.getCachedWordsByCategory(decodedCategory);
+      return this.getCachedWordsByCategory(category);
     }
     // クライアントサイドでは直接データベースアクセス
     try {
-      return await this.db.getWordsByCategory(decodedCategory);
+      return await this.db.getWordsByCategory(category);
     } catch (error) {
       console.error('カテゴリー別単語取得エラー:', error instanceof Error ? error.message : 'Unknown error');
       return [];
@@ -222,9 +218,8 @@ export class UnifiedDataProvider {
   private getCachedWordsByCategory = isServer && unstable_cache ? unstable_cache(
     async (category: string): Promise<Word[]> => {
       try {
-        const decodedCategory = decodeURIComponent(category);
-        console.log(`[Cache] Getting words for category: "${decodedCategory}"`);
-        return await this.db.getWordsByCategory(decodedCategory);
+        console.log(`[Cache] Getting words for category: "${category}"`);
+        return await this.db.getWordsByCategory(category);
       } catch (error) {
         console.error('カテゴリー別単語取得エラー:', error instanceof Error ? error.message : 'Unknown error');
         return [];
@@ -237,8 +232,7 @@ export class UnifiedDataProvider {
     }
   ) : async (category: string) => {
     try {
-      const decodedCategory = decodeURIComponent(category);
-      return await this.db.getWordsByCategory(decodedCategory);
+      return await this.db.getWordsByCategory(category);
     } catch (error) {
       console.error('カテゴリー別単語取得エラー:', error instanceof Error ? error.message : 'Unknown error');
       return [];

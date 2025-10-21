@@ -14,18 +14,16 @@ export class DatabaseQueries {
 
   // Word queries
   async findWordsByCategory(category: string) {
-    // URLデコードを確実に実行
-    const decodedCategory = decodeURIComponent(category);
-    
+    // エンコードされていないのでそのまま使用（Next.js設定でエンコードを避けているため）
     // まずカテゴリーIDを取得
     const { data: categoryData, error: categoryError } = await this.supabase
       .from('categories')
       .select('id')
-      .eq('name', decodedCategory)
+      .eq('name', category)
       .single();
     
     if (categoryError || !categoryData) {
-      throw new Error(`Category not found: ${decodedCategory}`);
+      throw new Error(`Category not found: ${category}`);
     }
     
     return this.supabase

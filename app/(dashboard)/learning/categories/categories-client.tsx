@@ -16,22 +16,32 @@ export default function CategoriesClient({ categories }: Props) {
   const searchParams = useSearchParams();
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [isReviewListMode, setIsReviewListMode] = useState(false);
+  const [isBrowseMode, setIsBrowseMode] = useState(false);
+  const [isUrgentReviewMode, setIsUrgentReviewMode] = useState(false);
 
   useEffect(() => {
     const mode = searchParams.get('mode');
+    const urgent = searchParams.get('urgent');
+
     setIsReviewMode(mode === 'review');
     setIsReviewListMode(mode === 'review-list');
+    setIsBrowseMode(mode === 'browse');
+    setIsUrgentReviewMode(mode === 'review' && urgent === 'true');
   }, [searchParams]);
 
   const handleCategorySelect = async (category: string) => {
     setLoading(true);
     try {
       if (isReviewMode) {
-        // 復習モードの場合は直接クイズモードで開始
-        router.push(`/learning/${encodeURIComponent(category)}/quiz?mode=review`);
+        // 復習モードの場合は復習ページに遷移
+        const urgentParam = isUrgentReviewMode ? '&urgent=true' : '';
+        router.push(`/learning/${encodeURIComponent(category)}/review?mode=interval${urgentParam}`);
       } else if (isReviewListMode) {
-        // 復習リストモードの場合は直接クイズモードで開始
-        router.push(`/learning/${encodeURIComponent(category)}/quiz?mode=review-list`);
+        // 復習リストモードの場合は復習ページに遷移
+        router.push(`/learning/${encodeURIComponent(category)}/review?mode=review-list`);
+      } else if (isBrowseMode) {
+        // 閲覧モードの場合は単語閲覧ページに遷移
+        router.push(`/learning/${encodeURIComponent(category)}/browse`);
       } else {
         // 通常の学習モード選択ページに遷移
         router.push(`/learning/${encodeURIComponent(category)}/options?mode=flashcard`);
@@ -49,11 +59,12 @@ export default function CategoriesClient({ categories }: Props) {
           <div className="max-w-6xl mx-auto">
             <div className="mb-6 sm:mb-8">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-                {isReviewMode ? '復習カテゴリー選択' : isReviewListMode ? '復習リストカテゴリー選択' : 'カテゴリー選択'}
+                {isReviewMode ? (isUrgentReviewMode ? '緊急復習カテゴリー選択' : '復習カテゴリー選択') : isReviewListMode ? '復習リストカテゴリー選択' : isBrowseMode ? '閲覧カテゴリー選択' : 'カテゴリー選択'}
               </h1>
               <p className="text-muted-foreground">
-                {isReviewMode ? '復習したいカテゴリーを選択してください' : 
-                 isReviewListMode ? '復習リストの単語があるカテゴリーを選択してください' : 
+                {isReviewMode ? (isUrgentReviewMode ? '緊急に復習が必要なカテゴリーを選択してください' : '復習したいカテゴリーを選択してください') :
+                 isReviewListMode ? '復習リストの単語があるカテゴリーを選択してください' :
+                 isBrowseMode ? '閲覧したいカテゴリーを選択してください' :
                  '学習したいカテゴリーを選択してください'}
               </p>
             </div>
@@ -75,15 +86,12 @@ export default function CategoriesClient({ categories }: Props) {
         <div className="max-w-6xl mx-auto">
           <div className="mb-6 sm:mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-              {isReviewMode ? '復習カテゴリー選択' : isReviewListMode ? '復習リストカテゴリー選択' : 'カテゴリー選択'}
+              {isReviewMode ? (isUrgentReviewMode ? '緊急復習カテゴリー選択' : '復習カテゴリー選択') : isReviewListMode ? '復習リストカテゴリー選択' : 'カテゴリー選択'}
             </h1>
             <p className="text-muted-foreground">
-              {isReviewMode 
-                ? '復習したいカテゴリーを選択してください' 
-                : isReviewListMode
-                ? '復習リストの単語があるカテゴリーを選択してください'
-                : '学習したいカテゴリーを選択してください'
-              }
+              {isReviewMode ? (isUrgentReviewMode ? '緊急に復習が必要なカテゴリーを選択してください' : '復習したいカテゴリーを選択してください') :
+               isReviewListMode ? '復習リストの単語があるカテゴリーを選択してください' :
+               '学習したいカテゴリーを選択してください'}
             </p>
           </div>
           

@@ -65,13 +65,12 @@ interface PageProps {
 export default async function FlashcardPage({ params, searchParams }: PageProps) {
   const { category } = await params;
   const { sec, random, count, mode, level } = await searchParams;
-  
-  const decodedCategory = decodeURIComponent(category);
+
   const isReviewMode = mode === 'review';
   const isReviewListMode = mode === 'review-list';
   const reviewLevel = level ? Number(level) : undefined;
   
-  console.log('FlashcardPage: 開始', { category: decodedCategory, sec, random, count, mode, level });
+  console.log('FlashcardPage: 開始', { category: category, sec, random, count, mode, level });
   
   // 復習モードでない場合のみセクション指定を処理
   if (!isReviewMode && !isReviewListMode && sec && sec !== 'all') {
@@ -124,7 +123,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       const { data: allWords } = await supabase
         .from('words')
         .select('*')
-        .eq('category', decodedCategory);
+        .eq('category', category);
       
       words = (allWords || []).filter(word => reviewWordIds.has(word.id));
     }
@@ -139,7 +138,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       const { data: allWords } = await supabase
         .from('words')
         .select('*')
-        .eq('category', decodedCategory);
+        .eq('category', category);
       
       words = (allWords || []).filter(word => reviewWordIds.has(word.id));
     }
@@ -148,7 +147,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       let query = supabase
         .from('words')
         .select('*')
-        .eq('category', decodedCategory);
+        .eq('category', category);
 
       // セクション指定の場合
       if (sec && sec !== 'all') {
@@ -164,17 +163,17 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       words = wordsData || [];
     }
 
-    // ランダム選択の場合（通常モードのみ）
-    if (!isReviewMode && !isReviewListMode && random === '1' && count) {
-      const countNum = parseInt(count, 10);
+  // ランダム選択の場合（通常モードのみ）
+  if (!isReviewMode && !isReviewListMode && (random === '1' || random === 'true') && count) {
+    const countNum = parseInt(count, 10);
       if (isNaN(countNum) || countNum <= 0) {
         redirect(`/learning/${encodeURIComponent(category)}/options?mode=flashcard&error=no_params`);
       }
-      
-      // ランダムシャッフルして指定件数を取得
-      const shuffled = [...words].sort(() => Math.random() - 0.5);
-      words = shuffled.slice(0, Math.min(countNum, shuffled.length));
-    }
+
+    // ランダムシャッフルして指定件数を取得
+    const shuffled = [...words].sort(() => Math.random() - 0.5);
+    words = shuffled.slice(0, Math.min(countNum, shuffled.length));
+  }
 
     // 単語が0件の場合の処理
     if (!words || words.length === 0) {
@@ -190,7 +189,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       const { data: sectionsData } = await supabase
         .from('words')
         .select('section')
-        .eq('category', decodedCategory)
+        .eq('category', category)
         .order('section', { ascending: true });
       
       if (sectionsData) {
@@ -209,7 +208,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
     
     return (
       <FlashcardClient 
-        category={decodedCategory} 
+        category={category} 
         words={words as Word[]} 
         allSections={allSections.length > 0 ? allSections : undefined}
       />

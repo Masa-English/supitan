@@ -16,16 +16,29 @@ interface Props {
   words: Word[];
   initialQuestions?: QuizQuestion[];
   allSections?: string[];
+  reviewMode?: boolean;
+  reviewListMode?: boolean;
+  reviewLevel?: number;
+  urgentReviewMode?: boolean;
 }
 
-export default function QuizClient({ category, words, initialQuestions, allSections }: Props) {
+export default function QuizClient({
+  category: encodedCategory,
+  words,
+  initialQuestions,
+  allSections,
+  reviewMode,
+  reviewListMode,
+  reviewLevel,
+  urgentReviewMode
+}: Props) {
   // URLエンコードされたカテゴリー名をデコード
-  const decodedCategory = decodeURIComponent(category);
+  const category = decodeURIComponent(encodedCategory);
   
   const { user, loading: authLoading, error: authError } = useAuth();
   const db = new DatabaseService();
   const [showCompletionModal, setShowCompletionModal] = useState(false);
-  const [showReviewMode, setShowReviewMode] = useState(false);
+  const [showReviewMode, setShowReviewMode] = useState(reviewMode || reviewListMode || urgentReviewMode || false);
   const [sessionResults, setSessionResults] = useState<{ wordId: string; correct: boolean }[]>([]);
   const router = useRouter();
   const pathname = usePathname();
@@ -69,13 +82,13 @@ export default function QuizClient({ category, words, initialQuestions, allSecti
       const learningMode = sessionStorage.getItem('selectedLearningMode') as 'flashcard' | 'quiz' || 'quiz';
       
       setLearningSession({
-        category: decodedCategory,
+        category: category,
         currentSection,
         sections: sections,
         learningMode,
       });
     }
-  }, [decodedCategory, currentSection, sections, setLearningSession]);
+  }, [category, currentSection, sections, setLearningSession]);
 
   const handleComplete = async (results: { wordId: string; correct: boolean }[]) => {
     if (!user) return;
@@ -145,7 +158,8 @@ export default function QuizClient({ category, words, initialQuestions, allSecti
     setShowCompletionModal(true);
   };
 
-  const handleReviewComplete = () => {
+  const handleReviewComplete = (results: { wordId: string; correct: boolean }[]) => {
+    setSessionResults(results);
     setShowReviewMode(false);
     setShowCompletionModal(true);
   };
@@ -168,7 +182,7 @@ export default function QuizClient({ category, words, initialQuestions, allSecti
     
     // 学習モードを取得（ストアまたはセッションストレージから）
     const learningMode = storeLearningMode || sessionStorage.getItem('selectedLearningMode') || 'quiz';
-    const targetPath = `/learning/${encodeURIComponent(decodedCategory)}/${learningMode}/section/${encodeURIComponent(nextSectionFromStore)}`;
+    const targetPath = `/learning/${encodeURIComponent(category)}/${learningMode}/section/${encodeURIComponent(nextSectionFromStore)}`;
     
     console.log('次のセクションに移動:', {
       from: storeCurrentSection,
@@ -215,7 +229,16 @@ export default function QuizClient({ category, words, initialQuestions, allSecti
       {/* 音声ファイルの事前読み込みを一時的に無効化（無限ローディング防止） */}
       {/* <AudioPreloader words={words} /> */}
       {showReviewMode ? (
-        <Review onComplete={handleReviewComplete} />
+        <Review
+          onComplete={handleReviewComplete}
+          mode={
+            reviewListMode ? 'review-list' :
+            urgentReviewMode ? 'urgent' :
+            reviewMode ? 'interval' : 'review-list'
+          }
+          category={category}
+          level={reviewLevel}
+        />
       ) : (
         <Quiz words={words} onComplete={handleComplete} onAddToReview={handleAddToReview} initialQuestions={initialQuestions} />
       )}
@@ -224,7 +247,7 @@ export default function QuizClient({ category, words, initialQuestions, allSecti
         <CompletionModal
           isOpen={showCompletionModal}
           onClose={() => setShowCompletionModal(false)}
-          category={decodedCategory}
+          category={category}
           results={sessionResults}
           totalQuestions={words.length}
           section={currentSection || ''}

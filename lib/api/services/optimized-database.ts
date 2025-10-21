@@ -81,8 +81,8 @@ export class OptimizedDatabaseService {
 
     try {
       // URLデコードを確実に実行
-      const decodedCategory = decodeURIComponent(category);
-      console.log(`OptimizedDatabase: Searching for category: "${decodedCategory}"`);
+      const category = decodeURIComponent(category);
+      console.log(`OptimizedDatabase: Searching for category: "${category}"`);
 
       // 単一クエリでカテゴリーと単語を同時取得（JOIN使用）
       const { data, error } = await this.supabase
@@ -98,17 +98,17 @@ export class OptimizedDatabaseService {
             is_active
           )
         `)
-        .eq('categories.name', decodedCategory)
+        .eq('categories.name', category)
         .eq('categories.is_active', true)
         .order('word', { ascending: true });
 
       if (error) {
-        console.error(`Database error for category "${decodedCategory}":`, error);
+        console.error(`Database error for category "${category}":`, error);
         throw error;
       }
 
       const words = data || [];
-      console.log(`OptimizedDatabase: Found ${words.length} words for category "${decodedCategory}"`);
+      console.log(`OptimizedDatabase: Found ${words.length} words for category "${category}"`);
 
       // キャッシュに保存（10分間）
       this.setCache(cacheKey, words, 600000);

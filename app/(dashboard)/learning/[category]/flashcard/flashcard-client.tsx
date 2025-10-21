@@ -19,11 +19,8 @@ interface Props {
 }
 
 export default function FlashcardClient({ category, words, allSections }: Props) {
-  // URLエンコードされたカテゴリー名をデコード
-  const decodedCategory = decodeURIComponent(category);
-  
   console.log('FlashcardClient: レンダリング開始', { 
-    category: decodedCategory, 
+    category: category, 
     wordsCount: words.length, 
     allSections: allSections?.length 
   });
@@ -104,13 +101,13 @@ export default function FlashcardClient({ category, words, allSections }: Props)
       const learningMode = sessionStorage.getItem('selectedLearningMode') as 'flashcard' | 'quiz' || 'flashcard';
       
       setLearningSession({
-        category: decodedCategory,
+        category: category,
         currentSection,
         sections: sections,
         learningMode,
       });
     }
-  }, [decodedCategory, currentSection, sections, setLearningSession]);
+  }, [category, currentSection, sections, setLearningSession]);
 
   const handleComplete = async (results: { wordId: string; correct: boolean }[]) => {
     setSessionResults(results);
@@ -197,7 +194,7 @@ export default function FlashcardClient({ category, words, allSections }: Props)
     
     // 学習モードを取得（ストアまたはセッションストレージから）
     const learningMode = storeLearningMode || sessionStorage.getItem('selectedLearningMode') || 'flashcard';
-    const targetPath = `/learning/${encodeURIComponent(decodedCategory)}/${learningMode}/section/${encodeURIComponent(nextSectionFromStore)}`;
+    const targetPath = `/learning/${category}/${learningMode}/section/${encodeURIComponent(nextSectionFromStore)}`;
     
     console.log('次のセクションに移動:', {
       from: storeCurrentSection,
@@ -253,18 +250,18 @@ export default function FlashcardClient({ category, words, allSections }: Props)
         </ReloadButton>
       </div>
 
-      <main className="flex-1 flex flex-col justify-around sm:justify-around pb-safe">
+      <main className="flex-1 flex flex-col justify-around sm:justify-around pb-safe p-4">
         {showReviewMode ? (
           <Review onComplete={handleReviewComplete} />
         ) : (
-          <Flashcard words={words} onComplete={handleComplete} category={decodedCategory} />
+          <Flashcard words={words} onComplete={handleComplete} category={category} />
         )}
       </main>
       {showCompletionModal && (
         <CompletionModal
           isOpen={showCompletionModal}
           onClose={() => setShowCompletionModal(false)}
-          category={decodedCategory}
+          category={category}
           section={currentSection || ''}
           results={sessionResults}
           totalQuestions={words.length}
