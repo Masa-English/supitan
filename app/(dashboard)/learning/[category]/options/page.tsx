@@ -59,12 +59,8 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
       redirect(redirectUrl);
     }
 
-    // randomパラメータがある場合は直接学習ページにリダイレクト
-    if (sp.random && sp.count) {
-      const redirectUrl = `/learning/${encodeURIComponent(category)}/${mode}?random=${sp.random}&count=${sp.count}`;
-      console.log('Redirecting to:', redirectUrl);
-      redirect(redirectUrl);
-    }
+    // 古いrandomパラメータがある場合は、クリーンなオプション画面を表示（自動リダイレクトを削除）
+    // これにより、ユーザーは正しくオプションを選択して「開始」ボタンを押すことができる
   }
 
   return (

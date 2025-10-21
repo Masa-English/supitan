@@ -69,12 +69,23 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
   const isReviewMode = mode === 'review';
   const isReviewListMode = mode === 'review-list';
   const reviewLevel = level ? Number(level) : undefined;
-  
-  console.log('FlashcardPage: 開始', { category: category, sec, random, count, mode, level });
+
+  console.log('FlashcardPage: 開始', {
+    category: category,
+    sec,
+    random,
+    count,
+    mode,
+    level,
+    isReviewMode,
+    isReviewListMode,
+    randomType: typeof random,
+    countType: typeof count
+  });
   
   // 復習モードでない場合のみセクション指定を処理
   if (!isReviewMode && !isReviewListMode && sec && sec !== 'all') {
-    redirect(`/learning/${encodeURIComponent(category)}/flashcard/section/${encodeURIComponent(sec)}`);
+    redirect(`/learning/${category}/flashcard/section/${sec}`);
   }
   
   // 認証確認
@@ -84,7 +95,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
   
   if (authError || !user) {
     console.log('FlashcardPage: 認証エラー', { authError, hasUser: !!user });
-    redirect(`/learning/${encodeURIComponent(category)}/options?mode=flashcard&error=auth_error`);
+    redirect(`/learning/${category}/options?mode=flashcard&error=auth_error`);
   }
   
   console.log('FlashcardPage: 認証成功', { userId: user.id });
@@ -139,8 +150,8 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
         .from('words')
         .select('*')
         .eq('category', category);
-      
-      words = (allWords || []).filter(word => reviewWordIds.has(word.id));
+
+      words = (allWords || []).filter(word => reviewWordIds.has(word.id)) as Word[];
     }
     // 通常モードの場合
     else {
@@ -159,28 +170,41 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
         }
       }
 
-      const { data: wordsData } = await query.order('id', { ascending: true });
-      words = wordsData || [];
+      const { data: wordsData, error: wordsError } = await query.order('id', { ascending: true });
+      words = (wordsData || []) as Word[];
+      console.log('単語取得結果:', { wordsCount: words.length, error: wordsError, category });
     }
 
   // ランダム選択の場合（通常モードのみ）
   if (!isReviewMode && !isReviewListMode && (random === '1' || random === 'true') && count) {
+    console.log('ランダムモード検知:', { random, count, wordsCount: words.length });
     const countNum = parseInt(count, 10);
-      if (isNaN(countNum) || countNum <= 0) {
-        redirect(`/learning/${encodeURIComponent(category)}/options?mode=flashcard&error=no_params`);
-      }
+    console.log('ランダムモード処理:', { countNum, isValid: !isNaN(countNum) && countNum > 0 });
+
+    if (isNaN(countNum) || countNum <= 0) {
+      console.log('ランダムモード: パラメータエラー', { count, countNum });
+      redirect(`/learning/${category}/options?mode=flashcard&error=no_params`);
+    }
+
+    // 単語数が指定件数より少ない場合の処理
+    if (words.length < countNum) {
+      console.log('ランダムモード: 単語数が不足', { wordsCount: words.length, requestedCount: countNum });
+    }
 
     // ランダムシャッフルして指定件数を取得
     const shuffled = [...words].sort(() => Math.random() - 0.5);
     words = shuffled.slice(0, Math.min(countNum, shuffled.length));
+    console.log('ランダムモード完了:', { finalWordsCount: words.length });
   }
 
     // 単語が0件の場合の処理
+    console.log('最終単語数確認:', { wordsCount: words.length, isReviewMode, isReviewListMode, hasRandomParams: !!(random && count) });
     if (!words || words.length === 0) {
+      console.log('単語が0件のためリダイレクト');
       if (isReviewMode || isReviewListMode) {
         redirect('/review');
       } else {
-        redirect(`/learning/${encodeURIComponent(category)}/options?mode=flashcard&error=no_words`);
+        redirect(`/learning/${category}/options?mode=flashcard&error=no_words`);
       }
     }
 
@@ -216,6 +240,6 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
     
   } catch (error) {
     console.error('Flashcard page error:', error);
-    redirect(`/learning/${encodeURIComponent(category)}/options?mode=flashcard&error=data_error`);
+    redirect(`/learning/${category}/options?mode=flashcard&error=data_error`);
   }
 }

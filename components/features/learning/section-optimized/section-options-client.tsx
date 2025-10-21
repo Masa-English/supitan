@@ -33,17 +33,18 @@ interface SectionOptionsClientProps {
   };
 }
 
-export function SectionOptionsClient({ 
-  category, 
-  mode, 
-  initialData 
+export function SectionOptionsClient({
+  category,
+  mode,
+  initialData
 }: SectionOptionsClientProps) {
   const [sectionData, setSectionData] = useState(initialData);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [randomCount, setRandomCount] = useState<number>(10);
 
   const { refreshData: _storeRefreshData } = useDataStore();
-  
+
   // スマートリアルタイム更新の設定
   const { isConnected, refresh: _realtimeRefresh, stats } = useSmartRealtimeWords(category);
 
@@ -94,7 +95,39 @@ export function SectionOptionsClient({
     };
   }, [refreshData]);
 
-  const base = `/learning/${encodeURIComponent(category)}/${mode}`;
+  const base = `/learning/${category}/${mode}`;
+
+  // 初期ランダム件数の設定
+  useEffect(() => {
+    const validCount = Math.min(10, sectionData.totalCount);
+    setRandomCount(validCount);
+  }, [sectionData.totalCount]);
+
+  // ランダム件数の検証と調整
+  useEffect(() => {
+    if (randomCount > sectionData.totalCount) {
+      setRandomCount(sectionData.totalCount);
+    }
+    if (randomCount < 1) {
+      setRandomCount(1);
+    }
+  }, [randomCount, sectionData.totalCount]);
+
+  // クイック選択ボタンの選択状態を調整（無効化されたボタンが選択状態にならないように）
+  useEffect(() => {
+    if (sectionData.totalCount < 10 && randomCount === 10) {
+      setRandomCount(Math.min(10, sectionData.totalCount));
+    }
+    if (sectionData.totalCount < 20 && randomCount === 20) {
+      setRandomCount(Math.min(20, sectionData.totalCount));
+    }
+    if (sectionData.totalCount < 50 && randomCount === 50) {
+      setRandomCount(Math.min(50, sectionData.totalCount));
+    }
+    if (sectionData.totalCount < 100 && randomCount === 100) {
+      setRandomCount(Math.min(100, sectionData.totalCount));
+    }
+  }, [sectionData.totalCount, randomCount]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -250,30 +283,62 @@ export function SectionOptionsClient({
                     <p className="text-sm text-muted-foreground mb-4">
                       指定した件数を{category}からランダムに出題します。
                     </p>
+
+                    {/* 現在の選択数表示 */}
+                    <div className="mb-4 p-3 bg-muted/50 rounded-md border border-border">
+                      <div className="text-sm">
+                        <span className="font-medium">現在の選択: </span>
+                        <span className="text-primary font-bold text-lg">{randomCount}問</span>
+                        <span className="text-muted-foreground ml-2">
+                          ({Math.round((randomCount / sectionData.totalCount) * 100)}%単語)
+                        </span>
+                        {randomCount >= sectionData.totalCount && (
+                          <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                            全単語出題
+                          </span>
+                        )}
+                      </div>
+                    </div>
                     
                     {/* クイック選択ボタン */}
                     <div className="flex flex-wrap gap-2 mb-4">
-                      <Link href={`${base}?random=1&count=10`}>
-                        <Button size="sm" className="bg-primary hover:bg-primary/90">
-                          10問
-                        </Button>
-                      </Link>
-                      <Link href={`${base}?random=1&count=20`}>
-                        <Button size="sm" variant="outline">
-                          20問
-                        </Button>
-                      </Link>
-                      <Link href={`${base}?random=1&count=50`}>
-                        <Button size="sm" variant="outline">
-                          50問
-                        </Button>
-                      </Link>
+                      <Button
+                        size="sm"
+                        className={`${randomCount === 10 ? 'bg-primary hover:bg-primary/90' : 'bg-muted hover:bg-muted/80'}`}
+                        disabled={sectionData.totalCount < 10}
+                        onClick={() => setRandomCount(10)}
+                        title={sectionData.totalCount < 10 ? `単語が${sectionData.totalCount}個しかないため選択できません` : '10問を選択'}
+                      >
+                        10問
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={randomCount === 20 ? "default" : "outline"}
+                        disabled={sectionData.totalCount < 20}
+                        onClick={() => setRandomCount(20)}
+                        title={sectionData.totalCount < 20 ? `単語が${sectionData.totalCount}個しかないため選択できません` : '20問を選択'}
+                      >
+                        20問
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={randomCount === 50 ? "default" : "outline"}
+                        disabled={sectionData.totalCount < 50}
+                        onClick={() => setRandomCount(50)}
+                        title={sectionData.totalCount < 50 ? `単語が${sectionData.totalCount}個しかないため選択できません` : '50問を選択'}
+                      >
+                        50問
+                      </Button>
                       {sectionData.totalCount >= 100 && (
-                        <Link href={`${base}?random=1&count=100`}>
-                          <Button size="sm" variant="outline">
-                            100問
-                          </Button>
-                        </Link>
+                        <Button
+                          size="sm"
+                          variant={randomCount === 100 ? "default" : "outline"}
+                          disabled={sectionData.totalCount < 100}
+                          onClick={() => setRandomCount(100)}
+                          title={sectionData.totalCount < 100 ? `単語が${sectionData.totalCount}個しかないため選択できません` : '100問を選択'}
+                        >
+                          100問
+                        </Button>
                       )}
                     </div>
 
@@ -282,16 +347,26 @@ export function SectionOptionsClient({
                       <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
                         <div>
                           <label className="text-sm font-medium" htmlFor="random-count">カスタム件数</label>
-                          <RandomInput 
+                          <RandomInput
                             wordsCount={sectionData.totalCount}
                             defaultValue={Math.min(10, sectionData.totalCount)}
+                            value={randomCount}
+                            onChange={setRandomCount}
                           />
                         </div>
-                        <Link href={`${base}?random=1&count=10`}>
-                          <Button aria-label="カスタム件数で開始" disabled={sectionData.totalCount === 0} size="sm">
-                            開始 <ArrowRight className="h-4 w-4 ml-1" />
-                          </Button>
-                        </Link>
+                        <Button
+                          aria-label="カスタム件数で開始"
+                          disabled={sectionData.totalCount === 0}
+                          size="sm"
+                          onClick={() => {
+                            const params = new URLSearchParams({ random: '1', count: randomCount.toString() });
+                            const finalUrl = `${base}?${params.toString()}`;
+                            console.log('開始ボタンクリック:', { base, randomCount, finalUrl });
+                            window.location.href = finalUrl;
+                          }}
+                        >
+                          開始 <ArrowRight className="h-4 w-4 ml-1" />
+                        </Button>
                       </div>
                       
                       {/* 制約情報 */}

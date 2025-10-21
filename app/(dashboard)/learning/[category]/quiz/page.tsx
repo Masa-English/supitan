@@ -74,6 +74,17 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
   const isReviewListMode = sp.mode === 'review-list';
   const reviewLevel = sp.level ? Number(sp.level) : undefined;
 
+  console.log('QuizPage パラメータ:', {
+    category,
+    sectionRaw,
+    random: sp.random,
+    count: sp.count,
+    isRandom,
+    randomCount,
+    isReviewMode,
+    isReviewListMode
+  });
+
   // 認証セッションチェック（サーバー側）
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -83,19 +94,20 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
   if (!isReviewMode && !isReviewListMode) {
     // セクション指定がある場合は適切なルートにリダイレクト
     if (sectionRaw && sectionRaw !== 'all') {
-      redirect(`/learning/${encodeURIComponent(category)}/quiz/section/${encodeURIComponent(sectionRaw)}`);
+      redirect(`/learning/${category}/quiz/section/${sectionRaw}`);
     }
 
     // セーフガード: パラメータ未指定時はオプションへ
     const hasSection = !!sectionRaw;
     const hasRandom = isRandom && (randomCount ?? 0) > 0;
     if (!hasSection && !hasRandom) {
-      redirect(`/learning/${encodeURIComponent(category)}/options?mode=quiz`);
+      redirect(`/learning/${category}/options?mode=quiz`);
     }
   }
 
   // 統一データプロバイダ経由で取得（キャッシュ有効）
   let words = await dataProvider.getWordsByCategory(category);
+  console.log('QuizPage 単語取得完了:', { wordsCount: words.length, category, isRandom, randomCount });
   
   // 復習モードの場合は復習対象の単語のみを取得
   if (isReviewMode) {
@@ -166,13 +178,15 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
   }
 
   // 0件時の処理
+  console.log('最終単語数確認:', { wordsCount: words.length, isReviewMode, isReviewListMode, isRandom, randomCount });
   if (!words || words.length === 0) {
+    console.log('単語が0件のためリダイレクト');
     if (isReviewMode || isReviewListMode) {
       // 復習モードの場合は復習ページにリダイレクト
       redirect('/review');
     } else {
       // 通常モードの場合はオプションへ戻す
-      redirect(`/learning/${encodeURIComponent(category)}/options?mode=quiz`);
+      redirect(`/learning/${category}/options?mode=quiz`);
     }
   }
 
