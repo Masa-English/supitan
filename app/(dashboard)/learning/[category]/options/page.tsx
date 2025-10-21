@@ -97,8 +97,15 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
       redirect(redirectUrl);
     }
 
-    // 古いrandomパラメータがある場合は、クリーンなオプション画面を表示（自動リダイレクトを削除）
-    // これにより、ユーザーは正しくオプションを選択して「開始」ボタンを押すことができる
+    // ランダムモードのパラメータがある場合は、オプション画面を表示（リダイレクトしない）
+    // ユーザーが「開始」ボタンをクリックした時のみリダイレクトする
+    if (sp.random && sp.count) {
+      console.log('ランダムモードパラメータ検出:', { 
+        random: sp.random, 
+        count: sp.count,
+        action: 'オプション画面を表示（リダイレクトしない）'
+      });
+    }
   }
 
   return (
@@ -106,6 +113,7 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
       category={decodedCategory}
       mode={mode}
       initialData={sectionData}
+      error={sp.error}
     />
   );
 }

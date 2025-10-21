@@ -31,12 +31,14 @@ interface SectionOptionsClientProps {
     sections: SectionInfo[];
     wordsCount: number;
   };
+  error?: string;
 }
 
 export function SectionOptionsClient({
   category,
   mode,
-  initialData
+  initialData,
+  error
 }: SectionOptionsClientProps) {
   const [sectionData, setSectionData] = useState(initialData);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -197,6 +199,35 @@ export function SectionOptionsClient({
             </Link>
           </div>
           
+          {/* エラーメッセージ表示 */}
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                    {error === 'no_words' && '単語が見つかりません'}
+                    {error === 'no_params' && 'パラメータが不正です'}
+                    {error === 'data_error' && 'データの取得に失敗しました'}
+                    {error === 'auth_error' && '認証に失敗しました'}
+                    {!['no_words', 'no_params', 'data_error', 'auth_error'].includes(error) && 'エラーが発生しました'}
+                  </h3>
+                  <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                    {error === 'no_words' && 'このカテゴリーには単語が存在しないか、条件に合う単語がありません。'}
+                    {error === 'no_params' && 'ランダムモードのパラメータが正しくありません。'}
+                    {error === 'data_error' && 'データベースからの情報取得に失敗しました。'}
+                    {error === 'auth_error' && 'ログインが必要です。'}
+                    {!['no_words', 'no_params', 'data_error', 'auth_error'].includes(error) && '予期しないエラーが発生しました。'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-6 sm:space-y-8 mt-4 sm:mt-6">
             {/* ❶ 順番通り */}
             <Card className="bg-card border-border">
@@ -260,10 +291,10 @@ export function SectionOptionsClient({
               </CardContent>
             </Card>
 
-            {/* ❷ ランダム */}
-            <Card className="bg-card border-border">
+            {/* ❷ ランダム - 一時的に無効化 */}
+            <Card className="bg-card border-border opacity-50">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">❷ ランダム</CardTitle>
+                <CardTitle className="text-lg">❷ ランダム <span className="text-sm text-muted-foreground">(メンテナンス中)</span></CardTitle>
               </CardHeader>
               <CardContent>
                 {sectionData.totalCount === 0 ? (
@@ -280,6 +311,23 @@ export function SectionOptionsClient({
                   </div>
                 ) : (
                   <div>
+                    <div className="rounded-md border border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20 p-4 mb-4">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div className="ml-3">
+                          <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                            ランダムモードは一時的に利用できません
+                          </h3>
+                          <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                            現在メンテナンス中のため、ランダムモードはご利用いただけません。順番通りモードをご利用ください。
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <p className="text-sm text-muted-foreground mb-4">
                       指定した件数を{category}からランダムに出題します。
                     </p>
@@ -300,32 +348,32 @@ export function SectionOptionsClient({
                       </div>
                     </div>
                     
-                    {/* クイック選択ボタン */}
+                    {/* クイック選択ボタン - 一時的に無効化 */}
                     <div className="flex flex-wrap gap-2 mb-4">
                       <Button
                         size="sm"
                         className={`${randomCount === 10 ? 'bg-primary hover:bg-primary/90' : 'bg-muted hover:bg-muted/80'}`}
-                        disabled={sectionData.totalCount < 10}
-                        onClick={() => setRandomCount(10)}
-                        title={sectionData.totalCount < 10 ? `単語が${sectionData.totalCount}個しかないため選択できません` : '10問を選択'}
+                        disabled={true}
+                        onClick={() => alert('ランダムモードは現在メンテナンス中です。')}
+                        title="ランダムモードは現在メンテナンス中です"
                       >
                         10問
                       </Button>
                       <Button
                         size="sm"
                         variant={randomCount === 20 ? "default" : "outline"}
-                        disabled={sectionData.totalCount < 20}
-                        onClick={() => setRandomCount(20)}
-                        title={sectionData.totalCount < 20 ? `単語が${sectionData.totalCount}個しかないため選択できません` : '20問を選択'}
+                        disabled={true}
+                        onClick={() => alert('ランダムモードは現在メンテナンス中です。')}
+                        title="ランダムモードは現在メンテナンス中です"
                       >
                         20問
                       </Button>
                       <Button
                         size="sm"
                         variant={randomCount === 50 ? "default" : "outline"}
-                        disabled={sectionData.totalCount < 50}
-                        onClick={() => setRandomCount(50)}
-                        title={sectionData.totalCount < 50 ? `単語が${sectionData.totalCount}個しかないため選択できません` : '50問を選択'}
+                        disabled={true}
+                        onClick={() => alert('ランダムモードは現在メンテナンス中です。')}
+                        title="ランダムモードは現在メンテナンス中です"
                       >
                         50問
                       </Button>
@@ -333,9 +381,9 @@ export function SectionOptionsClient({
                         <Button
                           size="sm"
                           variant={randomCount === 100 ? "default" : "outline"}
-                          disabled={sectionData.totalCount < 100}
-                          onClick={() => setRandomCount(100)}
-                          title={sectionData.totalCount < 100 ? `単語が${sectionData.totalCount}個しかないため選択できません` : '100問を選択'}
+                          disabled={true}
+                          onClick={() => alert('ランダムモードは現在メンテナンス中です。')}
+                          title="ランダムモードは現在メンテナンス中です"
                         >
                           100問
                         </Button>
@@ -356,13 +404,11 @@ export function SectionOptionsClient({
                         </div>
                         <Button
                           aria-label="カスタム件数で開始"
-                          disabled={sectionData.totalCount === 0}
+                          disabled={true}
                           size="sm"
                           onClick={() => {
-                            const params = new URLSearchParams({ random: '1', count: randomCount.toString() });
-                            const finalUrl = `${base}?${params.toString()}`;
-                            console.log('開始ボタンクリック:', { base, randomCount, finalUrl });
-                            window.location.href = finalUrl;
+                            // 一時的に無効化
+                            alert('ランダムモードは現在メンテナンス中です。順番通りモードをご利用ください。');
                           }}
                         >
                           開始 <ArrowRight className="h-4 w-4 ml-1" />
