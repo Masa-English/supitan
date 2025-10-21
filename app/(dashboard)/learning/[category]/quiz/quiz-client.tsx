@@ -33,7 +33,7 @@ export default function QuizClient({
   urgentReviewMode
 }: Props) {
   // URLエンコードされたカテゴリー名をデコード
-  const category = decodeURIComponent(encodedCategory);
+  const category = encodedCategory;
   
   const { user, loading: authLoading, error: authError } = useAuth();
   const db = new DatabaseService();

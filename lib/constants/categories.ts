@@ -232,7 +232,7 @@ export function encodeCategoryName(name: string): string {
 
 // URLエンコードされたカテゴリー名をデコード
 export function decodeCategoryName(encodedName: string): string {
-  return decodeURIComponent(encodedName);
+  return encodedName;
 }
 
 // カテゴリー名の表示用フォーマット

@@ -259,7 +259,7 @@ export function generateBreadcrumbs(pathname: string): RouteInfo[] {
     ];
     
     if (segments[2]) {
-      const category = decodeURIComponent(segments[2]);
+      const category = segments[2];
       breadcrumbs.push({
         path: LEARNING_ROUTES.CATEGORY(category),
         title: category

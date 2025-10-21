@@ -25,8 +25,8 @@ export default async function QuizSectionPage({
 }) {
   try {
     const p = await params;
-    const category = decodeURIComponent(p.category);
-    const section = decodeURIComponent(p.sec);
+    const category = p.category;
+    const section = p.sec;
 
     console.log(`Loading quiz section: ${category} - ${section}`);
 

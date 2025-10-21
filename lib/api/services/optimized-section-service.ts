@@ -30,13 +30,14 @@ export class OptimizedSectionService {
    */
   private getOptimizedSectionData = unstable_cache(
     async (category: string): Promise<OptimizedSectionData> => {
-      console.log(`[OptimizedSection] Fetching data for category: ${category}`);
+      const decodedCategory = category ? decodeURIComponent(category) : category;
+      console.log(`[OptimizedSection] Fetching data for category: ${decodedCategory}`);
 
       // 1. 総件数とセクション情報を一度に取得
       const { data: wordsData, error: wordsError } = await this.supabase
         .from('words')
         .select('id, section')
-        .eq('category', category);
+        .eq('category', decodedCategory);
 
       if (wordsError) {
         console.error('Failed to fetch words data:', wordsError);

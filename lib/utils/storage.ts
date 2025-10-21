@@ -22,7 +22,7 @@ export function secureStorageGet(key: string): string | null {
     if (typeof window !== 'undefined' && window.sessionStorage) {
       const encodedValue = window.sessionStorage.getItem(key);
       if (encodedValue) {
-        return decodeURIComponent(atob(encodedValue));
+        return atob(encodedValue);
       }
     }
     return null;

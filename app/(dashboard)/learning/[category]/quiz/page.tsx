@@ -66,7 +66,9 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
   const p = params ? await params : undefined;
   const sp = searchParams ? await searchParams : {};
   if (!p?.category) notFound();
-  const category = decodeURIComponent(p.category);
+  const category = p.category;
+  // カテゴリーパラメータをデコード
+  const decodedCategory = decodeURIComponent(category);
   const sectionRaw = sp.sec;
   const isRandom = sp.random === '1' || sp.random === 'true';
   const randomCount = sp.count ? Number(sp.count) : undefined;
@@ -76,6 +78,7 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
 
   console.log('QuizPage パラメータ:', {
     category,
+    decodedCategory,
     sectionRaw,
     random: sp.random,
     count: sp.count,
@@ -94,14 +97,14 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
   if (!isReviewMode && !isReviewListMode) {
     // セクション指定がある場合は適切なルートにリダイレクト
     if (sectionRaw && sectionRaw !== 'all') {
-      redirect(`/learning/${category}/quiz/section/${sectionRaw}`);
+      redirect(`/learning/${encodeURIComponent(decodedCategory)}/quiz/section/${sectionRaw}`);
     }
 
     // セーフガード: パラメータ未指定時はオプションへ
     const hasSection = !!sectionRaw;
     const hasRandom = isRandom && (randomCount ?? 0) > 0;
     if (!hasSection && !hasRandom) {
-      redirect(`/learning/${category}/options?mode=quiz`);
+      redirect(`/learning/${encodeURIComponent(decodedCategory)}/options?mode=quiz`);
     }
   }
 
@@ -186,7 +189,7 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
       redirect('/review');
     } else {
       // 通常モードの場合はオプションへ戻す
-      redirect(`/learning/${category}/options?mode=quiz`);
+      redirect(`/learning/${encodeURIComponent(decodedCategory)}/options?mode=quiz`);
     }
   }
 

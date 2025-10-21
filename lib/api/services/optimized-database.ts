@@ -80,9 +80,10 @@ export class OptimizedDatabaseService {
     if (cached) return cached;
 
     try {
-      // URLデコードを確実に実行
-      const category = decodeURIComponent(category);
-      console.log(`OptimizedDatabase: Searching for category: "${category}"`);
+      // URLデコードを確実に実行し、カテゴリー名を正規化（トリムのみ）
+      const decodedCategory = category ? decodeURIComponent(category) : category;
+      const normalizedCategory = decodedCategory.trim();
+      console.log(`OptimizedDatabase: Searching for category: "${normalizedCategory}" (original: "${decodedCategory}")`);
 
       // 単一クエリでカテゴリーと単語を同時取得（JOIN使用）
       const { data, error } = await this.supabase
@@ -98,23 +99,23 @@ export class OptimizedDatabaseService {
             is_active
           )
         `)
-        .eq('categories.name', category)
+        .eq('categories.name', normalizedCategory)
         .eq('categories.is_active', true)
         .order('word', { ascending: true });
 
       if (error) {
-        console.error(`Database error for category "${category}":`, error);
+        console.error(`Database error for category "${normalizedCategory}":`, error);
         throw error;
       }
 
       const words = data || [];
-      console.log(`OptimizedDatabase: Found ${words.length} words for category "${category}"`);
+      console.log(`OptimizedDatabase: Found ${words.length} words for category "${normalizedCategory}"`);
 
       // キャッシュに保存（10分間）
       this.setCache(cacheKey, words, 600000);
       return words;
     } catch (error) {
-      console.error(`Failed to fetch words for category "${category}":`, error);
+      console.error(`Failed to fetch words for category "${normalizedCategory}":`, error);
       throw error;
     }
   }

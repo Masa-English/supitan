@@ -3,6 +3,7 @@ import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import { dataProvider } from '@/lib/api/services';
 import FlashcardClient from './flashcard-client';
 import type { Word } from '@/lib/types';
+// import { supabase } from '@/lib/api/supabase/client'; // サーバーサイドでは使用しない
 
 // ISR設定 - 5分ごとに再生成（より頻繁に更新）
 export const revalidate = 300;
@@ -66,12 +67,16 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
   const { category } = await params;
   const { sec, random, count, mode, level } = await searchParams;
 
+  // カテゴリーパラメータをデコード
+  const decodedCategory = decodeURIComponent(category);
+
   const isReviewMode = mode === 'review';
   const isReviewListMode = mode === 'review-list';
   const reviewLevel = level ? Number(level) : undefined;
 
   console.log('FlashcardPage: 開始', {
     category: category,
+    categoryDecoded: decodedCategory,
     sec,
     random,
     count,
@@ -82,20 +87,46 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
     randomType: typeof random,
     countType: typeof count
   });
+
+  // カテゴリーの存在確認
+  console.log('FlashcardPage: カテゴリー確認', { category: decodedCategory });
+
+  // カテゴリーの存在確認
+  const categoryCheckSupabase = await createServerClient();
+  const { data: categoryData, error: categoryError } = await categoryCheckSupabase
+    .from('categories')
+    .select('id, name')
+    .eq('name', decodedCategory)
+    .eq('is_active', true)
+    .single();
+
+  if (categoryError || !categoryData) {
+    console.log('FlashcardPage: カテゴリーが存在しないためリダイレクト', {
+      category,
+      decodedCategory,
+      error: categoryError?.message
+    });
+    redirect('/learning/categories');
+  }
+
+  console.log('FlashcardPage: カテゴリー確認成功', {
+    categoryId: categoryData.id,
+    categoryName: categoryData.name
+  });
   
   // 復習モードでない場合のみセクション指定を処理
   if (!isReviewMode && !isReviewListMode && sec && sec !== 'all') {
-    redirect(`/learning/${category}/flashcard/section/${sec}`);
+    redirect(`/learning/${encodeURIComponent(decodedCategory)}/flashcard/section/${sec}`);
   }
   
   // 認証確認
   console.log('FlashcardPage: 認証確認開始');
-  const supabase = await createServerClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const authSupabase = await createServerClient();
+  const { data: { user }, error: authError } = await authSupabase.auth.getUser();
   
   if (authError || !user) {
     console.log('FlashcardPage: 認証エラー', { authError, hasUser: !!user });
-    redirect(`/learning/${category}/options?mode=flashcard&error=auth_error`);
+    redirect(`/learning/${encodeURIComponent(decodedCategory)}/options?mode=flashcard&error=auth_error`);
   }
   
   console.log('FlashcardPage: 認証成功', { userId: user.id });
@@ -131,12 +162,12 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       const reviewWordIds = new Set(reviewWords.map(p => p.word_id));
       
       // カテゴリー内の復習対象単語のみを取得
-      const { data: allWords } = await supabase
+      const { data: allWords } = await authSupabase
         .from('words')
         .select('*')
-        .eq('category', category);
-      
-      words = (allWords || []).filter(word => reviewWordIds.has(word.id));
+        .eq('category', decodedCategory);
+
+      words = (allWords || []).filter((word: Word) => reviewWordIds.has(word.id));
     }
     // 復習リストモードの場合
     else if (isReviewListMode) {
@@ -146,27 +177,27 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       const reviewWordIds = new Set(reviewWords.map(rw => rw.word_id));
       
       // カテゴリー内の復習リスト単語のみを取得
-      const { data: allWords } = await supabase
+      const { data: allWords } = await authSupabase
         .from('words')
         .select('*')
-        .eq('category', category);
+        .eq('category', decodedCategory);
 
-      words = (allWords || []).filter(word => reviewWordIds.has(word.id)) as Word[];
+      words = (allWords || []).filter((word: Word) => reviewWordIds.has(word.id)) as Word[];
     }
     // 通常モードの場合
     else {
-      let query = supabase
+      let query = authSupabase
         .from('words')
         .select('*')
-        .eq('category', category);
+        .eq('category', decodedCategory);
 
       // セクション指定の場合
       if (sec && sec !== 'all') {
-        const decodedSec = decodeURIComponent(sec);
-        if (decodedSec === '未設定') {
+        console.log('セクション指定処理:', { sec });
+        if (sec === '未設定') {
           query = query.is('section', null);
         } else {
-          query = query.eq('section', decodedSec);
+          query = query.eq('section', sec);
         }
       }
 
@@ -178,12 +209,13 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
   // ランダム選択の場合（通常モードのみ）
   if (!isReviewMode && !isReviewListMode && (random === '1' || random === 'true') && count) {
     console.log('ランダムモード検知:', { random, count, wordsCount: words.length });
+
     const countNum = parseInt(count, 10);
-    console.log('ランダムモード処理:', { countNum, isValid: !isNaN(countNum) && countNum > 0 });
+    console.log('ランダムモード処理:', { count, countNum, isValid: !isNaN(countNum) && countNum > 0 });
 
     if (isNaN(countNum) || countNum <= 0) {
       console.log('ランダムモード: パラメータエラー', { count, countNum });
-      redirect(`/learning/${category}/options?mode=flashcard&error=no_params`);
+      redirect(`/learning/${encodeURIComponent(decodedCategory)}/options?mode=flashcard&error=no_params`);
     }
 
     // 単語数が指定件数より少ない場合の処理
@@ -204,22 +236,22 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       if (isReviewMode || isReviewListMode) {
         redirect('/review');
       } else {
-        redirect(`/learning/${category}/options?mode=flashcard&error=no_words`);
+        redirect(`/learning/${encodeURIComponent(decodedCategory)}/options?mode=flashcard&error=no_words`);
       }
     }
 
     // セクション情報を取得（通常モードでセクション指定でない場合）
     if (!isReviewMode && !isReviewListMode && (!sec || sec === 'all')) {
-      const { data: sectionsData } = await supabase
+      const { data: sectionsData } = await authSupabase
         .from('words')
         .select('section')
-        .eq('category', category)
+        .eq('category', decodedCategory)
         .order('section', { ascending: true });
-      
+
       if (sectionsData) {
         allSections = Array.from(
           new Set(
-            sectionsData.map(item => String(item.section ?? '未設定'))
+            sectionsData.map((item: { section: string | null }) => String(item.section ?? '未設定'))
           )
         );
       }
@@ -240,6 +272,6 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
     
   } catch (error) {
     console.error('Flashcard page error:', error);
-    redirect(`/learning/${category}/options?mode=flashcard&error=data_error`);
+    redirect(`/learning/${encodeURIComponent(decodedCategory)}/options?mode=flashcard&error=data_error`);
   }
 }

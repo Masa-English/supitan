@@ -12,12 +12,13 @@ export async function GET(
 ) {
   try {
     const { category } = await params;
-    const decodedCategory = decodeURIComponent(category);
 
+    // カテゴリーパラメータをデコード
+    const decodedCategory = decodeURIComponent(category);
     console.log(`[API] Fetching section data for category: ${decodedCategory}`);
 
     // 最適化されたセクションデータを取得
-    const sectionData = await optimizedSectionService.getSectionData(decodedCategory);
+    const sectionData = await optimizedSectionService.getSectionData(category);
 
     // キャッシュヘッダーを設定
     const response = NextResponse.json(sectionData);
@@ -51,12 +52,13 @@ export async function POST(
 ) {
   try {
     const { category } = await params;
-    const decodedCategory = decodeURIComponent(category);
 
+    // カテゴリーパラメータをデコード
+    const decodedCategory = decodeURIComponent(category);
     console.log(`[API] Invalidating cache for category: ${decodedCategory}`);
 
     // キャッシュを無効化
-    await optimizedSectionService.invalidateCache(decodedCategory);
+    await optimizedSectionService.invalidateCache(category);
 
     return NextResponse.json({ 
       success: true, 

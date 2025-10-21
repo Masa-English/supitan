@@ -61,6 +61,24 @@ function createBuildTimeClient() {
 }
 
 /**
+ * カテゴリー名を検証して有効なものを返す
+ */
+function validateCategoryName(name: string): boolean {
+  try {
+    // カテゴリー名が適切な形式かチェック
+    if (!name || typeof name !== 'string') {
+      return false;
+    }
+
+    // 特殊文字を含むカテゴリー名も有効とする（Next.js設定で対応）
+    return true;
+  } catch (error) {
+    console.warn('Category name validation error:', error);
+    return false;
+  }
+}
+
+/**
  * カテゴリー一覧を取得（ビルド時用）
  */
 export async function getBuildTimeCategories(): Promise<string[]> {
@@ -93,15 +111,20 @@ export async function getBuildTimeCategories(): Promise<string[]> {
     }
 
     const categories = Array.from(new Set(data?.map((item: { name: string }) => item.name).filter(Boolean) || []));
-    console.log(`Build-time categories found: ${categories.length}`, categories);
+
+    // カテゴリー名の検証
+    const validCategories = categories.filter(validateCategoryName);
+
+    console.log(`Build-time categories found: ${validCategories.length}`, validCategories);
+    console.log(`Filtered out ${categories.length - validCategories.length} invalid categories`);
 
     // データが取得できない場合はフォールバックを使用
-    if (categories.length === 0) {
-      console.warn('No categories found in database, using fallback');
+    if (validCategories.length === 0) {
+      console.warn('No valid categories found in database, using fallback');
       return ['句動詞', '動詞', '名詞', '形容詞', '副詞'];
     }
 
-    return categories;
+    return validCategories;
   } catch (error) {
     console.warn('Build-time category fetch failed:', error);
     return ['句動詞', '動詞', '名詞', '形容詞', '副詞']; // フォールバック
@@ -119,9 +142,9 @@ export async function getBuildTimeSections(categoryName: string): Promise<string
       return ['1', '2', '3']; // フォールバック
     }
 
-    // エンコードされていないのでそのまま使用（Next.js設定でエンコードを避けているため）
-    const category = categoryName;
-    console.log(`Querying sections for category: "${category}")`);
+    // URLデコードを確実に実行（Next.jsの動的ルートでエンコードされるため）
+    const category = categoryName ? decodeURIComponent(categoryName) : categoryName;
+    console.log(`Querying sections for category: "${category}"`);
 
     // タイムアウト付きでカテゴリーIDを取得
     const categoryQueryPromise = supabase
@@ -243,7 +266,7 @@ export async function getBuildTimeCategorySectionPairs(): Promise<{ category: st
 
       for (const section of sections) {
         pairs.push({
-          category: category.name, // エンコードせずにそのまま使用（Next.js設定でエンコードを避けているため）
+          category: category.name, // カテゴリー名はデータベースから取得したそのままの値を使用
           sec: section
         });
       }
@@ -295,7 +318,7 @@ async function getFallbackCategorySectionPairs(): Promise<{ category: string; se
         categoryMap.forEach((sections, category) => {
           sections.forEach(section => {
             pairs.push({
-              category: category, // エンコードせずにそのまま使用（Next.js設定でエンコードを避けているため）
+              category: category, // カテゴリー名はデータベースから取得したそのままの値を使用
               sec: section
             });
           });
@@ -314,7 +337,7 @@ async function getFallbackCategorySectionPairs(): Promise<{ category: string; se
   // 最終フォールバック
   console.warn('Using minimal fallback pairs');
   return [
-    { category: '動詞', sec: '1' }, // エンコードせずにそのまま使用（Next.js設定でエンコードを避けているため）
+    { category: '動詞', sec: '1' }, // カテゴリー名はデータベースから取得したそのままの値を使用
   ];
 }
 

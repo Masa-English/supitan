@@ -19,7 +19,7 @@ export async function generateStaticParams() {
     async () => {
       const categories = await getBuildTimeCategories();
       return categories.map((category) => ({
-        category: category, // エンコードせずにそのまま使用（Next.js設定でエンコードを避けているため）
+        category: category, // カテゴリー名はデータベースから取得したそのままの値を使用
       }));
     },
     [
@@ -36,17 +36,55 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
   // パラメータの取得と検証
   const p = params ? await params : undefined;
   const sp = searchParams ? await searchParams : {};
-  
+
   if (!p?.category) notFound();
 
-  const category = decodeURIComponent(p.category);
+  const category = p.category;
+  // カテゴリーパラメータをデコード
+  const decodedCategory = decodeURIComponent(category);
   const mode = sp.mode === 'quiz' ? 'quiz' : sp.mode === 'flashcard' ? 'flashcard' : null;
 
   if (!mode) notFound();
 
+  // カテゴリーの存在確認
+  console.log('OptionsPage: カテゴリー確認開始', { category, mode });
+  const { createClient } = await import('@supabase/supabase-js');
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (supabaseUrl && supabaseKey) {
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+
+    const { data: categoryData, error: categoryError } = await supabase
+      .from('categories')
+      .select('id, name')
+      .eq('name', decodedCategory)
+      .eq('is_active', true)
+      .single();
+
+    if (categoryError || !categoryData) {
+      console.log('OptionsPage: カテゴリーが存在しないためリダイレクト', {
+        category,
+        decodedCategory,
+        error: categoryError?.message
+      });
+      redirect('/learning/categories');
+    }
+
+    console.log('OptionsPage: カテゴリー確認成功', {
+      categoryId: categoryData.id,
+      categoryName: categoryData.name
+    });
+  }
+
   // デバッグログ
-  console.log('Options page params:', { category, mode, sec: sp.sec, random: sp.random, count: sp.count, error: sp.error });
-  
+  console.log('Options page params:', { category, decodedCategory, mode, sec: sp.sec, random: sp.random, count: sp.count, error: sp.error });
+
   // 最適化されたセクションデータを取得
   const sectionData = await optimizedSectionService.getSectionData(category);
 
@@ -54,7 +92,7 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
   if (!sp.error) {
     // secパラメータがある場合は直接学習ページにリダイレクト
     if (sp.sec) {
-      const redirectUrl = `/learning/${encodeURIComponent(category)}/${mode}/section/${encodeURIComponent(sp.sec)}`;
+      const redirectUrl = `/learning/${encodeURIComponent(decodedCategory)}/${mode}/section/${encodeURIComponent(sp.sec)}`;
       console.log('Redirecting to:', redirectUrl);
       redirect(redirectUrl);
     }
@@ -65,7 +103,7 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
 
   return (
     <SectionOptionsClient
-      category={category}
+      category={decodedCategory}
       mode={mode}
       initialData={sectionData}
     />

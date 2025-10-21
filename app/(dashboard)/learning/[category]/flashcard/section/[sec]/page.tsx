@@ -26,7 +26,7 @@ export default async function FlashcardSectionPage({
   try {
     const p = await params;
     const category = p.category;
-    const section = decodeURIComponent(p.sec);
+    const section = p.sec;
 
     console.log(`Loading flashcard section: ${category} - ${section}`);
 

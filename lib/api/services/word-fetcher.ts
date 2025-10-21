@@ -17,7 +17,7 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
   const { category: encodedCategory, sectionIndex, sectionSize, randomCount, sectionValue } = options;
 
   // URLデコードを確実に実行
-  const category = encodedCategory ? decodeURIComponent(encodedCategory) : undefined;
+  const category = encodedCategory ? decodeURIComponent(encodedCategory) : encodedCategory;
 
   // JOINクエリでカテゴリー情報も取得
   const baseSelect = `

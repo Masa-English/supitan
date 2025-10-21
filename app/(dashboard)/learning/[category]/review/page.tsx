@@ -16,7 +16,7 @@ export default async function ReviewPage({ params, searchParams }: PageProps) {
   const sp = searchParams ? await searchParams : {};
 
   if (!p?.category) notFound();
-  const category = decodeURIComponent(p.category);
+  const category = p.category;
 
   // 認証セッションチェック（サーバー側）
   const supabase = await createServerClient();

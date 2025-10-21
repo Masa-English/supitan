@@ -40,18 +40,20 @@ export class DatabaseService {
   }
 
   async getWordsByCategory(category: string): Promise<Word[]> {
-    // エンコードされていないのでそのまま使用（Next.js設定でエンコードを避けているため）
-    console.log(`Database: Searching for category: "${category}"`);
-    
+    // URLデコードを確実に実行し、カテゴリー名を正規化（トリムのみ）
+    const decodedCategory = category ? decodeURIComponent(category) : category;
+    const normalizedCategory = decodedCategory.trim();
+    console.log(`Database: Searching for category: "${normalizedCategory}" (original: "${decodedCategory}")`);
+
     // まずカテゴリーIDを取得
     const { data: categoryData, error: categoryError } = await this.supabase
       .from('categories')
       .select('id')
-      .eq('name', category)
+      .eq('name', normalizedCategory)
       .single();
     
     if (categoryError || !categoryData) {
-      console.error(`Category not found: "${category}"`);
+      console.error(`Category not found: "${normalizedCategory}" (original: "${decodedCategory}", input: "${category}")`);
       return [];
     }
     
@@ -72,11 +74,11 @@ export class DatabaseService {
       .order('word', { ascending: true });
 
     if (error) {
-      console.error(`Database error for category "${category}":`, error);
+      console.error(`Database error for category "${normalizedCategory}":`, error);
       throw error;
     }
-    
-    console.log(`Database: Found ${data?.length || 0} words for category "${category}"`);
+
+    console.log(`Database: Found ${data?.length || 0} words for category "${normalizedCategory}"`);
     return data || [];
   }
 
