@@ -5,22 +5,59 @@
 
 import { createClient } from '@supabase/supabase-js';
 
+// データベースクエリ結果の型定義
+interface CategoryWithName {
+  name?: string;
+}
+
+interface WordWithCategory {
+  category_id: string;
+  section: string | null;
+  categories?: CategoryWithName | null;
+  [key: string]: unknown;
+}
+
+interface CategoryWithId {
+  id: string;
+  name: string;
+}
+
+interface SupabaseError {
+  message: string;
+  code?: string;
+  details?: string;
+}
+
 // ビルド時専用のSupabaseクライアント
 function createBuildTimeClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseKey) {
-    console.warn('Supabase credentials not available for build-time generation');
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.warn('Supabase credentials not available for build-time generation');
+      return null;
+    }
+
+    return createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+      global: {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'User-Agent': 'Next.js Build-Time Generator',
+        },
+      },
+      db: {
+        schema: 'public',
+      },
+    });
+  } catch (error) {
+    console.warn('Failed to create build-time Supabase client:', error);
     return null;
   }
-  
-  return createClient(supabaseUrl, supabaseKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
 }
 
 /**
@@ -35,26 +72,35 @@ export async function getBuildTimeCategories(): Promise<string[]> {
     }
 
     console.log('Fetching categories from database...');
-    const { data, error } = await supabase
+
+    // タイムアウト付きでクエリを実行
+    const queryPromise = supabase
       .from('categories')
       .select('name')
       .eq('is_active', true)
       .order('sort_order');
-    
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Database query timeout')), 30000)
+    );
+
+    const queryResult = await Promise.race([queryPromise, timeoutPromise]);
+    const { data, error } = queryResult as { data: { name: string }[] | null; error: SupabaseError | null };
+
     if (error) {
       console.warn('Database query failed, using fallback:', error.message);
       return ['句動詞', '動詞', '名詞', '形容詞', '副詞']; // フォールバック
     }
-    
-    const categories = Array.from(new Set(data?.map(item => item.name).filter(Boolean) || []));
+
+    const categories = Array.from(new Set(data?.map((item: { name: string }) => item.name).filter(Boolean) || []));
     console.log(`Build-time categories found: ${categories.length}`, categories);
-    
+
     // データが取得できない場合はフォールバックを使用
     if (categories.length === 0) {
       console.warn('No categories found in database, using fallback');
       return ['句動詞', '動詞', '名詞', '形容詞', '副詞'];
     }
-    
+
     return categories;
   } catch (error) {
     console.warn('Build-time category fetch failed:', error);
@@ -65,52 +111,73 @@ export async function getBuildTimeCategories(): Promise<string[]> {
 /**
  * カテゴリー別セクション一覧を取得（ビルド時用）
  */
-export async function getBuildTimeSections(category: string): Promise<string[]> {
+export async function getBuildTimeSections(categoryName: string): Promise<string[]> {
   try {
     const supabase = createBuildTimeClient();
     if (!supabase) {
-      console.warn(`Falling back to default sections for ${category}`);
+      console.warn(`Falling back to default sections for ${categoryName}`);
       return ['1', '2', '3']; // フォールバック
     }
 
     // エンコードされていないのでそのまま使用（Next.js設定でエンコードを避けているため）
-    const category = category;
+    const category = categoryName;
     console.log(`Querying sections for category: "${category}")`);
 
-    // まずカテゴリーIDを取得
-    const { data: categoryData, error: categoryError } = await supabase
+    // タイムアウト付きでカテゴリーIDを取得
+    const categoryQueryPromise = supabase
       .from('categories')
       .select('id')
       .eq('name', category)
       .single();
-    
+
+    const categoryTimeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Category query timeout')), 15000)
+    );
+
+    const categoryQueryResult = await Promise.race([
+      categoryQueryPromise,
+      categoryTimeoutPromise
+    ]);
+    const { data: categoryData, error: categoryError } = categoryQueryResult as { data: { id: string } | null; error: SupabaseError | null };
+
     if (categoryError || !categoryData) {
-      console.warn(`Category not found: ${category}, using fallback`);
+      console.warn(`Category not found: ${categoryName}, using fallback`);
       return ['1', '2', '3']; // フォールバック
     }
-    
-    // カテゴリーIDでセクションを取得
-    const { data, error } = await supabase
+
+    // タイムアウト付きでセクションを取得
+    const sectionQueryPromise = supabase
       .from('words')
       .select('section')
       .eq('category_id', categoryData.id)
       .order('section');
-    
+
+    const sectionTimeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Section query timeout')), 15000)
+    );
+
+    const sectionQueryResult = await Promise.race([
+      sectionQueryPromise,
+      sectionTimeoutPromise
+    ]);
+
+    const { data, error } = sectionQueryResult as { data: { section: string | null }[] | null; error: SupabaseError | null };
+
     if (error) {
-      console.warn(`Section query failed for ${category}, using fallback:`, error.message);
+      console.warn(`Section query failed for ${categoryName}, using fallback:`, error.message);
       return ['1', '2', '3']; // フォールバック
     }
-    
+
     const sections = Array.from(
       new Set(
-        data?.map(item => String(item.section ?? '')).filter(Boolean) || []
+        data?.map((item: { section: string | null }) => String(item.section ?? '')).filter(Boolean) || []
       )
     ).sort();
-    
-    console.log(`Build-time sections for ${category}: ${sections.length} sections found:`, sections);
+
+    console.log(`Build-time sections for ${categoryName}: ${sections.length} sections found:`, sections);
     return sections.length > 0 ? sections : ['1', '2', '3'];
   } catch (error) {
-    console.warn(`Build-time section fetch failed for ${category}:`, error);
+    console.warn(`Build-time section fetch failed for ${categoryName}:`, error);
     return ['1', '2', '3']; // フォールバック
   }
 }
@@ -132,7 +199,7 @@ export async function getBuildTimeCategorySectionPairs(): Promise<{ category: st
       .from('categories')
       .select('id, name')
       .eq('is_active', true)
-      .order('sort_order');
+      .order('sort_order') as { data: CategoryWithId[] | null; error: SupabaseError | null };
 
     if (categoriesError) {
       console.warn('Categories query failed, using fallback:', categoriesError.message);
@@ -148,7 +215,7 @@ export async function getBuildTimeCategorySectionPairs(): Promise<{ category: st
       const { data: wordsData, error: wordsError } = await supabase
         .from('words')
         .select('section', { count: 'exact' })
-        .eq('category_id', category.id);
+        .eq('category_id', category.id) as { data: { section: string | null }[] | null; error: SupabaseError | null };
 
       if (wordsError) {
         console.warn(`Words query failed for ${category.name}:`, wordsError.message);
@@ -207,13 +274,13 @@ async function getFallbackCategorySectionPairs(): Promise<{ category: string; se
         .from('words')
         .select('category_id, section, categories!inner(name)')
         .eq('categories.is_active', true)
-        .limit(1000);
+        .limit(1000) as { data: WordWithCategory[] | null; error: SupabaseError | null };
 
       if (!error && wordsData && wordsData.length > 0) {
         const categoryMap = new Map<string, Set<string>>();
 
-        wordsData.forEach(item => {
-          const categoryName = (item.categories as { name?: string })?.name;
+        wordsData.forEach((item: WordWithCategory) => {
+          const categoryName = item.categories?.name;
           const section = String(item.section ?? '');
 
           if (categoryName && section) {

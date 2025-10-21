@@ -57,6 +57,9 @@ async function getReviewListData(userId: string) {
 // ISR設定 - 30分ごとに再生成
 export const revalidate = 1800;
 
+// 動的レンダリングを強制（認証が必要なため）
+export const dynamic = 'force-dynamic';
+
 export default async function ReviewListPage() {
   const user = await getAuthenticatedUser();
   const reviewData = await getReviewListData(user.id);
