@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, ArrowRight, RotateCcw, Home, BookOpen } from 'lucide-react';
+import { CheckCircle, ArrowRight, RotateCcw, Home, BookOpen, Trophy, Target, TrendingUp } from 'lucide-react';
 
 interface CompletionModalProps {
   isOpen: boolean;
@@ -44,12 +44,12 @@ export function CompletionModal({
               <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
             </div>
           </div>
-          
+
           <h3 className="text-xl sm:text-2xl font-bold text-amber-800 dark:text-amber-200 mb-2">学習完了！</h3>
           <p className="text-base sm:text-lg font-semibold text-green-600 mb-1">素晴らしい！</p>
           <p className="text-sm sm:text-base text-amber-700 dark:text-amber-300 mb-4 sm:mb-6">
-            {category}の学習が完了しました
-          </p>
+            {decodeURIComponent(category)}の学習が完了しました
+            </p>
 
           {/* 統計情報 */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
@@ -60,7 +60,7 @@ export function CompletionModal({
               <div className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">{correctAnswers}</div>
               <div className="text-xs text-gray-600 dark:text-gray-400">正解数</div>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 p-2 sm:p-3 rounded-lg border border-gray-200 dark:border-gray-700 text-center">
               <div className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 bg-blue-500 rounded-full flex items-center justify-center">
                 <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white rounded-full"></div>
@@ -68,7 +68,7 @@ export function CompletionModal({
               <div className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">{totalQuestions}</div>
               <div className="text-xs text-gray-600 dark:text-gray-400">総問題数</div>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 p-2 sm:p-3 rounded-lg border border-gray-200 dark:border-gray-700 text-center">
               <div className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-1 sm:mb-2 bg-orange-500 rounded-full flex items-center justify-center">
                 <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white rounded-full"></div>
@@ -84,9 +84,9 @@ export function CompletionModal({
               <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">学習進捗</span>
               <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">{accuracy.toFixed(0)}%</span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
-              <div 
-                className="bg-green-500 h-2 rounded-full transition-all duration-1000 ease-out"
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+              <div
+                className="bg-green-500 h-4 rounded-full"
                 style={{ width: `${accuracy}%` }}
               />
             </div>
@@ -107,7 +107,7 @@ export function CompletionModal({
                 <span className="hidden sm:inline">復習する</span>
                 <span className="sm:hidden">復習</span>
               </Button>
-              
+
               {hasNextSection && onNextSection ? (
                 <Button
                   onClick={onNextSection}
@@ -140,7 +140,7 @@ export function CompletionModal({
                 <span className="hidden sm:inline">やり直す</span>
                 <span className="sm:hidden">やり直し</span>
               </Button>
-              
+
               <Button
                 variant="outline"
                 onClick={onGoHome}
