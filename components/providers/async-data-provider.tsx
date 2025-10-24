@@ -16,9 +16,6 @@ async function AsyncCategoriesList() {
               <span className="text-lg font-semibold text-amber-800 dark:text-amber-200">
                 {category.name}
               </span>
-              <span className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 px-2 py-1 rounded-full">
-                {category.pos}
-              </span>
             </div>
             <p className="text-amber-700 dark:text-amber-300">
               {category.count}個の単語

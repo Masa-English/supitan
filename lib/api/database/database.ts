@@ -40,23 +40,10 @@ export class DatabaseService {
   }
 
   async getWordsByCategory(category: string): Promise<Word[]> {
-    // URLデコードを確実に実行し、カテゴリー名を正規化（トリムのみ）
-    const decodedCategory = category ? decodeURIComponent(category) : category;
-    const normalizedCategory = decodedCategory.trim();
-    console.log(`Database: Searching for category: "${normalizedCategory}" (original: "${decodedCategory}")`);
+    // categoryはカテゴリーIDまたはカテゴリー名
+    console.log(`Database: Searching for category: "${category}"`);
 
-    // まずカテゴリーIDを取得
-    const { data: categoryData, error: categoryError } = await this.supabase
-      .from('categories')
-      .select('id')
-      .eq('name', normalizedCategory)
-      .single();
-    
-    if (categoryError || !categoryData) {
-      console.error(`Category not found: "${normalizedCategory}" (original: "${decodedCategory}", input: "${category}")`);
-      return [];
-    }
-    
+    // カテゴリーIDで直接検索（パフォーマンス向上）
     const { data, error } = await this.supabase
       .from('words')
       .select(`
@@ -70,19 +57,19 @@ export class DatabaseService {
           is_active
         )
       `)
-      .eq('category_id', categoryData.id)
+      .eq('category', category) // カテゴリー名で検索（現在のデータベース構造）
       .order('word', { ascending: true });
 
     if (error) {
-      console.error(`Database error for category "${normalizedCategory}":`, error);
+      console.error(`Database error for category "${category}":`, error);
       throw error;
     }
 
-    console.log(`Database: Found ${data?.length || 0} words for category "${normalizedCategory}"`);
+    console.log(`Database: Found ${data?.length || 0} words for category "${category}"`);
     return data || [];
   }
 
-  async getCategories(): Promise<{ category: string; count: number; englishName: string; pos: string; description: string; color: string; icon: string }[]> {
+  async getCategories(): Promise<{ category: string; id: string; count: number; description: string; color: string; sort_order: number; is_active: boolean }[]> {
     // カテゴリーテーブルから直接取得
     const { data: categoriesData, error: categoriesError } = await this.supabase
       .from('categories')
@@ -101,27 +88,24 @@ export class DatabaseService {
       const { count, error: countError } = await this.supabase
         .from('words')
         .select('*', { count: 'exact', head: true })
-        .eq('category_id', category.id);
-      
+        .eq('category', category.name);
+
       if (!countError) {
         categoryCounts[category.name] = count || 0;
       }
     }
 
-    // 新しいカテゴリー設定を使用
-    const { getAllCategories } = await import('../../constants/categories');
-    const allCategories = getAllCategories();
-    
-    const categories = allCategories.map(categoryConfig => ({
-      category: categoryConfig.name,
-      count: categoryCounts[categoryConfig.name] || 0,
-      englishName: categoryConfig.englishName,
-      pos: categoryConfig.pos,
-      description: categoryConfig.description,
-      color: categoryConfig.color,
-      icon: categoryConfig.icon
+    // データベースから取得したカテゴリー情報を直接使用
+    const categories = (categoriesData || []).map(category => ({
+      category: category.name,
+      id: category.id,
+      count: categoryCounts[category.name] || 0,
+      description: category.description || '',
+      color: category.color || '#3b82f6',
+      sort_order: category.sort_order || 0,
+      is_active: category.is_active || true
     }));
-    
+
     console.log('Available categories:', categories);
     return categories;
   }

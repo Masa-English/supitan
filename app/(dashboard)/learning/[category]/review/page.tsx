@@ -2,6 +2,7 @@ import { dataProvider } from '@/lib/api/services';
 import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import ReviewClient from './review-client';
+import { CATEGORIES } from '@/lib/constants/categories';
 
 interface PageProps {
   params?: Promise<{ category: string }>;
@@ -11,12 +12,22 @@ interface PageProps {
 // ISR設定 - 30分ごとに再生成
 export const revalidate = 1800;
 
+// カテゴリーIDから名前を取得
+function getCategoryName(categoryId: string): string | undefined {
+  const category = CATEGORIES.find((cat: { id: string }) => cat.id === categoryId);
+  return category?.name;
+}
+
 export default async function ReviewPage({ params, searchParams }: PageProps) {
   const p = params ? await params : undefined;
   const sp = searchParams ? await searchParams : {};
 
   if (!p?.category) notFound();
   const category = p.category;
+
+  // カテゴリーIDから名前を取得
+  const categoryName = getCategoryName(category);
+  if (!categoryName) notFound();
 
   // 認証セッションチェック（サーバー側）
   const supabase = await createServerClient();
@@ -29,11 +40,11 @@ export default async function ReviewPage({ params, searchParams }: PageProps) {
 
   // レベルが有効範囲外の場合はリダイレクト
   if (level && (level < 1 || level > 5)) {
-    redirect(`/learning/${encodeURIComponent(category)}/review?mode=${mode}`);
+    redirect(`/learning/${category}/review?mode=${mode}`);
   }
 
   // カテゴリー内の単語を取得
-  let words = await dataProvider.getWordsByCategory(category);
+  let words = await dataProvider.getWordsByCategory(categoryName);
 
   // 復習モードに応じて単語をフィルタリング
   if (mode === 'review-list') {
@@ -97,7 +108,7 @@ export default async function ReviewPage({ params, searchParams }: PageProps) {
 
   // 0件時の処理
   if (!words || words.length === 0) {
-    redirect(`/learning/${encodeURIComponent(category)}/options?mode=quiz`);
+    redirect(`/learning/${category}/options?mode=quiz`);
   }
 
   return (

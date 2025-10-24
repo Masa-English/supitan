@@ -111,7 +111,7 @@ export function useRealtimeData(options: UseRealtimeDataOptions): UseRealtimeDat
           
           // カテゴリー固有データの場合
           if (category && table === 'words') {
-            filter = `category=eq.${encodeURIComponent(category)}`;
+            filter = `category=eq.${category}`;
           }
 
           channel.on(

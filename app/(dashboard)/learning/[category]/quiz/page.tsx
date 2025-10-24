@@ -3,6 +3,7 @@ import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import type { Word, QuizQuestion } from '@/lib/types';
 import { notFound, redirect } from 'next/navigation';
 import QuizClient from './quiz-client';
+import { CATEGORIES } from '@/lib/constants/categories';
 
 interface PageProps {
   params?: Promise<{ category: string }>;
@@ -31,35 +32,79 @@ export async function generateStaticParams() {
       },
     });
 
-    // カテゴリーと単語数の情報を取得
-    const { data: categoriesData, error } = await supabase
+    // まずカテゴリー一覧を取得
+    const { data: categoriesData, error: categoriesError } = await supabase
       .from('categories')
-      .select(`
-        id,
-        name,
-        words:words(count)
-      `)
+      .select('id, name')
       .eq('is_active', true)
       .order('sort_order');
 
-    if (error) {
-      console.error('Error fetching categories:', error);
-      return [];
+    if (categoriesError) {
+      console.error('Error fetching categories:', categoriesError);
+      // データベースエラーの場合はフォールバックを使用
+      console.warn('Using fallback categories due to database error');
+      return [
+        { category: 'b464ce08-9440-4178-923f-4d251b8dc0ab' } // 動詞カテゴリーをフォールバックとして使用
+      ];
     }
 
-    // 単語が存在するカテゴリーのみをフィルタリング
-    const validCategories = categoriesData
-      ?.filter((category: { id: string; name: string; words?: { count?: number }[] }) => (category.words?.[0]?.count || 0) > 0)
-      ?.map((category: { id: string; name: string; words?: { count?: number }[] }) => ({
-        category: encodeURIComponent(category.name),
-      })) || [];
+    // カテゴリーが見つからない場合はフォールバックを使用
+    if (!categoriesData || categoriesData.length === 0) {
+      console.warn('No categories found in database, using fallback');
+      return [
+        { category: 'b464ce08-9440-4178-923f-4d251b8dc0ab' } // 動詞カテゴリーをフォールバックとして使用
+      ];
+    }
+
+    // 各カテゴリーの単語数を確認
+    const validCategories: { category: string }[] = [];
+
+    for (const category of categoriesData) {
+      try {
+        const { count: wordCount, error: wordError } = await supabase
+          .from('words')
+          .select('*', { count: 'exact', head: true })
+          .eq('category_id', category.id);
+
+        if (wordError) {
+          console.warn(`Error checking words for category ${category.name}:`, wordError.message);
+          continue;
+        }
+
+        console.log(`Category ${category.name} (${category.id}) has ${wordCount || 0} words`);
+
+        if (wordCount && wordCount > 0) {
+          validCategories.push({ category: category.id });
+        }
+      } catch (error) {
+        console.warn(`Error checking words for category ${category.name}:`, error);
+        continue;
+      }
+    }
+
+    // 有効なカテゴリーが見つからない場合はフォールバックを使用
+    if (validCategories.length === 0) {
+      console.warn('No valid categories with words found, using fallback');
+      return [
+        { category: 'b464ce08-9440-4178-923f-4d251b8dc0ab' } // 動詞カテゴリーをフォールバックとして使用
+      ];
+    }
 
     console.log(`Generated ${validCategories.length} valid category params for quiz`);
     return validCategories;
   } catch (error) {
     console.error('Error generating static params for quiz:', error);
-    return [];
+    // エラーが発生した場合もフォールバックを使用
+    return [
+      { category: 'b464ce08-9440-4178-923f-4d251b8dc0ab' } // 動詞カテゴリーをフォールバックとして使用
+    ];
   }
+}
+
+// カテゴリーIDから名前を取得
+function getCategoryName(categoryId: string): string | undefined {
+  const category = CATEGORIES.find((cat: { id: string }) => cat.id === categoryId);
+  return category?.name;
 }
 
 export default async function QuizPage({ params, searchParams }: PageProps) {
@@ -67,8 +112,11 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
   const sp = searchParams ? await searchParams : {};
   if (!p?.category) notFound();
   const category = p.category;
-  // カテゴリーパラメータをデコード
-  const decodedCategory = decodeURIComponent(category);
+
+  // カテゴリーIDから名前を取得
+  const categoryName = getCategoryName(category);
+  if (!categoryName) notFound();
+
   const sectionRaw = sp.sec;
   const isRandom = sp.random === '1' || sp.random === 'true';
   const randomCount = sp.count ? Number(sp.count) : undefined;
@@ -78,7 +126,7 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
 
   console.log('QuizPage パラメータ:', {
     category,
-    decodedCategory,
+    categoryName,
     sectionRaw,
     random: sp.random,
     count: sp.count,
@@ -97,20 +145,36 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
   if (!isReviewMode && !isReviewListMode) {
     // セクション指定がある場合は適切なルートにリダイレクト
     if (sectionRaw && sectionRaw !== 'all') {
-      redirect(`/learning/${encodeURIComponent(decodedCategory)}/quiz/section/${sectionRaw}`);
+      redirect(`/learning/${category}/quiz/section/${sectionRaw}`);
     }
 
     // セーフガード: パラメータ未指定時はオプションへ
     const hasSection = !!sectionRaw;
     const hasRandom = isRandom && (randomCount ?? 0) > 0;
     if (!hasSection && !hasRandom) {
-      redirect(`/learning/${encodeURIComponent(decodedCategory)}/options?mode=quiz`);
+      redirect(`/learning/${category}/options?mode=quiz`);
     }
   }
 
   // 統一データプロバイダ経由で取得（キャッシュ有効）
-  let words = await dataProvider.getWordsByCategory(category);
-  console.log('QuizPage 単語取得完了:', { wordsCount: words.length, category, isRandom, randomCount });
+  let words: Word[] = [];
+  try {
+    words = await dataProvider.getWordsByCategory(categoryName);
+    console.log('QuizPage 単語取得完了:', { wordsCount: words.length, category, categoryName, isRandom, randomCount });
+
+    // 単語が見つからない場合
+    if (!words || words.length === 0) {
+      console.warn('単語が見つからないためリダイレクト:', {
+        category,
+        categoryName,
+        wordsCount: words?.length || 0
+      });
+      redirect(`/learning/${category}/options?mode=quiz&error=no_words`);
+    }
+  } catch (error) {
+    console.error('データベースエラー:', error);
+    redirect(`/learning/${category}/options?mode=quiz&error=database_error`);
+  }
   
   // 復習モードの場合は復習対象の単語のみを取得
   if (isReviewMode) {
@@ -140,6 +204,17 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
     
     // カテゴリー内の復習対象単語のみをフィルタ
     words = words.filter(word => reviewWordIds.has(word.id));
+
+    // 復習対象の単語が見つからない場合
+    if (words.length === 0) {
+      console.warn('復習対象の単語が見つからないためリダイレクト:', {
+        category,
+        categoryName,
+        reviewWordIdsCount: reviewWordIds.size,
+        originalWordsCount: words.length
+      });
+      redirect(`/learning/${category}/options?mode=quiz&error=no_review_words`);
+    }
   }
 
   // 復習リストモードの場合は復習リストの単語のみを取得
@@ -151,6 +226,17 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
     
     // カテゴリー内の復習リスト単語のみをフィルタ
     words = words.filter(word => reviewWordIds.has(word.id));
+
+    // 復習リストの単語が見つからない場合
+    if (words.length === 0) {
+      console.warn('復習リストの単語が見つからないためリダイレクト:', {
+        category,
+        categoryName,
+        reviewWordIdsCount: reviewWordIds.size,
+        originalWordsCount: words.length
+      });
+      redirect(`/learning/${category}/options?mode=quiz&error=no_review_list_words`);
+    }
   }
   
   // カテゴリー全体のセクション情報を取得
@@ -189,7 +275,7 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
       redirect('/review');
     } else {
       // 通常モードの場合はオプションへ戻す
-      redirect(`/learning/${encodeURIComponent(decodedCategory)}/options?mode=quiz`);
+      redirect(`/learning/${category}/options?mode=quiz`);
     }
   }
 

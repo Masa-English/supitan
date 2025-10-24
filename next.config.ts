@@ -40,8 +40,6 @@ const nextConfig: NextConfig = {
       dynamic: 30, // 30秒
       static: 180, // 3分
     },
-    // URLパスで日本語などのマルチバイト文字をエンコードしない設定
-    esmExternals: false,
   },
 
   // 画像最適化

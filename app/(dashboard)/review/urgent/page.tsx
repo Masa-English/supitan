@@ -47,7 +47,7 @@ async function getUrgentReviewData(userId: string) {
     const urgentReviewWordsWithDetails = urgentReviewWords
       .map(progress => {
         const word = allWords.find(w => w.id === progress.word_id);
-        if (word) {
+        if (word && progress.word_id) {
           return {
             word_id: progress.word_id,
             word: word,
@@ -57,7 +57,7 @@ async function getUrgentReviewData(userId: string) {
         }
         return null;
       })
-      .filter(Boolean);
+      .filter((item): item is NonNullable<typeof item> => item !== null);
 
     return {
       urgentReviewWords: urgentReviewWordsWithDetails,
@@ -72,8 +72,8 @@ async function getUrgentReviewData(userId: string) {
   }
 }
 
-// ISR設定 - 30分ごとに再生成
-export const revalidate = 1800;
+// 動的レンダリングを強制（認証が必要なため）
+export const dynamic = 'force-dynamic';
 
 export default async function ReviewUrgentPage() {
   const user = await getAuthenticatedUser();

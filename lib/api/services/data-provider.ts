@@ -103,24 +103,7 @@ export class UnifiedDataProvider {
     }
     // クライアントサイドでは直接データベースアクセス
     try {
-      const words = await this.db.getWords();
-      const categoryMap = new Map<string, number>();
-      
-      words.forEach(word => {
-        // category_idが優先、なければcategoryを使用
-        const categoryName = word.categories?.name || word.category;
-        categoryMap.set(categoryName, (categoryMap.get(categoryName) || 0) + 1);
-      });
-
-      return Array.from(categoryMap.entries()).map(([category, count]) => ({
-        category,
-        count,
-        englishName: category,
-        pos: this.getPosSymbol(category),
-        description: `${category}の単語`,
-        color: '#3b82f6',
-        icon: '📚'
-      }));
+      return await this.db.getCategories();
     } catch (error) {
       console.error('カテゴリー取得エラー:', error instanceof Error ? error.message : 'Unknown error');
       return [];
@@ -265,22 +248,7 @@ export class UnifiedDataProvider {
   private getCachedCategories = isServer && unstable_cache ? unstable_cache(
     async (): Promise<CategoryWithStats[]> => {
       try {
-        const words = await this.db.getWords();
-        const categoryMap = new Map<string, number>();
-        
-        words.forEach(word => {
-          categoryMap.set(word.category, (categoryMap.get(word.category) || 0) + 1);
-        });
-
-        return Array.from(categoryMap.entries()).map(([category, count]) => ({
-          category,
-          count,
-          englishName: category,
-          pos: this.getPosSymbol(category),
-          description: `${category}の単語`,
-          color: '#3b82f6',
-          icon: '📚'
-        }));
+        return await this.db.getCategories();
       } catch (error) {
         console.error('カテゴリー取得エラー:', error instanceof Error ? error.message : 'Unknown error');
         return [];
@@ -293,22 +261,7 @@ export class UnifiedDataProvider {
     }
   ) : async () => {
     try {
-      const words = await this.db.getWords();
-      const categoryMap = new Map<string, number>();
-      
-      words.forEach(word => {
-        categoryMap.set(word.category, (categoryMap.get(word.category) || 0) + 1);
-      });
-
-      return Array.from(categoryMap.entries()).map(([category, count]) => ({
-        category,
-        count,
-        englishName: category,
-        pos: this.getPosSymbol(category),
-        description: `${category}の単語`,
-        color: '#3b82f6',
-        icon: '📚'
-      }));
+      return await this.db.getCategories();
     } catch (error) {
       console.error('カテゴリー取得エラー:', error instanceof Error ? error.message : 'Unknown error');
       return [];

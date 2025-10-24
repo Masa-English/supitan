@@ -12,8 +12,8 @@ export async function generateStaticParams() {
   return safeGenerateStaticParams(
     getBuildTimeCategorySectionPairs,
     [
-      // フォールバック用の基本的な組み合わせ（実際にデータが存在するもののみ）
-      { category: encodeURIComponent('動詞'), sec: '1' },
+      // フォールバック用の基本的な組み合わせ（完全なUUIDを使用）
+      { category: 'b464ce08-9440-4178-923f-4d251b8dc0ab', sec: '1' },
     ]
   );
 }
@@ -28,11 +28,29 @@ export default async function FlashcardSectionPage({
     const category = p.category;
     const section = p.sec;
 
+    // カテゴリーIDの検証
+    if (!category) {
+      console.log('FlashcardSectionPage: カテゴリーIDが無効');
+      notFound();
+    }
+
+    // セクションの検証
+    if (!section) {
+      console.log('FlashcardSectionPage: セクションが無効');
+      notFound();
+    }
+
     console.log(`Loading flashcard section: ${category} - ${section}`);
 
     // カテゴリー全体の単語を取得（セクション情報のため）
-    const allWords: Word[] = await dataProvider.getWordsByCategory(category);
-    
+    let allWords: Word[] = [];
+    try {
+      allWords = await dataProvider.getWordsByCategory(category);
+    } catch (error) {
+      console.error('データベースエラー:', error);
+      notFound();
+    }
+
     if (!allWords || allWords.length === 0) {
       console.warn(`カテゴリー ${category} の単語が見つかりません`);
       notFound();

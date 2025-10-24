@@ -94,7 +94,7 @@ export async function getBuildTimeCategories(): Promise<string[]> {
     // タイムアウト付きでクエリを実行
     const queryPromise = supabase
       .from('categories')
-      .select('name')
+      .select('id, name')
       .eq('is_active', true)
       .order('sort_order');
 
@@ -103,14 +103,17 @@ export async function getBuildTimeCategories(): Promise<string[]> {
     );
 
     const queryResult = await Promise.race([queryPromise, timeoutPromise]);
-    const { data, error } = queryResult as { data: { name: string }[] | null; error: SupabaseError | null };
+    const { data, error } = queryResult as { data: { id: string; name: string }[] | null; error: SupabaseError | null };
 
     if (error) {
       console.warn('Database query failed, using fallback:', error.message);
-      return ['句動詞', '動詞', '名詞', '形容詞', '副詞']; // フォールバック
+      return ['b464ce08-9440-4178-923f-4d251b8dc0ab', '6effaf5d-619c-4a70-b36d-9464549eadda', '659c3f6d-2e93-47b9-9fe3-c6838a82f6b9', '71bfd0a1-cc79-4257-bd4a-15d30d37555f', '618464f6-6c7a-450a-9074-89e6d7becef9']; // 完全なUUIDのフォールバック
     }
 
-    const categories = Array.from(new Set(data?.map((item: { name: string }) => item.name).filter(Boolean) || []));
+    // 完全なUUIDを取得
+    const categories = Array.from(new Set(data?.map((item: { id: string; name: string }) => {
+      return item.id;
+    }).filter(Boolean) || []));
 
     // カテゴリー名の検証
     const validCategories = categories.filter(validateCategoryName);
@@ -121,13 +124,13 @@ export async function getBuildTimeCategories(): Promise<string[]> {
     // データが取得できない場合はフォールバックを使用
     if (validCategories.length === 0) {
       console.warn('No valid categories found in database, using fallback');
-      return ['句動詞', '動詞', '名詞', '形容詞', '副詞'];
+      return ['b464ce08-9440-4178-923f-4d251b8dc0ab', '6effaf5d-619c-4a70-b36d-9464549eadda', '659c3f6d-2e93-47b9-9fe3-c6838a82f6b9', '71bfd0a1-cc79-4257-bd4a-15d30d37555f', '618464f6-6c7a-450a-9074-89e6d7becef9'];
     }
 
     return validCategories;
   } catch (error) {
     console.warn('Build-time category fetch failed:', error);
-    return ['句動詞', '動詞', '名詞', '形容詞', '副詞']; // フォールバック
+    return ['b464ce08-9440-4178-923f-4d251b8dc0ab', '6effaf5d-619c-4a70-b36d-9464549eadda', '659c3f6d-2e93-47b9-9fe3-c6838a82f6b9', '71bfd0a1-cc79-4257-bd4a-15d30d37555f', '618464f6-6c7a-450a-9074-89e6d7becef9']; // 完全なUUIDフォールバック
   }
 }
 
@@ -142,15 +145,22 @@ export async function getBuildTimeSections(categoryName: string): Promise<string
       return ['1', '2', '3']; // フォールバック
     }
 
-    // URLデコードを確実に実行（Next.jsの動的ルートでエンコードされるため）
-    const category = categoryName ? decodeURIComponent(categoryName) : categoryName;
-    console.log(`Querying sections for category: "${category}"`);
+    // カテゴリーIDから名前を取得
+    const { getCategoryNameById } = await import('@/lib/constants/categories');
+    const categoryNameFromId = getCategoryNameById(categoryName);
+
+    if (!categoryNameFromId) {
+      console.warn(`Category not found: ${categoryName}, falling back to default sections`);
+      return ['1', '2', '3']; // フォールバック
+    }
+
+    console.log(`Querying sections for category: "${categoryNameFromId}" (id: "${categoryName}")`);
 
     // タイムアウト付きでカテゴリーIDを取得
     const categoryQueryPromise = supabase
       .from('categories')
       .select('id')
-      .eq('name', category)
+      .eq('name', categoryNameFromId)
       .single();
 
     const categoryTimeoutPromise = new Promise((_, reject) =>
@@ -250,6 +260,12 @@ export async function getBuildTimeCategorySectionPairs(): Promise<{ category: st
         continue;
       }
 
+      // データベースに単語テーブルが存在しない場合のチェック
+      if (wordsError && typeof wordsError === 'object' && 'code' in wordsError && (wordsError as { code: string }).code === '42P01') {
+        console.warn(`Words table does not exist, skipping category: "${category.name}"`);
+        continue;
+      }
+
       // セクションを取得（単語データから）
       const sections = Array.from(
         new Set(
@@ -266,7 +282,7 @@ export async function getBuildTimeCategorySectionPairs(): Promise<{ category: st
 
       for (const section of sections) {
         pairs.push({
-          category: category.name, // カテゴリー名はデータベースから取得したそのままの値を使用
+          category: category.id, // 完全なUUIDを使用
           sec: section
         });
       }
@@ -303,22 +319,24 @@ async function getFallbackCategorySectionPairs(): Promise<{ category: string; se
         const categoryMap = new Map<string, Set<string>>();
 
         wordsData.forEach((item: WordWithCategory) => {
-          const categoryName = item.categories?.name;
+          const categoryId = item.category_id;
           const section = String(item.section ?? '');
 
-          if (categoryName && section) {
-            if (!categoryMap.has(categoryName)) {
-              categoryMap.set(categoryName, new Set());
+          if (categoryId && section) {
+            // 完全なUUIDを使用
+            const fullId = categoryId;
+            if (!categoryMap.has(fullId)) {
+              categoryMap.set(fullId, new Set());
             }
-            categoryMap.get(categoryName)!.add(section);
+            categoryMap.get(fullId)!.add(section);
           }
         });
 
         const pairs: { category: string; sec: string }[] = [];
-        categoryMap.forEach((sections, category) => {
+        categoryMap.forEach((sections, categoryId) => {
           sections.forEach(section => {
             pairs.push({
-              category: category, // カテゴリー名はデータベースから取得したそのままの値を使用
+              category: categoryId, // 完全なUUIDを使用
               sec: section
             });
           });
@@ -337,7 +355,7 @@ async function getFallbackCategorySectionPairs(): Promise<{ category: string; se
   // 最終フォールバック
   console.warn('Using minimal fallback pairs');
   return [
-    { category: '動詞', sec: '1' }, // カテゴリー名はデータベースから取得したそのままの値を使用
+    { category: 'b464ce08-9440-4178-923f-4d251b8dc0ab', sec: '1' }, // 完全なUUIDを使用
   ];
 }
 

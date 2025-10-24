@@ -14,10 +14,19 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
-  const { category: encodedCategory, sectionIndex, sectionSize, randomCount, sectionValue } = options;
+  const { category: categoryId, sectionIndex, sectionSize, randomCount, sectionValue } = options;
 
-  // URLデコードを確実に実行
-  const category = encodedCategory ? decodeURIComponent(encodedCategory) : encodedCategory;
+  // カテゴリーIDから名前を取得（データベース検索用）
+  let categoryName: string | undefined;
+  if (categoryId) {
+    const { getCategoryNameById } = await import('@/lib/constants/categories');
+    categoryName = getCategoryNameById(categoryId);
+    if (!categoryName) {
+      throw new Error(`Category not found: ${categoryId}`);
+    }
+  }
+
+  const category = categoryName;
 
   // JOINクエリでカテゴリー情報も取得
   const baseSelect = `

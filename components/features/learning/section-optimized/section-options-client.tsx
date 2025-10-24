@@ -55,7 +55,7 @@ export function SectionOptionsClient({
     setIsRefreshing(true);
     try {
       // サーバーアクションを呼び出してデータを更新
-      const response = await fetch(`/api/sections/${encodeURIComponent(category)}`, {
+      const response = await fetch(`/api/sections/${category}`, {
         method: 'GET',
         headers: {
           'Cache-Control': 'max-age=300', // 5分キャッシュ
@@ -191,7 +191,7 @@ export function SectionOptionsClient({
               </Badge>
               <span className="text-sm font-medium text-foreground">{mode}</span>
             </div>
-            <Link href={`/learning/${encodeURIComponent(category)}/browse`}>
+            <Link href={`/learning/${category}/browse`}>
               <Button variant="outline" size="sm" className="text-xs">
                 <BookOpen className="h-3 w-3 mr-1" />
                 単語一覧
@@ -246,7 +246,7 @@ export function SectionOptionsClient({
                         カテゴリー選択に戻る
                       </Link>
                       <Link
-                        href={`/learning/${encodeURIComponent(category)}/browse`}
+                        href={`/learning/${category}/browse`}
                         className={buttonVariants({ variant: 'ghost', size: 'sm' })}
                       >
                         一覧を見る
@@ -271,7 +271,7 @@ export function SectionOptionsClient({
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                         {sectionData.sections.map((sectionInfo) => {
-                          const href = `${base}/section/${encodeURIComponent(sectionInfo.section)}`;
+                          const href = `${base}/section/${sectionInfo.section}`;
                           return (
                             <SectionLink 
                               key={sectionInfo.section} 

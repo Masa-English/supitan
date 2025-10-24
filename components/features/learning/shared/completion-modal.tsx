@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, ArrowRight, RotateCcw, Home, BookOpen } from 'lucide-react';
+import { getCategoryNameById } from '@/lib/constants/categories';
 
 interface CompletionModalProps {
   isOpen: boolean;
@@ -48,7 +49,7 @@ export function CompletionModal({
           <h3 className="text-xl sm:text-2xl font-bold text-amber-800 dark:text-amber-200 mb-2">学習完了！</h3>
           <p className="text-base sm:text-lg font-semibold text-green-600 mb-1">素晴らしい！</p>
           <p className="text-sm sm:text-base text-amber-700 dark:text-amber-300 mb-4 sm:mb-6">
-            {decodeURIComponent(category)}の学習が完了しました
+            {getCategoryNameById(category)}の学習が完了しました
             </p>
 
           {/* 統計情報 */}

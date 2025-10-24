@@ -347,7 +347,7 @@ export default async function ReviewPage() {
                           </div>
                         </div>
                         <Progress value={category.percentage} className="h-2" />
-                        <Link href={`/learning/${encodeURIComponent(category.category)}/review?mode=interval`}>
+                        <Link href={`/learning/${category.category}/review?mode=interval`}>
                           <Button
                             variant="outline"
                             size="sm"

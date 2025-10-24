@@ -35,16 +35,16 @@ export default function CategoriesClient({ categories }: Props) {
       if (isReviewMode) {
         // 復習モードの場合は復習ページに遷移
         const urgentParam = isUrgentReviewMode ? '&urgent=true' : '';
-        router.push(`/learning/${encodeURIComponent(category)}/review?mode=interval${urgentParam}`);
+        router.push(`/learning/${category}/review?mode=interval${urgentParam}`);
       } else if (isReviewListMode) {
         // 復習リストモードの場合は復習ページに遷移
-        router.push(`/learning/${encodeURIComponent(category)}/review?mode=review-list`);
+        router.push(`/learning/${category}/review?mode=review-list`);
       } else if (isBrowseMode) {
         // 閲覧モードの場合は単語閲覧ページに遷移
-        router.push(`/learning/${encodeURIComponent(category)}/browse`);
+        router.push(`/learning/${category}/browse`);
       } else {
         // 通常の学習モード選択ページに遷移
-        router.push(`/learning/${encodeURIComponent(category)}/options?mode=flashcard`);
+        router.push(`/learning/${category}/options?mode=flashcard`);
       }
     } catch (error) {
       console.error('Navigation error:', error);
@@ -111,7 +111,7 @@ export default function CategoriesClient({ categories }: Props) {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <span className="text-2xl">{category.icon}</span>
+                      <span className="text-2xl">{category.icon || '📚'}</span>
                     </div>
                     <span className="text-sm font-medium text-muted-foreground">
                       {category.count}個
@@ -128,10 +128,10 @@ export default function CategoriesClient({ categories }: Props) {
                   
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">
-                      {category.englishName}
+                      {category.englishName || category.category}
                     </span>
                     <span className="text-xs font-medium px-2 py-1 bg-primary/10 text-primary rounded">
-                      {category.pos}
+                      {category.pos || 'WORD'}
                     </span>
                   </div>
                 </Card>
