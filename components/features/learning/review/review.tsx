@@ -89,7 +89,7 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
               reviewWordsData.push({
                 ...reviewWord,
                 word,
-                created_at: reviewWord.added_at || new Date().toISOString()
+                created_at: reviewWord.added_at ?? new Date().toISOString() // added_atがnullまたはundefinedの場合は現在時刻を使用
               });
             }
           }

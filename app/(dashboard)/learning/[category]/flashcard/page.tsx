@@ -195,7 +195,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
   
   // オプションページと同じSupabaseクライアントも作成
   const { createClient } = await import('@supabase/supabase-js');
-  const publicSupabase = createClient(
+  const _publicSupabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );

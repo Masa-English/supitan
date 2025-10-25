@@ -146,7 +146,7 @@ export function SectionOptionsClient({
     if (randomCount < 1) {
       setRandomCount(1);
     }
-  }, [sectionData.totalCount]); // randomCountを依存配列から削除
+  }, [sectionData.totalCount, randomCount]); // randomCountを依存配列に追加
 
   // クイック選択ボタンの選択状態を調整（無効化されたボタンが選択状態にならないように）
   // 無限ループを防ぐため、sectionData.totalCountの変更時のみ実行
@@ -163,7 +163,7 @@ export function SectionOptionsClient({
     if (sectionData.totalCount < 100 && randomCount === 100) {
       setRandomCount(Math.min(100, sectionData.totalCount));
     }
-  }, [sectionData.totalCount]); // randomCountを依存配列から削除
+  }, [sectionData.totalCount, randomCount]); // randomCountを依存配列に追加
 
   return (
     <div className="min-h-screen bg-background">

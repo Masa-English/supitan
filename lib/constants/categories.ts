@@ -112,10 +112,11 @@ export function getCategoryNameById(id: string): string | undefined {
   let config = getCategoryConfig(id);
   if (config) return config.name;
 
-  // UUIDの最初の8桁で検索
+  // UUIDの最初の8桁で検索（短縮IDで検索）
   if (id.length >= 8) {
     const shortId = id.substring(0, 8);
-    config = getCategoryConfig(shortId);
+    // 短縮IDで検索する場合は、CATEGORIES配列から最初の8文字が一致するものを探す
+    config = CATEGORIES.find(cat => cat.id.startsWith(shortId));
     if (config) return config.name;
   }
 

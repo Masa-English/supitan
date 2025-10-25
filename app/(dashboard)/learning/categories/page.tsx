@@ -1,4 +1,3 @@
-import { Card } from '@/components/ui/card';
 import { dataProvider } from '@/lib/api/services';
 import { CategoryWithStats } from '@/lib/types';
 import CategoriesClient from './categories-client';

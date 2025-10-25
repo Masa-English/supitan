@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, ArrowRight, RotateCcw, Home, BookOpen } from 'lucide-react';
 import { getCategoryNameById } from '@/lib/constants/categories';
+import { useRouter } from 'next/navigation';
 
 interface CompletionModalProps {
   isOpen: boolean;
@@ -30,10 +31,14 @@ export function CompletionModal({
   totalQuestions,
   hasNextSection,
 }: CompletionModalProps) {
+  const router = useRouter();
+  
   if (!isOpen) return null;
-
   const correctAnswers = results.filter(r => r.correct).length;
   const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+  const onCategorys = () => {
+    router.push(`/learning/categories`);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -144,7 +149,7 @@ export function CompletionModal({
 
               <Button
                 variant="outline"
-                onClick={onGoHome}
+                onClick={onCategorys}
                 className="h-12 sm:h-14 text-sm sm:text-base font-medium border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
               >
                 <span className="hidden sm:inline">カテゴリーに戻る</span>
