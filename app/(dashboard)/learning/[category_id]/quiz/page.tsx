@@ -3,7 +3,7 @@ import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import type { Word, QuizQuestion } from '@/lib/types';
 import { notFound, redirect } from 'next/navigation';
 import QuizClient from './quiz-client';
-import { getCategoryNameById } from '@/lib/constants/categories';
+// import { getCategoryNameById } from '@/lib/constants/categories'; // 未使用のためコメントアウト
 
 interface PageProps {
   params?: Promise<{ category_id: string }>;

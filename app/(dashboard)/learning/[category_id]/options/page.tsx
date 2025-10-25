@@ -2,7 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 // import Link from 'next/link';
 import { optimizedSectionService } from '@/lib/api/services/optimized-section-service';
 import { SectionOptionsClient } from '@/components/features/learning/section-optimized/section-options-client';
-import { getCategoryNameById } from '@/lib/constants/categories';
+// import { getCategoryNameById } from '@/lib/constants/categories'; // 未使用のためコメントアウト
 
 interface PageProps {
   params?: Promise<{ category_id: string }>;

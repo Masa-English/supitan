@@ -3,7 +3,7 @@ import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import { dataProvider } from '@/lib/api/services';
 import FlashcardClient from './flashcard-client';
 import type { Word } from '@/lib/types';
-import { getCategoryNameById } from '@/lib/constants/categories';
+// import { getCategoryNameById } from '@/lib/constants/categories'; // 未使用のためコメントアウト
 // import { supabase } from '@/lib/api/supabase/client'; // サーバーサイドでは使用しない
 
 // ISR設定 - 5分ごとに再生成（より頻繁に更新）

@@ -4,7 +4,7 @@ import { Word } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/navigation/badge';
-import { getCategoryNameById } from '@/lib/constants/categories';
+// import { getCategoryNameById } from '@/lib/constants/categories'; // 未使用のためコメントアウト
 import { 
   Heart, 
   Search, 
