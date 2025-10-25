@@ -126,7 +126,7 @@ export function useOptimizedData(options: UseOptimizedDataOptions = {}): UseOpti
       `);
       
       if (category) {
-        query = query.eq('category', category);
+        query = query.eq('category_id', category);
       }
       
       query = query.order('id');

@@ -82,7 +82,7 @@ export class OptimizedDatabaseService {
     try {
       // カテゴリーIDから名前を取得
       const { getCategoryNameById } = await import('@/lib/constants/categories');
-      const categoryName = getCategoryNameById(category);
+      const categoryName = await getCategoryNameById(category);
 
       if (!categoryName) {
         throw new Error(`Category not found: ${category}`);

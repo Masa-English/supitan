@@ -123,7 +123,7 @@ export class UnifiedDataProvider {
       
       // フィルター適用
       if (options.category) {
-        query = query.eq('category', options.category);
+        query = query.eq('category_id', options.category);
       }
       
       if (options.difficulty !== undefined) {

@@ -21,11 +21,11 @@ export async function generateStaticParams() {
 export default async function FlashcardSectionPage({
   params,
 }: {
-  params: Promise<{ category: string; sec: string }>;
+  params: Promise<{ category_id: string; sec: string }>;
 }) {
   try {
     const p = await params;
-    const category = p.category;
+    const category = p.category_id;
     const section = p.sec;
 
     // カテゴリーIDの検証

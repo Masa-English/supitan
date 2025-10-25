@@ -13,19 +13,8 @@ export class DatabaseQueries {
   }
 
   // Word queries
-  async findWordsByCategory(category: string) {
-    // エンコードされていないのでそのまま使用（Next.js設定でエンコードを避けているため）
-    // まずカテゴリーIDを取得
-    const { data: categoryData, error: categoryError } = await this.supabase
-      .from('categories')
-      .select('id')
-      .eq('name', category)
-      .single();
-    
-    if (categoryError || !categoryData) {
-      throw new Error(`Category not found: ${category}`);
-    }
-    
+  async findWordsByCategory(categoryId: string) {
+    // category_idで直接検索
     return this.supabase
       .from('words')
       .select(`
@@ -39,7 +28,7 @@ export class DatabaseQueries {
           is_active
         )
       `)
-      .eq('category_id', categoryData.id)
+      .eq('category_id', categoryId)
       .eq('is_active', true)
       .order('word', { ascending: true });
   }

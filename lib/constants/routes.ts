@@ -273,7 +273,7 @@ export function generateBreadcrumbs(pathname: string): RouteInfo[] {
     if (segments[2]) {
       const categoryId = segments[2];
       // カテゴリーIDから日本語名を取得（後で実装）
-      const categoryName = getCategoryNameById(categoryId) || categoryId;
+      const categoryName = await getCategoryNameById(categoryId) || categoryId;
       breadcrumbs.push({
         path: LEARNING_ROUTES.CATEGORY(categoryId),
         title: categoryName

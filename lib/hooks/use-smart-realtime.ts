@@ -213,7 +213,7 @@ export function useSmartRealtime(options: UseSmartRealtimeOptions): UseSmartReal
           // カテゴリー固有データの場合
           if (category && table === 'words') {
             // カテゴリーIDから名前を取得してフィルタリング
-            const categoryName = getCategoryNameById(category);
+            const categoryName = await getCategoryNameById(category);
             if (categoryName) {
               filter = `category=eq.${categoryName}`;
             }

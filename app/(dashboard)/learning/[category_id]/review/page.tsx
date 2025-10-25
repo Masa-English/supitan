@@ -2,7 +2,7 @@ import { dataProvider } from '@/lib/api/services';
 import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import ReviewClient from './review-client';
-import { CATEGORIES } from '@/lib/constants/categories';
+import { getCategoryNameById } from '@/lib/constants/categories';
 
 interface PageProps {
   params?: Promise<{ category: string }>;
@@ -13,9 +13,9 @@ interface PageProps {
 export const revalidate = 1800;
 
 // カテゴリーIDから名前を取得
-function getCategoryName(categoryId: string): string | undefined {
-  const category = CATEGORIES.find((cat: { id: string }) => cat.id === categoryId);
-  return category?.name;
+async function getCategoryName(categoryId: string): Promise<string | undefined> {
+  return await getCategoryNameById(categoryId);((cat: { id: string }) => cat.id === categoryId);
+  }
 }
 
 export default async function ReviewPage({ params, searchParams }: PageProps) {
@@ -26,7 +26,7 @@ export default async function ReviewPage({ params, searchParams }: PageProps) {
   const category = p.category;
 
   // カテゴリーIDから名前を取得
-  const categoryName = getCategoryName(category);
+  const categoryName = await getCategoryName(category);
   if (!categoryName) notFound();
 
   // 認証セッションチェック（サーバー側）

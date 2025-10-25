@@ -40,18 +40,9 @@ export class DatabaseService {
   }
 
   async getWordsByCategory(categoryId: string): Promise<Word[]> {
-    // カテゴリーIDから名前を取得
-    const { getCategoryNameById } = await import('@/lib/constants/categories');
-    const categoryName = getCategoryNameById(categoryId);
-    
-    if (!categoryName) {
-      console.error(`Database: Category ID "${categoryId}" not found`);
-      return [];
-    }
+    console.log(`Database: Searching for category ID: ${categoryId}`);
 
-    console.log(`Database: Searching for category: "${categoryName}" (ID: ${categoryId})`);
-
-    // カテゴリー名で検索（データベース構造に合わせる）
+    // category_idで直接検索（正しいリレーションシップを使用）
     const { data, error } = await this.supabase
       .from('words')
       .select(`
@@ -65,15 +56,16 @@ export class DatabaseService {
           is_active
         )
       `)
-      .eq('category', categoryName) // カテゴリー名で検索（現在のデータベース構造）
+      .eq('category_id', categoryId) // category_idで検索
+      .eq('is_active', true)
       .order('word', { ascending: true });
 
     if (error) {
-      console.error(`Database error for category "${categoryName}" (ID: ${categoryId}):`, error);
+      console.error(`Database error for category ID "${categoryId}":`, error);
       throw error;
     }
 
-    console.log(`Database: Found ${data?.length || 0} words for category "${categoryName}" (ID: ${categoryId})`);
+    console.log(`Database: Found ${data?.length || 0} words for category ID "${categoryId}"`);
     return data || [];
   }
 
@@ -90,13 +82,14 @@ export class DatabaseService {
       throw categoriesError;
     }
 
-    // 各カテゴリーの単語数を取得
+    // 各カテゴリーの単語数を取得（category_idを使用）
     const categoryCounts: Record<string, number> = {};
     for (const category of categoriesData || []) {
       const { count, error: countError } = await this.supabase
         .from('words')
         .select('*', { count: 'exact', head: true })
-        .eq('category', category.name);
+        .eq('category_id', category.id) // category_idで検索
+        .eq('is_active', true);
 
       if (!countError) {
         categoryCounts[category.name] = count || 0;

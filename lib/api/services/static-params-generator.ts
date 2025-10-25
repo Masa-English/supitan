@@ -147,7 +147,7 @@ export async function getBuildTimeSections(categoryName: string): Promise<string
 
     // カテゴリーIDから名前を取得
     const { getCategoryNameById } = await import('@/lib/constants/categories');
-    const categoryNameFromId = getCategoryNameById(categoryName);
+    const categoryNameFromId = await getCategoryNameById(categoryName);
 
     if (!categoryNameFromId) {
       console.warn(`Category not found: ${categoryName}, falling back to default sections`);

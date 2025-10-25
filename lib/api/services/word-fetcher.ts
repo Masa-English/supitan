@@ -20,7 +20,7 @@ export async function fetchWordsForStudy(options: FetchOptions): Promise<Word[]>
   let categoryName: string | undefined;
   if (categoryId) {
     const { getCategoryNameById } = await import('@/lib/constants/categories');
-    categoryName = getCategoryNameById(categoryId);
+    categoryName = await getCategoryNameById(categoryId);
     if (!categoryName) {
       throw new Error(`Category not found: ${categoryId}`);
     }

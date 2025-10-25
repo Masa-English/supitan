@@ -83,11 +83,11 @@ class StaticDatabaseService {
     }
   }
 
-  async getWordsByCategory(category: string): Promise<Word[]> {
+  async getWordsByCategory(categoryId: string): Promise<Word[]> {
     try {
       const isConnected = await this.checkConnection();
       if (!isConnected) {
-        console.error('Database connection failed for category:', category);
+        console.error('Database connection failed for category ID:', categoryId);
         return [];
       }
 
@@ -95,11 +95,12 @@ class StaticDatabaseService {
       const { data, error } = await supabase
         .from('words')
         .select('*')
-        .eq('category', category)
+        .eq('category_id', categoryId)
+        .eq('is_active', true)
         .order('word', { ascending: true });
 
       if (error) {
-        console.error('Words by category fetch error:', error);
+        console.error('Words by category ID fetch error:', error);
         return [];
       }
       return data || [];
@@ -129,7 +130,7 @@ class StaticDatabaseService {
 
       // カテゴリー設定を使用
       const { getAllCategories } = await import('./categories');
-      const allCategories = getAllCategories();
+      const allCategories = await getAllCategories();
       
       return allCategories.map(categoryConfig => ({
         category: categoryConfig.name,
