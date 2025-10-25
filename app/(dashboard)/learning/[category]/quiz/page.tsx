@@ -103,7 +103,9 @@ export async function generateStaticParams() {
 
 // カテゴリーIDから名前を取得
 function getCategoryName(categoryId: string): string | undefined {
+  console.log('getCategoryName called with:', categoryId);
   const category = CATEGORIES.find((cat: { id: string }) => cat.id === categoryId);
+  console.log('Found category:', category);
   return category?.name;
 }
 
@@ -119,7 +121,7 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
 
   const sectionRaw = sp.sec;
   const isRandom = sp.random === '1' || sp.random === 'true';
-  const randomCount = sp.count ? Number(sp.count) : undefined;
+  const randomCount = sp.count ? Number(sp.count) : 0;
   const isReviewMode = sp.mode === 'review';
   const isReviewListMode = sp.mode === 'review-list';
   const reviewLevel = sp.level ? Number(sp.level) : undefined;
@@ -150,8 +152,20 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
 
     // セーフガード: パラメータ未指定時はオプションへ
     const hasSection = !!sectionRaw;
-    const hasRandom = isRandom && (randomCount ?? 0) > 0;
-    if (!hasSection && !hasRandom) {
+    const hasRandom = isRandom && randomCount > 0;
+    console.log('QuizPage パラメータ検証:', {
+      hasSection,
+      hasRandom,
+      isRandom,
+      randomCount,
+      sectionRaw
+    });
+    
+    // ランダム出題の場合は処理を続行
+    if (hasRandom) {
+      console.log('ランダム出題モード: 処理を続行');
+    } else if (!hasSection && !hasRandom) {
+      console.log('パラメータ未指定のためオプションへリダイレクト');
       redirect(`/learning/${category}/options?mode=quiz`);
     }
   }
@@ -253,14 +267,16 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
     if (isRandom) {
       const count = Math.max(1, Math.min(randomCount ?? 10, words.length));
       console.log('[QuizPage] Random sampling:', { totalWords: words.length, requestedCount: count, randomCount, isRandom });
-      const shuffled = words.slice();
-      for (let i = shuffled.length - 1; i > 0; i -= 1) {
-        const randomValue = Math.random();
-        const j = Math.floor(randomValue * (i + 1));
-        console.log(`[QuizPage] Fisher-Yates shuffle step ${i}: random=${randomValue}, j=${j}`);
+      
+      // Fisher-Yatesアルゴリズムでシャッフル
+      const shuffled = [...words];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
-      const sampledWords = shuffled.slice(0, count).sort((a, b) => (a.word || '').localeCompare(b.word || ''));
+      
+      // 指定件数を取得（ソートは不要）
+      const sampledWords = shuffled.slice(0, count);
       console.log('[QuizPage] Sampled words:', sampledWords.map(w => ({ id: w.id, word: w.word })));
       words = sampledWords;
     }

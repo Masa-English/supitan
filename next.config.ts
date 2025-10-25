@@ -90,7 +90,35 @@ const nextConfig: NextConfig = {
 
   // リダイレクト設定（古いURL構造から新しい構造へ）
   async redirects() {
+    // カテゴリー名からIDへのマッピング
+    const categoryNameToIdMap: Record<string, string> = {
+      '動詞': 'b464ce08-9440-4178-923f-4d251b8dc0ab',
+      '名詞': 'c6ab103e-e829-41e0-9482-85e8e0a59b25',
+      '形容詞': '5a55ffb9-d020-49ac-81be-a256d7a24c8f',
+      '副詞': '41240a24-458d-4184-9ef6-e8d1c8620d9d',
+      '句動詞': 'fd181354-21ea-48d7-b4fa-8b6e1ca0264c',
+      '前置詞': 'b4bec9d1-a451-47f4-b1b6-2b1f0ef586f8',
+      '接続詞': 'ee6355f8-bd2d-46f3-8342-ccb80369c185',
+      '代名詞': '10d85f98-a88b-4f28-a20f-0a5b9851ff02'
+    };
+
+    // カテゴリー名からIDへのリダイレクトを生成
+    const categoryRedirects = Object.entries(categoryNameToIdMap).flatMap(([name, id]) => [
+      {
+        source: `/learning/${encodeURIComponent(name)}`,
+        destination: `/learning/${id}`,
+        permanent: true,
+      },
+      {
+        source: `/learning/${encodeURIComponent(name)}/:path*`,
+        destination: `/learning/${id}/:path*`,
+        permanent: true,
+      }
+    ]);
+
     return [
+      // カテゴリー名からIDへのリダイレクト
+      ...categoryRedirects,
       // 古いdashboard URLから正しいApp Router URLへのリダイレクト
       {
         source: "/dashboard/learning",
@@ -125,16 +153,17 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       // 古いquiz/flashcardパラメータ形式から新しい構造へのリダイレクト
-      {
-        source: "/learning/:category/quiz",
-        destination: "/learning/:category/options?mode=quiz",
-        permanent: true,
-      },
-      {
-        source: "/learning/:category/flashcard",
-        destination: "/learning/:category/options?mode=flashcard",
-        permanent: true,
-      },
+      // 注意: ランダム出題時は無限ループを防ぐため、これらのリダイレクトルールはコメントアウト
+      // {
+      //   source: "/learning/:category/quiz",
+      //   destination: "/learning/:category/options?mode=quiz",
+      //   permanent: true,
+      // },
+      // {
+      //   source: "/learning/:category/flashcard",
+      //   destination: "/learning/:category/options?mode=flashcard",
+      //   permanent: true,
+      // },
       // セクション指定がある場合のリダイレクト
       {
         source: "/learning/:category/quiz/:section",

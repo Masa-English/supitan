@@ -291,8 +291,8 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
         isRandomMode: !!(random === '1' || random === 'true')
       });
 
-      // オプションページと同じ方法でデータを取得
-      let query = publicSupabase
+      // 認証されたクライアントでデータを取得
+      let query = authSupabase
         .from('words')
         .select('*')
         .eq('category', categoryName); // カテゴリー名で検索
@@ -323,7 +323,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       });
 
       // デバッグ用: カテゴリー内の単語数を確認
-      const { count: totalWordsCount } = await publicSupabase
+      const { count: totalWordsCount } = await authSupabase
         .from('words')
         .select('*', { count: 'exact', head: true })
         .eq('category', categoryName); // カテゴリー名で検索
@@ -388,9 +388,10 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       categoryName: categoryName
     });
 
+    // パラメータ検証を強化
     if (isNaN(countNum) || countNum <= 0) {
       console.log('ランダムモード: パラメータエラー', { count, countNum });
-      redirect(`/learning/${category}/options?mode=flashcard&error=no_params`);
+      redirect(`/learning/${category}/options?mode=flashcard&error=invalid_params`);
     }
 
     // 単語が存在しない場合の処理
@@ -414,8 +415,13 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       });
     }
 
-    // ランダムシャッフルして指定件数を取得
-    const shuffled = [...words].sort(() => Math.random() - 0.5);
+    // ランダムシャッフルして指定件数を取得（Fisher-Yatesアルゴリズム使用）
+    const shuffled = [...words];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
     const originalLength = words.length;
     words = shuffled.slice(0, Math.min(countNum, shuffled.length));
     console.log('ランダムモード完了:', {

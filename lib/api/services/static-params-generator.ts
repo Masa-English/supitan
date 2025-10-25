@@ -250,6 +250,12 @@ export async function getBuildTimeCategorySectionPairs(): Promise<{ category: st
         .select('section', { count: 'exact' })
         .eq('category_id', category.id) as { data: { section: string | null }[] | null; error: SupabaseError | null };
 
+      // データベースに単語テーブルが存在しない場合のチェック
+      if (wordsError && typeof wordsError === 'object' && 'code' in wordsError && (wordsError as { code: string }).code === '42P01') {
+        console.warn(`Words table does not exist, skipping category: "${category.name}"`);
+        continue;
+      }
+
       if (wordsError) {
         console.warn(`Words query failed for ${category.name}:`, wordsError.message);
         continue;
@@ -257,12 +263,6 @@ export async function getBuildTimeCategorySectionPairs(): Promise<{ category: st
 
       if (!wordsData || wordsData.length === 0) {
         console.log(`No words found for category: "${category.name}", skipping`);
-        continue;
-      }
-
-      // データベースに単語テーブルが存在しない場合のチェック
-      if (wordsError && typeof wordsError === 'object' && 'code' in wordsError && (wordsError as { code: string }).code === '42P01') {
-        console.warn(`Words table does not exist, skipping category: "${category.name}"`);
         continue;
       }
 

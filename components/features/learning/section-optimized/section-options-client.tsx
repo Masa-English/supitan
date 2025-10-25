@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 // import { redirect } from 'next/navigation';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +17,7 @@ import { SectionLink } from '@/app/(dashboard)/learning/[category]/options/secti
 import { RandomInput } from '@/app/(dashboard)/learning/[category]/options/random-input';
 import { useSmartRealtimeWords } from '@/lib/hooks/use-smart-realtime';
 import { useDataStore } from '@/lib/stores/data-store-unified';
+import { getCategoryNameById } from '@/lib/constants/categories';
 // import type { Word } from '@/lib/types';
 
 interface SectionInfo {
@@ -44,7 +46,9 @@ export function SectionOptionsClient({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [randomCount, setRandomCount] = useState<number>(10);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const router = useRouter();
   const { refreshData: _storeRefreshData } = useDataStore();
 
   // スマートリアルタイム更新の設定
@@ -97,6 +101,35 @@ export function SectionOptionsClient({
     };
   }, [refreshData]);
 
+  // ランダム件数変更ハンドラー
+  const handleRandomCountChange = useCallback((count: number) => {
+    setRandomCount(count);
+  }, []);
+
+  // ランダム開始ハンドラー
+  const handleRandomStart = useCallback(() => {
+    // エラーメッセージをクリア
+    setErrorMessage(null);
+    
+    if (randomCount > 0 && randomCount <= sectionData.totalCount) {
+      // URLパラメータを正しくエンコード
+      const params = new URLSearchParams({
+        random: '1',
+        count: randomCount.toString()
+      });
+      // 正しいパス: /learning/{category}/{mode} (quiz または flashcard)
+      const url = `/learning/${category}/${mode}?${params.toString()}`;
+      console.log('ランダム機能開始:', { url, randomCount, category, mode });
+      
+      // Next.jsのuseRouterを使用して適切に遷移
+      router.push(url);
+    } else {
+      const errorMsg = `無効な件数です。1〜${sectionData.totalCount}の範囲で指定してください。`;
+      console.error('ランダム機能: 無効な件数', { randomCount, totalCount: sectionData.totalCount });
+      setErrorMessage(errorMsg);
+    }
+  }, [category, mode, randomCount, sectionData.totalCount, router]);
+
   const base = `/learning/${category}/${mode}`;
 
   // 初期ランダム件数の設定
@@ -105,7 +138,7 @@ export function SectionOptionsClient({
     setRandomCount(validCount);
   }, [sectionData.totalCount]);
 
-  // ランダム件数の検証と調整
+  // ランダム件数の検証と調整（無限ループを防ぐため、sectionData.totalCountの変更時のみ実行）
   useEffect(() => {
     if (randomCount > sectionData.totalCount) {
       setRandomCount(sectionData.totalCount);
@@ -113,9 +146,10 @@ export function SectionOptionsClient({
     if (randomCount < 1) {
       setRandomCount(1);
     }
-  }, [randomCount, sectionData.totalCount]);
+  }, [sectionData.totalCount]); // randomCountを依存配列から削除
 
   // クイック選択ボタンの選択状態を調整（無効化されたボタンが選択状態にならないように）
+  // 無限ループを防ぐため、sectionData.totalCountの変更時のみ実行
   useEffect(() => {
     if (sectionData.totalCount < 10 && randomCount === 10) {
       setRandomCount(Math.min(10, sectionData.totalCount));
@@ -129,7 +163,7 @@ export function SectionOptionsClient({
     if (sectionData.totalCount < 100 && randomCount === 100) {
       setRandomCount(Math.min(100, sectionData.totalCount));
     }
-  }, [sectionData.totalCount, randomCount]);
+  }, [sectionData.totalCount]); // randomCountを依存配列から削除
 
   return (
     <div className="min-h-screen bg-background">
@@ -184,7 +218,7 @@ export function SectionOptionsClient({
               <Badge variant="secondary" className="text-xs">
                 <Layers className="h-3 w-3 mr-1" /> カテゴリー
               </Badge>
-              <span className="text-sm font-medium text-foreground">{category}</span>
+              <span className="text-sm font-medium text-foreground">{getCategoryNameById(category) || category}</span>
               <span className="text-muted-foreground">·</span>
               <Badge variant="secondary" className="text-xs">
                 {mode === 'quiz' ? <Brain className="h-3 w-3 mr-1" /> : <BookOpen className="h-3 w-3 mr-1" />} モード
@@ -291,10 +325,10 @@ export function SectionOptionsClient({
               </CardContent>
             </Card>
 
-            {/* ❷ ランダム - 一時的に無効化 */}
-            <Card className="bg-card border-border opacity-50">
+            {/* ❷ ランダム */}
+            <Card className="bg-card border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">❷ ランダム <span className="text-sm text-muted-foreground">(メンテナンス中)</span></CardTitle>
+                <CardTitle className="text-lg">❷ ランダム</CardTitle>
               </CardHeader>
               <CardContent>
                 {sectionData.totalCount === 0 ? (
@@ -311,25 +345,15 @@ export function SectionOptionsClient({
                   </div>
                 ) : (
                   <div>
-                    <div className="rounded-md border border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20 p-4 mb-4">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                          <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <div className="ml-3">
-                          <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                            ランダムモードは一時的に利用できません
-                          </h3>
-                          <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                            現在メンテナンス中のため、ランダムモードはご利用いただけません。順番通りモードをご利用ください。
-                          </div>
-                        </div>
+                    {/* エラーメッセージの表示 */}
+                    {errorMessage && (
+                      <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                        <p className="text-sm text-red-800">{errorMessage}</p>
                       </div>
-                    </div>
+                    )}
+                    
                     <p className="text-sm text-muted-foreground mb-4">
-                      指定した件数を{category}からランダムに出題します。
+                      指定した件数を{getCategoryNameById(category) || category}からランダムに出題します。
                     </p>
 
                     {/* 現在の選択数表示 */}
@@ -348,32 +372,26 @@ export function SectionOptionsClient({
                       </div>
                     </div>
                     
-                    {/* クイック選択ボタン - 一時的に無効化 */}
+                    {/* クイック選択ボタン */}
                     <div className="flex flex-wrap gap-2 mb-4">
                       <Button
                         size="sm"
                         className={`${randomCount === 10 ? 'bg-primary hover:bg-primary/90' : 'bg-muted hover:bg-muted/80'}`}
-                        disabled={true}
-                        onClick={() => alert('ランダムモードは現在メンテナンス中です。')}
-                        title="ランダムモードは現在メンテナンス中です"
+                        onClick={() => handleRandomCountChange(10)}
                       >
                         10問
                       </Button>
                       <Button
                         size="sm"
                         variant={randomCount === 20 ? "default" : "outline"}
-                        disabled={true}
-                        onClick={() => alert('ランダムモードは現在メンテナンス中です。')}
-                        title="ランダムモードは現在メンテナンス中です"
+                        onClick={() => handleRandomCountChange(20)}
                       >
                         20問
                       </Button>
                       <Button
                         size="sm"
                         variant={randomCount === 50 ? "default" : "outline"}
-                        disabled={true}
-                        onClick={() => alert('ランダムモードは現在メンテナンス中です。')}
-                        title="ランダムモードは現在メンテナンス中です"
+                        onClick={() => handleRandomCountChange(50)}
                       >
                         50問
                       </Button>
@@ -381,9 +399,7 @@ export function SectionOptionsClient({
                         <Button
                           size="sm"
                           variant={randomCount === 100 ? "default" : "outline"}
-                          disabled={true}
-                          onClick={() => alert('ランダムモードは現在メンテナンス中です。')}
-                          title="ランダムモードは現在メンテナンス中です"
+                          onClick={() => handleRandomCountChange(100)}
                         >
                           100問
                         </Button>
@@ -404,12 +420,8 @@ export function SectionOptionsClient({
                         </div>
                         <Button
                           aria-label="カスタム件数で開始"
-                          disabled={true}
                           size="sm"
-                          onClick={() => {
-                            // 一時的に無効化
-                            alert('ランダムモードは現在メンテナンス中です。順番通りモードをご利用ください。');
-                          }}
+                          onClick={() => handleRandomStart()}
                         >
                           開始 <ArrowRight className="h-4 w-4 ml-1" />
                         </Button>

@@ -39,11 +39,19 @@ export class DatabaseService {
     return data || [];
   }
 
-  async getWordsByCategory(category: string): Promise<Word[]> {
-    // categoryはカテゴリーIDまたはカテゴリー名
-    console.log(`Database: Searching for category: "${category}"`);
+  async getWordsByCategory(categoryId: string): Promise<Word[]> {
+    // カテゴリーIDから名前を取得
+    const { getCategoryNameById } = await import('@/lib/constants/categories');
+    const categoryName = getCategoryNameById(categoryId);
+    
+    if (!categoryName) {
+      console.error(`Database: Category ID "${categoryId}" not found`);
+      return [];
+    }
 
-    // カテゴリーIDで直接検索（パフォーマンス向上）
+    console.log(`Database: Searching for category: "${categoryName}" (ID: ${categoryId})`);
+
+    // カテゴリー名で検索（データベース構造に合わせる）
     const { data, error } = await this.supabase
       .from('words')
       .select(`
@@ -57,15 +65,15 @@ export class DatabaseService {
           is_active
         )
       `)
-      .eq('category', category) // カテゴリー名で検索（現在のデータベース構造）
+      .eq('category', categoryName) // カテゴリー名で検索（現在のデータベース構造）
       .order('word', { ascending: true });
 
     if (error) {
-      console.error(`Database error for category "${category}":`, error);
+      console.error(`Database error for category "${categoryName}" (ID: ${categoryId}):`, error);
       throw error;
     }
 
-    console.log(`Database: Found ${data?.length || 0} words for category "${category}"`);
+    console.log(`Database: Found ${data?.length || 0} words for category "${categoryName}" (ID: ${categoryId})`);
     return data || [];
   }
 

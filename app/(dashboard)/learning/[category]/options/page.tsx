@@ -88,17 +88,20 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
       redirect(redirectUrl);
     }
 
-    // ランダムモードのパラメータがある場合は、オプション画面を表示（リダイレクトしない）
-    // ユーザーが「開始」ボタンをクリックした時のみリダイレクトする
+    // ランダムモードのパラメータがある場合は、学習ページにリダイレクト
     if (sp.random && sp.count) {
-      console.log('ランダムモードパラメータ検出:', {
+      const redirectUrl = `/learning/${category}/${mode}?random=${sp.random}&count=${sp.count}`;
+      console.log('ランダムモードパラメータ検出、学習ページにリダイレクト:', {
         random: sp.random,
         count: sp.count,
         category: category,
         categoryName: categoryName,
-        action: 'オプション画面を表示（リダイレクトしない）'
+        redirectUrl
       });
+      redirect(redirectUrl);
     }
+  } else {
+    console.log('エラーパラメータ検出、リダイレクトをスキップ:', sp.error);
   }
 
   return (
