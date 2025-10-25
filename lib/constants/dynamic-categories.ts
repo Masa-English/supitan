@@ -9,11 +9,13 @@ function getSupabaseClient() {
   if (!supabaseUrl || !supabaseKey) {
     console.error('Supabase environment variables not found:', {
       url: !!supabaseUrl,
-      key: !!supabaseKey
+      key: !!supabaseKey,
+      env: process.env.NODE_ENV
     });
     throw new Error('Supabase URL and Key are required');
   }
   
+  console.log('Creating Supabase client with URL:', supabaseUrl);
   return createClient(supabaseUrl, supabaseKey);
 }
 
@@ -137,20 +139,34 @@ export async function getCategoryIdByName(name: string): Promise<string | undefi
  * カテゴリーIDから名前を取得（完全なUUIDまたは短縮UUIDに対応）
  */
 export async function getCategoryNameById(id: string): Promise<string | undefined> {
-  const categories = await getCategoriesFromDatabase();
-  
-  // まず完全なUUIDで検索
-  let config = categories.find(cat => cat.id === id);
-  if (config) return config.name;
+  try {
+    console.log('getCategoryNameById called with ID:', id);
+    const categories = await getCategoriesFromDatabase();
+    console.log('Retrieved categories count:', categories.length);
+    
+    // まず完全なUUIDで検索
+    let config = categories.find(cat => cat.id === id);
+    if (config) {
+      console.log('Found category by full ID:', config.name);
+      return config.name;
+    }
 
-  // UUIDの最初の8桁で検索（短縮IDで検索）
-  if (id.length >= 8) {
-    const shortId = id.substring(0, 8);
-    config = categories.find(cat => cat.id.startsWith(shortId));
-    if (config) return config.name;
+    // UUIDの最初の8桁で検索（短縮IDで検索）
+    if (id.length >= 8) {
+      const shortId = id.substring(0, 8);
+      config = categories.find(cat => cat.id.startsWith(shortId));
+      if (config) {
+        console.log('Found category by short ID:', config.name);
+        return config.name;
+      }
+    }
+
+    console.log('Category not found for ID:', id);
+    return undefined;
+  } catch (error) {
+    console.error('Error in getCategoryNameById:', error);
+    return undefined;
   }
-
-  return undefined;
 }
 
 /**

@@ -92,15 +92,45 @@ class StaticDatabaseService {
       }
 
       const supabase = this.getSupabaseClient();
-      const { data, error } = await supabase
-        .from('words')
-        .select('*')
-        .eq('category_id', categoryId)
-        .eq('is_active', true)
-        .order('word', { ascending: true });
+      
+      // categoryIdがUUID形式かどうかをチェック
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryId);
+      
+      let query;
+      if (isUuid) {
+        // UUID形式の場合は直接検索
+        query = supabase
+          .from('words')
+          .select('*')
+          .eq('category_id', categoryId)
+          .eq('is_active', true)
+          .order('word', { ascending: true });
+      } else {
+        // カテゴリー名の場合は、まずカテゴリーIDを取得
+        const { data: categoryData, error: categoryError } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('name', categoryId)
+          .eq('is_active', true)
+          .single();
+
+        if (categoryError || !categoryData) {
+          console.error('Category not found:', categoryId);
+          return [];
+        }
+
+        query = supabase
+          .from('words')
+          .select('*')
+          .eq('category_id', categoryData.id)
+          .eq('is_active', true)
+          .order('word', { ascending: true });
+      }
+
+      const { data, error } = await query;
 
       if (error) {
-        console.error('Words by category ID fetch error:', error);
+        console.error('Words by category fetch error:', error);
         return [];
       }
       return data || [];
@@ -113,32 +143,41 @@ class StaticDatabaseService {
   async getCategories(): Promise<{ category: string; count: number; description: string; color: string; sort_order: number; is_active: boolean }[]> {
     try {
       const supabase = this.getSupabaseClient();
-      const { data, error } = await supabase
-        .from('words')
-        .select('category')
-        .order('category', { ascending: true });
+      
+      // カテゴリーテーブルから直接取得
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
 
-      if (error) {
-        console.error('Categories fetch error:', error);
+      if (categoriesError) {
+        console.error('Categories fetch error:', categoriesError);
         return [];
       }
 
-      const categoryCounts = data?.reduce((acc: Record<string, number>, word: { category: string }) => {
-        acc[word.category] = (acc[word.category] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      // 各カテゴリーの単語数を取得（category_idを使用）
+      const categoryCounts: Record<string, number> = {};
+      for (const category of categoriesData || []) {
+        const { count, error: countError } = await supabase
+          .from('words')
+          .select('*', { count: 'exact', head: true })
+          .eq('category_id', category.id) // category_idで検索
+          .eq('is_active', true);
 
-      // カテゴリー設定を使用
-      const { getAllCategories } = await import('./categories');
-      const allCategories = await getAllCategories();
-      
-      return allCategories.map(categoryConfig => ({
-        category: categoryConfig.name,
-        count: categoryCounts[categoryConfig.name] || 0,
-        description: categoryConfig.description,
-        color: categoryConfig.color,
-        sort_order: categoryConfig.sort_order,
-        is_active: categoryConfig.is_active
+        if (!countError) {
+          categoryCounts[category.name] = count || 0;
+        }
+      }
+
+      // データベースから取得したカテゴリー情報を直接使用
+      return (categoriesData || []).map(category => ({
+        category: category.name,
+        count: categoryCounts[category.name] || 0,
+        description: category.description || '',
+        color: category.color || '#3b82f6',
+        sort_order: category.sort_order || 0,
+        is_active: category.is_active || true
       }));
     } catch (error) {
       console.error('getCategories error:', error);
