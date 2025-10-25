@@ -80,10 +80,15 @@ export class OptimizedDatabaseService {
     if (cached) return cached;
 
     try {
-      // URLデコードを確実に実行し、カテゴリー名を正規化（トリムのみ）
-      const decodedCategory = category ? decodeURIComponent(category) : category;
-      const normalizedCategory = decodedCategory.trim();
-      console.log(`OptimizedDatabase: Searching for category: "${normalizedCategory}" (original: "${decodedCategory}")`);
+      // カテゴリーIDから名前を取得
+      const { getCategoryNameById } = await import('@/lib/constants/categories');
+      const categoryName = getCategoryNameById(category);
+
+      if (!categoryName) {
+        throw new Error(`Category not found: ${category}`);
+      }
+
+      console.log(`OptimizedDatabase: Searching for category: "${categoryName}" (id: "${category}")`);
 
       // 単一クエリでカテゴリーと単語を同時取得（JOIN使用）
       const { data, error } = await this.supabase
@@ -99,23 +104,23 @@ export class OptimizedDatabaseService {
             is_active
           )
         `)
-        .eq('categories.name', normalizedCategory)
+        .eq('categories.name', categoryName)
         .eq('categories.is_active', true)
         .order('word', { ascending: true });
 
       if (error) {
-        console.error(`Database error for category "${normalizedCategory}":`, error);
+        console.error(`Database error for category "${categoryName}":`, error);
         throw error;
       }
 
       const words = data || [];
-      console.log(`OptimizedDatabase: Found ${words.length} words for category "${normalizedCategory}"`);
+      console.log(`OptimizedDatabase: Found ${words.length} words for category "${categoryName}"`);
 
       // キャッシュに保存（10分間）
       this.setCache(cacheKey, words, 600000);
       return words;
     } catch (error) {
-      console.error(`Failed to fetch words for category "${normalizedCategory}":`, error);
+      console.error(`Failed to fetch words for category "${category}":`, error);
       throw error;
     }
   }

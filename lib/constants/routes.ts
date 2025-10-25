@@ -2,6 +2,8 @@
  * アプリケーション内のルート定義
  */
 
+import { getCategoryNameById, getCategorySlugFromId } from './categories';
+
 // 公開ルート（認証不要）
 export const PUBLIC_ROUTES = {
   HOME: '/',
@@ -38,10 +40,20 @@ export const DASHBOARD_ROUTES = {
 // 学習関連ルート
 export const LEARNING_ROUTES = {
   BASE: '/learning',
-  CATEGORY: (category: string) => `/learning/${encodeURIComponent(category)}`,
-  FLASHCARD: (category: string) => `/learning/${encodeURIComponent(category)}/flashcard`,
-  QUIZ: (category: string) => `/learning/${encodeURIComponent(category)}/quiz`,
-  BROWSE: (category: string) => `/learning/${encodeURIComponent(category)}/browse`,
+  CATEGORY: (categoryId: string) => `/learning/${categoryId}`,
+  FLASHCARD: (categoryId: string) => `/learning/${categoryId}/flashcard`,
+  QUIZ: (categoryId: string) => `/learning/${categoryId}/quiz`,
+  BROWSE: (categoryId: string) => `/learning/${categoryId}/browse`,
+  REVIEW: '/review'
+} as const;
+
+// 短縮IDを使ったURL生成（UUIDの最初の8桁を使用）
+export const LEARNING_ROUTES_SHORT = {
+  BASE: '/learning',
+  CATEGORY: (categoryId: string) => `/learning/${getCategorySlugFromId(categoryId)}`,
+  FLASHCARD: (categoryId: string) => `/learning/${getCategorySlugFromId(categoryId)}/flashcard`,
+  QUIZ: (categoryId: string) => `/learning/${getCategorySlugFromId(categoryId)}/quiz`,
+  BROWSE: (categoryId: string) => `/learning/${getCategorySlugFromId(categoryId)}/browse`,
   REVIEW: '/review'
 } as const;
 
@@ -257,14 +269,16 @@ export function generateBreadcrumbs(pathname: string): RouteInfo[] {
       { path: DASHBOARD_ROUTES.HOME, title: 'ホーム' },
       { path: LEARNING_ROUTES.BASE, title: '学習' }
     ];
-    
+
     if (segments[2]) {
-      const category = segments[2];
+      const categoryId = segments[2];
+      // カテゴリーIDから日本語名を取得（後で実装）
+      const categoryName = getCategoryNameById(categoryId) || categoryId;
       breadcrumbs.push({
-        path: LEARNING_ROUTES.CATEGORY(category),
-        title: category
+        path: LEARNING_ROUTES.CATEGORY(categoryId),
+        title: categoryName
       });
-      
+
       if (segments[3]) {
         const mode = segments[3];
         const modeTitle = mode === 'flashcard' ? 'フラッシュカード' :
@@ -276,10 +290,10 @@ export function generateBreadcrumbs(pathname: string): RouteInfo[] {
         });
       }
     }
-    
+
     return breadcrumbs;
   }
-  
+
   // 静的ルートの処理
   return BREADCRUMB_ROUTES[pathname] || [
     { path: DASHBOARD_ROUTES.HOME, title: 'ホーム' }

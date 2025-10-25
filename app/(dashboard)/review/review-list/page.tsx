@@ -30,7 +30,7 @@ async function getReviewListData(userId: string) {
     const reviewListWordsWithDetails = reviewWords
       .map(reviewWord => {
         const word = allWords.find(w => w.id === reviewWord.word_id);
-        if (word) {
+        if (word && reviewWord.word_id) {
           return {
             word_id: reviewWord.word_id,
             word: word,
@@ -39,7 +39,7 @@ async function getReviewListData(userId: string) {
         }
         return null;
       })
-      .filter(Boolean);
+      .filter((item): item is NonNullable<typeof item> => item !== null);
 
     return {
       reviewListWords: reviewListWordsWithDetails,

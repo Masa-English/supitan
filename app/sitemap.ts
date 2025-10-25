@@ -39,7 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const categories = await dataProvider.getCategories();
     
     dynamicPages = categories.map((category) => ({
-      url: `${baseUrl}/learning/${encodeURIComponent(category.category)}`,
+      url: `${baseUrl}/learning/${category.id}`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,

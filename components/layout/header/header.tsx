@@ -135,9 +135,9 @@ export function Header({
     
     // 学習ページからはカテゴリーページに戻る
     if (pathname.match(/^\/learning\/[^\/]+\/(flashcard|quiz|browse)$/)) {
-      const category = pathname.split('/')[2];
+      const categoryId = pathname.split('/')[2];
       startNavigating();
-      router.push(`/learning/${category}`);
+      router.push(`/learning/${categoryId}`);
       return;
     }
     // カテゴリーページからはダッシュボードに戻る
@@ -341,11 +341,11 @@ export function Header({
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => {
-                        // 現在のパスからカテゴリーを取得してカテゴリーページに戻る
+                        // 現在のパスからカテゴリーIDを取得してカテゴリーページに戻る
                         if (pathname.match(/^\/learning\/[^\/]+\/(flashcard|quiz|browse)$/)) {
-                          const category = pathname.split('/')[2];
+                          const categoryId = pathname.split('/')[2];
                           startNavigating();
-                          router.push(`/learning/${category}`);
+                          router.push(`/learning/${categoryId}`);
                         } else {
                           startNavigating();
                           router.push('/dashboard');

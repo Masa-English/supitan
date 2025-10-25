@@ -3,6 +3,8 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, ArrowRight, RotateCcw, Home, BookOpen } from 'lucide-react';
+import { getCategoryNameById } from '@/lib/constants/categories';
+import { useRouter } from 'next/navigation';
 
 interface CompletionModalProps {
   isOpen: boolean;
@@ -29,10 +31,14 @@ export function CompletionModal({
   totalQuestions,
   hasNextSection,
 }: CompletionModalProps) {
+  const router = useRouter();
+  
   if (!isOpen) return null;
-
   const correctAnswers = results.filter(r => r.correct).length;
   const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+  const onCategorys = () => {
+    router.push(`/learning/categories`);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -48,7 +54,7 @@ export function CompletionModal({
           <h3 className="text-xl sm:text-2xl font-bold text-amber-800 dark:text-amber-200 mb-2">学習完了！</h3>
           <p className="text-base sm:text-lg font-semibold text-green-600 mb-1">素晴らしい！</p>
           <p className="text-sm sm:text-base text-amber-700 dark:text-amber-300 mb-4 sm:mb-6">
-            {decodeURIComponent(category)}の学習が完了しました
+            {getCategoryNameById(category)}の学習が完了しました
             </p>
 
           {/* 統計情報 */}
@@ -143,7 +149,7 @@ export function CompletionModal({
 
               <Button
                 variant="outline"
-                onClick={onGoHome}
+                onClick={onCategorys}
                 className="h-12 sm:h-14 text-sm sm:text-base font-medium border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
               >
                 <span className="hidden sm:inline">カテゴリーに戻る</span>

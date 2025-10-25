@@ -182,7 +182,7 @@ export default function QuizClient({
     
     // 学習モードを取得（ストアまたはセッションストレージから）
     const learningMode = storeLearningMode || sessionStorage.getItem('selectedLearningMode') || 'quiz';
-    const targetPath = `/learning/${encodeURIComponent(category)}/${learningMode}/section/${encodeURIComponent(nextSectionFromStore)}`;
+    const targetPath = `/learning/${category}/${learningMode}/section/${nextSectionFromStore}`;
     
     console.log('次のセクションに移動:', {
       from: storeCurrentSection,

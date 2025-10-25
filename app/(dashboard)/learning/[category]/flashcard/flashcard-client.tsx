@@ -14,15 +14,17 @@ import { useNavigationStore, useLearningSessionStore } from '@/lib/stores';
 
 interface Props {
   category: string;
+  categoryName?: string;
   words: Word[];
   allSections?: string[];
 }
 
-export default function FlashcardClient({ category, words, allSections }: Props) {
-  console.log('FlashcardClient: レンダリング開始', { 
-    category: category, 
-    wordsCount: words.length, 
-    allSections: allSections?.length 
+export default function FlashcardClient({ category, categoryName, words, allSections }: Props) {
+  console.log('FlashcardClient: レンダリング開始', {
+    category: category,
+    categoryName: categoryName,
+    wordsCount: words.length,
+    allSections: allSections?.length
   });
   
   // サーバーサイドで認証確認済みなので、クライアントサイドでは認証チェックをスキップ
@@ -194,7 +196,7 @@ export default function FlashcardClient({ category, words, allSections }: Props)
     
     // 学習モードを取得（ストアまたはセッションストレージから）
     const learningMode = storeLearningMode || sessionStorage.getItem('selectedLearningMode') || 'flashcard';
-    const targetPath = `/learning/${category}/${learningMode}/section/${encodeURIComponent(nextSectionFromStore)}`;
+    const targetPath = `/learning/${category}/${learningMode}/section/${nextSectionFromStore}`;
     
     console.log('次のセクションに移動:', {
       from: storeCurrentSection,

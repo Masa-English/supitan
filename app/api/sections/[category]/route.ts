@@ -13,9 +13,8 @@ export async function GET(
   try {
     const { category } = await params;
 
-    // カテゴリーパラメータをデコード
-    const decodedCategory = decodeURIComponent(category);
-    console.log(`[API] Fetching section data for category: ${decodedCategory}`);
+    // カテゴリーパラメータ（IDとして使用）
+    console.log(`[API] Fetching section data for category: ${category}`);
 
     // 最適化されたセクションデータを取得
     const sectionData = await optimizedSectionService.getSectionData(category);
@@ -53,9 +52,8 @@ export async function POST(
   try {
     const { category } = await params;
 
-    // カテゴリーパラメータをデコード
-    const decodedCategory = decodeURIComponent(category);
-    console.log(`[API] Invalidating cache for category: ${decodedCategory}`);
+    // カテゴリーパラメータ（IDとして使用）
+    console.log(`[API] Invalidating cache for category: ${category}`);
 
     // キャッシュを無効化
     await optimizedSectionService.invalidateCache(category);

@@ -263,7 +263,9 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
 
     try {
       // 復習リストに追加（データベースに保存）
-      await db.addToReview(user.id, currentWord.id);
+      if (user?.id) {
+        await db.addToReview(user.id, currentWord.id);
+      }
 
       // ローカルの復習リスト状態も更新
       setReviewWords(prev => new Set(prev).add(currentWord.id));
@@ -278,7 +280,7 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
 
     // 次の問題に進む
     handleNext();
-  }, [currentWord, isInRetryMode, handleNext, user.id, db]);
+  }, [currentWord, isInRetryMode, handleNext, user?.id, db]);
 
   if (currentWordList.length === 0 || !currentWord) {
     return (

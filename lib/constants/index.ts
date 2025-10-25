@@ -24,8 +24,6 @@ export {
   normalizeCategoryName,
   createCategoryStats,
   createAllCategoryStats,
-  encodeCategoryName,
-  decodeCategoryName,
   formatCategoryName,
   formatCategoryDetails
 } from './categories';

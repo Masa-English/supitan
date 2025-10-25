@@ -9,7 +9,7 @@ import { useAudioStore } from '@/lib/stores';
 import { DatabaseService } from '@/lib/api/database/database';
 import { dataProvider } from '@/lib/api/services/data-provider';
 import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
-import type { ReviewWordWithWord, UserProgressUpdate } from '@/lib/types';
+import type { ReviewWordWithWord, UserProgressUpdate } from '@/lib/types/database';
 
 interface ReviewProps {
   onComplete: (results: { wordId: string; correct: boolean }[]) => void;
@@ -88,7 +88,8 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
             if (word) {
               reviewWordsData.push({
                 ...reviewWord,
-                word
+                word,
+                created_at: reviewWord.added_at ?? new Date().toISOString() // added_atがnullまたはundefinedの場合は現在時刻を使用
               });
             }
           }
@@ -116,9 +117,9 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
               if (word) {
                 reviewWordsData.push({
                   id: `${progress.word_id}-interval`,
-                  user_id: progress.user_id,
-                  word_id: progress.word_id,
-                  created_at: progress.created_at,
+                  user_id: progress.user_id || '',
+                  word_id: progress.word_id || '',
+                  created_at: new Date().toISOString(),
                   word
                 });
               }
@@ -147,9 +148,9 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
             if (daysSinceReview >= reviewInterval) {
               reviewWordsData.push({
                 id: `${progress.word_id}-category`,
-                user_id: progress.user_id,
-                word_id: progress.word_id,
-                created_at: progress.created_at,
+                user_id: progress.user_id || '',
+                word_id: progress.word_id || '',
+                created_at: new Date().toISOString(),
                 word
               });
             }
@@ -176,9 +177,9 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
               if (word) {
                 reviewWordsData.push({
                   id: `${progress.word_id}-urgent`,
-                  user_id: progress.user_id,
-                  word_id: progress.word_id,
-                  created_at: progress.created_at,
+                  user_id: progress.user_id || '',
+                  word_id: progress.word_id || '',
+                  created_at: new Date().toISOString(),
                   word
                 });
               }
@@ -237,7 +238,7 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
 
     // 結果を記録
     const newResult = {
-      wordId: currentWord.word_id,
+      wordId: currentWord.word_id || '',
       correct: isCorrect,
     };
     setResults(prev => [...prev, newResult]);
@@ -267,7 +268,9 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
         progressUpdates.incorrect_count = (currentProgress?.incorrect_count || 0) + 1;
       }
 
-      await db.updateProgress(user.id, currentWord.word_id, progressUpdates);
+      if (user?.id && currentWord.word_id) {
+        await db.updateProgress(user.id, currentWord.word_id, progressUpdates);
+      }
       console.log('復習進捗を更新:', currentWord.word_id, progressUpdates);
     } catch (error) {
       console.error('復習進捗更新エラー:', error);
@@ -295,8 +298,10 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
     if (!user || !currentWord) return;
 
     try {
-      await db.addToReview(user.id, currentWord.word_id);
-      console.log('復習リストに追加:', currentWord.word_id);
+      if (user?.id && currentWord.word_id) {
+        await db.addToReview(user.id, currentWord.word_id);
+        console.log('復習リストに追加:', currentWord.word_id);
+      }
     } catch (error) {
       console.error('復習リスト追加エラー:', error);
     }
@@ -306,8 +311,10 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
     if (!user || !currentWord) return;
 
     try {
-      await db.removeFromReview(user.id, currentWord.word_id);
-      console.log('復習リストから削除:', currentWord.word_id);
+      if (user?.id && currentWord.word_id) {
+        await db.removeFromReview(user.id, currentWord.word_id);
+        console.log('復習リストから削除:', currentWord.word_id);
+      }
     } catch (error) {
       console.error('復習リスト削除エラー:', error);
     }

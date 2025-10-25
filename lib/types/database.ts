@@ -982,12 +982,16 @@ export type CategoryUpdate = Database['public']['Tables']['categories']['Update'
 // カテゴリー統計情報を含む型（動的生成用）
 export type CategoryWithStats = {
   category: string;
+  id: string;
   count: number;
-  englishName: string;
-  pos: string;
   description: string;
   color: string;
-  icon: string;
+  sort_order: number;
+  is_active: boolean;
+  // 表示用のfallbackプロパティ
+  icon?: string;
+  englishName?: string;
+  pos?: string;
 }
 
 // User型はSupabaseのauth.usersから取得するため、ここでは定義しない
@@ -1029,8 +1033,12 @@ export interface ReviewSession {
   created_at: string | null;
 }
 
-// 復習単語とWord情報を結合した型
-export type ReviewWordWithWord = ReviewWord & {
+// 復習単語とWord情報を結合した型（実際のデータ構造に合わせて修正）
+export type ReviewWordWithWord = {
+  id: string;
+  user_id: string | null;
+  word_id: string | null;
+  created_at: string;
   word: Word;
 }
 

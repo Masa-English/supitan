@@ -50,7 +50,7 @@ export default function ReviewClient({ category, words, mode, level }: Props) {
               {[1, 2, 3, 4, 5].map((levelNum) => (
                 <Link
                   key={levelNum}
-                  href={`/learning/${encodeURIComponent(category)}/review?mode=${mode}&level=${levelNum}`}
+                  href={`/learning/${category}/review?mode=${mode}&level=${levelNum}`}
                   className={`px-3 py-1 text-sm rounded-full transition-colors ${
                     level === levelNum
                       ? 'bg-primary text-primary-foreground'
@@ -61,7 +61,7 @@ export default function ReviewClient({ category, words, mode, level }: Props) {
                 </Link>
               ))}
               <Link
-                href={`/learning/${encodeURIComponent(category)}/review?mode=${mode}`}
+                href={`/learning/${category}/review?mode=${mode}`}
                 className={`px-3 py-1 text-sm rounded-full transition-colors ${
                   level === undefined
                     ? 'bg-primary text-primary-foreground'
@@ -102,7 +102,7 @@ export default function ReviewClient({ category, words, mode, level }: Props) {
           section=""
           onRetry={() => setShowCompletionModal(false)}
           onGoHome={() => router.push('/dashboard')}
-          onNextSection={() => router.push(`/learning/${encodeURIComponent(category)}/options`)}
+          onNextSection={() => router.push(`/learning/${category}/options`)}
           hasNextSection={false}
         />
       )}

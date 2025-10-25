@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 // import Link from 'next/link';
 import { optimizedSectionService } from '@/lib/api/services/optimized-section-service';
 import { SectionOptionsClient } from '@/components/features/learning/section-optimized/section-options-client';
+import { CATEGORIES } from '@/lib/constants/categories';
 
 interface PageProps {
   params?: Promise<{ category: string }>;
@@ -18,18 +19,24 @@ export async function generateStaticParams() {
   return safeGenerateStaticParams(
     async () => {
       const categories = await getBuildTimeCategories();
-      return categories.map((category) => ({
-        category: category, // カテゴリー名はデータベースから取得したそのままの値を使用
+      return categories.map((categoryId) => ({
+        category: categoryId, // カテゴリーID（文字列）を使用
       }));
     },
     [
-      { category: '句動詞' },
-      { category: '動詞' },
-      { category: '名詞' },
-      { category: '形容詞' },
-      { category: '副詞' },
+      { category: 'b464ce08-9440-4178-923f-4d251b8dc0ab' },
+      { category: '6effaf5d-619c-4a70-b36d-9464549eadda' },
+      { category: '659c3f6d-2e93-47b9-9fe3-c6838a82f6b9' },
+      { category: '71bfd0a1-cc79-4257-bd4a-15d30d37555f' },
+      { category: '618464f6-6c7a-450a-9074-89e6d7becef9' },
     ]
   );
+}
+
+// カテゴリーIDから名前を取得
+function getCategoryName(categoryId: string): string | undefined {
+  const category = CATEGORIES.find((cat: { id: string }) => cat.id === categoryId);
+  return category?.name;
 }
 
 export default async function OptionsPage({ params, searchParams }: PageProps) {
@@ -40,50 +47,34 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
   if (!p?.category) notFound();
 
   const category = p.category;
-  // カテゴリーパラメータをデコード
-  const decodedCategory = decodeURIComponent(category);
+  // カテゴリーIDから名前を取得
+  const categoryName = getCategoryName(category);
+
+  if (!categoryName) notFound();
+
   const mode = sp.mode === 'quiz' ? 'quiz' : sp.mode === 'flashcard' ? 'flashcard' : null;
 
   if (!mode) notFound();
 
   // カテゴリーの存在確認
-  console.log('OptionsPage: カテゴリー確認開始', { category, mode });
-  const { createClient } = await import('@supabase/supabase-js');
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  console.log('OptionsPage: カテゴリー確認開始', { category, categoryName, mode });
 
-  if (supabaseUrl && supabaseKey) {
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
+  // カテゴリーIDの検証（categories.tsから取得した名前が有効か確認）
+  if (!categoryName) {
+    console.log('OptionsPage: カテゴリーIDが無効のためリダイレクト', {
+      category,
+      error: 'Category ID not found in configuration'
     });
-
-    const { data: categoryData, error: categoryError } = await supabase
-      .from('categories')
-      .select('id, name')
-      .eq('name', decodedCategory)
-      .eq('is_active', true)
-      .single();
-
-    if (categoryError || !categoryData) {
-      console.log('OptionsPage: カテゴリーが存在しないためリダイレクト', {
-        category,
-        decodedCategory,
-        error: categoryError?.message
-      });
-      redirect('/learning/categories');
-    }
-
-    console.log('OptionsPage: カテゴリー確認成功', {
-      categoryId: categoryData.id,
-      categoryName: categoryData.name
-    });
+    redirect('/learning/categories');
   }
 
+  console.log('OptionsPage: カテゴリー確認成功', {
+    categoryId: category,
+    categoryName: categoryName
+  });
+
   // デバッグログ
-  console.log('Options page params:', { category, decodedCategory, mode, sec: sp.sec, random: sp.random, count: sp.count, error: sp.error });
+  console.log('Options page params:', { category, categoryName, mode, sec: sp.sec, random: sp.random, count: sp.count, error: sp.error });
 
   // 最適化されたセクションデータを取得
   const sectionData = await optimizedSectionService.getSectionData(category);
@@ -92,25 +83,30 @@ export default async function OptionsPage({ params, searchParams }: PageProps) {
   if (!sp.error) {
     // secパラメータがある場合は直接学習ページにリダイレクト
     if (sp.sec) {
-      const redirectUrl = `/learning/${encodeURIComponent(decodedCategory)}/${mode}/section/${encodeURIComponent(sp.sec)}`;
+      const redirectUrl = `/learning/${category}/${mode}/section/${sp.sec}`;
       console.log('Redirecting to:', redirectUrl);
       redirect(redirectUrl);
     }
 
-    // ランダムモードのパラメータがある場合は、オプション画面を表示（リダイレクトしない）
-    // ユーザーが「開始」ボタンをクリックした時のみリダイレクトする
+    // ランダムモードのパラメータがある場合は、学習ページにリダイレクト
     if (sp.random && sp.count) {
-      console.log('ランダムモードパラメータ検出:', { 
-        random: sp.random, 
+      const redirectUrl = `/learning/${category}/${mode}?random=${sp.random}&count=${sp.count}`;
+      console.log('ランダムモードパラメータ検出、学習ページにリダイレクト:', {
+        random: sp.random,
         count: sp.count,
-        action: 'オプション画面を表示（リダイレクトしない）'
+        category: category,
+        categoryName: categoryName,
+        redirectUrl
       });
+      redirect(redirectUrl);
     }
+  } else {
+    console.log('エラーパラメータ検出、リダイレクトをスキップ:', sp.error);
   }
 
   return (
     <SectionOptionsClient
-      category={decodedCategory}
+      category={category}
       mode={mode}
       initialData={sectionData}
       error={sp.error}

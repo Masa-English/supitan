@@ -81,7 +81,7 @@ export function CategoryDisplay({
         </div>
         {showEnglishName && (
           <span className="text-sm text-muted-foreground">
-            {config.englishName}
+            {config.name}
           </span>
         )}
         {showDescription && (

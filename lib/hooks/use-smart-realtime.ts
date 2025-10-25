@@ -8,6 +8,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
 import { useDataStore } from '@/lib/stores/data-store-unified';
+import { getCategoryNameById } from '@/lib/constants/categories';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
 interface UseSmartRealtimeOptions {
@@ -211,7 +212,11 @@ export function useSmartRealtime(options: UseSmartRealtimeOptions): UseSmartReal
           
           // カテゴリー固有データの場合
           if (category && table === 'words') {
-            filter = `category=eq.${encodeURIComponent(category)}`;
+            // カテゴリーIDから名前を取得してフィルタリング
+            const categoryName = getCategoryNameById(category);
+            if (categoryName) {
+              filter = `category=eq.${categoryName}`;
+            }
           }
 
           channel.on(

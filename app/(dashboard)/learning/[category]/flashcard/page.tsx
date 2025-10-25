@@ -3,6 +3,7 @@ import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import { dataProvider } from '@/lib/api/services';
 import FlashcardClient from './flashcard-client';
 import type { Word } from '@/lib/types';
+import { CATEGORIES } from '@/lib/constants/categories';
 // import { supabase } from '@/lib/api/supabase/client'; // サーバーサイドでは使用しない
 
 // ISR設定 - 5分ごとに再生成（より頻繁に更新）
@@ -27,34 +28,72 @@ export async function generateStaticParams() {
       },
     });
 
-    // カテゴリーと単語数の情報を取得
-    const { data: categoriesData, error } = await supabase
+    // まずカテゴリー一覧を取得
+    const { data: categoriesData, error: categoriesError } = await supabase
       .from('categories')
-      .select(`
-        id,
-        name,
-        words:words(count)
-      `)
+      .select('id, name')
       .eq('is_active', true)
       .order('sort_order');
 
-    if (error) {
-      console.error('Error fetching categories:', error);
-      return [];
+    if (categoriesError) {
+      console.error('Error fetching categories:', categoriesError);
+      // データベースエラーの場合はフォールバックを使用
+      console.warn('Using fallback categories due to database error');
+      return [
+        { category: 'b464ce08-9440-4178-923f-4d251b8dc0ab' } // 動詞カテゴリーをフォールバックとして使用
+      ];
     }
 
-    // 単語が存在するカテゴリーのみをフィルタリング
-    const validCategories = categoriesData
-      ?.filter((category: { id: string; name: string; words?: { count?: number }[] }) => (category.words?.[0]?.count || 0) > 0)
-      ?.map((category: { id: string; name: string; words?: { count?: number }[] }) => ({
-        category: encodeURIComponent(category.name),
-      })) || [];
+    // カテゴリーが見つからない場合はフォールバックを使用
+    if (!categoriesData || categoriesData.length === 0) {
+      console.warn('No categories found in database, using fallback');
+      return [
+        { category: 'b464ce08-9440-4178-923f-4d251b8dc0ab' } // 動詞カテゴリーをフォールバックとして使用
+      ];
+    }
+
+    // 各カテゴリーの単語数を確認
+    const validCategories: { category: string }[] = [];
+
+    for (const category of categoriesData) {
+      try {
+        const { count: wordCount, error: wordError } = await supabase
+          .from('words')
+          .select('*', { count: 'exact', head: true })
+          .eq('category_id', category.id);
+
+        if (wordError) {
+          console.warn(`Error checking words for category ${category.name}:`, wordError.message);
+          continue;
+        }
+
+        console.log(`Category ${category.name} (${category.id}) has ${wordCount || 0} words`);
+
+        if (wordCount && wordCount > 0) {
+          validCategories.push({ category: category.id });
+        }
+      } catch (error) {
+        console.warn(`Error checking words for category ${category.name}:`, error);
+        continue;
+      }
+    }
+
+    // 有効なカテゴリーが見つからない場合はフォールバックを使用
+    if (validCategories.length === 0) {
+      console.warn('No valid categories with words found, using fallback');
+      return [
+        { category: 'b464ce08-9440-4178-923f-4d251b8dc0ab' } // 動詞カテゴリーをフォールバックとして使用
+      ];
+    }
 
     console.log(`Generated ${validCategories.length} valid category params for flashcard`);
     return validCategories;
   } catch (error) {
     console.error('Error generating static params for flashcard:', error);
-    return [];
+    // エラーが発生した場合もフォールバックを使用
+    return [
+      { category: 'b464ce08-9440-4178-923f-4d251b8dc0ab' } // 動詞カテゴリーをフォールバックとして使用
+    ];
   }
 }
 
@@ -63,16 +102,32 @@ interface PageProps {
   searchParams: Promise<{ sec?: string; random?: string; count?: string; mode?: string; level?: string }>;
 }
 
+// カテゴリーIDから名前を取得
+function getCategoryName(categoryId: string): string | undefined {
+  const category = CATEGORIES.find((cat: { id: string }) => cat.id === categoryId);
+  return category?.name;
+}
+
 export default async function FlashcardPage({ params, searchParams }: PageProps) {
+  const { category } = await params;
+  const { sec, random, count, mode, level } = await searchParams;
+  console.log('FlashcardPage: 関数開始');
+
+  // カテゴリーIDから名前を取得（tryブロックの外で定義）
+  console.log('FlashcardPage: カテゴリー名取得開始');
+  const categoryName = getCategoryName(category);
+  console.log('FlashcardPage: カテゴリー名取得完了', { category, categoryName });
+
   try {
-    console.log('FlashcardPage: 関数開始');
-    
-    const { category } = await params;
     console.log('FlashcardPage: params取得完了', { category });
-    
-    const { sec, random, count, mode, level } = await searchParams;
+
+    // カテゴリーIDの検証
+    if (!category) {
+      console.log('FlashcardPage: カテゴリーIDが無効');
+      redirect('/learning/categories');
+    }
     console.log('FlashcardPage: searchParams取得完了', { sec, random, count, mode, level });
-    
+
     console.log('FlashcardPage: パラメータ取得完了', {
       category,
       sec,
@@ -82,17 +137,10 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       level
     });
 
-    // カテゴリーパラメータをデコード
-    console.log('FlashcardPage: カテゴリーデコード開始');
-    const decodedCategory = decodeURIComponent(category);
-    console.log('FlashcardPage: カテゴリーデコード完了', { decodedCategory });
-  
-  console.log('カテゴリー名のエンコード/デコード確認:', {
-    originalCategory: category,
-    decodedCategory: decodedCategory,
-    encodedCategory: encodeURIComponent(decodedCategory),
-    isEncoded: category !== decodedCategory
-  });
+    if (!categoryName) {
+      console.log('FlashcardPage: カテゴリーIDが見つからないためリダイレクト', { category });
+      redirect('/learning/categories');
+    }
 
   const isReviewMode = mode === 'review';
   const isReviewListMode = mode === 'review-list';
@@ -100,8 +148,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
 
   console.log('FlashcardPage: 開始', {
     category: category,
-    categoryDecoded: decodedCategory,
-    categoryEncoded: encodeURIComponent(decodedCategory),
+    categoryName: categoryName,
     sec,
     random,
     count,
@@ -114,62 +161,26 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
   });
 
   // カテゴリーの存在確認
-  console.log('FlashcardPage: カテゴリー確認開始', { category: decodedCategory });
+  console.log('FlashcardPage: カテゴリー確認開始', { category, categoryName });
 
-  // カテゴリーの存在確認
-  console.log('FlashcardPage: Supabaseクライアント作成開始');
-  const categoryCheckSupabase = await createServerClient();
-  console.log('FlashcardPage: Supabaseクライアント作成完了');
-  console.log('カテゴリー確認クエリ:', {
-    table: 'categories',
-    name: decodedCategory,
-    nameLength: decodedCategory.length,
-    nameBytes: Buffer.from(decodedCategory, 'utf8').toString('hex'),
-    isActive: true
-  });
-  
-  const { data: categoryData, error: categoryError } = await categoryCheckSupabase
-    .from('categories')
-    .select('id, name')
-    .eq('name', decodedCategory) // オプションページと同じ方法
-    .eq('is_active', true)
-    .single();
-
-  console.log('カテゴリー確認結果:', {
-    found: !!categoryData,
-    error: categoryError,
-    categoryData: categoryData,
-    errorMessage: categoryError?.message
+  // カテゴリーIDの検証（categories.tsから取得した名前が有効か確認）
+  console.log('カテゴリー確認:', {
+    categoryId: category,
+    categoryName: categoryName,
+    isValidCategory: !!categoryName
   });
 
-  // デバッグ用: データベース内のカテゴリー名を確認
-  const { data: allCategories } = await categoryCheckSupabase
-    .from('categories')
-    .select('name')
-    .eq('is_active', true)
-    .limit(10);
-  
-  console.log('データベース内のカテゴリー名一覧:', {
-    categories: allCategories?.map(c => ({
-      name: c.name,
-      length: c.name?.length,
-      bytes: c.name ? Buffer.from(c.name, 'utf8').toString('hex') : null
-    }))
-  });
-
-  if (categoryError || !categoryData) {
-    console.log('FlashcardPage: カテゴリーが存在しないためリダイレクト', {
+  if (!categoryName) {
+    console.log('FlashcardPage: カテゴリーIDが無効のためリダイレクト', {
       category,
-      decodedCategory,
-      error: categoryError?.message,
-      errorDetails: categoryError?.details
+      error: 'Category ID not found in configuration'
     });
     redirect('/learning/categories');
   }
 
   console.log('FlashcardPage: カテゴリー確認成功', {
-    categoryId: categoryData.id,
-    categoryName: categoryData.name
+    categoryId: category,
+    categoryName: categoryName
   });
   
   // 復習モードでない場合のみセクション指定を処理（ランダムモードを除外）
@@ -184,7 +195,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
   
   // オプションページと同じSupabaseクライアントも作成
   const { createClient } = await import('@supabase/supabase-js');
-  const publicSupabase = createClient(
+  const _publicSupabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
@@ -225,14 +236,24 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
     
     // 復習対象の単語IDを取得
     const reviewWordIds = new Set(reviewWords.map(p => p.word_id));
-      
+
       // カテゴリー内の復習対象単語のみを取得
       const { data: allWords } = await authSupabase
         .from('words')
         .select('*')
-        .eq('category', decodedCategory);
+        .eq('category', categoryName);
 
       words = (allWords || []).filter((word: Word) => reviewWordIds.has(word.id));
+
+      // 復習対象の単語が見つからない場合
+      if (words.length === 0) {
+        console.warn('復習対象の単語が見つからないためリダイレクト:', {
+          category,
+          categoryName,
+          reviewWordIdsCount: reviewWordIds.size
+        });
+        redirect(`/learning/${category}/options?mode=flashcard&error=no_review_words`);
+      }
     }
     // 復習リストモードの場合
     else if (isReviewListMode) {
@@ -245,31 +266,41 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       const { data: allWords } = await authSupabase
         .from('words')
         .select('*')
-        .eq('category', decodedCategory);
+        .eq('category', categoryName);
 
       words = (allWords || []).filter((word: Word) => reviewWordIds.has(word.id)) as Word[];
+
+      // 復習リストの単語が見つからない場合
+      if (words.length === 0) {
+        console.warn('復習リストの単語が見つからないためリダイレクト:', {
+          category,
+          categoryName,
+          reviewWordIdsCount: reviewWordIds.size
+        });
+        redirect(`/learning/${category}/options?mode=flashcard&error=no_review_list_words`);
+      }
     }
     // 通常モードの場合
     else {
-      console.log('通常モード: 単語取得開始', { 
-        category: decodedCategory, 
-        sec, 
-        random, 
+      console.log('通常モード: 単語取得開始', {
+        category: category,
+        categoryName: categoryName,
+        sec,
+        random,
         count,
         isRandomMode: !!(random === '1' || random === 'true')
       });
-      
-      // オプションページと同じ方法でデータを取得
-      let query = publicSupabase
+
+      // 認証されたクライアントでデータを取得
+      let query = authSupabase
         .from('words')
         .select('*')
-        .eq('category', decodedCategory); // オプションページと同じ方法
+        .eq('category', categoryName); // カテゴリー名で検索
 
       console.log('データベースクエリ構築:', {
         table: 'words',
-        category: decodedCategory,
-        categoryLength: decodedCategory.length,
-        categoryBytes: Buffer.from(decodedCategory, 'utf8').toString('hex'),
+        category: category,
+        categoryName: categoryName,
         hasSectionFilter: !!(sec && sec !== 'all'),
         section: sec
       });
@@ -285,42 +316,32 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       }
 
       console.log('データベースクエリ実行前:', {
-        category: decodedCategory,
+        category: category,
+        categoryName: categoryName,
         section: sec,
         isRandomMode: !!(random === '1' || random === 'true')
       });
 
       // デバッグ用: カテゴリー内の単語数を確認
-      const { count: totalWordsCount } = await publicSupabase
+      const { count: totalWordsCount } = await authSupabase
         .from('words')
         .select('*', { count: 'exact', head: true })
-        .eq('category', decodedCategory); // オプションページと同じ方法
-      
-      console.log('カテゴリー内の総単語数:', {
-        category: decodedCategory,
-        totalWordsCount: totalWordsCount
-      });
+        .eq('category', categoryName); // カテゴリー名で検索
 
-      // デバッグ用: データベース内のカテゴリー名を確認
-      const { data: sampleWords } = await publicSupabase
-        .from('words')
-        .select('category')
-        .limit(5);
-      
-      console.log('データベース内のカテゴリー名サンプル:', {
-        sampleCategories: sampleWords?.map(w => ({
-          category: w.category,
-          length: w.category?.length,
-          bytes: w.category ? Buffer.from(w.category, 'utf8').toString('hex') : null
-        }))
+      console.log('カテゴリー内の総単語数:', {
+        category: category,
+        categoryName: categoryName,
+        totalWordsCount: totalWordsCount
       });
 
       const { data: wordsData, error: wordsError } = await query.order('id', { ascending: true });
       words = (wordsData || []) as Word[];
-      console.log('単語取得結果:', { 
-        wordsCount: words.length, 
-        error: wordsError, 
-        category: decodedCategory,
+
+      console.log('単語取得結果:', {
+        wordsCount: words.length,
+        error: wordsError,
+        category: category,
+        categoryName: categoryName,
         isRandomMode: !!(random === '1' || random === 'true'),
         sampleWords: words.slice(0, 3).map(w => ({ id: w.id, word: w.word })),
         hasError: !!wordsError,
@@ -328,38 +349,58 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
         errorDetails: wordsError?.details,
         errorHint: wordsError?.hint
       });
+
+      // データベースエラーまたは単語が見つからない場合
+      if (wordsError || totalWordsCount === 0 || words.length === 0) {
+        console.error('データベースエラーまたは単語なし:', {
+          wordsError: wordsError?.message,
+          totalWordsCount,
+          wordsLength: words.length
+        });
+
+        if (wordsError) {
+          redirect(`/learning/${category}/options?mode=flashcard&error=database_error`);
+        } else {
+          redirect(`/learning/${category}/options?mode=flashcard&error=no_words`);
+        }
+      }
     }
 
   // ランダム選択の場合（通常モードのみ）
   if (!isReviewMode && !isReviewListMode && (random === '1' || random === 'true') && count) {
-    console.log('ランダムモード検知:', { 
-      random, 
-      count, 
+    console.log('ランダムモード検知:', {
+      random,
+      count,
       wordsCount: words.length,
-      category: decodedCategory,
+      category: category,
+      categoryName: categoryName,
       isReviewMode,
       isReviewListMode
     });
 
     const countNum = parseInt(count, 10);
-    console.log('ランダムモード処理:', { 
-      count, 
-      countNum, 
+    console.log('ランダムモード処理:', {
+      count,
+      countNum,
       isValid: !isNaN(countNum) && countNum > 0,
-      wordsBeforeRandom: words.length
+      wordsBeforeRandom: words.length,
+      category: category,
+      categoryName: categoryName
     });
 
+    // パラメータ検証を強化
     if (isNaN(countNum) || countNum <= 0) {
       console.log('ランダムモード: パラメータエラー', { count, countNum });
-      redirect(`/learning/${category}/options?mode=flashcard&error=no_params`);
+      redirect(`/learning/${category}/options?mode=flashcard&error=invalid_params`);
     }
 
     // 単語が存在しない場合の処理
     if (words.length === 0) {
-      console.log('ランダムモード: 単語が存在しない', { 
-        wordsCount: words.length, 
+      console.log('ランダムモード: 単語が存在しない', {
+        wordsCount: words.length,
         requestedCount: countNum,
-        category: decodedCategory,
+        category: category,
+        categoryName: categoryName,
         error: 'No words found for random mode'
       });
       redirect(`/learning/${category}/options?mode=flashcard&error=no_words`);
@@ -374,14 +415,21 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       });
     }
 
-    // ランダムシャッフルして指定件数を取得
-    const shuffled = [...words].sort(() => Math.random() - 0.5);
+    // ランダムシャッフルして指定件数を取得（Fisher-Yatesアルゴリズム使用）
+    const shuffled = [...words];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
     const originalLength = words.length;
     words = shuffled.slice(0, Math.min(countNum, shuffled.length));
-    console.log('ランダムモード完了:', { 
+    console.log('ランダムモード完了:', {
       originalWordsCount: originalLength,
       requestedCount: countNum,
       finalWordsCount: words.length,
+      category: category,
+      categoryName: categoryName,
       sampleFinalWords: words.slice(0, 3).map(w => ({ id: w.id, word: w.word }))
     });
   }
@@ -402,7 +450,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       const { data: sectionsData } = await authSupabase
         .from('words')
         .select('section')
-        .eq('category', decodedCategory)
+        .eq('category', categoryName)
         .order('section', { ascending: true });
 
       if (sectionsData) {
@@ -420,9 +468,10 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
     });
     
     return (
-      <FlashcardClient 
-        category={category} 
-        words={words as Word[]} 
+      <FlashcardClient
+        category={category}
+        categoryName={categoryName}
+        words={words as Word[]}
         allSections={allSections.length > 0 ? allSections : undefined}
       />
     );
@@ -433,12 +482,12 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
       category: category || 'unknown',
-      random,
-      count,
-      mode,
+      random: random || 'unknown',
+      count: count || 'unknown',
+      mode: mode || 'unknown',
       errorType: error instanceof Error ? error.constructor.name : typeof error
     });
-    
+
     // エラーが発生した場合の詳細情報をログに出力
     console.error('Flashcard page error details:', {
       hasCategory: !!category,
@@ -447,7 +496,7 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       hasMode: !!mode,
       errorString: String(error)
     });
-    
+
     redirect(`/learning/${category || 'unknown'}/options?mode=flashcard&error=data_error`);
   }
 }
