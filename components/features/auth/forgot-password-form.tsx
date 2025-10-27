@@ -91,12 +91,12 @@ export function ForgotPasswordForm({
                 </Button>
               </div>
               <div className="mt-4 text-center text-sm">
-                 <span className="text-muted-foreground">アカウントをお持ちですか？ </span>
+                 <span className="text-muted-foreground">パスワードを思い出しましたか？ </span>
                 <Link
                   href="/auth/login"
                   className="text-primary hover:text-primary/80 underline underline-offset-4"
                 >
-                  ログイン
+                  ログインに戻る
                 </Link>
               </div>
             </form>

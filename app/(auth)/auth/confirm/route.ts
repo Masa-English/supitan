@@ -16,7 +16,12 @@ export async function GET(request: NextRequest) {
       token_hash,
     })
     if (!error) {
-      // redirect user to specified redirect URL or root of app
+      // パスワードリセット（recovery）の場合は専用ページにリダイレクト
+      // ユーザーは既に認証済みなので、パスワード更新フォームを表示
+      if (type === 'recovery') {
+        redirect('/auth/update-password')
+      }
+      // その他の認証タイプ（email確認など）は指定されたページへ
       redirect(next)
     }
   }

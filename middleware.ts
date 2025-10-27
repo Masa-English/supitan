@@ -220,7 +220,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // 認証済みユーザーが認証ページにアクセスしようとしている場合
-  if (user && (request.nextUrl.pathname.startsWith('/auth') || request.nextUrl.pathname === '/login')) {
+  // ただし、パスワードリセット関連のパス（/auth/confirm, /auth/update-password）は除外
+  const isPasswordResetPath = pathname === '/auth/confirm' || pathname === '/auth/update-password'
+  
+  if (user && !isPasswordResetPath && (request.nextUrl.pathname.startsWith('/auth') || request.nextUrl.pathname === '/login')) {
     console.log('🔀 [Middleware] 認証済みユーザーを自動リダイレクト', {
       from: request.nextUrl.pathname,
       to: '/dashboard',

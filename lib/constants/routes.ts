@@ -20,7 +20,8 @@ export const AUTH_ROUTES = {
   SIGN_UP: '/auth/sign-up',
   LOGOUT: '/auth/logout',
   FORGOT_PASSWORD: '/auth/forgot-password',
-  RESET_PASSWORD: '/auth/reset-password',
+  UPDATE_PASSWORD: '/auth/update-password',
+  RESET_PASSWORD: '/auth/reset-password', // 後方互換性のため保持
   VERIFY_EMAIL: '/auth/verify-email',
   CONFIRM: '/auth/confirm',
   ERROR: '/auth/error',
