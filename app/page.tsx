@@ -1,11 +1,79 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, Zap } from 'lucide-react';
-
-// SSG設定 - 静的生成
-export const revalidate = false; // 完全静的
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/api/supabase/client';
 
 export default function HomePage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // ハッシュフラグメントからトークンを処理（PKCE flow）
+    const handleAuthCallback = async () => {
+      const hash = window.location.hash;
+      
+      // ハッシュフラグメントにaccess_tokenが含まれているか確認
+      if (hash && hash.includes('access_token')) {
+        const params = new URLSearchParams(hash.substring(1));
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+        const type = params.get('type');
+        
+        console.log('🔐 [HomePage] Auth callback detected:', {
+          hasAccessToken: !!accessToken,
+          hasRefreshToken: !!refreshToken,
+          type,
+        });
+
+        if (accessToken) {
+          try {
+            const supabase = createClient();
+            
+            // トークンをセッションに設定
+            const { data, error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken || '',
+            });
+
+            if (error) {
+              console.error('❌ [HomePage] Session setup failed:', error);
+              // エラーページにリダイレクト
+              router.push('/auth/error');
+              return;
+            }
+
+            console.log('✅ [HomePage] Session established:', {
+              user: data.user?.email,
+              type,
+            });
+
+            // URLからハッシュフラグメントをクリア
+            window.history.replaceState(null, '', window.location.pathname);
+
+            // typeに応じて適切なページにリダイレクト
+            if (type === 'recovery') {
+              // パスワードリセットの場合
+              console.log('🔄 [HomePage] Redirecting to password update page');
+              router.push('/auth/update-password');
+            } else {
+              // その他の場合はダッシュボードへ
+              console.log('🔄 [HomePage] Redirecting to dashboard');
+              router.push('/dashboard');
+            }
+          } catch (err) {
+            console.error('❌ [HomePage] Auth callback error:', err);
+            router.push('/auth/error');
+          }
+        }
+      }
+    };
+
+    handleAuthCallback();
+  }, [router]);
+
   // 静的ランディングページ
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex flex-col">

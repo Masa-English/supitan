@@ -32,8 +32,9 @@ export function ForgotPasswordForm({
 
     try {
       // The url which will be included in the email. This URL needs to be configured in your redirect URLs in the Supabase dashboard at https://supabase.com/dashboard/project/_/auth/url-configuration
+      // PKCE flowを使用しているため、ルートページにリダイレクトし、そこでハッシュフラグメントを処理します
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/update-password`,
+        redirectTo: `${window.location.origin}/`,
       });
       if (error) throw error;
       setSuccess(true);

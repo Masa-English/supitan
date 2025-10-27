@@ -1,6 +1,6 @@
 
 // Service Worker for スピ単
-const CACHE_NAME = 'spitan-v1-1761566236110';
+const CACHE_NAME = 'spitan-v1-1761569764864';
 const STATIC_CACHE_URLS = [
   '/',
   '/dashboard',
