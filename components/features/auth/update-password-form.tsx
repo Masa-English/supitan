@@ -13,7 +13,8 @@ import {
 import { Input } from "@/components/ui/form/input";
 import { Label } from "@/components/ui/form/label";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export function UpdatePasswordForm({
   className,
@@ -24,7 +25,14 @@ export function UpdatePasswordForm({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,30 +102,64 @@ export function UpdatePasswordForm({
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2">
                   <Label htmlFor="password" className="text-foreground">新しいパスワード</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="6文字以上のパスワード"
-                    required
-                    minLength={6}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="border-border focus:border-primary focus:ring-primary bg-background"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={isMounted && showPassword ? "text" : "password"}
+                      placeholder="6文字以上のパスワード"
+                      required
+                      minLength={6}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="border-border focus:border-primary focus:ring-primary bg-background pr-10"
+                    />
+                    {isMounted && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">6文字以上で入力してください</p>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="confirmPassword" className="text-foreground">パスワードの確認</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="パスワードを再入力"
-                    required
-                    minLength={6}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="border-border focus:border-primary focus:ring-primary bg-background"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={isMounted && showConfirmPassword ? "text" : "password"}
+                      placeholder="パスワードを再入力"
+                      required
+                      minLength={6}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="border-border focus:border-primary focus:ring-primary bg-background pr-10"
+                    />
+                    {isMounted && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 {error && (
                   <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
