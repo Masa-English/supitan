@@ -61,12 +61,16 @@ export async function fetchWordAudio(wordId: string): Promise<Blob | null> {
 /**
  * Supabase Storageから直接音声ファイルを取得する
  * audio-filesバケットがPublicなので、getPublicUrlを使用して効率的に取得
+ * 
+ * DBに登録されているaudio_fileの値をそのまま使用します。
+ * フォルダ名のみの場合はword.mp3を追加します（DBの設計に依存）。
  */
 export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob | null> {
   try {
     devLog.log(`[AudioUtils] Supabase Storageから音声ファイルを取得開始: ${audioFilePath}`);
 
-    // パス解決: フォルダ名のみの場合はword.mp3を追加
+    // DBから取得したパスをそのまま使用
+    // フォルダ名のみの場合はword.mp3を追加（DBの設計に依存）
     let resolvedPath = audioFilePath;
     if (!audioFilePath.includes('/') && !audioFilePath.endsWith('.mp3')) {
       resolvedPath = `${audioFilePath}/word.mp3`;
@@ -74,11 +78,10 @@ export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob
     }
 
     // パスがエンコードされているかチェック
-    const originalPath = resolvedPath;
-    const needsEncoding = !originalPath.match(/^[a-zA-Z0-9\-_.\/]+$/);
-    const encodedPath = needsEncoding ? encodeURIComponent(originalPath) : originalPath;
+    const needsEncoding = !resolvedPath.match(/^[a-zA-Z0-9\-_.\/]+$/);
+    const encodedPath = needsEncoding ? encodeURIComponent(resolvedPath) : resolvedPath;
 
-    devLog.log(`[AudioUtils] パス処理: original=${originalPath}, needsEncoding=${needsEncoding}, encoded=${encodedPath}`);
+    devLog.log(`[AudioUtils] パス処理: original=${resolvedPath}, needsEncoding=${needsEncoding}, encoded=${encodedPath}`);
 
     const supabase = createBrowserClient();
 
@@ -88,7 +91,7 @@ export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob
       .getPublicUrl(encodedPath);
 
     if (!urlData?.publicUrl) {
-      devLog.error(`[AudioUtils] 音声ファイルのURL取得に失敗: ${audioFilePath}`);
+      devLog.error(`[AudioUtils] 音声ファイルのURL取得に失敗: ${resolvedPath}`);
       return null;
     }
 
@@ -98,7 +101,6 @@ export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒でタイムアウト
 
-    let blob: Blob;
     try {
       const response = await fetch(urlData.publicUrl, {
         signal: controller.signal
@@ -107,29 +109,29 @@ export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob
       clearTimeout(timeoutId);
       
       if (!response.ok) {
-        devLog.error(`[AudioUtils] 音声ファイルのフェッチに失敗: ${audioFilePath}, status=${response.status}`);
+        devLog.error(`[AudioUtils] 音声ファイルのフェッチに失敗: ${resolvedPath}, status=${response.status}`);
         return null;
       }
       
-      blob = await response.blob();
+      const blob = await response.blob();
       
       // ファイルサイズの検証
       if (blob.size === 0) {
-        devLog.error(`[AudioUtils] 音声ファイルが空です: ${audioFilePath}`);
+        devLog.error(`[AudioUtils] 音声ファイルが空です: ${resolvedPath}`);
         return null;
       }
+      
+      devLog.log(`[AudioUtils] 音声ファイル取得成功: ${resolvedPath}, size=${blob.size} bytes`);
+      return blob;
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === 'AbortError') {
-        devLog.error(`[AudioUtils] 音声ファイルのフェッチがタイムアウトしました: ${audioFilePath}`);
+        devLog.error(`[AudioUtils] 音声ファイルのフェッチがタイムアウトしました: ${resolvedPath}`);
       } else {
-        devLog.error(`[AudioUtils] 音声ファイルのフェッチエラー: ${audioFilePath}`, error);
+        devLog.error(`[AudioUtils] 音声ファイルのフェッチエラー: ${resolvedPath}`, error);
       }
       return null;
     }
-    
-    devLog.log(`[AudioUtils] 音声ファイル取得成功: ${audioFilePath}, size=${blob.size} bytes`);
-    return blob;
   } catch (error) {
     devLog.error(`[AudioUtils] 音声ファイル取得エラー (${audioFilePath}):`, error);
     return null;
@@ -141,6 +143,8 @@ export async function fetchAudioFromStorage(audioFilePath: string): Promise<Blob
  * 例: words.audio_file が "run out of/word.mp3" の場合、
  *  - index=1, lang='en' -> "run out of/example001.mp3"
  *  - index=1, lang='jp' -> "run out of/example001-jp.mp3"
+ * 
+ * DBに登録されているaudio_fileの値をそのまま使用します。
  */
 export function buildExampleAudioPath(
   wordAudioPath: string,
@@ -150,6 +154,8 @@ export function buildExampleAudioPath(
   // 親ディレクトリを抽出（バックスラッシュをスラッシュに正規化）
   const normalized = wordAudioPath.replace(/\\/g, '/');
   const normalizedBase = normalized.replace(/\/[^/]+$/, '').replace(/\/$/, '');
+  
+  // DBから取得したパスをそのまま使用
   const number = String(index).padStart(3, '0');
   const suffix = lang === 'jp' ? '-jp' : '';
   return `${normalizedBase}/example${number}${suffix}.mp3`;

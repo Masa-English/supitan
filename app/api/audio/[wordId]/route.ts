@@ -38,7 +38,8 @@ export async function GET(
 
     devLog.log(`音声ファイルパス: ${word.audio_file} (${word.word})`);
 
-    // パス解決: フォルダ名のみの場合はword.mp3を追加
+    // DBから取得したパスをそのまま使用
+    // フォルダ名のみの場合はword.mp3を追加（DBの設計に依存）
     let resolvedPath = word.audio_file;
     if (!word.audio_file.includes('/') && !word.audio_file.endsWith('.mp3')) {
       resolvedPath = `${word.audio_file}/word.mp3`;

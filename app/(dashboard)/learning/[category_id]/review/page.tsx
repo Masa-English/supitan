@@ -9,8 +9,8 @@ interface PageProps {
   searchParams?: Promise<{ mode?: string; level?: string }>;
 }
 
-// ISR設定 - 30分ごとに再生成
-export const revalidate = 1800;
+// ISR設定 - 5分ごとに再生成（データ更新を即座に反映）
+export const revalidate = 300;
 
 // カテゴリーIDから名前を取得（動的取得を使用）
 async function getCategoryName(categoryId: string): Promise<string | undefined> {

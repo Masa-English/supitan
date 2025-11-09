@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getStaticData } from '@/lib/constants/static-data';
 
-// ISR設定 - 1時間ごとに再生成
-export const revalidate = 3600;
+// ISR設定 - 5分ごとに再生成（データ更新を即座に反映）
+export const revalidate = 300;
 
 export async function GET() {
   // 開発環境でのみログ出力
@@ -36,9 +36,9 @@ export async function GET() {
 
     return NextResponse.json(staticData, {
       headers: {
-        'Cache-Control': 'public, max-age=3600, stale-while-revalidate=7200',
-        'CDN-Cache-Control': 'public, max-age=3600',
-        'Vercel-CDN-Cache-Control': 'public, max-age=3600',
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+        'CDN-Cache-Control': 'public, max-age=300',
+        'Vercel-CDN-Cache-Control': 'public, max-age=300',
       },
     });
   } catch (error) {

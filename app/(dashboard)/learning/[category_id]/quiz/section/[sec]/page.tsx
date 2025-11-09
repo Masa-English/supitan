@@ -3,7 +3,7 @@ import { dataProvider } from '@/lib/api/services';
 import { Word, QuizQuestion } from '@/lib/types';
 import QuizClient from '../../quiz-client';
 
-export const revalidate = 1800; // 30分 - クイズは少し長めのキャッシュ
+export const revalidate = 300; // 5分 - データ更新を即座に反映
 
 // 静的パラメータ生成を有効化
 export async function generateStaticParams() {

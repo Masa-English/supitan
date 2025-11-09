@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { dataProvider } from '@/lib/api/services/data-provider';
 
-export const revalidate = 900; // 15分
+export const revalidate = 300; // 5分 - データ更新を即座に反映
 
 export async function GET() {
   try {
@@ -9,7 +9,7 @@ export async function GET() {
     
     return NextResponse.json(categories, {
       headers: {
-        'Cache-Control': 'public, s-maxage=900, stale-while-revalidate=1800',
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
       },
     });
   } catch (error) {

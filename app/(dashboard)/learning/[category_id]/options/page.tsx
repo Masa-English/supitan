@@ -9,8 +9,8 @@ interface PageProps {
   searchParams?: Promise<{ mode?: string; size?: string; sec?: string; random?: string; count?: string; error?: string }>;
 }
 
-// ISR設定 - 1時間ごとに再生成
-export const revalidate = 3600;
+// ISR設定 - 5分ごとに再生成（データ更新を即座に反映）
+export const revalidate = 300;
 
 // 静的パスの生成
 export async function generateStaticParams() {

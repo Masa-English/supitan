@@ -3,7 +3,7 @@ import { CategoryWithStats } from '@/lib/types';
 import CategoriesClient from './categories-client';
 
 // SSG + ISR設定
-export const revalidate = 3600; // 1時間
+export const revalidate = 300; // 5分 - データ更新を即座に反映
 
 export default async function CategoriesPage() {
   try {

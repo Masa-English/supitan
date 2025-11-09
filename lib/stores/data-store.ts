@@ -216,22 +216,19 @@ export const useDataStore = create<DataState>((set, get) => ({
       );
     }
     
-    // TODO: お気に入りのみ（UserProgressから取得する必要がある）
-    if (searchFilters.favoritesOnly) {
-      // UserProgressが利用可能になるまで一時的に無効化
-      filtered = [];
-    }
+    // UserProgressフィルター（お気に入り、習得済み、未学習）
+    // 注意: userProgressはuseUserStoreから取得する必要があるため、
+    // このストアを使用するコンポーネント側でuserProgressを渡すか、
+    // またはuseUserStoreと組み合わせて使用する必要があります
+    // ここでは基本的なフィルタリングのみ実装し、
+    // UserProgress関連のフィルタリングは呼び出し側で処理することを推奨します
     
-    // TODO: マスター済みのみ（UserProgressから取得する必要がある）
-    if (searchFilters.masteredOnly) {
-      // UserProgressが利用可能になるまで一時的に無効化
-      filtered = [];
-    }
-    
-    // TODO: 未学習のみ（UserProgressから取得する必要がある）
-    if (searchFilters.unstudiedOnly) {
-      // UserProgressが利用可能になるまで一時的に無効化
-      // 全ての単語を未学習として扱う
+    if (searchFilters.favoritesOnly || searchFilters.masteredOnly || searchFilters.unstudiedOnly) {
+      // UserProgressデータが必要なフィルターが有効な場合、
+      // 呼び出し側でuserProgressを取得してフィルタリングする必要があります
+      // このストア単体ではuserProgressにアクセスできないため、
+      // フィルタリング結果を空にするか、呼び出し側で処理してください
+      console.warn('UserProgressフィルターは、useUserStoreと組み合わせて使用してください');
     }
     
     set({ filteredWords: filtered });

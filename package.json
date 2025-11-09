@@ -45,7 +45,9 @@
     "deploy-check": "node scripts/deploy-check.mjs",
     "deploy": "npm run deploy-check && vercel --prod",
     "perf:check": "node scripts/performance-check.mjs",
-    "perf:bundle": "node scripts/bundle-analysis.mjs"
+    "perf:bundle": "node scripts/bundle-analysis.mjs",
+    "vercel:logs": "node scripts/check-vercel-logs.mjs",
+    "supabase:status": "node scripts/check-supabase-status.mjs"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.1",

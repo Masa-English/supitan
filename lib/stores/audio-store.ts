@@ -349,24 +349,14 @@ export const useAudioStore = create<AudioState>((set, get) => ({
         return;
       }
 
-      // パス解決を試行（データベースのパスが実際のStorage構造と一致しない場合のフォールバック）
+      // DBから取得したパスをそのまま使用
+      // フォルダ名のみの場合はword.mp3を追加（DBの設計に依存）
       let resolvedPath = audioFilePath;
-
-      // パス解決の優先順位:
-      // 1. フォルダ名のみの場合（例: "from_now_on"）→ "from_now_on/word.mp3" を試行
-      // 2. 既に"/word.mp3"で終わっている場合 → そのまま使用
-      // 3. その他の場合 → そのまま使用
-      
       if (!audioFilePath.includes('/') && !audioFilePath.endsWith('.mp3')) {
-        // フォルダ名のみの場合（例: "from_now_on"）
         resolvedPath = `${audioFilePath}/word.mp3`;
         devLog.log(`[AudioStore] フォルダ名のみのパスを修正: ${audioFilePath} → ${resolvedPath}`);
-      } else if (audioFilePath.endsWith('/word.mp3')) {
-        // 既に"/word.mp3"で終わっている場合はそのまま使用
-        devLog.log(`[AudioStore] word.mp3パスをそのまま使用: ${audioFilePath}`);
       } else {
-        // その他の場合はそのまま使用
-        devLog.log(`[AudioStore] パスをそのまま使用: ${audioFilePath}`);
+        devLog.log(`[AudioStore] DBから取得したパスをそのまま使用: ${audioFilePath}`);
       }
 
       // 音声ファイルを読み込み

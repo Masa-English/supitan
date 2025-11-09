@@ -54,8 +54,8 @@ async function getReviewListData(userId: string) {
   }
 }
 
-// ISR設定 - 30分ごとに再生成
-export const revalidate = 1800;
+// ISR設定 - 5分ごとに再生成（データ更新を即座に反映）
+export const revalidate = 300;
 
 // 動的レンダリングを強制（認証が必要なため）
 export const dynamic = 'force-dynamic';
