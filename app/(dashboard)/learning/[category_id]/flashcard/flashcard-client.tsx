@@ -10,7 +10,7 @@ import { ReloadButton } from '@/components/shared/reload-button';
 
 
 import { useRouter, usePathname } from 'next/navigation';
-import { useNavigationStore, useLearningSessionStore } from '@/lib/stores';
+import { useNavigationStore, useLearningSessionStore, useAudioStore } from '@/lib/stores';
 
 interface Props {
   category: string;
@@ -70,6 +70,11 @@ export default function FlashcardClient({ category, categoryName, words, allSect
     return { currentSection, sections: sectionList };
   }, [words, allSections]);
 
+  // words配列のwordIdリストを文字列化（キャッシュクリアの判定に使用）
+  const wordIdsKey = useMemo(() => {
+    return words.map(w => w.id).join(',');
+  }, [words]);
+
   // 初期化処理（認証はサーバーサイドで確認済み）
   useEffect(() => {
     console.log('FlashcardClient: 初期化useEffect開始');
@@ -96,6 +101,21 @@ export default function FlashcardClient({ category, categoryName, words, allSect
     const timer = setTimeout(initialize, 100);
     return () => clearTimeout(timer);
   }, []);
+
+  // セクションまたは単語リストが変わった時に音声キャッシュをクリア
+  useEffect(() => {
+    if (!currentSection || words.length === 0) return;
+    
+    const clearCache = useAudioStore.getState().clearCache;
+    console.log('FlashcardClient: セクション/単語リスト変更を検知、音声キャッシュをクリア', {
+      currentSection,
+      wordsCount: words.length,
+      wordIds: words.slice(0, 3).map(w => ({ id: w.id, word: w.word, section: w.section })),
+      wordIdsKey: wordIdsKey.substring(0, 100) // ログの長さを制限
+    });
+    clearCache();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSection, wordIdsKey]); // currentSectionとwordIdsKeyを監視（wordsはwordIdsKeyに含まれるため除外）
 
   // 学習セッション情報をストアに保存
   useEffect(() => {

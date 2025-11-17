@@ -311,37 +311,58 @@ export const useAudioStore = create<AudioState>((set, get) => ({
 
     let audio = wordAudioCache.get(wordId);
 
-    // キャッシュにない場合は動的に読み込み
-    if (!audio) {
-      devLog.log(`[AudioStore] キャッシュに音声ファイルなし、動的読み込み開始: ${wordId}`);
+    // データベースから常に最新のaudio_fileを取得（キャッシュの不整合を防ぐため）
+    let audioFilePath: string | null = null;
+    try {
+      const supabase = createBrowserClient();
+      const { data: word, error: wordError } = await supabase
+        .from('words')
+        .select('audio_file, word')
+        .eq('id', wordId)
+        .single();
 
-      // まず音声パスキャッシュから確認
-      let audioFilePath = wordAudioPathCache.get(wordId);
-
-      if (!audioFilePath) {
-        try {
-          // データベースから音声ファイルパスを取得
-          const supabase = createBrowserClient();
-          const { data: word, error: wordError } = await supabase
-            .from('words')
-            .select('audio_file, word')
-            .eq('id', wordId)
-            .single();
-
-          if (wordError || !word?.audio_file) {
-            devLog.warn(`[AudioStore] データベースから音声ファイルパスが見つかりません: ${wordId}`, wordError);
-            return;
-          }
-
-          audioFilePath = word.audio_file;
-          devLog.log(`[AudioStore] データベースから音声ファイルパス取得: ${audioFilePath} (${word.word})`);
-        } catch (error) {
-          devLog.error(`[AudioStore] データベースからの音声ファイル取得エラー: ${wordId}`, error);
+      if (wordError || !word?.audio_file) {
+        devLog.warn(`[AudioStore] データベースから音声ファイルパスが見つかりません: ${wordId}`, wordError);
+        // キャッシュにフォールバック
+        audioFilePath = wordAudioPathCache.get(wordId) || null;
+        if (!audioFilePath) {
           return;
         }
       } else {
-        devLog.log(`[AudioStore] キャッシュから音声ファイルパス取得: ${audioFilePath}`);
+        audioFilePath = word.audio_file;
+        devLog.log(`[AudioStore] データベースから音声ファイルパス取得: ${audioFilePath} (${word.word})`);
+        
+        // キャッシュのパスと異なる場合はキャッシュを更新
+        const cachedPath = wordAudioPathCache.get(wordId);
+        if (cachedPath !== audioFilePath) {
+          devLog.log(`[AudioStore] キャッシュのパスと異なるため更新: ${cachedPath} → ${audioFilePath}`);
+          const pathCache = new Map(wordAudioPathCache);
+          pathCache.set(wordId, audioFilePath);
+          set({ wordAudioPathCache: pathCache });
+          
+          // 音声キャッシュもクリア（古い音声が再生されないように）
+          const audioCache = new Map(wordAudioCache);
+          const oldAudio = audioCache.get(wordId);
+          if (oldAudio && oldAudio.src.startsWith('blob:')) {
+            URL.revokeObjectURL(oldAudio.src);
+          }
+          audioCache.delete(wordId);
+          set({ wordAudioCache: audioCache });
+          audio = undefined; // 音声を再読み込みするため
+        }
       }
+    } catch (error) {
+      devLog.error(`[AudioStore] データベースからの音声ファイル取得エラー: ${wordId}`, error);
+      // エラー時はキャッシュにフォールバック
+      audioFilePath = wordAudioPathCache.get(wordId) || null;
+      if (!audioFilePath) {
+        return;
+      }
+    }
+
+    // キャッシュにない場合は動的に読み込み
+    if (!audio) {
+      devLog.log(`[AudioStore] キャッシュに音声ファイルなし、動的読み込み開始: ${wordId}`);
 
       // 音声ファイルパスが確保できない場合は早期リターン
       if (!audioFilePath) {
@@ -373,8 +394,10 @@ export const useAudioStore = create<AudioState>((set, get) => ({
     // 音声を再生
     if (audio && !isMuted) {
       try {
-        audio.volume = volume;
+        // 既に再生中の音声を停止してから新しい音声を再生
+        audio.pause();
         audio.currentTime = 0;
+        audio.volume = volume;
         await audio.play();
         devLog.log(`[AudioStore] 単語音声再生完了: ${wordId}`);
       } catch (error) {

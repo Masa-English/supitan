@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Word } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Volume2, Eye, EyeOff, BookOpen } from 'lucide-react';
@@ -50,6 +50,9 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
 
   const { volume, isMuted, playWordAudio: playWordAudioFromStore } = useAudioStore();
   const db = useMemo(() => new DatabaseService(), []);
+  
+  // 現在再生中の例文音声を保持（カード切り替え時に停止するため）
+  const currentExampleAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentWord = currentWordList[currentIndex];
   const total = Math.max(currentWordList.length, 1);
@@ -117,9 +120,20 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     setIncorrectWords([]);
   }, [words]);
 
-  // 単語が変わったら例文の表示状態と日本語表示状態をリセット
+  // 単語が変わったら例文の表示状態と日本語表示状態をリセット、例文音声を停止
   useEffect(() => {
     setFlippedExamples(new Set());
+    
+    // 前のカードの例文音声を停止
+    if (currentExampleAudioRef.current) {
+      currentExampleAudioRef.current.pause();
+      currentExampleAudioRef.current.currentTime = 0;
+      // Blob URLを解放
+      if (currentExampleAudioRef.current.src.startsWith('blob:')) {
+        URL.revokeObjectURL(currentExampleAudioRef.current.src);
+      }
+      currentExampleAudioRef.current = null;
+    }
   }, [currentIndex]);
 
   const handlePrevious = useCallback(() => {
@@ -174,41 +188,69 @@ export function Flashcard({ words, onComplete, onIndexChange }: FlashcardProps) 
     exampleIndex?: 1 | 2 | 3,
     _lang: 'en' | 'jp' = 'en'
   ) => {
+    // 既に再生中の例文音声を停止
+    if (currentExampleAudioRef.current) {
+      currentExampleAudioRef.current.pause();
+      currentExampleAudioRef.current.currentTime = 0;
+      // Blob URLを解放
+      if (currentExampleAudioRef.current.src.startsWith('blob:')) {
+        URL.revokeObjectURL(currentExampleAudioRef.current.src);
+      }
+      currentExampleAudioRef.current = null;
+    }
+
     // ストレージ優先で取得し、失敗時にTTSへフォールバック
     try {
-      if (exampleIndex) {
+      if (exampleIndex && currentWord) {
         // 1) words.audio_file がある場合はそのフォルダを基準に探す
-        if (currentWord?.audio_file) {
+        if (currentWord.audio_file) {
           const path = buildPathFromAudioFile(currentWord.audio_file, exampleIndex);
-          console.log('[Flashcard] Try example audio (by audio_file):', path);
+          console.log('[Flashcard] Try example audio (by audio_file):', path, 'wordId:', currentWord.id, 'word:', currentWord.word);
           const blob = await fetchAudioFromStorage(path);
           if (blob) {
             const url = URL.createObjectURL(blob);
             const audio = new Audio(url);
             audio.volume = isMuted ? 0 : volume;
+            currentExampleAudioRef.current = audio; // 現在再生中の音声を保持
             await audio.play();
+            // 再生終了時にクリーンアップ
+            audio.addEventListener('ended', () => {
+              if (currentExampleAudioRef.current === audio) {
+                URL.revokeObjectURL(url);
+                currentExampleAudioRef.current = null;
+              }
+            });
             return;
           }
         }
 
         // 2) audio_file 未設定時は英単語フォルダ直下を探す（例: "break up/example001.mp3"）
-        if (currentWord?.word) {
+        if (currentWord.word) {
           const fallbackPath = buildPathFromWord(currentWord.word, exampleIndex);
-          console.log('[Flashcard] Try example audio (by word):', fallbackPath);
+          console.log('[Flashcard] Try example audio (by word):', fallbackPath, 'wordId:', currentWord.id, 'word:', currentWord.word);
           const blob2 = await fetchAudioFromStorage(fallbackPath);
           if (blob2) {
             const url = URL.createObjectURL(blob2);
             const audio = new Audio(url);
             audio.volume = isMuted ? 0 : volume;
+            currentExampleAudioRef.current = audio; // 現在再生中の音声を保持
             await audio.play();
+            // 再生終了時にクリーンアップ
+            audio.addEventListener('ended', () => {
+              if (currentExampleAudioRef.current === audio) {
+                URL.revokeObjectURL(url);
+                currentExampleAudioRef.current = null;
+              }
+            });
             return;
           }
         }
       }
     } catch (e) {
       devLog.warn('例文音声の取得に失敗しました:', e);
+      currentExampleAudioRef.current = null;
     }
-  }, [currentWord?.audio_file, volume, isMuted, currentWord?.word]);
+  }, [currentWord, volume, isMuted]);
 
   const handleExampleClick = useCallback((exampleKey: string) => {
     setFlippedExamples(prev => {
