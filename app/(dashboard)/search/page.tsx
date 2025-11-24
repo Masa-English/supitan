@@ -133,47 +133,52 @@ export default function SearchPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <Label htmlFor="search">単語検索</Label>
-                <Input
-                  id="search"
-                  type="text"
-                  placeholder="英単語または日本語で検索..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="mt-1"
-                />
+            <div className="flex flex-col gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="search">単語検索</Label>
+                  <Input
+                    id="search"
+                    type="text"
+                    placeholder="英単語または日本語で検索..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="category">カテゴリー</Label>
+                  <div className="relative">
+                    <select
+                      id="category"
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="flex h-12 md:h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base md:text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 mt-1"
+                    >
+                      <option value="">すべてのカテゴリー</option>
+                      {categories.map((category) => (
+                        <option key={category.category} value={category.category}>
+                          {category.category} ({category.count}語)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
-              <div>
-                <Label htmlFor="category">カテゴリー</Label>
-                <select
-                  id="category"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="mt-1 w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
-                >
-                  <option value="">すべてのカテゴリー</option>
-                  {categories.map((category) => (
-                    <option key={category.category} value={category.category}>
-                      {category.category} ({category.count}語)
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex items-end gap-2">
+              
+              <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
                   onClick={() => setShowMeaning(!showMeaning)}
-                  className="flex items-center gap-2"
+                  className="flex items-center justify-center gap-2 h-10 px-4 min-w-[140px]"
                 >
                   {showMeaning ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  {showMeaning ? '意味を隠す' : '意味を表示'}
+                  <span>{showMeaning ? '意味を隠す' : '意味を表示'}</span>
                 </Button>
                 <Button
                   variant="outline"
                   onClick={clearFilters}
-                  className="flex items-center gap-2"
+                  className="flex items-center justify-center gap-2 h-10 px-4"
                 >
                   <X className="w-4 h-4" />
                   クリア

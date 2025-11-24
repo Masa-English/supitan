@@ -17,32 +17,32 @@ import {
 // 単語カードコンポーネント
 function WordCard({ word }: { word: Word }) {
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 border-border bg-card h-full min-h-[240px]">
-      <CardHeader className="pb-2 sm:pb-3">
+    <Card className="group hover:shadow-lg transition-all duration-300 border-border bg-card h-full flex flex-col">
+      <CardHeader className="pb-2 sm:pb-3 flex-shrink-0">
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0">
-            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2 leading-tight">
+            <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-1 leading-tight break-words">
               {word.word}
             </h3>
-            <Badge variant="outline" className="text-xs sm:text-sm border-border text-muted-foreground px-2 py-1">
+            <Badge variant="outline" className="text-xs sm:text-sm border-border text-muted-foreground px-2 py-0.5 inline-flex">
               {word.phonetic}
             </Badge>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0 space-y-3 sm:space-y-4">
-        <div className="bg-muted rounded-lg p-3">
-          <p className="text-foreground text-base sm:text-lg font-semibold text-center">
+      <CardContent className="pt-0 flex-1 flex flex-col gap-3 sm:gap-4">
+        <div className="bg-muted rounded-lg p-3 flex-shrink-0">
+          <p className="text-foreground text-base sm:text-lg font-semibold text-center break-words">
             {word.japanese}
           </p>
         </div>
         {word.example1 && (
-          <div className="space-y-2 sm:space-y-3">
-            <div className="bg-muted/50 rounded-lg p-2 sm:p-3 border border-border">
-              <p className="text-xs sm:text-sm text-muted-foreground italic mb-1 sm:mb-2 leading-relaxed">
+          <div className="flex-1 flex flex-col">
+            <div className="bg-muted/50 rounded-lg p-3 border border-border flex-1">
+              <p className="text-sm text-muted-foreground italic mb-2 leading-relaxed">
                 &ldquo;{word.example1}&rdquo;
               </p>
-              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {word.example1_jp}
               </p>
             </div>
@@ -127,29 +127,29 @@ export default async function BrowsePage({ params }: { params: Promise<{ categor
         </div>
 
         {/* ナビゲーション */}
-        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Link href={`/learning/${category}`} prefetch>
-              <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
+        <div className="mb-4 sm:mb-6 flex flex-col lg:flex-row gap-4 lg:items-center justify-between">
+          <div className="flex items-center gap-2 w-full lg:w-auto">
+            <Link href={`/learning/${category}`} prefetch className="flex-1 lg:flex-none">
+              <Button variant="outline" className="w-full lg:w-auto border-border text-foreground hover:bg-muted text-xs sm:text-sm">
                 <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 カテゴリーに戻る
               </Button>
             </Link>
-            <Link href="/learning/categories">
-              <Button variant="ghost" className="text-muted-foreground hover:bg-muted text-xs sm:text-sm">
+            <Link href="/learning/categories" className="flex-1 lg:flex-none">
+              <Button variant="ghost" className="w-full lg:w-auto text-muted-foreground hover:bg-muted text-xs sm:text-sm">
                 カテゴリー一覧
               </Button>
             </Link>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Link href={`/learning/${category}/options?mode=flashcard`} prefetch>
-              <Button className="bg-primary hover:bg-primary/90 text-xs sm:text-sm">
-                フラッシュカード学習
+          <div className="grid grid-cols-2 gap-2 w-full lg:w-auto">
+            <Link href={`/learning/${category}/options?mode=flashcard`} prefetch className="w-full">
+              <Button className="w-full bg-primary hover:bg-primary/90 text-xs sm:text-sm h-10">
+                フラッシュカード
               </Button>
             </Link>
-            <Link href={`/learning/${category}/options?mode=quiz`} prefetch>
-              <Button variant="outline" className="border-border text-foreground hover:bg-muted text-xs sm:text-sm">
+            <Link href={`/learning/${category}/options?mode=quiz`} prefetch className="w-full">
+              <Button variant="outline" className="w-full border-border text-foreground hover:bg-muted text-xs sm:text-sm h-10">
                 クイズ学習
               </Button>
             </Link>
