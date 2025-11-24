@@ -6,7 +6,6 @@ import { SideMenu } from './side-menu';
 import { useHeader } from '@/lib/contexts/header-context';
 import { AudioInitializer } from '@/components/features/learning/shared';
 import {
-  RotateCcw,
   Zap,
   BookOpen
 } from 'lucide-react';
@@ -42,7 +41,7 @@ export function DashboardLayoutClient({ children }: DashboardLayoutClientProps) 
 
   const navigationItems = [
     { label: '学習開始', href: '/learning/categories', icon: Zap, color: 'text-primary' },
-    { label: '復習', href: '/review', icon: RotateCcw, color: 'text-primary', badge: '開発中' },
+    // { label: '復習', href: '/review', icon: RotateCcw, color: 'text-primary', badge: '開発中' },
     // { label: '統計', href: '/statistics', icon: BarChart3, color: 'text-primary', badge: '開発中' },
     // { label: '学習履歴', href: '/history', icon: Clock, color: 'text-primary', badge: '開発中' },
     { label: '単語一覧（閲覧）', href: '/search', icon: BookOpen, color: 'text-primary' },
