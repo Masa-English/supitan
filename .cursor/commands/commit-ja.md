@@ -1,0 +1,1 @@
+git statusを確認した上で <prefix> : commit messageの構成で日本語でのコミットを細かい作業単位で行い　履歴がわかるようにしたうえで pushしてください
