@@ -47,18 +47,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
             message.includes('Auth session missing') ||
             code === 'refresh_token_not_found';
           
-          if (!isExpected && process.env.NODE_ENV === 'development') {
-            console.error('認証エラー:', error);
+          // JSONパースエラーの場合、環境変数の問題を疑う
+          if (message.includes('not valid JSON') || message.includes('Unexpected token')) {
+            console.error('[AuthProvider] JSONパースエラーが発生しました。Supabase環境変数が正しく設定されているか確認してください。', {
+              hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+              hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+              error: error
+            });
+            setError('認証サーバーへの接続に失敗しました。環境設定を確認してください。');
+          } else if (!isExpected) {
+            if (process.env.NODE_ENV === 'development') {
+              console.error('認証エラー:', error);
+            }
             setError(error.message);
           }
         } else {
           setUser(user);
         }
       } catch (err) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('認証初期化エラー:', err);
+        // JSONパースエラーを特別に処理
+        if (err instanceof SyntaxError && err.message.includes('not valid JSON')) {
+          console.error('[AuthProvider] JSONパースエラー:', {
+            message: err.message,
+            hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+            hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+          });
+          setError('認証サーバーへの接続に失敗しました。環境設定を確認してください。');
+        } else {
+          if (process.env.NODE_ENV === 'development') {
+            console.error('認証初期化エラー:', err);
+          }
+          setError(err instanceof Error ? err.message : '認証エラーが発生しました');
         }
-        setError(err instanceof Error ? err.message : '認証エラーが発生しました');
       } finally {
         setLoading(false);
       }

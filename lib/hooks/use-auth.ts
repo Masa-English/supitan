@@ -98,11 +98,21 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
             return;
           }
           
-          // その他のエラーは開発環境でのみログ出力
-          if (process.env.NODE_ENV === 'development') {
-            console.error('認証エラー:', userError);
+          // JSONパースエラーの場合、環境変数の問題を疑う
+          if (userError.message?.includes('not valid JSON') || userError.message?.includes('Unexpected token')) {
+            console.error('[useAuth] JSONパースエラーが発生しました。Supabase環境変数が正しく設定されているか確認してください。', {
+              hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+              hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+              error: userError
+            });
+            setError('認証サーバーへの接続に失敗しました。環境設定を確認してください。');
+          } else {
+            // その他のエラーは開発環境でのみログ出力
+            if (process.env.NODE_ENV === 'development') {
+              console.error('認証エラー:', userError);
+            }
+            setError('認証に失敗しました');
           }
-          setError('認証に失敗しました');
           
           if (requireAuth) {
             // 現在のページURLを保存してからリダイレクト
@@ -136,11 +146,21 @@ export function useAuth(options: UseAuthOptions = {}): UseAuthReturn {
           return;
         }
         
-        // 開発環境でのみログ出力
-        if (process.env.NODE_ENV === 'development') {
-          console.error('認証チェックエラー:', err);
+        // JSONパースエラーを特別に処理
+        if (err instanceof SyntaxError && err.message.includes('not valid JSON')) {
+          console.error('[useAuth] JSONパースエラー:', {
+            message: err.message,
+            hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+            hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+          });
+          setError('認証サーバーへの接続に失敗しました。環境設定を確認してください。');
+        } else {
+          // 開発環境でのみログ出力
+          if (process.env.NODE_ENV === 'development') {
+            console.error('認証チェックエラー:', err);
+          }
+          setError('認証に失敗しました');
         }
-        setError('認証に失敗しました');
         
         if (requireAuth) {
           // エラー時も現在のページURLを保存
