@@ -126,8 +126,8 @@ export default async function DashboardPage() {
             description="新しい単語を学習して語彙力を向上させましょう"
             icon={Play}
             href="/learning/categories"
-            color="text-primary"
-            bgColor="bg-primary/10"
+            color="text-[hsl(var(--primary))]"
+            bgColor="bg-[hsl(var(--primary)/0.14)] dark:bg-[hsl(var(--primary)/0.22)]"
             stats="新規"
           />
           <MainActionCard
@@ -135,8 +135,8 @@ export default async function DashboardPage() {
             description="間隔反復で記憶を定着させましょう"
             icon={RotateCcw}
             href="/review"
-            color="text-orange-600"
-            bgColor="bg-orange-100"
+            color="text-[hsl(var(--chart-2))]"
+            bgColor="bg-[hsl(var(--chart-2)/0.14)] dark:bg-[hsl(var(--chart-2)/0.20)]"
             stats="0個"
           />
           <MainActionCard
@@ -144,8 +144,8 @@ export default async function DashboardPage() {
             description="特定の単語を検索して学習しましょう"
             icon={Search}
             href="/search"
-            color="text-blue-600"
-            bgColor="bg-blue-100"
+            color="text-[hsl(var(--chart-5))]"
+            bgColor="bg-[hsl(var(--chart-5)/0.14)] dark:bg-[hsl(var(--chart-5)/0.20)]"
           />
         </div>
 
