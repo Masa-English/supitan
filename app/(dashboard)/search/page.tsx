@@ -194,7 +194,7 @@ export default function SearchPage() {
                     placeholder="英単語または日本語で検索..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="mt-1"
+                    className="mt-1 bg-card text-foreground placeholder:text-muted-foreground dark:bg-card"
                   />
                 </div>
                 <div>
@@ -204,7 +204,7 @@ export default function SearchPage() {
                       id="category"
                       value={selectedCategory}
                       onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="flex h-12 md:h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base md:text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 mt-1"
+                      className="flex h-12 md:h-10 w-full rounded-md border border-input bg-card text-foreground px-3 py-2 text-base md:text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 mt-1 dark:bg-card"
                     >
                       <option value="">すべてのカテゴリー</option>
                       {categoriesWithCounts.map((category) => (
