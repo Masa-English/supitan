@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card/card';
 import { Input } from '@/components/ui/form/input';
 import { Label } from '@/components/ui/form/label';
@@ -57,19 +57,56 @@ export default function SearchPage() {
     loadData();
   }, []);
 
+  const normalizeCategory = useCallback(
+    (word: Word) => word.category || word.categories?.name || '',
+    []
+  );
+
+  const categoriesWithCounts = useMemo(() => {
+    const counts = words.reduce<Record<string, number>>((acc, word) => {
+      const category = normalizeCategory(word);
+      if (!category) return acc;
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {});
+
+    const merged = categories.map((category) => {
+      const count = counts[category.category] ?? category.count ?? 0;
+      return { ...category, count };
+    });
+
+    const extras = Object.entries(counts)
+      .filter(([name]) => !merged.some(cat => cat.category === name))
+      .map(([name, count]) => ({
+        category: name,
+        id: name,
+        count,
+        description: '',
+        color: '#3b82f6',
+        sort_order: 999,
+        is_active: true,
+      }));
+
+    return [...merged, ...extras]
+      .filter(category => category.count > 0)
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  }, [categories, words, normalizeCategory]);
+
   // フィルタリングされた単語リスト
   const filteredWords = useMemo(() => {
     return words.filter(word => {
+      const wordCategory = normalizeCategory(word);
+
       const matchesSearch = searchTerm === '' || 
         word.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
         word.japanese.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (word.phonetic && word.phonetic.toLowerCase().includes(searchTerm.toLowerCase()));
       
-      const matchesCategory = selectedCategory === '' || word.category === selectedCategory;
+      const matchesCategory = selectedCategory === '' || wordCategory === selectedCategory;
       
       return matchesSearch && matchesCategory;
     });
-  }, [words, searchTerm, selectedCategory]);
+  }, [words, searchTerm, selectedCategory, normalizeCategory]);
 
   // 音声再生機能
   const playAudio = (text: string) => {
@@ -170,7 +207,7 @@ export default function SearchPage() {
                       className="flex h-12 md:h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base md:text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 mt-1"
                     >
                       <option value="">すべてのカテゴリー</option>
-                      {categories.map((category) => (
+                      {categoriesWithCounts.map((category) => (
                         <option key={category.category} value={category.category}>
                           {category.category} ({category.count}語)
                         </option>
@@ -258,7 +295,7 @@ export default function SearchPage() {
 
                   {/* カテゴリーとセクション */}
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline">{word.category}</Badge>
+                  <Badge variant="outline">{normalizeCategory(word) || '未分類'}</Badge>
                     {word.section && (
                       <Badge variant="secondary">セクション {word.section}</Badge>
                     )}
