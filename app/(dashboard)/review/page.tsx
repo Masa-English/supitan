@@ -11,10 +11,8 @@ import type { Word, UserProgress } from '@/lib/types/database';
 import {
   RotateCcw,
   CheckCircle,
-  AlertCircle,
   Zap,
-  BookOpen,
-  Clock
+  BookOpen
 } from 'lucide-react';
 
 async function getAuthenticatedUser() {
@@ -147,23 +145,11 @@ async function getReviewData(userId: string) {
       };
     }).filter(c => c.count > 0);
 
-    // 緊急度別分類（復習間隔の単語のみ）
-    const urgentReview = intervalReviewWords.filter(p => {
-      if (!p.last_studied) return false;
-      const daysSinceReview = Math.floor((now.getTime() - new Date(p.last_studied).getTime()) / (1000 * 60 * 60 * 24));
-      const masteryLevel = Math.floor((p.mastery_level || 0) * 5) + 1;
-      const reviewInterval = {
-        1: 1, 2: 3, 3: 7, 4: 14, 5: 30
-      }[masteryLevel] || 1;
-      return daysSinceReview >= reviewInterval * 2; // 予定の2倍経過
-    });
-
     // 復習リストの単語数
     const reviewListWords = allReviewWords.filter(item => item.isFromReviewList);
 
     return {
       totalReviewWords: allReviewWords.length,
-      urgentReviewWords: urgentReview.length,
       reviewListWords: reviewListWords.length,
       reviewByLevel,
       reviewByCategory,
@@ -175,7 +161,6 @@ async function getReviewData(userId: string) {
     console.error('復習データ取得エラー:', error);
     return {
       totalReviewWords: 0,
-      urgentReviewWords: 0,
       reviewListWords: 0,
       reviewByLevel: [],
       reviewByCategory: [],
@@ -273,29 +258,13 @@ export default async function ReviewPage() {
               </Card>
 
               {/* アクションボタン */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {reviewData.reviewListWords > 0 && (
-                  <Link className="w-full" href="/review/review-list">
-                    <Button size="lg" variant="outline" className="w-full flex items-center justify-center gap-2">
-                      <RotateCcw className="w-5 h-5" />
-                      復習リストを復習
-                    </Button>
-                  </Link>
-                )}
+              <div className="grid grid-cols-1 gap-3">
                 <Link className="w-full" href="/review/all">
                   <Button size="lg" className="w-full flex items-center justify-center gap-2">
                     <Zap className="w-5 h-5" />
                     すべて復習開始
                   </Button>
                 </Link>
-                {reviewData.urgentReviewWords > 0 && (
-                  <Link className="w-full" href="/review/urgent">
-                    <Button variant="secondary" size="lg" className="w-full flex items-center justify-center gap-2">
-                      <AlertCircle className="w-5 h-5" />
-                      緊急復習開始
-                    </Button>
-                  </Link>
-                )}
               </div>
             </div>
           </>
