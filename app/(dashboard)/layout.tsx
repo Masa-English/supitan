@@ -12,8 +12,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           '/learning/categories',
           '/review',
           '/search',
-          '/statistics',
-          '/history',
           '/profile',
           '/settings'
         ]} />

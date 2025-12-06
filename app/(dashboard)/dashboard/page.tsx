@@ -6,11 +6,7 @@ import {
   Play, 
   RotateCcw, 
   Zap, 
-  Search,
-  BookOpen,
-  Clock,
-  Target,
-  Flame
+  Search
 } from 'lucide-react';
 import Link from 'next/link';
 import serverLog, { LogCategory } from '@/lib/utils/server-logger';
@@ -151,132 +147,6 @@ export default async function DashboardPage() {
             color="text-blue-600"
             bgColor="bg-blue-100"
           />
-        </div>
-
-        {/* 追加機能セクション */}
-        <div className="mt-8 space-y-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            学習統計
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* 学習単語数 */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    学習単語数
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stats?.studied_words || 0}
-                  </p>
-                </div>
-                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                  <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                </div>
-              </div>
-            </div>
-
-            {/* 復習待ち */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    復習待ち
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stats?.review_count || 0}
-                  </p>
-                </div>
-                <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-                  <Clock className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                </div>
-              </div>
-            </div>
-
-            {/* 正答率 */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    正答率
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {Math.round(stats?.average_accuracy || 0)}%
-                  </p>
-                </div>
-                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                  <Target className="h-6 w-6 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-            </div>
-
-            {/* 連続学習日数 */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    連続学習
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stats?.current_streak || 0}日
-                  </p>
-                </div>
-                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                  <Flame className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 詳細統計 */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              詳細統計
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">総単語数</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {stats?.total_words || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">マスター済み</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {stats?.mastered_words || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">お気に入り</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {stats?.favorite_words_count || 0}
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">学習セッション数</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {stats?.total_study_sessions || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">最長連続記録</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {stats?.longest_streak || 0}日
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">学習時間</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {Math.round((stats?.study_time_minutes || 0) / 60)}時間
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* 空の状態 */}

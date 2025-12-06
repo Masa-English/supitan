@@ -234,9 +234,6 @@ export default async function ProfilePage() {
           <Link href="/learning">
             <Button>学習を続ける</Button>
           </Link>
-          <Link href="/statistics">
-            <Button variant="outline">詳細統計を見る</Button>
-          </Link>
         </div>
       </div>
     </div>

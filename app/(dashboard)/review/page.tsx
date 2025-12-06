@@ -17,7 +17,6 @@ import {
   BookOpen,
   CheckCircle,
   AlertCircle,
-  Calendar,
   Zap
 } from 'lucide-react';
 
@@ -294,8 +293,8 @@ export default async function ReviewPage() {
                 <Link href="/learning">
                   <Button>新しい単語を学習</Button>
                 </Link>
-                <Link href="/statistics">
-                  <Button variant="outline">学習統計を見る</Button>
+                <Link href="/dashboard">
+                  <Button variant="outline">ダッシュボードに戻る</Button>
                 </Link>
               </div>
             </CardContent>
@@ -386,12 +385,6 @@ export default async function ReviewPage() {
                   </Button>
                 </Link>
               )}
-              <Link href="/statistics">
-                <Button variant="outline" size="lg" className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  学習履歴を見る
-                </Button>
-              </Link>
             </div>
 
             {/* 復習のコツ */}

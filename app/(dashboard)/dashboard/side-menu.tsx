@@ -27,13 +27,10 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
   const isFeatureImplemented = (href: string): boolean => {
     const implementedFeatures = [
       '/learning',
-      '/review', 
-      '/search',
-      '/statistics',
-      '/history',
       '/learning/categories',
-      '/profile',
-      '/settings'
+      '/review',
+      '/search',
+      '/profile'
     ];
     return implementedFeatures.includes(href);
   };
