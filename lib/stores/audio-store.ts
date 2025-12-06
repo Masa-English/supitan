@@ -418,9 +418,18 @@ export const useAudioStore = create<AudioState>((set, get) => ({
     set({ volume: clampedVolume });
     
     // 既存の音声オブジェクトの音量も更新
-    const { correctAudio, incorrectAudio } = get();
+    const { correctAudio, incorrectAudio, wordAudioCache } = get();
     if (correctAudio) correctAudio.volume = clampedVolume;
     if (incorrectAudio) incorrectAudio.volume = clampedVolume;
+
+    // 単語音声キャッシュも現在の音量に合わせて更新
+    if (wordAudioCache.size > 0) {
+      const updatedCache = new Map(wordAudioCache);
+      updatedCache.forEach((audio) => {
+        audio.volume = clampedVolume;
+      });
+      set({ wordAudioCache: updatedCache });
+    }
   },
 
   // 音声有効/無効を切り替え

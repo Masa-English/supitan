@@ -228,7 +228,7 @@ export default function SettingsPage() {
     setHasChanges(true);
   };
 
-  // 音声テスト
+  // 簡易テスト用のHTMLAudio再生（進行中の音量変更が反映される）
   const testAudio = async () => {
     if (!settings.audio.enabled) return;
     
@@ -240,24 +240,21 @@ export default function SettingsPage() {
       // 音声ストアが初期化されている場合は正解音を再生
       if (audioStore.isInitialized && audioStore.correctAudio) {
         await audioStore.playCorrectSound();
-      } else {
-        // フォールバック: Web Speech APIを使用
-        if ('speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance('Test audio');
-          utterance.lang = 'en-US';
-          utterance.volume = settings.audio.volume;
-          speechSynthesis.speak(utterance);
-        }
+        return;
       }
     } catch (error) {
-      console.error('音声テストエラー:', error);
-      // フォールバック: Web Speech APIを使用
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance('Test audio');
-        utterance.lang = 'en-US';
-        utterance.volume = settings.audio.volume;
-        speechSynthesis.speak(utterance);
-      }
+      console.error('音声ストア経由のテストでエラー:', error);
+    }
+
+    // フォールバック: HTMLAudioの簡易ビープ（Web Speech APIを使わない）
+    const beepDataUri =
+      'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA=';
+    try {
+      const audio = new Audio(beepDataUri);
+      audio.volume = settings.audio.volume;
+      await audio.play();
+    } catch (error) {
+      console.error('フォールバック音声の再生に失敗しました:', error);
     }
   };
 

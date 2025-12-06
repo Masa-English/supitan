@@ -305,9 +305,9 @@ export function Header({
                     <DropdownMenuSeparator className="bg-border" />
                     <DropdownMenuItem 
                       onClick={() => {
-                        if (pathname !== '/dashboard/profile') {
+                        if (pathname !== '/profile') {
                           startNavigating();
-                          router.push('/dashboard/profile');
+                          router.push('/profile');
                         }
                       }}
                       className="text-muted-foreground hover:bg-accent focus:bg-accent "
@@ -317,9 +317,9 @@ export function Header({
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => {
-                        if (pathname !== '/dashboard/review') {
+                        if (pathname !== '/review') {
                           startNavigating();
-                          router.push('/dashboard/review');
+                          router.push('/review');
                         }
                       }}
                       className="text-muted-foreground hover:bg-accent focus:bg-accent "
@@ -339,23 +339,19 @@ export function Header({
                       <Settings className="h-4 w-4 mr-2" />
                       ダッシュボード
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => {
-                        // 現在のパスからカテゴリーIDを取得してカテゴリーページに戻る
-                        if (pathname.match(/^\/learning\/[^\/]+\/(flashcard|quiz|browse)$/)) {
+                    {pathname.match(/^\/learning\/[^\/]+\/(flashcard|quiz|browse)$/) && (
+                      <DropdownMenuItem 
+                        onClick={() => {
                           const categoryId = pathname.split('/')[2];
                           startNavigating();
                           router.push(`/learning/${categoryId}`);
-                        } else {
-                          startNavigating();
-                          router.push('/dashboard');
-                        }
-                      }}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent "
-                    >
-                      <Zap className="h-4 w-4 mr-2" />
-                      カテゴリーに戻る
-                    </DropdownMenuItem>
+                        }}
+                        className="text-muted-foreground hover:bg-accent focus:bg-accent "
+                      >
+                        <Zap className="h-4 w-4 mr-2" />
+                        カテゴリーに戻る
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator className="bg-border" />
                     <DropdownMenuItem 
                       onClick={onSignOut || handleSignOut} 

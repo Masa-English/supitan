@@ -18,6 +18,7 @@ import {
   X,
   Loader2
 } from 'lucide-react';
+import { useAudioStore } from '@/lib/stores';
 
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,6 +28,12 @@ export default function SearchPage() {
   const [categories, setCategories] = useState<CategoryWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const {
+    playWordAudio,
+    initializeAudio,
+    isInitialized,
+    isLoading: audioLoading,
+  } = useAudioStore();
 
   // データの初期読み込み
   useEffect(() => {
@@ -79,6 +86,13 @@ export default function SearchPage() {
     setSearchTerm('');
     setSelectedCategory('');
   };
+
+  // 音声の初期化（HTMLAudioベース）
+  useEffect(() => {
+    if (!isInitialized && !audioLoading) {
+      initializeAudio();
+    }
+  }, [isInitialized, audioLoading, initializeAudio]);
 
   if (loading) {
     return (
@@ -221,8 +235,10 @@ export default function SearchPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => playAudio(word.word)}
+                      onClick={() => playWordAudio(word.id)}
                       className="p-2"
+                      disabled={audioLoading}
+                      title={audioLoading ? '音声初期化中...' : '発音を再生'}
                     >
                       <Volume2 className="w-4 h-4" />
                     </Button>

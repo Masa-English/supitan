@@ -97,7 +97,7 @@ export default async function ReviewUrgentPage() {
           </p>
           <div className="mt-4 p-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
             <p className="text-sm text-red-800 dark:text-red-200">
-              全 {reviewData.totalCount} 語の緊急復習対象単語があります
+              緊急復習対象の単語があります
             </p>
           </div>
         </div>

@@ -5,19 +5,16 @@ import { createClient as createServerClient } from '@/lib/api/supabase/server';
 // 動的レンダリングを強制
 export const dynamic = 'force-dynamic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card/card';
-import { Badge } from '@/components/ui/navigation/badge';
 import { Button } from '@/components/ui/button/button';
-import { Progress } from '@/components/ui/feedback/progress';
 import { dataProvider } from '@/lib/api/services/data-provider';
 import type { Word, UserProgress } from '@/lib/types/database';
 import {
   RotateCcw,
-  Clock,
-  Target,
-  BookOpen,
   CheckCircle,
   AlertCircle,
-  Zap
+  Zap,
+  BookOpen,
+  Clock
 } from 'lucide-react';
 
 async function getAuthenticatedUser() {
@@ -194,89 +191,17 @@ export default async function ReviewPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
+      <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
         {/* ヘッダー */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
-            <RotateCcw className="w-8 h-8" />
+        <header className="space-y-2">
+          <h1 className="text-2xl font-semibold text-foreground flex items-center gap-2">
+            <RotateCcw className="w-6 h-6" />
             復習
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             学習した単語を復習して、記憶を定着させましょう
           </p>
-        </div>
-
-        {/* 復習概要 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">復習対象</p>
-                  <p className="text-2xl font-bold text-foreground">{reviewData.totalReviewWords}</p>
-                </div>
-                <BookOpen className="w-8 h-8 text-primary" />
-              </div>
-              <div className="mt-4">
-                <Progress value={reviewData.reviewPercentage} className="h-2" />
-                <p className="text-xs text-muted-foreground mt-1">
-                  学習済みの {reviewData.reviewPercentage}%
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">復習リスト</p>
-                  <p className="text-2xl font-bold text-foreground">{reviewData.reviewListWords}</p>
-                </div>
-                <RotateCcw className="w-8 h-8 text-orange-600" />
-              </div>
-              <div className="mt-4">
-                <p className="text-xs text-muted-foreground">
-                  間違えた単語（復習間隔無関係）
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">緊急復習</p>
-                  <p className="text-2xl font-bold text-foreground">{reviewData.urgentReviewWords}</p>
-                </div>
-                <AlertCircle className="w-8 h-8 text-red-600" />
-              </div>
-              <div className="mt-4">
-                <p className="text-xs text-muted-foreground">
-                  予定より大幅に遅れている単語
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">学習済み総数</p>
-                  <p className="text-2xl font-bold text-foreground">{reviewData.totalStudiedWords}</p>
-                </div>
-                <Target className="w-8 h-8 text-green-600" />
-              </div>
-              <div className="mt-4">
-                <p className="text-xs text-muted-foreground">
-                  これまでに学習した単語数
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        </header>
 
         {reviewData.totalReviewWords === 0 && reviewData.reviewListWords === 0 ? (
           /* 復習対象がない場合 */
@@ -303,16 +228,14 @@ export default async function ReviewPage() {
           <>
             {/* 復習リストの単語がある場合の通知 */}
             {reviewData.reviewListWords > 0 && (
-              <Card className="mb-6 border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/20">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <RotateCcw className="w-6 h-6 text-orange-600" />
-                    <div>
-                      <h3 className="font-bold text-orange-900 dark:text-orange-100">
-                        復習リストに単語があります
-                      </h3>
-                      <p className="text-sm text-orange-700 dark:text-orange-300">
-                        {reviewData.reviewListWords}語が復習リストに追加されています。間違えた単語を復習して記憶を定着させましょう。
+              <Card className="border border-border bg-card">
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-3">
+                    <RotateCcw className="w-5 h-5 text-primary mt-0.5" />
+                    <div className="space-y-1">
+                      <h3 className="font-medium text-foreground">復習リストに単語があります</h3>
+                      <p className="text-sm text-muted-foreground">
+                        復習リストを確認して復習を始めましょう。
                       </p>
                     </div>
                   </div>
@@ -320,99 +243,60 @@ export default async function ReviewPage() {
               </Card>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-
+            <div className="space-y-6">
               {/* カテゴリー別復習 */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
+              <Card className="border border-border bg-card">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <BookOpen className="w-4 h-4" />
                     カテゴリー別復習
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {reviewData.reviewByCategory.map((category, index) => (
-                      <div key={index} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">{category.category}</span>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline">
-                              {category.count}/{category.totalInCategory}
-                            </Badge>
-                            <span className="text-sm text-muted-foreground">
-                              {category.percentage}%
-                            </span>
-                          </div>
-                        </div>
-                        <Progress value={category.percentage} className="h-2" />
-                        <Link href={`/learning/${category.category}/review?mode=interval`}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                          >
-                            {category.category}を復習
-                          </Button>
-                        </Link>
-                      </div>
-                    ))}
-                  </div>
+                <CardContent className="space-y-3">
+                  {reviewData.reviewByCategory.map((category, index) => (
+                    <div
+                      key={index}
+                      className="border border-border rounded-lg px-3 py-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3"
+                    >
+                      <span className="font-medium text-foreground break-words">{category.category}</span>
+                      <Link
+                        className="w-full sm:w-auto"
+                        href={`/learning/${category.category}/review?mode=interval`}
+                      >
+                        <Button variant="outline" size="sm" className="w-full sm:min-w-[140px]">
+                          {category.category}を復習
+                        </Button>
+                      </Link>
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
-            </div>
-            {/* アクションボタン */}
-            <div className="flex flex-wrap gap-4 justify-center">
-              {reviewData.reviewListWords > 0 && (
-                <Link href="/review/review-list">
-                  <Button size="lg" className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700">
-                    <RotateCcw className="w-5 h-5" />
-                    復習リストを復習
-                  </Button>
-                </Link>
-              )}
-              <Link href="/review/all">
-                <Button size="lg" className="flex items-center gap-2">
-                  <Zap className="w-5 h-5" />
-                  すべて復習開始
-                </Button>
-              </Link>
-              {reviewData.urgentReviewWords > 0 && (
-                <Link href="/review/urgent">
-                  <Button variant="destructive" size="lg" className="flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5" />
-                    緊急復習開始
-                  </Button>
-                </Link>
-              )}
-            </div>
 
-            {/* 復習のコツ */}
-            <div className="mt-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="w-5 h-5" />
-                    効果的な復習のコツ
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                      <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">間隔反復</h4>
-                      <p className="text-sm text-blue-700 dark:text-blue-300">
-                        習得レベルに応じて復習間隔が自動調整されます。定期的な復習で長期記憶に定着させましょう。
-                      </p>
-                    </div>
-                    <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                      <h4 className="font-medium text-green-900 dark:text-green-100 mb-2">優先順位</h4>
-                      <p className="text-sm text-green-700 dark:text-green-300">
-                        緊急復習の単語から始めて、忘却を防ぎましょう。レベルの低い単語ほど頻繁な復習が必要です。
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* アクションボタン */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {reviewData.reviewListWords > 0 && (
+                  <Link className="w-full" href="/review/review-list">
+                    <Button size="lg" variant="outline" className="w-full flex items-center justify-center gap-2">
+                      <RotateCcw className="w-5 h-5" />
+                      復習リストを復習
+                    </Button>
+                  </Link>
+                )}
+                <Link className="w-full" href="/review/all">
+                  <Button size="lg" className="w-full flex items-center justify-center gap-2">
+                    <Zap className="w-5 h-5" />
+                    すべて復習開始
+                  </Button>
+                </Link>
+                {reviewData.urgentReviewWords > 0 && (
+                  <Link className="w-full" href="/review/urgent">
+                    <Button variant="secondary" size="lg" className="w-full flex items-center justify-center gap-2">
+                      <AlertCircle className="w-5 h-5" />
+                      緊急復習開始
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </div>
           </>
         )}

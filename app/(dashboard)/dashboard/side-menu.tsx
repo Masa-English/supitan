@@ -72,15 +72,14 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
       {/* ナビゲーション */}
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
-          {navigationItems.map((item, index) => {
-            const isActive = pathname === item.href;
-            const IconComponent = item.icon;
-            
-            const isImplemented = isFeatureImplemented(item.href);
-            
-            return (
-              <li key={`${item.href}-${item.label}`}>
-                {isImplemented ? (
+          {navigationItems
+            .filter((item) => isFeatureImplemented(item.href))
+            .map((item, index) => {
+              const isActive = pathname === item.href;
+              const IconComponent = item.icon;
+              
+              return (
+                <li key={`${item.href}-${item.label}`}>
                   <Link
                     href={item.href}
                     onClick={(e) => handleLinkClick(item.href, e)}
@@ -107,30 +106,9 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
                       </Badge>
                     )}
                   </Link>
-                ) : (
-                  <div
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-not-allowed opacity-60 ${
-                      'text-muted-foreground bg-muted/30'
-                    }`}
-                    style={{
-                      animationDelay: `${index * 50}ms`,
-                      animation: 'fadeInUp 0.3s ease-out forwards'
-                    }}
-                    title="開発中の機能です"
-                  >
-                    <IconComponent className="h-4 w-4 flex-shrink-0" />
-                    <span className="flex-1">{item.label}</span>
-                    <Badge 
-                      variant="outline" 
-                      className="text-xs px-1.5 py-0.5 bg-orange-50 text-orange-600 border-orange-200 dark:bg-orange-950/30 dark:text-orange-400 dark:border-orange-800"
-                    >
-                      開発中
-                    </Badge>
-                  </div>
-                )}
-              </li>
-            );
-          })}
+                </li>
+              );
+            })}
         </ul>
       </nav>
 
