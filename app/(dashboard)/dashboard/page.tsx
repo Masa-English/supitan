@@ -6,11 +6,17 @@ import {
   Play, 
   RotateCcw, 
   Zap, 
-  Search
+  Search,
+  Clock,
+  CheckCircle2,
+  Target,
+  BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
 import serverLog, { LogCategory } from '@/lib/utils/server-logger';
 import { DatabaseService } from '@/lib/api/database';
+import { dataProvider } from '@/lib/api/services/data-provider';
+import { Progress } from '@/components/ui/feedback/progress';
 
 // 動的レンダリングを強制（認証が必要なため）
 export const dynamic = 'force-dynamic';
@@ -105,7 +111,21 @@ export default async function DashboardPage() {
       redirect('/login');
       return null;
     }
-    const stats = await getUserStats(user.id);
+    const [stats, learningRecords] = await Promise.all([
+      getUserStats(user.id),
+      dataProvider.getLearningRecords(user.id, 30),
+    ]);
+
+    const hasLearningData = Boolean(
+      (learningRecords?.summary.last7Days.completedCount ?? 0) > 0 ||
+      (learningRecords?.summary.last7Days.studyMinutes ?? 0) > 0
+    );
+
+    const last7Days = learningRecords?.daily.slice(-7) ?? [];
+    const maxCompleted = Math.max(
+      ...last7Days.map(day => day.completedCount),
+      1
+    );
 
     return (
       <div className="space-y-6 p-4">
@@ -149,19 +169,118 @@ export default async function DashboardPage() {
           />
         </div>
 
-        {/* 空の状態 */}
-        <div className="text-center py-12">
-          <Zap className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
-          <p className="text-muted-foreground mb-6">
-            まだ学習データがありません。学習を開始して進捗を確認しましょう。
-          </p>
-          <Link href="/learning/categories">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              <Play className="w-4 h-4 mr-2" />
-              学習を始める
-            </Button>
-          </Link>
+        {/* 学習記録サマリ */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="border-border">
+            <CardContent className="p-6 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-muted-foreground">今日の学習</p>
+                <Clock className="w-5 h-5 text-primary" aria-hidden />
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                {learningRecords?.summary.today.completedCount ?? 0} 問
+              </p>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <span>完了 {learningRecords?.summary.today.completedCount ?? 0} 問</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-primary text-xs font-mono tabular-nums">
+                  <Target className="w-3 h-3" aria-hidden />
+                  {learningRecords?.summary.today.accuracy?.toFixed(1) ?? '0.0'}%
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border">
+            <CardContent className="p-6 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-muted-foreground">直近7日の合計</p>
+                <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" aria-hidden />
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                {learningRecords?.summary.last7Days.completedCount ?? 0} 問
+              </p>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <span>完了 {learningRecords?.summary.last7Days.completedCount ?? 0} 問</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-emerald-600 dark:text-emerald-300 text-xs font-mono tabular-nums">
+                  正答率 {learningRecords?.summary.last7Days.accuracy?.toFixed(1) ?? '0.0'}%
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border">
+            <CardContent className="p-6 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-muted-foreground">累計</p>
+                <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden />
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                {learningRecords?.summary.lifetime.completedCount ?? 0} 問
+              </p>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <span>完了 {learningRecords?.summary.lifetime.completedCount ?? 0} 問</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-1 text-blue-600 dark:text-blue-300 text-xs font-mono tabular-nums">
+                  正答率 {learningRecords?.summary.lifetime.accuracy?.toFixed(1) ?? '0.0'}%
+                </span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* 直近7日の日別ログ */}
+        <Card className="border-border">
+          <CardContent className="p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">直近7日の学習記録</p>
+                <p className="text-xs text-muted-foreground">完了数・正答率のスナップショット</p>
+              </div>
+              <Target className="w-5 h-5 text-primary" aria-hidden />
+            </div>
+            {hasLearningData ? (
+              <div className="space-y-3">
+                {last7Days.map(day => (
+                  <div key={day.date} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm gap-3">
+                      <span className="font-medium w-16 shrink-0">{day.displayDate}</span>
+                      <span className="text-muted-foreground flex items-center gap-2">
+                        <span className="font-mono tabular-nums">{day.completedCount}問</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-primary text-[11px] font-mono tabular-nums min-w-[64px] justify-center">
+                          {day.accuracy.toFixed(1)}%
+                        </span>
+                      </span>
+                    </div>
+                    <Progress
+                      value={(day.completedCount / maxCompleted) * 100}
+                      className="h-2"
+                      aria-label={`${day.displayDate} の完了数`}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground py-6">
+                直近の学習データがまだありません。学習を開始して記録を蓄積しましょう。
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* 空の状態 */}
+        {!hasLearningData && (
+          <div className="text-center py-12">
+            <Zap className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+            <p className="text-muted-foreground mb-6">
+              まだ学習データがありません。学習を開始して進捗を確認しましょう。
+            </p>
+            <Link href="/learning/categories">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Play className="w-4 h-4 mr-2" />
+                学習を始める
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
     );
   } catch (error) {

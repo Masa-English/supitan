@@ -14,7 +14,9 @@ import {
   Award,
   BookOpen,
   Target,
-  BarChart3
+  BarChart3,
+  Clock,
+  CheckCircle2
 } from 'lucide-react';
 
 async function getAuthenticatedUser() {
@@ -204,9 +206,13 @@ function calculateStudyStreak(userProgress: Array<{ updated_at: string | null }>
 
 export default async function HistoryPage() {
   const user = await getAuthenticatedUser();
-  const history = await getLearningHistory(user.id);
+  const [history, learningRecords] = await Promise.all([
+    getLearningHistory(user.id),
+    dataProvider.getLearningRecords(user.id, 60),
+  ]);
 
-  const maxDailyCount = Math.max(...history.dailyHistory.map(d => d.count), 1);
+  const dailyRecords = learningRecords?.daily.slice(-14) ?? [];
+  const maxDailyCompleted = Math.max(...dailyRecords.map(d => d.completedCount), 1);
 
   return (
     <div className="min-h-screen bg-background">
@@ -218,12 +224,9 @@ export default async function HistoryPage() {
               <History className="w-8 h-8" />
               学習履歴
             </h1>
-            <span className="inline-flex items-center rounded-md bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
-              開発中
-            </span>
           </div>
           <p className="text-muted-foreground">
-            このページは現在開発中です。一部のデータや機能は変更される可能性があります。
+            最近の学習時間・完了数・正答率を確認できます。
           </p>
         </div>
 
@@ -273,6 +276,34 @@ export default async function HistoryPage() {
                   <p className="text-2xl font-bold text-foreground">{history.stats.averageMastery}</p>
                 </div>
                 <Target className="w-8 h-8 text-purple-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">直近7日完了数</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {learningRecords?.summary.last7Days.completedCount ?? 0} 問
+                  </p>
+                </div>
+                <Clock className="w-8 h-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">直近7日正答率</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {(learningRecords?.summary.last7Days.accuracy ?? 0).toFixed(1)}%
+                  </p>
+                </div>
+                <CheckCircle2 className="w-8 h-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
@@ -335,25 +366,29 @@ export default async function HistoryPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {history.dailyHistory.slice(-14).map((day, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <span className="text-sm font-medium w-16">{day.displayDate}</span>
+                {dailyRecords.length > 0 ? dailyRecords.map(day => (
+                  <div key={day.date} className="flex items-center gap-3">
+                    <span className="text-sm font-medium w-16 shrink-0">{day.displayDate}</span>
                     <div className="flex-1 bg-muted rounded-full h-4 relative">
                       <div 
                         className="bg-primary rounded-full h-4 transition-all duration-300"
-                        style={{ width: `${(day.count / maxDailyCount) * 100}%` }}
+                        style={{ width: `${(day.completedCount / maxDailyCompleted) * 100}%` }}
                       />
                     </div>
-                    <div className="flex items-center gap-2 w-20">
-                      <span className="text-sm font-bold">{day.count}</span>
-                      {day.masteredCount > 0 && (
-                        <Badge variant="secondary" className="text-xs">
-                          +{day.masteredCount}
-                        </Badge>
-                      )}
+                    <div className="flex items-center gap-2 w-40 justify-end shrink-0">
+                      <Badge variant="secondary" className="text-xs font-mono tabular-nums min-w-[52px] justify-center">
+                        {day.completedCount}問
+                      </Badge>
+                      <Badge variant="outline" className="text-xs font-mono tabular-nums min-w-[52px] justify-center">
+                        {day.accuracy.toFixed(1)}%
+                      </Badge>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-sm text-muted-foreground">
+                    まだ学習記録がありません。
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

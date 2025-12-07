@@ -24,6 +24,9 @@ export type {
 export type {
   QuizQuestion,
   AppStats,
+  LearningRecord,
+  LearningRecordDay,
+  LearningRecordSnapshot,
   ApiResponse,
   PaginatedResponse,
   StudySessionRequest,

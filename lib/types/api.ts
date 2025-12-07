@@ -27,6 +27,29 @@ export interface AppStats {
   favorite_words_count: number;
 }
 
+// Learning records
+export interface LearningRecordSnapshot {
+  studyMinutes: number;
+  completedCount: number;
+  correctCount: number;
+  accuracy: number; // 0-100
+}
+
+export interface LearningRecordDay extends LearningRecordSnapshot {
+  date: string; // YYYY-MM-DD
+  displayDate: string; // locale short format
+}
+
+export interface LearningRecord {
+  daily: LearningRecordDay[];
+  summary: {
+    today: LearningRecordSnapshot;
+    last7Days: LearningRecordSnapshot;
+    last30Days: LearningRecordSnapshot;
+    lifetime: LearningRecordSnapshot;
+  };
+}
+
 // API response types
 export interface ApiResponse<T = unknown> {
   data?: T;
