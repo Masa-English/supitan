@@ -123,6 +123,12 @@ export default async function DashboardPage() {
 
     const last7Days = learningRecords?.daily.slice(0, 7) ?? []; // 最新から直近7日
     const displayDays = last7Days; // そのまま（最新が上）
+
+    const formatAccuracy = (completed: number, accuracy?: number) => {
+      if (!completed || completed <= 0) return '—';
+      const val = accuracy ?? 0;
+      return `${val.toFixed(1)}%`;
+    };
     const maxCompleted = Math.max(
       ...last7Days.map(day => day.completedCount),
       1
@@ -185,7 +191,10 @@ export default async function DashboardPage() {
                 <span>完了 {learningRecords?.summary.today.completedCount ?? 0} 問</span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-primary text-xs font-mono tabular-nums">
                   <Target className="w-3 h-3" aria-hidden />
-                  {learningRecords?.summary.today.accuracy?.toFixed(1) ?? '0.0'}%
+                  {formatAccuracy(
+                    learningRecords?.summary.today.completedCount ?? 0,
+                    learningRecords?.summary.today.accuracy
+                  )}
                 </span>
               </div>
             </CardContent>
@@ -203,7 +212,10 @@ export default async function DashboardPage() {
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <span>完了 {learningRecords?.summary.last7Days.completedCount ?? 0} 問</span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-emerald-600 dark:text-emerald-300 text-xs font-mono tabular-nums">
-                  正答率 {learningRecords?.summary.last7Days.accuracy?.toFixed(1) ?? '0.0'}%
+                  正答率 {formatAccuracy(
+                    learningRecords?.summary.last7Days.completedCount ?? 0,
+                    learningRecords?.summary.last7Days.accuracy
+                  )}
                 </span>
               </div>
             </CardContent>
@@ -228,7 +240,10 @@ export default async function DashboardPage() {
                   完了 {(learningRecords?.summary.lifetime.completedCount ?? 0).toLocaleString()} 問 / 全 {(stats?.total_words ?? 0).toLocaleString()} 問
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-1 text-blue-600 dark:text-blue-300 text-xs font-mono tabular-nums">
-                  正答率 {learningRecords?.summary.lifetime.accuracy?.toFixed(1) ?? '0.0'}%
+                  正答率 {formatAccuracy(
+                    learningRecords?.summary.lifetime.completedCount ?? 0,
+                    learningRecords?.summary.lifetime.accuracy
+                  )}
                 </span>
               </div>
             </CardContent>
@@ -254,7 +269,7 @@ export default async function DashboardPage() {
                       <span className="text-muted-foreground flex items-center gap-2">
                         <span className="font-mono tabular-nums">{day.completedCount}問</span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-primary text-[11px] font-mono tabular-nums min-w-[64px] justify-center">
-                          {day.accuracy.toFixed(1)}%
+                          {formatAccuracy(day.completedCount, day.accuracy)}
                         </span>
                       </span>
                     </div>
