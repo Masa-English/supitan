@@ -3,6 +3,22 @@ import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import ReviewClient from './review-client';
 import { getCategoryIdByName, getCategoryNameById } from '@/lib/constants/categories';
+import type { UserProgress } from '@/lib/types/database';
+
+const isDueForReview = (progress: UserProgress, now: Date) => {
+  if (progress.next_review_at) {
+    return new Date(progress.next_review_at) <= now;
+  }
+
+  if (!progress.last_studied) return false;
+
+  const lastReview = new Date(progress.last_studied);
+  const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
+  const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1;
+  const reviewInterval = { 1: 1, 2: 3, 3: 7, 4: 14, 5: 30 }[masteryLevel] || 1;
+
+  return daysSinceReview >= reviewInterval;
+};
 
 interface PageProps {
   params?: Promise<{ category_id: string }>;
@@ -46,14 +62,28 @@ export default async function ReviewPage({ params, searchParams }: PageProps) {
   const mode = sp.mode || 'interval';
 
   // カテゴリー内の単語を取得（正規IDで検索）
-  let words = await dataProvider.getWordsByCategory(categoryId);
+  const [wordsInCategory, userProgress] = await Promise.all([
+    dataProvider.getWordsByCategory(categoryId),
+    dataProvider.getUserProgress(user.id)
+  ]);
+
+  const now = new Date();
+  const progressMap = new Map(userProgress.map(p => [p.word_id, p]));
+  let words = wordsInCategory.filter(word => {
+    const progress = progressMap.get(word.id);
+    return progress ? isDueForReview(progress, now) : false;
+  });
 
   // 復習モードに応じて単語をフィルタリング
   if (mode === 'review-list') {
     // 復習リストの単語のみを取得
     const reviewWords = await dataProvider.getReviewWords(user.id);
     const reviewWordIds = new Set(reviewWords.map(rw => rw.word_id));
-    words = words.filter(word => reviewWordIds.has(word.id));
+    words = words.filter(word => {
+      if (!reviewWordIds.has(word.id)) return false;
+      const progress = progressMap.get(word.id);
+      return progress ? isDueForReview(progress, now) : true;
+    });
   }
 
   // 0件時の処理

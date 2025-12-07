@@ -294,6 +294,63 @@ export class DatabaseService {
     }
   }
 
+  /**
+   * 復習結果を反映し、次回復習日時をSM-2簡易計算で更新
+   */
+  async applyReviewResult(
+    userId: string,
+    wordId: string,
+    options: { isCorrect: boolean; difficultyLevel?: number } = { isCorrect: true }
+  ): Promise<UserProgress> {
+    const difficultyLevel = options.difficultyLevel ?? 3; // 1-5
+
+    const current = await this.getWordProgress(userId, wordId);
+
+    const now = new Date();
+    let easeFactor = current?.ease_factor ?? 2.5;
+    let intervalDays = current?.review_interval_days ?? 1;
+    let masteryLevel = current?.mastery_level ?? 0;
+
+    if (options.isCorrect) {
+      easeFactor = Math.max(
+        1.3,
+        easeFactor + (0.1 - (5 - difficultyLevel) * (0.08 + (5 - difficultyLevel) * 0.02))
+      );
+      intervalDays = Math.max(1, Math.ceil(intervalDays * easeFactor));
+      masteryLevel = Math.min(1, masteryLevel + 0.1);
+    } else {
+      easeFactor = Math.max(1.3, easeFactor - 0.2);
+      intervalDays = 1;
+      masteryLevel = Math.max(0, masteryLevel - 0.2);
+    }
+
+    const nextReviewAt = new Date(now);
+    nextReviewAt.setDate(now.getDate() + intervalDays);
+
+    const updatedProgress: Omit<UserProgress, 'id' | 'created_at' | 'updated_at'> = {
+      user_id: userId,
+      word_id: wordId,
+      mastery_level: masteryLevel,
+      study_count: (current?.study_count ?? 0) + 1,
+      correct_count: (current?.correct_count ?? 0) + (options.isCorrect ? 1 : 0),
+      incorrect_count: (current?.incorrect_count ?? 0) + (options.isCorrect ? 0 : 1),
+      last_studied: now.toISOString(),
+      is_favorite: current?.is_favorite ?? false,
+      next_review_at: nextReviewAt.toISOString(),
+      review_interval_days: intervalDays,
+      ease_factor: easeFactor
+    };
+
+    await this.upsertProgress(updatedProgress);
+
+    return {
+      ...updatedProgress,
+      id: current?.id ?? '',
+      created_at: current?.created_at ?? now.toISOString(),
+      updated_at: now.toISOString()
+    };
+  }
+
   async updateProgress(userId: string, wordId: string, updates: Partial<UserProgress>): Promise<void> {
     const { error } = await this.supabase
       .from('user_progress')

@@ -9,7 +9,7 @@ import { useAudioStore } from '@/lib/stores';
 import { DatabaseService } from '@/lib/api/database/database';
 import { dataProvider } from '@/lib/api/services/data-provider';
 import { createClient as createBrowserClient } from '@/lib/api/supabase/client';
-import type { ReviewWordWithWord, UserProgressUpdate } from '@/lib/types/database';
+import type { ReviewWordWithWord } from '@/lib/types/database';
 
 interface ReviewProps {
   onComplete: (results: { wordId: string; correct: boolean }[]) => void;
@@ -131,15 +131,33 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, rev
     if (!currentWord) return [];
     
     const correctAnswer = currentWord.word.japanese;
-    const otherWords = reviewWords.filter(w => w.id !== currentWord.id);
-    const wrongOptions = otherWords
-      .slice(0, 3)
+    const sameCategory = reviewWords.filter(
+      w => w.id !== currentWord.id && w.word.category === currentWord.word.category
+    );
+    const shuffled = [...sameCategory].sort(() => Math.random() - 0.5);
+    const wrongOptions = shuffled
       .map(w => w.word.japanese)
-      .filter(japanese => japanese !== correctAnswer);
+      .filter(japanese => japanese !== correctAnswer)
+      .filter((value, index, self) => self.indexOf(value) === index)
+      .slice(0, 3);
     
     const allOptions = [correctAnswer, ...wrongOptions];
     
-    // 4つの選択肢になるまでダミーを追加
+    // 4つの選択肢になるまで、他カテゴリから補完
+    if (allOptions.length < 4) {
+      const fallbackPool = reviewWords
+        .filter(w => w.id !== currentWord.id)
+        .map(w => w.word.japanese)
+        .filter(japanese => japanese !== correctAnswer);
+      for (const candidate of fallbackPool) {
+        if (allOptions.length >= 4) break;
+        if (!allOptions.includes(candidate)) {
+          allOptions.push(candidate);
+        }
+      }
+    }
+    
+    // まだ足りない場合はダミーを追加
     while (allOptions.length < 4) {
       allOptions.push(`選択肢${allOptions.length + 1}`);
     }
@@ -162,24 +180,11 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, rev
     };
     setResults(prev => [...prev, newResult]);
 
-    // データベースに進捗を更新
+    // データベースに進捗を更新（次回復習日時を含む）
     try {
-      const progressUpdates: UserProgressUpdate = {
-        last_studied: new Date().toISOString(),
-        study_count: 1, // 復習なので1カウント
-      };
-
-      const currentProgress = await db.getWordProgress(user.id, currentWord.word_id);
-      if (isCorrect) {
-        progressUpdates.correct_count = (currentProgress?.correct_count || 0) + 1;
-      } else {
-        progressUpdates.incorrect_count = (currentProgress?.incorrect_count || 0) + 1;
-      }
-
       if (user?.id && currentWord.word_id) {
-        await db.updateProgress(user.id, currentWord.word_id, progressUpdates);
+        await db.applyReviewResult(user.id, currentWord.word_id, { isCorrect });
       }
-      console.log('復習進捗を更新:', currentWord.word_id, progressUpdates);
     } catch (error) {
       console.error('復習進捗更新エラー:', error);
     }

@@ -29,7 +29,8 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
       '/learning',
       '/learning/categories',
       '/search',
-      '/profile'
+      '/profile',
+      '/review'
     ];
     return implementedFeatures.includes(href);
   };

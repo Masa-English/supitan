@@ -15,6 +15,27 @@ import {
   BookOpen
 } from 'lucide-react';
 
+const isDueForReview = (progress: UserProgress, now: Date) => {
+  if (progress.next_review_at) {
+    return new Date(progress.next_review_at) <= now;
+  }
+
+  if (!progress.last_studied) return false;
+
+  const lastReview = new Date(progress.last_studied);
+  const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
+  const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1; // 1-5
+  const reviewInterval = {
+    1: 1,  // 1日
+    2: 3,  // 3日
+    3: 7,  // 1週間
+    4: 14, // 2週間
+    5: 30  // 1ヶ月
+  }[masteryLevel] || 1;
+
+  return daysSinceReview >= reviewInterval;
+};
+
 async function getAuthenticatedUser() {
   try {
     const supabase = await createServerClient();
@@ -40,25 +61,8 @@ async function getReviewData(userId: string) {
       dataProvider.getReviewWords(userId) // 復習リストの単語を取得
     ]);
 
-    // 復習間隔に基づく復習が必要な単語を特定
     const now = new Date();
-    const intervalReviewWords = userProgress.filter(progress => {
-      if (!progress.last_studied) return false;
-      const lastReview = new Date(progress.last_studied);
-      const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
-      
-      // 習得レベルに応じた復習間隔（mastery_levelは0-1の範囲）
-      const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1; // 0-1を1-5に変換
-      const reviewInterval = {
-        1: 1,  // 1日
-        2: 3,  // 3日
-        3: 7,  // 1週間
-        4: 14, // 2週間
-        5: 30  // 1ヶ月
-      }[masteryLevel] || 1;
-      
-      return daysSinceReview >= reviewInterval;
-    });
+    const dueProgress = userProgress.filter(progress => isDueForReview(progress, now));
 
     // 復習リストの単語と復習間隔の単語を結合（重複を除く）
     const reviewWordsSet = new Set<string>();
@@ -75,6 +79,8 @@ async function getReviewData(userId: string) {
       if (word && reviewWord.word_id) {
         reviewWordsSet.add(reviewWord.word_id);
         const progress = userProgress.find(p => p.word_id === reviewWord.word_id);
+        const isDue = progress ? isDueForReview(progress, now) : true;
+        if (!isDue) return;
         allReviewWords.push({
           word_id: reviewWord.word_id,
           word: word,
@@ -97,7 +103,7 @@ async function getReviewData(userId: string) {
     });
     
     // 復習間隔の単語を追加（重複を除く）
-    intervalReviewWords.forEach(progress => {
+    dueProgress.forEach(progress => {
       if (progress.word_id && !reviewWordsSet.has(progress.word_id)) {
         const word = allWords.find(w => w.id === progress.word_id);
         if (word) {
@@ -137,6 +143,7 @@ async function getReviewData(userId: string) {
       );
       
       return {
+        id: category.id,
         category: category.category,
         count: categoryReviewWords.length,
         totalInCategory: categoryWords.length,
@@ -188,7 +195,7 @@ export default async function ReviewPage() {
           </p>
         </header>
 
-        {reviewData.totalReviewWords === 0 && reviewData.reviewListWords === 0 ? (
+        {reviewData.totalReviewWords === 0 ? (
           /* 復習対象がない場合 */
           <Card>
             <CardContent className="p-8 text-center">
@@ -211,23 +218,6 @@ export default async function ReviewPage() {
           </Card>
         ) : (
           <>
-            {/* 復習リストの単語がある場合の通知 */}
-            {reviewData.reviewListWords > 0 && (
-              <Card className="border border-border bg-card">
-                <CardContent className="p-5">
-                  <div className="flex items-start gap-3">
-                    <RotateCcw className="w-5 h-5 text-primary mt-0.5" />
-                    <div className="space-y-1">
-                      <h3 className="font-medium text-foreground">復習リストに単語があります</h3>
-                      <p className="text-sm text-muted-foreground">
-                        復習リストを確認して復習を始めましょう。
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
             <div className="space-y-6">
               {/* カテゴリー別復習 */}
               <Card className="border border-border bg-card">
