@@ -215,8 +215,13 @@ export default async function DashboardPage() {
                 <p className="text-sm font-medium text-muted-foreground">累計</p>
                 <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden />
               </div>
-              <p className="text-2xl font-bold text-foreground">
-                {(learningRecords?.summary.lifetime.completedCount ?? 0).toLocaleString()} / {(stats?.total_words ?? 0).toLocaleString()} 問
+              <p className="text-2xl font-bold text-foreground flex items-baseline gap-2">
+                <span className="leading-none">
+                  {(learningRecords?.summary.lifetime.completedCount ?? 0).toLocaleString()}
+                </span>
+                <span className="text-lg text-muted-foreground leading-none">
+                  / {(stats?.total_words ?? 0).toLocaleString()} 問
+                </span>
               </p>
               <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
                 <span>
