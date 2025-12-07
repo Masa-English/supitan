@@ -243,9 +243,9 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, rev
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-2xl mx-auto p-4 sm:p-6">
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
           <Badge variant="secondary" className="text-sm">
             {mode === 'review-list' ? '復習リスト' :
              mode === 'interval' ? '間隔復習' :
@@ -270,11 +270,11 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, rev
         </div>
         
         <Card className="mb-6">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="text-center mb-6">
-               <h2 className="text-3xl font-bold mb-2">{currentWord.word.word}</h2>
+               <h2 className="text-2xl sm:text-3xl font-bold mb-2 break-words">{currentWord.word.word}</h2>
                {currentWord.word.phonetic && (
-                 <p className="text-lg text-muted-foreground mb-4">
+                 <p className="text-base sm:text-lg text-muted-foreground mb-4">
                    [{currentWord.word.phonetic}]
                  </p>
                )}
@@ -289,7 +289,7 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, rev
               </Button>
             </div>
             
-            <p className="text-xl font-medium text-center mb-6">
+            <p className="text-lg sm:text-xl font-medium text-center mb-6">
                {currentWord.word.word}の意味を選んでください
             </p>
             
@@ -305,7 +305,7 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, rev
                     key={index}
                     variant={showCorrect ? "default" : showIncorrect ? "destructive" : "outline"}
                     size="lg"
-                    className={`h-16 text-lg justify-start ${
+                    className={`h-14 sm:h-16 text-base sm:text-lg justify-start ${
                       showCorrect ? "bg-green-600 hover:bg-green-700" : ""
                     }`}
                     onClick={() => handleAnswerSelect(option)}
