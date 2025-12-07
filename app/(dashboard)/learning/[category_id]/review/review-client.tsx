@@ -40,19 +40,6 @@ export default function ReviewClient({ category, words, mode }: Props) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b bg-card">
-        <div className="max-w-2xl mx-auto p-4 flex justify-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExitReview}
-            className="text-sm"
-          >
-            復習終了
-          </Button>
-        </div>
-      </div>
-
       <Review
         onComplete={handleReviewComplete}
         onExit={handleExitReview}
