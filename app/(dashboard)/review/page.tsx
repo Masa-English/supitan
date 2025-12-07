@@ -246,7 +246,7 @@ export default async function ReviewPage() {
                       <span className="font-medium text-foreground break-words">{category.category}</span>
                       <Link
                         className="w-full sm:w-auto"
-                        href={`/learning/${category.category}/review?mode=interval`}
+                        href={`/learning/${category.id}/review?mode=interval`}
                       >
                         <Button variant="outline" size="sm" className="w-full sm:min-w-[140px]">
                           {category.category}を復習

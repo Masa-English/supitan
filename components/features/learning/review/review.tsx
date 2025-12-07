@@ -229,8 +229,9 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, rev
   }, [user, currentWord, db]);
 
   const handlePlayAudio = useCallback(() => {
-    playWordAudio(currentWord.id);
-  }, [currentWord.id, playWordAudio]);
+    // 復習用の仮IDではなく実際の単語IDで再生する
+    playWordAudio(currentWord.word_id);
+  }, [currentWord.word_id, playWordAudio]);
 
   if (loading || !currentWord) {
     return (
