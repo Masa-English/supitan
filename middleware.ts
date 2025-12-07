@@ -10,6 +10,15 @@ export async function middleware(request: NextRequest) {
   if (pathname === '/manifest.json') {
     return NextResponse.next()
   }
+
+  // 復習系パスは一旦ダッシュボードにリダイレクト
+  const isReviewPath = pathname.startsWith('/review') || pathname.includes('/review/')
+  if (isReviewPath) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    url.search = ''
+    return NextResponse.redirect(url)
+  }
   
   // 静的リソースのキャッシュ設定
   if (pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)$/)) {

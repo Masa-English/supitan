@@ -28,7 +28,6 @@ export function SideMenu({ navigationItems }: SideMenuProps) {
     const implementedFeatures = [
       '/learning',
       '/learning/categories',
-      '/review',
       '/search',
       '/profile'
     ];
