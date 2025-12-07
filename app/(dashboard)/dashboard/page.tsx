@@ -111,7 +111,7 @@ export default async function DashboardPage() {
       redirect('/login');
       return null;
     }
-    const [_stats, learningRecords] = await Promise.all([
+    const [stats, learningRecords] = await Promise.all([
       getUserStats(user.id),
       dataProvider.getLearningRecords(user.id, 30),
     ]);
@@ -122,6 +122,7 @@ export default async function DashboardPage() {
     );
 
     const last7Days = learningRecords?.daily.slice(-7) ?? [];
+    const displayDays = [...last7Days].reverse(); // 今日から逆算して表示（新しい日を上に）
     const maxCompleted = Math.max(
       ...last7Days.map(day => day.completedCount),
       1
@@ -215,10 +216,12 @@ export default async function DashboardPage() {
                 <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden />
               </div>
               <p className="text-2xl font-bold text-foreground">
-                {learningRecords?.summary.lifetime.completedCount ?? 0} 問
+                {(learningRecords?.summary.lifetime.completedCount ?? 0).toLocaleString()} / {(stats?.total_words ?? 0).toLocaleString()} 問
               </p>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <span>完了 {learningRecords?.summary.lifetime.completedCount ?? 0} 問</span>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
+                <span>
+                  完了 {(learningRecords?.summary.lifetime.completedCount ?? 0).toLocaleString()} 問 / 全 {(stats?.total_words ?? 0).toLocaleString()} 問
+                </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-1 text-blue-600 dark:text-blue-300 text-xs font-mono tabular-nums">
                   正答率 {learningRecords?.summary.lifetime.accuracy?.toFixed(1) ?? '0.0'}%
                 </span>
@@ -239,7 +242,7 @@ export default async function DashboardPage() {
             </div>
             {hasLearningData ? (
               <div className="space-y-3">
-                {last7Days.map(day => (
+                {displayDays.map(day => (
                   <div key={day.date} className="space-y-1">
                     <div className="flex items-center justify-between text-sm gap-3">
                       <span className="font-medium w-16 shrink-0">{day.displayDate}</span>
