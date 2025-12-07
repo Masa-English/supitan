@@ -108,16 +108,6 @@ export default function SearchPage() {
     });
   }, [words, searchTerm, selectedCategory, normalizeCategory]);
 
-  // 音声再生機能
-  const playAudio = (text: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.8;
-      speechSynthesis.speak(utterance);
-    }
-  };
-
   // フィルターのクリア
   const clearFilters = () => {
     setSearchTerm('');

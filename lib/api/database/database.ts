@@ -40,12 +40,23 @@ export class DatabaseService {
   }
 
   async getWordsByCategory(categoryKey: string): Promise<Word[]> {
-    const formatSupabaseError = (err: any) => ({
-      message: err?.message,
-      code: err?.code,
-      details: err?.details,
-      hint: err?.hint
-    });
+    const formatSupabaseError = (err: unknown) => {
+      if (err && typeof err === 'object') {
+        const errorObj = err as { message?: string; code?: string; details?: string; hint?: string };
+        return {
+          message: errorObj.message,
+          code: errorObj.code,
+          details: errorObj.details,
+          hint: errorObj.hint,
+        };
+      }
+      return {
+        message: String(err),
+        code: undefined,
+        details: undefined,
+        hint: undefined,
+      };
+    };
 
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const key = categoryKey?.trim();

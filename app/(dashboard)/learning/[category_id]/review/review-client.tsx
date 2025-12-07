@@ -5,7 +5,6 @@ import type { Word, ReviewWordWithWord } from '@/lib/types';
 import { Review } from '@/components/features/learning/review/review';
 import { CompletionModal } from '@/components/features/learning/shared';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 
 interface Props {
   category: string;

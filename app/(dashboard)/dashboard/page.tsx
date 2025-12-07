@@ -111,7 +111,7 @@ export default async function DashboardPage() {
       redirect('/login');
       return null;
     }
-    const [stats, learningRecords] = await Promise.all([
+    const [_stats, learningRecords] = await Promise.all([
       getUserStats(user.id),
       dataProvider.getLearningRecords(user.id, 30),
     ]);
