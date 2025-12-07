@@ -16,11 +16,10 @@ interface ReviewProps {
   onExit?: () => void;
   mode?: 'review-list' | 'interval' | 'category' | 'urgent';
   category?: string;
-  level?: number;
   reviewWords?: ReviewWordWithWord[];
 }
 
-export function Review({ onComplete, onExit, mode = 'review-list', category, level, reviewWords: initialReviewWords }: ReviewProps) {
+export function Review({ onComplete, onExit, mode = 'review-list', category, reviewWords: initialReviewWords }: ReviewProps) {
   const [reviewWords, setReviewWords] = useState<ReviewWordWithWord[]>(initialReviewWords || []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -74,8 +73,6 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
 
         // すべての単語を取得
         const allWords = await dataProvider.getAllWords();
-        const userProgress = await dataProvider.getUserProgress(currentUser.id);
-
         const reviewWordsData: ReviewWordWithWord[] = [];
 
         if (mode === 'review-list') {
@@ -93,97 +90,19 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
               });
             }
           }
-        } else if (mode === 'interval') {
-          // 間隔復習が必要な単語を取得（習得レベルに応じた復習間隔）
-          const now = new Date();
+        } else {
+          const targetWords = mode === 'category' && category
+            ? allWords.filter(w => w.category === category)
+            : allWords;
 
-          for (const progress of userProgress) {
-            if (!progress.last_studied) continue;
-
-            const lastReview = new Date(progress.last_studied);
-            const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
-
-            // 習得レベルに応じた復習間隔
-            const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1;
-            const reviewInterval = {
-              1: 1, 2: 3, 3: 7, 4: 14, 5: 30
-            }[masteryLevel] || 1;
-
-            // レベル指定がある場合はそのレベルのみ
-            if (level && masteryLevel !== level) continue;
-
-            if (daysSinceReview >= reviewInterval) {
-              const word = allWords.find(w => w.id === progress.word_id);
-              if (word) {
-                reviewWordsData.push({
-                  id: `${progress.word_id}-interval`,
-                  user_id: progress.user_id || '',
-                  word_id: progress.word_id || '',
-                  created_at: new Date().toISOString(),
-                  word
-                });
-              }
-            }
-          }
-        } else if (mode === 'category' && category) {
-          // 指定されたカテゴリの復習が必要な単語を取得
-          const categoryWords = allWords.filter(w => w.category === category);
-          const now = new Date();
-
-          for (const progress of userProgress) {
-            if (!progress.last_studied) continue;
-
-            const word = categoryWords.find(w => w.id === progress.word_id);
-            if (!word) continue;
-
-            const lastReview = new Date(progress.last_studied);
-            const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
-
-            // 習得レベルに応じた復習間隔
-            const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1;
-            const reviewInterval = {
-              1: 1, 2: 3, 3: 7, 4: 14, 5: 30
-            }[masteryLevel] || 1;
-
-            if (daysSinceReview >= reviewInterval) {
-              reviewWordsData.push({
-                id: `${progress.word_id}-category`,
-                user_id: progress.user_id || '',
-                word_id: progress.word_id || '',
-                created_at: new Date().toISOString(),
-                word
-              });
-            }
-          }
-        } else if (mode === 'urgent') {
-          // 緊急復習が必要な単語を取得（予定より大幅に遅れている単語）
-          const now = new Date();
-
-          for (const progress of userProgress) {
-            if (!progress.last_studied) continue;
-
-            const lastReview = new Date(progress.last_studied);
-            const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
-
-            // 習得レベルに応じた復習間隔
-            const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1;
-            const reviewInterval = {
-              1: 1, 2: 3, 3: 7, 4: 14, 5: 30
-            }[masteryLevel] || 1;
-
-            // 予定の2倍経過している場合を緊急復習とする
-            if (daysSinceReview >= reviewInterval * 2) {
-              const word = allWords.find(w => w.id === progress.word_id);
-              if (word) {
-                reviewWordsData.push({
-                  id: `${progress.word_id}-urgent`,
-                  user_id: progress.user_id || '',
-                  word_id: progress.word_id || '',
-                  created_at: new Date().toISOString(),
-                  word
-                });
-              }
-            }
+          for (const word of targetWords) {
+            reviewWordsData.push({
+              id: `${word.id}-${mode}`,
+              user_id: currentUser.id,
+              word_id: word.id,
+              created_at: new Date().toISOString(),
+              word
+            });
           }
         }
 
@@ -196,7 +115,7 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
     };
 
     loadReviewData();
-  }, [db, mode, category, level, initialReviewWords]);
+  }, [db, mode, category, initialReviewWords]);
 
   const currentWord = reviewWords[currentIndex];
   const isLastWord = currentIndex === reviewWords.length - 1;
@@ -250,21 +169,10 @@ export function Review({ onComplete, onExit, mode = 'review-list', category, lev
         study_count: 1, // 復習なので1カウント
       };
 
+      const currentProgress = await db.getWordProgress(user.id, currentWord.word_id);
       if (isCorrect) {
-        // 正解の場合、習得レベルを上げるロジック
-        const allProgress = await dataProvider.getUserProgress(user.id);
-        const currentProgress = allProgress.find(p => p.word_id === currentWord.word_id);
-        const currentMasteryLevel = currentProgress?.mastery_level || 0;
-        const newMasteryLevel = Math.min(currentMasteryLevel + 0.1, 1.0); // 最大1.0まで
-        progressUpdates.mastery_level = newMasteryLevel;
         progressUpdates.correct_count = (currentProgress?.correct_count || 0) + 1;
       } else {
-        // 不正解の場合、習得レベルを下げるロジック
-        const allProgress = await dataProvider.getUserProgress(user.id);
-        const currentProgress = allProgress.find(p => p.word_id === currentWord.word_id);
-        const currentMasteryLevel = currentProgress?.mastery_level || 0;
-        const newMasteryLevel = Math.max(currentMasteryLevel - 0.05, 0.0); // 最小0.0まで
-        progressUpdates.mastery_level = newMasteryLevel;
         progressUpdates.incorrect_count = (currentProgress?.incorrect_count || 0) + 1;
       }
 

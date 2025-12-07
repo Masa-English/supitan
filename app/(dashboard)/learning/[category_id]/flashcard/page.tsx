@@ -99,7 +99,7 @@ export async function generateStaticParams() {
 
 interface PageProps {
   params: Promise<{ category_id: string }>;
-  searchParams: Promise<{ sec?: string; random?: string; count?: string; mode?: string; level?: string }>;
+  searchParams: Promise<{ sec?: string; random?: string; count?: string; mode?: string }>;
 }
 
 // カテゴリーIDから名前を取得（動的取得を使用）
@@ -114,7 +114,7 @@ async function getCategoryName(categoryId: string): Promise<string | undefined> 
 
 export default async function FlashcardPage({ params, searchParams }: PageProps) {
   const { category_id: category } = await params;
-  const { sec, random, count, mode, level } = await searchParams;
+  const { sec, random, count, mode } = await searchParams;
   console.log('FlashcardPage: 関数開始');
 
   // カテゴリーIDから名前を取得（tryブロックの外で定義）
@@ -130,15 +130,14 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
       console.log('FlashcardPage: カテゴリーIDが無効');
       redirect('/learning/categories');
     }
-    console.log('FlashcardPage: searchParams取得完了', { sec, random, count, mode, level });
+    console.log('FlashcardPage: searchParams取得完了', { sec, random, count, mode });
 
     console.log('FlashcardPage: パラメータ取得完了', {
       category,
       sec,
       random,
       count,
-      mode,
-      level
+      mode
     });
 
     if (!categoryName) {
@@ -148,7 +147,6 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
 
   const isReviewMode = mode === 'review';
   const isReviewListMode = mode === 'review-list';
-  const reviewLevel = level ? Number(level) : undefined;
 
   console.log('FlashcardPage: 開始', {
     category: category,
@@ -157,7 +155,6 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
     random,
     count,
     mode,
-    level,
     isReviewMode,
     isReviewListMode,
     randomType: typeof random,
@@ -212,163 +209,49 @@ export default async function FlashcardPage({ params, searchParams }: PageProps)
   
   console.log('FlashcardPage: 認証成功', { userId: user.id });
 
-  let words: Word[] = [];
-  let allSections: string[] = [];
+  const { data: wordsData, error: wordsError } = await authSupabase
+    .from('words')
+    .select('*')
+    .eq('category', categoryName);
 
-  // 復習モードの場合
-  if (isReviewMode) {
-    const userProgress = await dataProvider.getUserProgress(user.id);
-    const now = new Date();
-    
-    // 復習が必要な単語を特定
-    const reviewWords = userProgress.filter(progress => {
-      if (!progress.last_studied) return false;
-      const lastReview = new Date(progress.last_studied);
-      const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
-      
-      // 習得レベルに応じた復習間隔
-      const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1;
-      const reviewInterval = {
-        1: 1, 2: 3, 3: 7, 4: 14, 5: 30
-      }[masteryLevel] || 1;
-      
-      // レベル指定がある場合はそのレベルのみ
-      if (reviewLevel && masteryLevel !== reviewLevel) return false;
-      
-      return daysSinceReview >= reviewInterval;
-    });
-    
-    // 復習対象の単語IDを取得
-    const reviewWordIds = new Set(reviewWords.map(p => p.word_id));
+  if (wordsError) {
+    console.error('単語取得エラー:', wordsError);
+    redirect(`/learning/${category}/options?mode=flashcard&error=database_error`);
+  }
 
-      // カテゴリー内の復習対象単語のみを取得
-      const { data: allWords } = await authSupabase
-        .from('words')
-        .select('*')
-        .eq('category', categoryName);
+  let words: Word[] = (wordsData || []) as Word[];
 
-      words = (allWords || []).filter((word: Word) => reviewWordIds.has(word.id));
+  if (words.length === 0) {
+    redirect(`/learning/${category}/options?mode=flashcard&error=no_words`);
+  }
 
-      // 復習対象の単語が見つからない場合
-      if (words.length === 0) {
-        console.warn('復習対象の単語が見つからないためリダイレクト:', {
-          category,
-          categoryName,
-          reviewWordIdsCount: reviewWordIds.size
-        });
-        redirect(`/learning/${category}/options?mode=flashcard&error=no_review_words`);
-      }
+  // 復習リストモードの場合のみフィルタ
+  if (isReviewListMode) {
+    const reviewWords = await dataProvider.getReviewWords(user.id);
+    const reviewWordIds = new Set(reviewWords.map(rw => rw.word_id));
+    words = words.filter((word: Word) => reviewWordIds.has(word.id));
+
+    if (words.length === 0) {
+      console.warn('復習リストの単語が見つからないためリダイレクト:', {
+        category,
+        categoryName,
+        reviewWordIdsCount: reviewWordIds.size
+      });
+      redirect(`/learning/${category}/options?mode=flashcard&error=no_review_list_words`);
     }
-    // 復習リストモードの場合
-    else if (isReviewListMode) {
-      const reviewWords = await dataProvider.getReviewWords(user.id);
-      
-      // 復習リストの単語IDを取得
-      const reviewWordIds = new Set(reviewWords.map(rw => rw.word_id));
-      
-      // カテゴリー内の復習リスト単語のみを取得
-      const { data: allWords } = await authSupabase
-        .from('words')
-        .select('*')
-        .eq('category', categoryName);
+  }
 
-      words = (allWords || []).filter((word: Word) => reviewWordIds.has(word.id)) as Word[];
+  // セクション情報を取得（wordsから抽出）
+  let allSections: string[] = [...new Set(words.map(w => String(w.section ?? '')))].filter(Boolean).sort();
 
-      // 復習リストの単語が見つからない場合
-      if (words.length === 0) {
-        console.warn('復習リストの単語が見つからないためリダイレクト:', {
-          category,
-          categoryName,
-          reviewWordIdsCount: reviewWordIds.size
-        });
-        redirect(`/learning/${category}/options?mode=flashcard&error=no_review_list_words`);
-      }
+  // セクション指定（通常モードのみ）
+  if (!isReviewMode && !isReviewListMode && sec && sec !== 'all') {
+    if (sec === '未設定') {
+      words = words.filter((w) => w.section === null || w.section === undefined);
+    } else {
+      words = words.filter((w) => String(w.section ?? '') === String(sec));
     }
-    // 通常モードの場合
-    else {
-      console.log('通常モード: 単語取得開始', {
-        category: category,
-        categoryName: categoryName,
-        sec,
-        random,
-        count,
-        isRandomMode: !!(random === '1' || random === 'true')
-      });
-
-      // 認証されたクライアントでデータを取得
-      let query = authSupabase
-        .from('words')
-        .select('*')
-        .eq('category', categoryName); // カテゴリー名で検索
-
-      console.log('データベースクエリ構築:', {
-        table: 'words',
-        category: category,
-        categoryName: categoryName,
-        hasSectionFilter: !!(sec && sec !== 'all'),
-        section: sec
-      });
-
-      // セクション指定の場合（ランダムモードでは実行されない）
-      if (sec && sec !== 'all') {
-        console.log('セクション指定処理:', { sec });
-        if (sec === '未設定') {
-          query = query.is('section', null);
-        } else {
-          query = query.eq('section', sec);
-        }
-      }
-
-      console.log('データベースクエリ実行前:', {
-        category: category,
-        categoryName: categoryName,
-        section: sec,
-        isRandomMode: !!(random === '1' || random === 'true')
-      });
-
-      // デバッグ用: カテゴリー内の単語数を確認
-      const { count: totalWordsCount } = await authSupabase
-        .from('words')
-        .select('*', { count: 'exact', head: true })
-        .eq('category', categoryName); // カテゴリー名で検索
-
-      console.log('カテゴリー内の総単語数:', {
-        category: category,
-        categoryName: categoryName,
-        totalWordsCount: totalWordsCount
-      });
-
-      const { data: wordsData, error: wordsError } = await query.order('id', { ascending: true });
-      words = (wordsData || []) as Word[];
-
-      console.log('単語取得結果:', {
-        wordsCount: words.length,
-        error: wordsError,
-        category: category,
-        categoryName: categoryName,
-        isRandomMode: !!(random === '1' || random === 'true'),
-        sampleWords: words.slice(0, 3).map(w => ({ id: w.id, word: w.word })),
-        hasError: !!wordsError,
-        errorMessage: wordsError?.message,
-        errorDetails: wordsError?.details,
-        errorHint: wordsError?.hint
-      });
-
-      // データベースエラーまたは単語が見つからない場合
-      if (wordsError || totalWordsCount === 0 || words.length === 0) {
-        console.error('データベースエラーまたは単語なし:', {
-          wordsError: wordsError?.message,
-          totalWordsCount,
-          wordsLength: words.length
-        });
-
-        if (wordsError) {
-          redirect(`/learning/${category}/options?mode=flashcard&error=database_error`);
-        } else {
-          redirect(`/learning/${category}/options?mode=flashcard&error=no_words`);
-        }
-      }
-    }
+  }
 
   // ランダム選択の場合（通常モードのみ）
   if (!isReviewMode && !isReviewListMode && (random === '1' || random === 'true') && count) {

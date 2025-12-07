@@ -3,11 +3,11 @@ import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import type { Word, QuizQuestion } from '@/lib/types';
 import { notFound, redirect } from 'next/navigation';
 import QuizClient from './quiz-client';
-import { getCategoryNameById } from '@/lib/constants/categories';
+import { getCategoryIdByName, getCategoryNameById } from '@/lib/constants/categories';
 
 interface PageProps {
   params?: Promise<{ category_id: string }>;
-  searchParams?: Promise<{ sec?: string; size?: string; random?: string; count?: string; mode?: string; level?: string }>;
+  searchParams?: Promise<{ sec?: string; size?: string; random?: string; count?: string; mode?: string }>;
 }
 
 // ISR設定 - 5分ごとに再生成（データ更新を即座に反映）
@@ -121,12 +121,14 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
   const categoryName = await getCategoryName(category);
   if (!categoryName) notFound();
 
+  const categoryId = await getCategoryIdByName(categoryName);
+  if (!categoryId) notFound();
+
   const sectionRaw = sp.sec;
   const isRandom = sp.random === '1' || sp.random === 'true';
   const randomCount = sp.count ? Number(sp.count) : 0;
   const isReviewMode = sp.mode === 'review';
   const isReviewListMode = sp.mode === 'review-list';
-  const reviewLevel = sp.level ? Number(sp.level) : undefined;
 
   console.log('QuizPage パラメータ:', {
     category,
@@ -175,7 +177,7 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
   // 統一データプロバイダ経由で取得（キャッシュ有効）
   let words: Word[] = [];
   try {
-    words = await dataProvider.getWordsByCategory(categoryName);
+    words = await dataProvider.getWordsByCategory(categoryId);
     console.log('QuizPage 単語取得完了:', { wordsCount: words.length, category, categoryName, isRandom, randomCount });
 
     // 単語が見つからない場合
@@ -192,47 +194,6 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
     redirect(`/learning/${category}/options?mode=quiz&error=database_error`);
   }
   
-  // 復習モードの場合は復習対象の単語のみを取得
-  if (isReviewMode) {
-    const userProgress = await dataProvider.getUserProgress(user.id);
-    const now = new Date();
-    
-    // 復習が必要な単語を特定
-    const reviewWords = userProgress.filter(progress => {
-      if (!progress.last_studied) return false;
-      const lastReview = new Date(progress.last_studied);
-      const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
-      
-      // 習得レベルに応じた復習間隔
-      const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1;
-      const reviewInterval = {
-        1: 1, 2: 3, 3: 7, 4: 14, 5: 30
-      }[masteryLevel] || 1;
-      
-      // レベル指定がある場合はそのレベルのみ
-      if (reviewLevel && masteryLevel !== reviewLevel) return false;
-      
-      return daysSinceReview >= reviewInterval;
-    });
-    
-    // 復習対象の単語IDを取得
-    const reviewWordIds = new Set(reviewWords.map(p => p.word_id));
-    
-    // カテゴリー内の復習対象単語のみをフィルタ
-    words = words.filter(word => reviewWordIds.has(word.id));
-
-    // 復習対象の単語が見つからない場合
-    if (words.length === 0) {
-      console.warn('復習対象の単語が見つからないためリダイレクト:', {
-        category,
-        categoryName,
-        reviewWordIdsCount: reviewWordIds.size,
-        originalWordsCount: words.length
-      });
-      redirect(`/learning/${category}/options?mode=quiz&error=no_review_words`);
-    }
-  }
-
   // 復習リストモードの場合は復習リストの単語のみを取得
   if (isReviewListMode) {
     const reviewWords = await dataProvider.getReviewWords(user.id);
@@ -297,7 +258,7 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
     }
   }
 
-  const listKey = `${category}-${sectionRaw ?? ''}-${randomCount ?? 0}-${isRandom}-${isReviewMode}-${isReviewListMode}-${reviewLevel ?? ''}`;
+  const listKey = `${category}-${sectionRaw ?? ''}-${randomCount ?? 0}-${isRandom}-${isReviewMode}-${isReviewListMode}`;
 
   return (
     <QuizClient
@@ -308,7 +269,6 @@ export default async function QuizPage({ params, searchParams }: PageProps) {
       key={listKey}
       reviewMode={isReviewMode}
       reviewListMode={isReviewListMode}
-      reviewLevel={reviewLevel}
       urgentReviewMode={sp.mode === 'urgent-review'}
     />
   );

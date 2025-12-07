@@ -1,6 +1,6 @@
 import { createClient as createBrowserClient } from '../supabase/client';
 import { createServiceClient } from '../supabase/service';
-import { Word, UserProgress, StudySession, ReviewWord, ReviewSession, AppStats, UserProfile } from '@/lib/types';
+import { Word, UserProgress, StudySession, ReviewWord, ReviewSession, AppStats, UserProfile, LearningRecord, LearningRecordSnapshot } from '@/lib/types';
 
 export class DatabaseService {
   private supabase = this.getSupabaseClient();
@@ -39,10 +39,64 @@ export class DatabaseService {
     return data || [];
   }
 
-  async getWordsByCategory(categoryId: string): Promise<Word[]> {
-    console.log(`Database: Searching for category ID: ${categoryId}`);
+  async getWordsByCategory(categoryKey: string): Promise<Word[]> {
+    const formatSupabaseError = (err: any) => ({
+      message: err?.message,
+      code: err?.code,
+      details: err?.details,
+      hint: err?.hint
+    });
 
-    // category_idで直接検索（正しいリレーションシップを使用）
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const key = categoryKey?.trim();
+    console.log(`Database: Searching for category key: ${key}`);
+
+    let resolvedCategoryId = key;
+
+    // ID以外（名称・短縮ID）の場合はカテゴリテーブルから正規のIDを解決
+    if (!uuidRegex.test(key)) {
+      const { data: categoryByNameOrId, error: lookupError } = await this.supabase
+        .from('categories')
+        .select('id,name')
+        .eq('is_active', true)
+        .or(`id.eq.${key},name.eq.${key}`)
+        .limit(1)
+        .maybeSingle();
+
+      if (lookupError && lookupError.code !== 'PGRST116') {
+        console.warn('Category lookup error (name/id match):', formatSupabaseError(lookupError));
+      }
+
+      if (categoryByNameOrId?.id) {
+        resolvedCategoryId = categoryByNameOrId.id;
+      } else if (key.length <= 8) {
+        const { data: categoryByShortId, error: shortLookupError } = await this.supabase
+          .from('categories')
+          .select('id,name')
+          .eq('is_active', true)
+          .like('id', `${key}%`)
+          .limit(1)
+          .maybeSingle();
+
+        if (shortLookupError && shortLookupError.code !== 'PGRST116') {
+          console.warn('Category lookup error (short ID match):', formatSupabaseError(shortLookupError));
+        }
+
+        if (categoryByShortId?.id) {
+          resolvedCategoryId = categoryByShortId.id;
+        }
+      }
+    }
+
+    // 無効なIDはクエリせずに空配列を返す
+    if (!uuidRegex.test(resolvedCategoryId)) {
+      console.warn('Resolved category ID is not a valid UUID. Skipping query.', {
+        categoryKey,
+        resolvedCategoryId
+      });
+      return [];
+    }
+
     const { data, error } = await this.supabase
       .from('words')
       .select(`
@@ -56,59 +110,40 @@ export class DatabaseService {
           is_active
         )
       `)
-      .eq('category_id', categoryId) // category_idで検索
+      .eq('category_id', resolvedCategoryId)
       .eq('is_active', true)
       .order('word', { ascending: true });
 
     if (error) {
-      console.error(`Database error for category ID "${categoryId}":`, error);
+      console.error(`Database error for category "${categoryKey}" (resolved: "${resolvedCategoryId}")`, formatSupabaseError(error));
       throw error;
     }
 
-    console.log(`Database: Found ${data?.length || 0} words for category ID "${categoryId}"`);
+    console.log(`Database: Found ${data?.length || 0} words for category ID "${resolvedCategoryId}"`);
     return data || [];
   }
 
   async getCategories(): Promise<{ category: string; id: string; count: number; description: string; color: string; sort_order: number; is_active: boolean }[]> {
-    // カテゴリーテーブルから直接取得
-    const { data: categoriesData, error: categoriesError } = await this.supabase
+    const { data, error } = await this.supabase
       .from('categories')
-      .select('*')
+      .select('id,name,description,color,sort_order,is_active,words(count)')
       .eq('is_active', true)
       .order('sort_order', { ascending: true });
 
-    if (categoriesError) {
-      console.error('Database error getting categories:', categoriesError);
-      throw categoriesError;
+    if (error) {
+      console.error('Database error getting categories:', error);
+      throw error;
     }
 
-    // 各カテゴリーの単語数を取得（category_idを使用）
-    const categoryCounts: Record<string, number> = {};
-    for (const category of categoriesData || []) {
-      const { count, error: countError } = await this.supabase
-        .from('words')
-        .select('*', { count: 'exact', head: true })
-        .eq('category_id', category.id) // category_idで検索
-        .eq('is_active', true);
-
-      if (!countError) {
-        categoryCounts[category.name] = count || 0;
-      }
-    }
-
-    // データベースから取得したカテゴリー情報を直接使用
-    const categories = (categoriesData || []).map(category => ({
+    return (data || []).map(category => ({
       category: category.name,
       id: category.id,
-      count: categoryCounts[category.name] || 0,
+      count: (category.words && category.words[0]?.count) || 0,
       description: category.description || '',
       color: category.color || '#3b82f6',
       sort_order: category.sort_order || 0,
       is_active: category.is_active || true
     }));
-
-    console.log('Available categories:', categories);
-    return categories;
   }
 
   // ユーザープログレス関連
@@ -423,6 +458,10 @@ export class DatabaseService {
     const { currentStreak, longestStreak } = this.calculateStreaks(studySessions);
     const totalStudySessions = studySessions.length;
 
+    const totalCorrect = progress.reduce((total, p) => total + (p.correct_count || 0), 0);
+    const totalIncorrect = progress.reduce((total, p) => total + (p.incorrect_count || 0), 0);
+    const totalAnswers = totalCorrect + totalIncorrect;
+
     return {
       total_words: totalWords,
       studied_words: studiedWords,
@@ -430,26 +469,144 @@ export class DatabaseService {
       study_time_minutes: studyTimeMinutes,
       review_count: reviewCount,
       total_words_studied: studiedWords,
-      total_correct_answers: progress.reduce((total, p) => total + (p.correct_count || 0), 0),
-      total_incorrect_answers: progress.reduce((total, p) => total + (p.incorrect_count || 0), 0),
+      total_correct_answers: totalCorrect,
+      total_incorrect_answers: totalIncorrect,
       current_streak: currentStreak,
       longest_streak: longestStreak,
       total_study_sessions: totalStudySessions,
-      average_accuracy: studiedWords > 0 ? 
-        (progress.reduce((total, p) => total + (p.correct_count || 0), 0) / 
-         progress.reduce((total, p) => total + (p.correct_count || 0) + (p.incorrect_count || 0), 0)) * 100 : 0,
+      average_accuracy: totalAnswers > 0
+        ? Math.round((totalCorrect / totalAnswers) * 1000) / 10
+        : 0,
       words_mastered: masteredWords,
       favorite_words_count: progress.filter(p => p.is_favorite).length
     };
   }
 
-  // 学習セッション取得
-  async getStudySessions(userId: string): Promise<StudySession[]> {
-    const { data, error } = await this.supabase
+  // 学習記録（日次集計）
+  async getLearningRecords(userId: string, days = 30): Promise<LearningRecord> {
+    // 日次表示用のセッション（指定期間）
+    const sessions = await this.getStudySessions(userId, days);
+    // 累計計算用のセッション（全期間）
+    const allSessions = await this.getStudySessions(userId, null);
+
+    const dayBuckets = new Map<string, { studyMinutes: number; completedCount: number; correctCount: number }>();
+
+    sessions.forEach(session => {
+      const start = session.start_time ? new Date(session.start_time) : null;
+      const end = session.end_time ? new Date(session.end_time) : null;
+      if (!start || Number.isNaN(start.getTime())) return;
+
+      const key = this.getLocalDateKey(start);
+      const bucket = dayBuckets.get(key) || { studyMinutes: 0, completedCount: 0, correctCount: 0 };
+      bucket.studyMinutes += this.calculateSessionMinutes(start, end);
+      bucket.completedCount += session.completed_words ?? session.total_words ?? 0;
+      bucket.correctCount += session.correct_answers ?? 0;
+      dayBuckets.set(key, bucket);
+    });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const buildDay = (targetDate: Date) => {
+      const key = this.getLocalDateKey(targetDate);
+      const bucket = dayBuckets.get(key) || { studyMinutes: 0, completedCount: 0, correctCount: 0 };
+      const accuracy = bucket.completedCount > 0
+        ? Math.round((bucket.correctCount / bucket.completedCount) * 1000) / 10
+        : 0;
+
+      return {
+        date: key,
+        displayDate: targetDate.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }),
+        studyMinutes: Math.round(bucket.studyMinutes * 10) / 10,
+        completedCount: bucket.completedCount,
+        correctCount: bucket.correctCount,
+        accuracy,
+      };
+    };
+
+    const daily: LearningRecord['daily'] = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const target = new Date(today);
+      target.setDate(today.getDate() - i);
+      daily.push(buildDay(target));
+    }
+
+    const summarizeWindow = (window: typeof daily): LearningRecordSnapshot => {
+      const totals = window.reduce(
+        (acc, day) => ({
+          studyMinutes: acc.studyMinutes + day.studyMinutes,
+          completedCount: acc.completedCount + day.completedCount,
+          correctCount: acc.correctCount + day.correctCount,
+        }),
+        { studyMinutes: 0, completedCount: 0, correctCount: 0 }
+      );
+      const accuracy = totals.completedCount > 0
+        ? Math.round((totals.correctCount / totals.completedCount) * 1000) / 10
+        : 0;
+
+      return {
+        studyMinutes: Math.round(totals.studyMinutes * 10) / 10,
+        completedCount: totals.completedCount,
+        correctCount: totals.correctCount,
+        accuracy,
+      };
+    };
+
+    const last7Days = daily.slice(-7);
+    const last30Days = daily.slice(-30);
+
+    // 全期間のセッションデータを使って累計サマリを算出
+    const lifetimeTotals = allSessions.reduce(
+      (acc, session) => {
+        const completed = session.completed_words ?? session.total_words ?? 0;
+        const correct = session.correct_answers ?? 0;
+        const start = session.start_time ? new Date(session.start_time) : null;
+        const end = session.end_time ? new Date(session.end_time) : null;
+        const duration = start ? this.calculateSessionMinutes(start, end) : 0;
+        return {
+          studyMinutes: acc.studyMinutes + duration,
+          completedCount: acc.completedCount + completed,
+          correctCount: acc.correctCount + correct,
+        };
+      },
+      { studyMinutes: 0, completedCount: 0, correctCount: 0 }
+    );
+
+    return {
+      daily,
+      summary: {
+        today: summarizeWindow(daily.slice(-1)),
+        last7Days: summarizeWindow(last7Days),
+        last30Days: summarizeWindow(last30Days),
+        lifetime: {
+          studyMinutes: Math.round(lifetimeTotals.studyMinutes * 10) / 10,
+          completedCount: lifetimeTotals.completedCount,
+          correctCount: lifetimeTotals.correctCount,
+          accuracy: lifetimeTotals.completedCount > 0
+            ? Math.round((lifetimeTotals.correctCount / lifetimeTotals.completedCount) * 1000) / 10
+            : 0,
+        },
+      },
+    };
+  }
+
+  // 学習セッション取得（必要列のみ）
+  // daysがnullまたはundefinedの場合は全期間を取得
+  async getStudySessions(userId: string, days: number | null = 30): Promise<StudySession[]> {
+    let query = this.supabase
       .from('study_sessions')
-      .select('*')
-      .eq('user_id', userId)
-      .order('start_time', { ascending: false });
+      .select('id,user_id,category,mode,total_words,completed_words,correct_answers,start_time,end_time,created_at')
+      .eq('user_id', userId);
+
+    // daysが指定されている場合のみ期間でフィルタリング
+    if (days !== null && days !== undefined) {
+      const cutoff = new Date();
+      cutoff.setHours(0, 0, 0, 0);
+      cutoff.setDate(cutoff.getDate() - (days - 1));
+      query = query.gte('start_time', cutoff.toISOString());
+    }
+
+    const { data, error } = await query.order('start_time', { ascending: false });
 
     if (error) {
       console.error('getStudySessions error:', error);
@@ -507,6 +664,20 @@ export class DatabaseService {
     longestStreak = Math.max(longestStreak, tempStreak);
 
     return { currentStreak, longestStreak };
+  }
+
+  private calculateSessionMinutes(start: Date | null, end: Date | null): number {
+    if (!start || Number.isNaN(start.getTime()) || !end || Number.isNaN(end.getTime())) return 0;
+    const diffMs = end.getTime() - start.getTime();
+    if (diffMs <= 0) return 0;
+    return diffMs / 60000;
+  }
+
+  private getLocalDateKey(date: Date): string {
+    const local = new Date(date);
+    local.setHours(0, 0, 0, 0);
+    const offsetMs = local.getTime() - local.getTimezoneOffset() * 60000;
+    return new Date(offsetMs).toISOString().split('T')[0];
   }
 
   // プロフィール関連
