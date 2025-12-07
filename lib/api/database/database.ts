@@ -606,7 +606,7 @@ export class DatabaseService {
     const dailyKeys: string[] = [];
     for (let i = days - 1; i >= 0; i--) {
       const target = new Date(today);
-      target.setUTCDate(target.getUTCDate() - i);
+      target.setDate(target.getDate() - i); // ローカル（日付境界はJSTフォーマットで処理）
       dailyKeys.push(formatDateJst(target));
     }
 
