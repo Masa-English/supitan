@@ -121,8 +121,8 @@ export default async function DashboardPage() {
       (learningRecords?.summary.last7Days.studyMinutes ?? 0) > 0
     );
 
-    const last7Days = learningRecords?.daily.slice(-7) ?? [];
-    const displayDays = [...last7Days].reverse(); // 今日から逆算して表示（新しい日を上に）
+    const last7Days = learningRecords?.daily.slice(0, 7) ?? []; // 最新から直近7日
+    const displayDays = last7Days; // そのまま（最新が上）
     const maxCompleted = Math.max(
       ...last7Days.map(day => day.completedCount),
       1

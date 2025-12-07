@@ -654,8 +654,8 @@ export class DatabaseService {
       };
     };
 
-    const last7Days = daily.slice(-7);
-    const last30Days = daily.slice(-30);
+    const last7Days = daily.slice(0, 7);   // 最新日から直近7日
+    const last30Days = daily.slice(0, 30); // 最新日から直近30日
 
     // 全期間のセッションデータを使って累計サマリを算出
     // category + section で重複をまとめる（最新のセッションを優先）
