@@ -557,35 +557,40 @@ export class DatabaseService {
     // 累計計算用のセッション（全期間）
     const allSessions = await this.getStudySessions(userId, null);
 
-    // 対象期間のセッションを date + category + section で重複排除（最新 start_time を優先）
-    const dedupByDateCategorySection = (input: typeof sessions) => {
-      const map = new Map<string, (typeof sessions)[number]>();
+    // 対象期間のセッションを date + category + section で集約（同キーは合算）
+    const aggregateByDateCategorySection = (input: typeof sessions) => {
+      const map = new Map<string, { dateKey: string; completed: number; correct: number; duration: number }>();
       input.forEach((session) => {
-        const dateKey = session.start_time ? this.getLocalDateKey(new Date(session.start_time)) : '';
+        const start = session.start_time ? new Date(session.start_time) : null;
+        const end = session.end_time ? new Date(session.end_time) : null;
+        if (!start || Number.isNaN(start.getTime())) return;
+        const dateKey = this.getLocalDateKey(start);
         const sectionKey = session.section ?? -1;
         const key = `${dateKey}::${session.category || ''}::${sectionKey}`;
-        const existing = map.get(key);
-        if (!existing || new Date(session.start_time).getTime() > new Date(existing.start_time).getTime()) {
-          map.set(key, session);
-        }
+        const completed = session.completed_words ?? session.total_words ?? 0;
+        const correct = session.correct_answers ?? 0;
+        const duration = this.calculateSessionMinutes(start, end);
+        const existing = map.get(key) || { dateKey, completed: 0, correct: 0, duration: 0 };
+        map.set(key, {
+          dateKey,
+          completed: existing.completed + completed,
+          correct: existing.correct + correct,
+          duration: existing.duration + duration,
+        });
       });
       return Array.from(map.values());
     };
 
-    const dedupedSessions = dedupByDateCategorySection(sessions);
+    const aggregatedSessions = aggregateByDateCategorySection(sessions);
 
     const dayBuckets = new Map<string, { studyMinutes: number; completedCount: number; correctCount: number }>();
 
-    dedupedSessions.forEach(session => {
-      const start = session.start_time ? new Date(session.start_time) : null;
-      const end = session.end_time ? new Date(session.end_time) : null;
-      if (!start || Number.isNaN(start.getTime())) return;
-
-      const key = this.getLocalDateKey(start);
+    aggregatedSessions.forEach(session => {
+      const key = session.dateKey;
       const bucket = dayBuckets.get(key) || { studyMinutes: 0, completedCount: 0, correctCount: 0 };
-      bucket.studyMinutes += this.calculateSessionMinutes(start, end);
-      bucket.completedCount += session.completed_words ?? session.total_words ?? 0;
-      bucket.correctCount += session.correct_answers ?? 0;
+      bucket.studyMinutes += session.duration;
+      bucket.completedCount += session.completed;
+      bucket.correctCount += session.correct;
       dayBuckets.set(key, bucket);
     });
 
