@@ -602,14 +602,11 @@ export class DatabaseService {
       dayBuckets.set(key, bucket);
     });
 
-    // JST の「今日」を基準に逆算
-    const todayKey = formatDateJst(new Date());
-    const todayJst = new Date(`${todayKey}T00:00:00+09:00`);
-
+    // JST の「今日」を基準に逆算（24h刻みで実時間を引く）
+    const nowTs = Date.now();
     const dailyKeys: string[] = [];
     for (let i = 0; i < days; i++) {
-      const target = new Date(todayJst);
-      target.setDate(todayJst.getDate() - i);
+      const target = new Date(nowTs - i * 24 * 60 * 60 * 1000);
       dailyKeys.push(formatDateJst(target));
     }
 
