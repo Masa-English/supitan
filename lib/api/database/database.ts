@@ -557,9 +557,26 @@ export class DatabaseService {
     // 累計計算用のセッション（全期間）
     const allSessions = await this.getStudySessions(userId, null);
 
+    // 対象期間のセッションを date + category + section で重複排除（最新 start_time を優先）
+    const dedupByDateCategorySection = (input: typeof sessions) => {
+      const map = new Map<string, (typeof sessions)[number]>();
+      input.forEach((session) => {
+        const dateKey = session.start_time ? this.getLocalDateKey(new Date(session.start_time)) : '';
+        const sectionKey = session.section ?? -1;
+        const key = `${dateKey}::${session.category || ''}::${sectionKey}`;
+        const existing = map.get(key);
+        if (!existing || new Date(session.start_time).getTime() > new Date(existing.start_time).getTime()) {
+          map.set(key, session);
+        }
+      });
+      return Array.from(map.values());
+    };
+
+    const dedupedSessions = dedupByDateCategorySection(sessions);
+
     const dayBuckets = new Map<string, { studyMinutes: number; completedCount: number; correctCount: number }>();
 
-    sessions.forEach(session => {
+    dedupedSessions.forEach(session => {
       const start = session.start_time ? new Date(session.start_time) : null;
       const end = session.end_time ? new Date(session.end_time) : null;
       if (!start || Number.isNaN(start.getTime())) return;
@@ -635,9 +652,9 @@ export class DatabaseService {
         dedupedSessionsMap.set(key, session);
       }
     });
-    const dedupedSessions = Array.from(dedupedSessionsMap.values());
+    const dedupedLifetimeSessions = Array.from(dedupedSessionsMap.values());
 
-    const lifetimeTotals = dedupedSessions.reduce(
+    const lifetimeTotals = dedupedLifetimeSessions.reduce(
       (acc, session) => {
         const completed = session.completed_words ?? session.total_words ?? 0;
         const correct = session.correct_answers ?? 0;
