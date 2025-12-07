@@ -557,14 +557,22 @@ export class DatabaseService {
     // 累計計算用のセッション（全期間）
     const allSessions = await this.getStudySessions(userId, null);
 
-    // 対象期間のセッションを date + category + section で集約（同キーは合算）
+    const formatDateJst = (date: Date) =>
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(date);
+
+    // 対象期間のセッションを date(JST) + category + section で集約（同キーは合算）
     const aggregateByDateCategorySection = (input: typeof sessions) => {
       const map = new Map<string, { dateKey: string; completed: number; correct: number; duration: number }>();
       input.forEach((session) => {
         const start = session.start_time ? new Date(session.start_time) : null;
         const end = session.end_time ? new Date(session.end_time) : null;
         if (!start || Number.isNaN(start.getTime())) return;
-        const dateKey = this.getLocalDateKey(start);
+        const dateKey = formatDateJst(start);
         const sectionKey = session.section ?? -1;
         const key = `${dateKey}::${session.category || ''}::${sectionKey}`;
         const completed = session.completed_words ?? session.total_words ?? 0;
@@ -595,18 +603,27 @@ export class DatabaseService {
     });
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const dailyKeys: string[] = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const target = new Date(today);
+      target.setUTCDate(target.getUTCDate() - i);
+      dailyKeys.push(formatDateJst(target));
+    }
 
-    const buildDay = (targetDate: Date) => {
-      const key = this.getLocalDateKey(targetDate);
-      const bucket = dayBuckets.get(key) || { studyMinutes: 0, completedCount: 0, correctCount: 0 };
+    const buildDay = (dateKey: string) => {
+      const bucket = dayBuckets.get(dateKey) || { studyMinutes: 0, completedCount: 0, correctCount: 0 };
       const accuracy = bucket.completedCount > 0
         ? Math.round((bucket.correctCount / bucket.completedCount) * 1000) / 10
         : 0;
 
+      const displayDate = new Date(`${dateKey}T00:00:00+09:00`).toLocaleDateString('ja-JP', {
+        month: 'short',
+        day: 'numeric',
+      });
+
       return {
-        date: key,
-        displayDate: targetDate.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }),
+        date: dateKey,
+        displayDate,
         studyMinutes: Math.round(bucket.studyMinutes * 10) / 10,
         completedCount: bucket.completedCount,
         correctCount: bucket.correctCount,
@@ -614,12 +631,7 @@ export class DatabaseService {
       };
     };
 
-    const daily: LearningRecord['daily'] = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const target = new Date(today);
-      target.setDate(today.getDate() - i);
-      daily.push(buildDay(target));
-    }
+    const daily: LearningRecord['daily'] = dailyKeys.map(buildDay);
 
     const summarizeWindow = (window: typeof daily): LearningRecordSnapshot => {
       const totals = window.reduce(
