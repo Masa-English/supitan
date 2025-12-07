@@ -142,6 +142,7 @@ export default function FlashcardClient({ category, categoryName, words, allSect
           user_id: user.id,
           category,
           mode: 'flashcard',
+          section: currentSection ? Number(currentSection) : null,
           total_words: results.length,
           completed_words: results.length,
           correct_answers: results.filter((r) => r.correct).length,

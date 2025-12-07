@@ -99,6 +99,7 @@ export default function QuizClient({
         user_id: user.id,
         category,
         mode: 'quiz',
+        section: currentSection ? Number(currentSection) : null,
         total_words: results.length,
         completed_words: results.length,
         correct_answers: results.filter((r) => r.correct).length,

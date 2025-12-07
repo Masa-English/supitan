@@ -624,7 +624,20 @@ export class DatabaseService {
     const last30Days = daily.slice(-30);
 
     // 全期間のセッションデータを使って累計サマリを算出
-    const lifetimeTotals = allSessions.reduce(
+    // category + section で重複をまとめる（最新のセッションを優先）
+    const dedupedSessionsMap = new Map<string, (typeof allSessions)[number]>();
+    allSessions.forEach((session) => {
+      const sectionKey = session.section ?? -1;
+      const key = `${session.category || ''}::${sectionKey}`;
+      const existing = dedupedSessionsMap.get(key);
+      // start_time が新しいものを優先
+      if (!existing || new Date(session.start_time).getTime() > new Date(existing.start_time).getTime()) {
+        dedupedSessionsMap.set(key, session);
+      }
+    });
+    const dedupedSessions = Array.from(dedupedSessionsMap.values());
+
+    const lifetimeTotals = dedupedSessions.reduce(
       (acc, session) => {
         const completed = session.completed_words ?? session.total_words ?? 0;
         const correct = session.correct_answers ?? 0;
