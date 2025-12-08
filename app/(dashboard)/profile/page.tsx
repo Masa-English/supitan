@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card/c
 import { Badge } from '@/components/ui/navigation/badge';
 import { Button } from '@/components/ui/button/button';
 import { dataProvider } from '@/lib/api/services/data-provider';
-import { User, Calendar, Trophy, BookOpen, Target, TrendingUp, Clock, Award } from 'lucide-react';
+import { User, Calendar, Trophy, BookOpen, Target, TrendingUp, Clock } from 'lucide-react';
 
 async function getAuthenticatedUser() {
   try {
@@ -33,13 +33,29 @@ async function getUserStats(userId: string) {
       dataProvider.getAllWords()
     ]);
 
+    // 同一単語の記録は最新のものに集約して精度を担保
+    const progressByWord = userProgress.reduce((map, progress) => {
+      if (!progress.word_id) return map;
+      const currentTime = progress.updated_at ? new Date(progress.updated_at).getTime() : 0;
+      const existing = map.get(progress.word_id);
+      const existingTime = existing?.updated_at ? new Date(existing.updated_at).getTime() : 0;
+      if (!existing || currentTime >= existingTime) {
+        map.set(progress.word_id, progress);
+      }
+      return map;
+    }, new Map<string, (typeof userProgress)[number]>());
+
+    const uniqueProgress = Array.from(progressByWord.values());
     const totalWords = allWords.length;
-    const studiedWords = userProgress.length;
-    const masteredWords = userProgress.filter(p => p.mastery_level && p.mastery_level >= 3).length;
+    const studiedWords = uniqueProgress.length;
+    const masteredWords = uniqueProgress.filter(p => p.mastery_level && p.mastery_level >= 3).length;
     const categories = [...new Set(allWords.map(w => w.category))];
-    const studiedCategories = [...new Set(userProgress.map(p => 
+    const studiedCategories = [...new Set(uniqueProgress.map(p => 
       allWords.find(w => w.id === p.word_id)?.category
     ).filter(Boolean))];
+
+    const completionRate = totalWords > 0 ? Math.round((studiedWords / totalWords) * 100) : null;
+    const masteryRate = totalWords > 0 ? Math.round((masteredWords / totalWords) * 100) : null;
 
     return {
       totalWords,
@@ -47,14 +63,18 @@ async function getUserStats(userId: string) {
       masteredWords,
       totalCategories: categories.length,
       studiedCategories: studiedCategories.length,
-      completionRate: totalWords > 0 ? Math.round((studiedWords / totalWords) * 100) : 0,
-      masteryRate: studiedWords > 0 ? Math.round((masteredWords / studiedWords) * 100) : 0,
-      recentActivity: userProgress
+      completionRate,
+      masteryRate,
+      recentActivity: uniqueProgress
         .sort((a, b) => {
           const dateA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
           const dateB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
           return dateB - dateA;
         })
+        .map(activity => ({
+          ...activity,
+          word: allWords.find(w => w.id === activity.word_id)
+        }))
         .slice(0, 5)
     };
   } catch (error) {
@@ -65,8 +85,8 @@ async function getUserStats(userId: string) {
       masteredWords: 0,
       totalCategories: 0,
       studiedCategories: 0,
-      completionRate: 0,
-      masteryRate: 0,
+      completionRate: null,
+      masteryRate: null,
       recentActivity: []
     };
   }
@@ -113,12 +133,6 @@ export default async function ProfilePage() {
                     {joinDate}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">学習レベル</p>
-                  <Badge variant={stats.masteryRate >= 80 ? 'default' : stats.masteryRate >= 50 ? 'secondary' : 'outline'}>
-                    {stats.masteryRate >= 80 ? '上級者' : stats.masteryRate >= 50 ? '中級者' : '初心者'}
-                  </Badge>
-                </div>
               </CardContent>
             </Card>
           </div>
@@ -133,27 +147,26 @@ export default async function ProfilePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
                     <BookOpen className="w-8 h-8 mx-auto mb-2 text-primary" />
                     <p className="text-2xl font-bold text-foreground">{stats.studiedWords}</p>
                     <p className="text-sm text-muted-foreground">学習済み単語</p>
                   </div>
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <Award className="w-8 h-8 mx-auto mb-2 text-green-600" />
-                    <p className="text-2xl font-bold text-foreground">{stats.masteredWords}</p>
-                    <p className="text-sm text-muted-foreground">習得済み単語</p>
-                  </div>
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <Target className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-                    <p className="text-2xl font-bold text-foreground">{stats.completionRate}%</p>
-                    <p className="text-sm text-muted-foreground">完了率</p>
-                  </div>
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <TrendingUp className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-                    <p className="text-2xl font-bold text-foreground">{stats.masteryRate}%</p>
-                    <p className="text-sm text-muted-foreground">習得率</p>
-                  </div>
+                  {stats.completionRate !== null && (
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <Target className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                      <p className="text-2xl font-bold text-foreground">{stats.completionRate}%</p>
+                      <p className="text-sm text-muted-foreground">完了率</p>
+                    </div>
+                  )}
+                  {stats.masteryRate !== null && (
+                    <div className="text-center p-4 bg-muted/50 rounded-lg">
+                      <TrendingUp className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+                      <p className="text-2xl font-bold text-foreground">{stats.masteryRate}%</p>
+                      <p className="text-sm text-muted-foreground">習得率</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -208,7 +221,9 @@ export default async function ProfilePage() {
                   {stats.recentActivity.map((activity, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                       <div>
-                        <p className="font-medium">単語学習</p>
+                        <p className="font-medium">
+                          {activity.word?.word ?? '単語学習'}
+                        </p>
                         <p className="text-sm text-muted-foreground">
                           習得レベル: {activity.mastery_level}/5
                         </p>
