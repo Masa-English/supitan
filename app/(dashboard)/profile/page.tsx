@@ -47,8 +47,15 @@ async function getUserStats(userId: string) {
 
     const uniqueProgress = Array.from(progressByWord.values());
     const totalWords = allWords.length;
-    const studiedWords = uniqueProgress.length;
-    const masteredWords = uniqueProgress.filter(p => p.mastery_level && p.mastery_level >= 3).length;
+    const normalizeMastery = (mastery?: number | null) => {
+      if (mastery === null || mastery === undefined) return 0;
+      // DBでは0-1想定、古い値で0-5の可能性もあるので正規化
+      const value = mastery > 1 ? mastery / 5 : mastery;
+      return Math.min(Math.max(value, 0), 1);
+    };
+
+    const studiedWords = uniqueProgress.filter(p => Boolean(p.word_id)).length;
+    const masteredWords = uniqueProgress.filter(p => normalizeMastery(p.mastery_level) >= 0.8).length;
     const categories = [...new Set(allWords.map(w => w.category))];
     const studiedCategories = [...new Set(uniqueProgress.map(p => 
       allWords.find(w => w.id === p.word_id)?.category
@@ -229,9 +236,6 @@ export default async function ProfilePage() {
                         <p className="text-sm text-muted-foreground">
                           {activity.updated_at ? new Date(activity.updated_at).toLocaleDateString('ja-JP') : '不明'}
                         </p>
-                        <Badge variant={activity.mastery_level && activity.mastery_level >= 3 ? 'default' : 'secondary'}>
-                          {activity.mastery_level && activity.mastery_level >= 3 ? '習得済み' : '学習中'}
-                        </Badge>
                       </div>
                     </div>
                   ))}
