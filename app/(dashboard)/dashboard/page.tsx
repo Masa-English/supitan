@@ -1,3 +1,4 @@
+import React from 'react';
 import { redirect } from 'next/navigation';
 import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,6 +18,7 @@ import serverLog, { LogCategory } from '@/lib/utils/server-logger';
 import { DatabaseService } from '@/lib/api/database';
 import { dataProvider } from '@/lib/api/services/data-provider';
 import { Progress } from '@/components/ui/feedback/progress';
+import { Badge } from '@/components/ui/navigation/badge';
 
 // 動的レンダリングを強制（認証が必要なため）
 export const dynamic = 'force-dynamic';
@@ -68,7 +70,8 @@ function MainActionCard({
   href, 
   color, 
   bgColor, 
-  stats 
+  stats,
+  badge
 }: {
   title: string;
   description: string;
@@ -77,10 +80,16 @@ function MainActionCard({
   color: string;
   bgColor: string;
   stats?: string;
+  badge?: React.ReactNode;
 }) {
   return (
     <Link href={href} prefetch className="block">
-      <Card className="h-full hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-border bg-card">
+      <Card className="relative h-full hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-border bg-card">
+        {badge && (
+          <div className="absolute right-3 top-3">
+            {badge}
+          </div>
+        )}
         <CardContent className="p-6">
           <div className="flex items-start justify-between mb-4">
             <div className={`w-12 h-12 ${bgColor} rounded-lg flex items-center justify-center`}>
@@ -164,7 +173,11 @@ export default async function DashboardPage() {
             href="/review"
             color="text-[hsl(var(--chart-2))]"
             bgColor="bg-[hsl(var(--chart-2)/0.14)] dark:bg-[hsl(var(--chart-2)/0.20)]"
-            stats="0個"
+            badge={
+              <Badge variant="outline" className="border-amber-200 bg-amber-100 text-amber-800 dark:border-amber-800 dark:bg-amber-900/40 dark:text-amber-100">
+                実装中
+              </Badge>
+            }
           />
           <MainActionCard
             title="単語検索"
