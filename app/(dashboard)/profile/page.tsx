@@ -10,6 +10,10 @@ import { Button } from '@/components/ui/button/button';
 import { dataProvider } from '@/lib/api/services/data-provider';
 import { User, Calendar, Trophy, BookOpen, Target, TrendingUp, Clock, ListChecks, Layers } from 'lucide-react';
 
+// 実データ連携まで一時的に非表示にするフラグ
+const SHOW_RECENT_ACTIVITY = false;
+const SHOW_RECENT_SESSIONS = false;
+
 async function getAuthenticatedUser() {
   try {
     const supabase = await createServerClient();
@@ -126,7 +130,7 @@ export default async function ProfilePage() {
   const user = await getAuthenticatedUser();
   const [stats, sessions] = await Promise.all([
     getUserStats(user.id),
-    getStudySessions(user.id)
+    SHOW_RECENT_SESSIONS ? getStudySessions(user.id) : Promise.resolve([])
   ]);
 
   const joinDate = new Date(user.created_at).toLocaleDateString('ja-JP', {
@@ -240,7 +244,7 @@ export default async function ProfilePage() {
         </div>
 
         {/* 最近の活動 */}
-        {stats.recentActivity.length > 0 && (
+        {SHOW_RECENT_ACTIVITY && stats.recentActivity.length > 0 && (
           <div className="mt-6">
             <Card>
               <CardHeader>
@@ -282,7 +286,7 @@ export default async function ProfilePage() {
         )}
 
         {/* 学習セッション */}
-        {sessions.length > 0 && (
+        {SHOW_RECENT_SESSIONS && sessions.length > 0 && (
           <div className="mt-6">
             <Card>
               <CardHeader>
