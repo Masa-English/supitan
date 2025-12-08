@@ -1,4 +1,4 @@
-import { Word, UserProgress, CategoryWithStats, ReviewWord, LearningRecord } from '@/lib/types';
+import { Word, UserProgress, CategoryWithStats, ReviewWord, LearningRecord, StudySession } from '@/lib/types';
 import { DatabaseService } from '@/lib/api/database';
 
 // 実行環境の判定
@@ -173,6 +173,24 @@ export class UnifiedDataProvider {
       return await this.db.getReviewWords(userId);
     } catch (error) {
       console.error('復習リスト取得エラー:', error instanceof Error ? error.message : 'Unknown error');
+      return [];
+    }
+  }
+
+  /**
+   * 学習セッションの取得（必要に応じて期間・件数を絞り込み）
+   */
+  async getStudySessions(userId: string, days: number | null = 30, limit = 10): Promise<StudySession[]> {
+    await initializeCache();
+
+    try {
+      const sessions = await this.db.getStudySessions(userId, days);
+      if (limit !== null && limit !== undefined && limit > 0) {
+        return sessions.slice(0, limit);
+      }
+      return sessions;
+    } catch (error) {
+      console.error('学習セッション取得エラー:', error instanceof Error ? error.message : 'Unknown error');
       return [];
     }
   }

@@ -1012,6 +1012,7 @@ export interface StudySession {
   id: string;
   user_id: string | null;
   category: string;
+  section: number | null;
   mode: 'flashcard' | 'quiz';
   total_words: number;
   completed_words: number;

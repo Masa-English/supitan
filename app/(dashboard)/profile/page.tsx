@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card/c
 import { Badge } from '@/components/ui/navigation/badge';
 import { Button } from '@/components/ui/button/button';
 import { dataProvider } from '@/lib/api/services/data-provider';
-import { User, Calendar, Trophy, BookOpen, Target, TrendingUp, Clock } from 'lucide-react';
+import { User, Calendar, Trophy, BookOpen, Target, TrendingUp, Clock, ListChecks, Layers } from 'lucide-react';
 
 async function getAuthenticatedUser() {
   try {
@@ -99,9 +99,35 @@ async function getUserStats(userId: string) {
   }
 }
 
+async function getStudySessions(userId: string) {
+  try {
+    // 直近30日・最新10件で絞り込み
+    return await dataProvider.getStudySessions(userId, 30, 10);
+  } catch (error) {
+    console.error('セッション取得エラー:', error);
+    return [];
+  }
+}
+
+const formatDurationMinutes = (start?: string | null, end?: string | null) => {
+  if (!start) return null;
+  const startDate = new Date(start);
+  const endDate = end ? new Date(end) : new Date();
+  const minutes = Math.max(0, Math.round((endDate.getTime() - startDate.getTime()) / 60000));
+  return minutes;
+};
+
+const formatSectionLabel = (section: string | number | null | undefined) => {
+  if (section === null || section === undefined) return 'セクション不明';
+  return `セクション ${section}`;
+};
+
 export default async function ProfilePage() {
   const user = await getAuthenticatedUser();
-  const stats = await getUserStats(user.id);
+  const [stats, sessions] = await Promise.all([
+    getUserStats(user.id),
+    getStudySessions(user.id)
+  ]);
 
   const joinDate = new Date(user.created_at).toLocaleDateString('ja-JP', {
     year: 'numeric',
@@ -226,20 +252,84 @@ export default async function ProfilePage() {
               <CardContent>
                 <div className="space-y-3">
                   {stats.recentActivity.map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div>
+                    <div key={index} className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 p-3 bg-muted/50 rounded-lg">
+                      <div className="space-y-1">
                         <p className="font-medium">
                           {activity.word?.word ?? '単語学習'}
                         </p>
+                        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                          {activity.word?.category && (
+                            <Badge variant="outline" className="text-xs">
+                              {activity.word.category}
+                            </Badge>
+                          )}
+                          {activity.word?.section && (
+                            <Badge variant="secondary" className="text-xs">
+                              {formatSectionLabel(activity.word.section)}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">
-                          {activity.updated_at ? new Date(activity.updated_at).toLocaleDateString('ja-JP') : '不明'}
-                        </p>
+                      <div className="text-sm text-muted-foreground text-right">
+                        {activity.updated_at ? new Date(activity.updated_at).toLocaleDateString('ja-JP') : '不明'}
                       </div>
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* 学習セッション */}
+        {sessions.length > 0 && (
+          <div className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ListChecks className="w-5 h-5" />
+                  最近の学習セッション
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {sessions.map((session, idx) => {
+                  const completed = session.completed_words ?? session.total_words ?? 0;
+                  const total = session.total_words ?? completed;
+                  const accuracy = total > 0 ? Math.round(((session.correct_answers ?? 0) / total) * 100) : null;
+                  const duration = formatDurationMinutes(session.start_time, session.end_time);
+                  return (
+                    <div key={idx} className="p-3 bg-muted/50 rounded-lg space-y-2">
+                      <div className="flex flex-wrap items-center gap-2 justify-between">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant="outline" className="text-xs flex items-center gap-1">
+                            <Layers className="w-3 h-3" />
+                            {session.category}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            {formatSectionLabel(session.section)}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {session.mode === 'quiz' ? 'クイズ' : 'フラッシュカード'}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {session.start_time ? new Date(session.start_time).toLocaleString('ja-JP') : '日時不明'}
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-4 text-sm">
+                        <span className="text-foreground font-medium">
+                          完了 {completed} / {total}
+                        </span>
+                        {accuracy !== null && (
+                          <span className="text-muted-foreground">正答率 {accuracy}%</span>
+                        )}
+                        {duration !== null && (
+                          <span className="text-muted-foreground">学習時間 {duration}分</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
           </div>
