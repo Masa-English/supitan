@@ -224,9 +224,6 @@ export default async function ProfilePage() {
                         <p className="font-medium">
                           {activity.word?.word ?? '単語学習'}
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          習得レベル: {activity.mastery_level}/5
-                        </p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-muted-foreground">
