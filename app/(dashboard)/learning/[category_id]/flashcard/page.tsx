@@ -6,8 +6,9 @@ import type { Word } from '@/lib/types';
 import { getCategoryNameById } from '@/lib/constants/categories';
 // import { supabase } from '@/lib/api/supabase/client'; // サーバーサイドでは使用しない
 
-// ISR設定 - 5分ごとに再生成（より頻繁に更新）
-export const revalidate = 300;
+// ランダム処理を含むため常に動的レンダリングにする
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // 静的パスの生成（実際に単語が存在するカテゴリーのみ）
 export async function generateStaticParams() {

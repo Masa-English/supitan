@@ -5,13 +5,14 @@ import { notFound, redirect } from 'next/navigation';
 import QuizClient from './quiz-client';
 import { getCategoryNameById } from '@/lib/constants/categories';
 
+// ランダム処理を含むため常に動的レンダリング
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface PageProps {
   params?: Promise<{ category_id: string }>;
   searchParams?: Promise<{ sec?: string; size?: string; random?: string; count?: string; mode?: string; level?: string }>;
 }
-
-// ISR設定 - 5分ごとに再生成（データ更新を即座に反映）
-export const revalidate = 300;
 
 // 静的パスの生成（実際に単語が存在するカテゴリーのみ）
 export async function generateStaticParams() {

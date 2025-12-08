@@ -3,7 +3,9 @@ import { dataProvider } from '@/lib/api/services';
 import { Word, QuizQuestion } from '@/lib/types';
 import QuizClient from '../../quiz-client';
 
-export const revalidate = 300; // 5分 - データ更新を即座に反映
+// ランダム処理を含むため常に動的レンダリング
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // 静的パラメータ生成を有効化
 export async function generateStaticParams() {
