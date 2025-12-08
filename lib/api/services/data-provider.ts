@@ -1,4 +1,4 @@
-import { Word, UserProgress, CategoryWithStats, ReviewWord } from '@/lib/types';
+import { Word, UserProgress, CategoryWithStats, ReviewWord, LearningRecord } from '@/lib/types';
 import { DatabaseService } from '@/lib/api/database';
 
 // 実行環境の判定
@@ -25,6 +25,7 @@ const CACHE_KEYS = {
   ALL_WORDS: 'all-words',
   CATEGORIES: 'categories',
   USER_PROGRESS: 'user-progress',
+  LEARNING_RECORDS: 'learning-records',
 } as const;
 
 // 統一キャッシュ設定
@@ -35,6 +36,19 @@ const CACHE_CONFIG = {
   STATIC: { revalidate: 86400 }, // 24時間 - 基本的に変わらないデータ
   VERY_LONG: { revalidate: 604800 }, // 1週間 - ほぼ静的なデータ
 } as const;
+
+const formatError = (error: unknown) => {
+  if (error && typeof error === 'object') {
+    const err = error as { message?: string; code?: string; details?: string; hint?: string };
+    return {
+      message: err.message || 'Unknown error',
+      code: err.code,
+      details: err.details,
+      hint: err.hint,
+    };
+  }
+  return { message: String(error) };
+};
 
 /**
  * 統一データプロバイダークラス
@@ -69,7 +83,7 @@ export class UnifiedDataProvider {
     try {
       return await this.db.getWordsByCategory(category);
     } catch (error) {
-      console.error('カテゴリー別単語取得エラー:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('カテゴリー別単語取得エラー:', formatError(error));
       return [];
     }
   }
@@ -116,10 +130,7 @@ export class UnifiedDataProvider {
   async getUserProgress(userId: string): Promise<UserProgress[]> {
     await initializeCache();
     
-    if (isServer && unstable_cache) {
-      return this.getCachedUserProgress(userId);
-    }
-    // クライアントサイドでは直接データベースアクセス
+    // ユーザー固有データはキャッシュ汚染を避けるため直接取得
     try {
       return await this.db.getUserProgress(userId);
     } catch (error) {
@@ -129,15 +140,35 @@ export class UnifiedDataProvider {
   }
 
   /**
+   * 学習記録（日次集計）
+   */
+  async getLearningRecords(userId: string, days = 30): Promise<LearningRecord> {
+    await initializeCache();
+
+    // ユーザー固有データはキャッシュ汚染を避けるため直接取得
+    try {
+      return await this.db.getLearningRecords(userId, days);
+    } catch (error) {
+      console.error('学習記録取得エラー:', error instanceof Error ? error.message : 'Unknown error');
+      return {
+        daily: [],
+        summary: {
+          today: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+          last7Days: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+          last30Days: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+          lifetime: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+        },
+      };
+    }
+  }
+
+  /**
    * 復習リストの単語を取得（認証付き、キャッシュ付き）
    */
   async getReviewWords(userId: string): Promise<ReviewWord[]> {
     await initializeCache();
     
-    if (isServer && unstable_cache) {
-      return this.getCachedReviewWords(userId);
-    }
-    // クライアントサイドでは直接データベースアクセス
+    // ユーザー固有データはキャッシュ汚染を避けるため直接取得
     try {
       return await this.db.getReviewWords(userId);
     } catch (error) {
@@ -204,7 +235,7 @@ export class UnifiedDataProvider {
         console.log(`[Cache] Getting words for category: "${category}"`);
         return await this.db.getWordsByCategory(category);
       } catch (error) {
-        console.error('カテゴリー別単語取得エラー:', error instanceof Error ? error.message : 'Unknown error');
+        console.error('カテゴリー別単語取得エラー:', formatError(error));
         return [];
       }
     },
@@ -288,6 +319,45 @@ export class UnifiedDataProvider {
     } catch (error) {
       console.error('ユーザー進捗取得エラー:', error instanceof Error ? error.message : 'Unknown error');
       return [];
+    }
+  };
+
+  private getCachedLearningRecords = isServer && unstable_cache ? unstable_cache(
+    async (userId: string, days: number): Promise<LearningRecord> => {
+      try {
+        return await this.db.getLearningRecords(userId, days);
+      } catch (error) {
+        console.error('学習記録取得エラー:', error instanceof Error ? error.message : 'Unknown error');
+        return {
+          daily: [],
+          summary: {
+            today: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+            last7Days: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+            last30Days: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+            lifetime: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+          },
+        };
+      }
+    },
+    [CACHE_KEYS.LEARNING_RECORDS],
+    {
+      tags: [CACHE_KEYS.LEARNING_RECORDS, 'learning-records', 'user-progress'],
+      ...CACHE_CONFIG.SHORT,
+    }
+  ) : async (userId: string, days: number) => {
+    try {
+      return await this.db.getLearningRecords(userId, days);
+    } catch (error) {
+      console.error('学習記録取得エラー:', error instanceof Error ? error.message : 'Unknown error');
+      return {
+        daily: [],
+        summary: {
+          today: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+          last7Days: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+          last30Days: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+          lifetime: { studyMinutes: 0, completedCount: 0, correctCount: 0, accuracy: 0 },
+        },
+      };
     }
   };
 

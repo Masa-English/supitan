@@ -317,18 +317,6 @@ export function Header({
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => {
-                        if (pathname !== '/review') {
-                          startNavigating();
-                          router.push('/review');
-                        }
-                      }}
-                      className="text-muted-foreground hover:bg-accent focus:bg-accent "
-                    >
-                      <Zap className="h-4 w-4 mr-2" />
-                      復習
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => {
                         if (pathname !== '/dashboard') {
                           startNavigating();
                           router.push('/dashboard');

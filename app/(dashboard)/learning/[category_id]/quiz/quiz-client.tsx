@@ -18,7 +18,6 @@ interface Props {
   allSections?: string[];
   reviewMode?: boolean;
   reviewListMode?: boolean;
-  reviewLevel?: number;
   urgentReviewMode?: boolean;
 }
 
@@ -29,7 +28,6 @@ export default function QuizClient({
   allSections,
   reviewMode,
   reviewListMode,
-  reviewLevel,
   urgentReviewMode
 }: Props) {
   // URLエンコードされたカテゴリー名をデコード
@@ -101,6 +99,7 @@ export default function QuizClient({
         user_id: user.id,
         category,
         mode: 'quiz',
+        section: currentSection ? Number(currentSection) : null,
         total_words: results.length,
         completed_words: results.length,
         correct_answers: results.filter((r) => r.correct).length,
@@ -111,20 +110,11 @@ export default function QuizClient({
       // 各単語の進捗を更新
       for (const result of results) {
         try {
-          // 現在の進捗を取得
           const currentProgress = await db.getWordProgress(user.id, result.wordId);
-          
-          // 習熟度を計算（正解なら+0.1、不正解なら-0.2）
-          const currentMasteryLevel = currentProgress?.mastery_level || 0;
-          const newMasteryLevel = result.correct 
-            ? Math.min(1.0, currentMasteryLevel + 0.1)
-            : Math.max(0.0, currentMasteryLevel - 0.2);
 
-          // 進捗を更新または作成
           await db.upsertProgress({
             user_id: user.id,
             word_id: result.wordId,
-            mastery_level: newMasteryLevel,
             study_count: (currentProgress?.study_count || 0) + 1,
             correct_count: (currentProgress?.correct_count || 0) + (result.correct ? 1 : 0),
             incorrect_count: (currentProgress?.incorrect_count || 0) + (result.correct ? 0 : 1),
@@ -237,7 +227,6 @@ export default function QuizClient({
             reviewMode ? 'interval' : 'review-list'
           }
           category={category}
-          level={reviewLevel}
         />
       ) : (
         <Quiz words={words} onComplete={handleComplete} onAddToReview={handleAddToReview} initialQuestions={initialQuestions} />

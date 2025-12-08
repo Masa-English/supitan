@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 
 interface LearningPageProps {
-  searchParams?: Promise<{ mode?: string; level?: string }>;
+  searchParams?: Promise<{ mode?: string }>;
 }
 
 export default async function LearningPage({ searchParams }: LearningPageProps) {
@@ -9,12 +9,9 @@ export default async function LearningPage({ searchParams }: LearningPageProps) 
 
   // クエリパラメータに基づいて適切な場所にリダイレクト
   const mode = sp.mode;
-  const level = sp.level;
 
   if (mode === 'review') {
-    // 復習モードの場合はレベル指定があれば追加
-    const reviewUrl = level ? `/learning/categories?mode=review&level=${level}` : '/learning/categories?mode=review';
-    redirect(reviewUrl);
+    redirect('/learning/categories?mode=review');
   } else if (mode === 'urgent-review') {
     redirect('/learning/categories?mode=review&urgent=true');
   } else if (mode === 'review-list') {

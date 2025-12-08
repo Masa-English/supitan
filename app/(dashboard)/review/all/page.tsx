@@ -4,6 +4,21 @@ import { dataProvider } from '@/lib/api/services/data-provider';
 import type { Word, UserProgress } from '@/lib/types/database';
 import ReviewAllClient from '../review-all-client';
 
+const isDueForReview = (progress: UserProgress, now: Date) => {
+  if (progress.next_review_at) {
+    return new Date(progress.next_review_at) <= now;
+  }
+
+  if (!progress.last_studied) return false;
+
+  const lastReview = new Date(progress.last_studied);
+  const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
+  const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1;
+  const reviewInterval = { 1: 1, 2: 3, 3: 7, 4: 14, 5: 30 }[masteryLevel] || 1;
+
+  return daysSinceReview >= reviewInterval;
+};
+
 async function getAuthenticatedUser() {
   try {
     const supabase = await createServerClient();
@@ -28,25 +43,8 @@ async function getAllReviewData(userId: string) {
       dataProvider.getReviewWords(userId) // 復習リストの単語を取得
     ]);
 
-    // 復習間隔に基づく復習が必要な単語を特定
     const now = new Date();
-    const intervalReviewWords = userProgress.filter(progress => {
-      if (!progress.last_studied) return false;
-      const lastReview = new Date(progress.last_studied);
-      const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
-
-      // 習得レベルに応じた復習間隔（mastery_levelは0-1の範囲）
-      const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1; // 0-1を1-5に変換
-      const reviewInterval = {
-        1: 1,  // 1日
-        2: 3,  // 3日
-        3: 7,  // 1週間
-        4: 14, // 2週間
-        5: 30  // 1ヶ月
-      }[masteryLevel] || 1;
-
-      return daysSinceReview >= reviewInterval;
-    });
+    const dueProgress = userProgress.filter(progress => isDueForReview(progress, now));
 
     // 復習リストの単語と復習間隔の単語を結合（重複を除く）
     const reviewWordsSet = new Set<string>();
@@ -63,6 +61,8 @@ async function getAllReviewData(userId: string) {
       if (word && reviewWord.word_id) {
         reviewWordsSet.add(reviewWord.word_id);
         const progress = userProgress.find(p => p.word_id === reviewWord.word_id);
+        const isDue = progress ? isDueForReview(progress, now) : true;
+        if (!isDue) return;
         allReviewWords.push({
           word_id: reviewWord.word_id,
           word: word,
@@ -85,7 +85,7 @@ async function getAllReviewData(userId: string) {
     });
 
     // 復習間隔の単語を追加（重複を除く）
-    intervalReviewWords.forEach(progress => {
+    dueProgress.forEach(progress => {
       if (progress.word_id && !reviewWordsSet.has(progress.word_id)) {
         const word = allWords.find(w => w.id === progress.word_id);
         if (word) {

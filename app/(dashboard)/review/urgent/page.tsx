@@ -1,7 +1,23 @@
 import { redirect } from 'next/navigation';
 import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import { dataProvider } from '@/lib/api/services/data-provider';
+import type { UserProgress } from '@/lib/types/database';
 import ReviewUrgentClient from '../review-urgent-client';
+
+const isOverdueForReview = (progress: UserProgress, now: Date) => {
+  const intervalDays = progress.review_interval_days ?? 1;
+
+  if (progress.next_review_at) {
+    const nextReview = new Date(progress.next_review_at);
+    return nextReview.getTime() + intervalDays * 24 * 60 * 60 * 1000 < now.getTime();
+  }
+
+  if (!progress.last_studied) return false;
+  const lastReview = new Date(progress.last_studied);
+  const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
+
+  return daysSinceReview >= intervalDays * 2;
+};
 
 async function getAuthenticatedUser() {
   try {
@@ -26,22 +42,8 @@ async function getUrgentReviewData(userId: string) {
       dataProvider.getAllWords()
     ]);
 
-    // 緊急復習が必要な単語を特定（予定より大幅に遅れている単語）
     const now = new Date();
-    const urgentReviewWords = userProgress.filter(progress => {
-      if (!progress.last_studied) return false;
-      const lastReview = new Date(progress.last_studied);
-      const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
-
-      // 習得レベルに応じた復習間隔
-      const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1;
-      const reviewInterval = {
-        1: 1, 2: 3, 3: 7, 4: 14, 5: 30
-      }[masteryLevel] || 1;
-
-      // 予定の2倍経過している場合を緊急復習とする
-      return daysSinceReview >= reviewInterval * 2;
-    });
+    const urgentReviewWords = userProgress.filter(progress => isOverdueForReview(progress, now));
 
     // 緊急復習単語の詳細情報を取得
     const urgentReviewWordsWithDetails = urgentReviewWords

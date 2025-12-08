@@ -5,6 +5,20 @@ import { hasValidSessionCookie, setSessionHeaders, isSessionMissingError } from 
 export async function middleware(request: NextRequest) {
   // 事前にパスとCookieを評価して、重い認証問い合わせを回避できる場合は早期リダイレクト
   const pathname = request.nextUrl.pathname
+
+  // manifest は常に素通し（PWA/ブラウザの 401 を防ぐ）
+  if (pathname === '/manifest.json') {
+    return NextResponse.next()
+  }
+
+  // 復習系パスは一旦ダッシュボードにリダイレクト
+  const isReviewPath = pathname.startsWith('/review') || pathname.includes('/review/')
+  if (isReviewPath) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    url.search = ''
+    return NextResponse.redirect(url)
+  }
   
   // 静的リソースのキャッシュ設定
   if (pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)$/)) {

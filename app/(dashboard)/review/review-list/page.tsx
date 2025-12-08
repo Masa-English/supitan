@@ -2,6 +2,22 @@ import { redirect } from 'next/navigation';
 import { createClient as createServerClient } from '@/lib/api/supabase/server';
 import { dataProvider } from '@/lib/api/services/data-provider';
 import ReviewListClient from '../review-list-client';
+import type { UserProgress } from '@/lib/types/database';
+
+const isDueForReview = (progress: UserProgress, now: Date) => {
+  if (progress.next_review_at) {
+    return new Date(progress.next_review_at) <= now;
+  }
+
+  if (!progress.last_studied) return false;
+
+  const lastReview = new Date(progress.last_studied);
+  const daysSinceReview = Math.floor((now.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
+  const masteryLevel = Math.floor((progress.mastery_level || 0) * 5) + 1;
+  const reviewInterval = { 1: 1, 2: 3, 3: 7, 4: 14, 5: 30 }[masteryLevel] || 1;
+
+  return daysSinceReview >= reviewInterval;
+};
 
 async function getAuthenticatedUser() {
   try {
@@ -21,16 +37,22 @@ async function getAuthenticatedUser() {
 
 async function getReviewListData(userId: string) {
   try {
-    const [allWords, reviewWords] = await Promise.all([
+    const [allWords, reviewWords, userProgress] = await Promise.all([
       dataProvider.getAllWords(),
-      dataProvider.getReviewWords(userId)
+      dataProvider.getReviewWords(userId),
+      dataProvider.getUserProgress(userId)
     ]);
 
     // 復習リストの単語の詳細情報を取得
+    const now = new Date();
+    const progressMap = new Map(userProgress.map(p => [p.word_id, p]));
     const reviewListWordsWithDetails = reviewWords
       .map(reviewWord => {
         const word = allWords.find(w => w.id === reviewWord.word_id);
         if (word && reviewWord.word_id) {
+          const progress = progressMap.get(reviewWord.word_id);
+          const isDue = progress ? isDueForReview(progress, now) : true;
+          if (!isDue) return null;
           return {
             word_id: reviewWord.word_id,
             word: word,

@@ -464,6 +464,7 @@ export type Database = {
           end_time: string | null
           id: string
           mode: string
+          section: number | null
           start_time: string
           total_words: number
           user_id: string | null
@@ -476,6 +477,7 @@ export type Database = {
           end_time?: string | null
           id?: string
           mode: string
+          section?: number | null
           start_time: string
           total_words: number
           user_id?: string | null
@@ -488,6 +490,7 @@ export type Database = {
           end_time?: string | null
           id?: string
           mode?: string
+          section?: number | null
           start_time?: string
           total_words?: number
           user_id?: string | null

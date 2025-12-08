@@ -4,7 +4,7 @@ import { Word } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/navigation/badge';
-import { getCategoryNameById } from '@/lib/constants/categories';
+import { getCategoryIdByName, getCategoryNameById } from '@/lib/constants/categories';
 import { 
   Heart, 
   Search, 
@@ -88,7 +88,10 @@ export default async function BrowsePage({ params }: { params: Promise<{ categor
   const categoryName = await getCategoryName(category);
   if (!categoryName) throw new Error('Category not found');
 
-  const words = await dataProvider.getWordsByCategory(categoryName);
+  const categoryId = await getCategoryIdByName(categoryName);
+  if (!categoryId) throw new Error('Category not found');
+
+  const words = await dataProvider.getWordsByCategory(categoryId);
   const totalWords = words.length;
   const withExamples = words.filter(w => w.example1).length;
 
