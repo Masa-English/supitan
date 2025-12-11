@@ -182,29 +182,17 @@ export function SectionOptionsClient({
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold">学習オプション</h1>
               
-              {/* リアルタイム状態とリフレッシュボタン */}
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <div 
-                    className={`w-2 h-2 rounded-full ${
-                      isConnected ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                    title={isConnected ? 'リアルタイム接続中' : '接続なし'}
-                  />
-                  {isConnected ? 'リアルタイム' : 'オフライン'}
-                </div>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={refreshData}
-                  disabled={isRefreshing}
-                  className="h-8 w-8 p-0"
-                  title="データを更新"
-                >
-                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                </Button>
-              </div>
+              {/* リフレッシュボタン */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={refreshData}
+                disabled={isRefreshing}
+                className="h-8 w-8 p-0"
+                title="データを更新"
+              >
+                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
             
             {/* 最終更新時刻 */}
