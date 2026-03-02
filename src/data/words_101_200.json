@@ -1,0 +1,2408 @@
+[
+  {
+    "id": 101,
+    "word": "know",
+    "pronunciation": "/noʊ/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "知っている",
+    "meaningEn": "to have information or understanding about something",
+    "coreImage": "「頭の中にすでに情報がある」",
+    "scenes": [
+      {
+        "meaning": "知っている",
+        "example": "I know his name.",
+        "exampleJa": "私は彼の名前を知っている。",
+        "scene": "友達について話す場面"
+      },
+      {
+        "meaning": "わかる・理解している",
+        "example": "I know the answer.",
+        "exampleJa": "私は答えがわかる。",
+        "scene": "会議で質問に答える場面"
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "word": "want",
+    "pronunciation": "/wɑːnt/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "欲しい",
+    "meaningEn": "to feel that you would like to have or do something",
+    "coreImage": "「まだ手にしていないものに手を伸ばす気持ち」",
+    "scenes": [
+      {
+        "meaning": "欲しい",
+        "example": "I want a new phone.",
+        "exampleJa": "新しい電話が欲しい。",
+        "scene": "お店でスマホを見ている場面"
+      },
+      {
+        "meaning": "〜したい",
+        "example": "I want to travel abroad.",
+        "exampleJa": "海外旅行に行きたい。",
+        "scene": "休暇の計画を考える場面"
+      }
+    ]
+  },
+  {
+    "id": 103,
+    "word": "need",
+    "pronunciation": "/niːd/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "必要とする",
+    "meaningEn": "to must have something because it is necessary",
+    "coreImage": "「それがないと困る・なくてはならない」",
+    "scenes": [
+      {
+        "meaning": "必要とする",
+        "example": "I need water.",
+        "exampleJa": "水が必要だ。",
+        "scene": "運動した後にのどが渇いた場面"
+      },
+      {
+        "meaning": "〜する必要がある",
+        "example": "You need to sleep more.",
+        "exampleJa": "もっと寝る必要がある。",
+        "scene": "疲れている同僚に言う場面"
+      }
+    ]
+  },
+  {
+    "id": 104,
+    "word": "like",
+    "pronunciation": "/laɪk/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "好む",
+    "meaningEn": "to enjoy something or feel good about it",
+    "coreImage": "「心が引き寄せられる・気に入っている」",
+    "scenes": [
+      {
+        "meaning": "好む・好きだ",
+        "example": "I like chocolate.",
+        "exampleJa": "私はチョコレートが好きだ。",
+        "scene": "おやつを選んでいる場面"
+      },
+      {
+        "meaning": "〜したい",
+        "example": "I would like some tea.",
+        "exampleJa": "お茶をいただきたいのですが。",
+        "scene": "カフェで注文する場面"
+      }
+    ]
+  },
+  {
+    "id": 105,
+    "word": "love",
+    "pronunciation": "/lʌv/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "愛する",
+    "meaningEn": "to have very strong feelings of caring about someone or something",
+    "coreImage": "「心の底から大切に思う・強く好きだと感じる」",
+    "scenes": [
+      {
+        "meaning": "愛する",
+        "example": "I love my family.",
+        "exampleJa": "私は家族を愛している。",
+        "scene": "家族と一緒に過ごす場面"
+      },
+      {
+        "meaning": "大好きだ",
+        "example": "I love cooking Italian food.",
+        "exampleJa": "イタリア料理を作るのが大好きだ。",
+        "scene": "週末に料理を楽しむ場面"
+      }
+    ]
+  },
+  {
+    "id": 106,
+    "word": "hate",
+    "pronunciation": "/heɪt/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "嫌う",
+    "meaningEn": "to dislike something or someone very strongly",
+    "coreImage": "「心が強く拒否する・受け入れたくない」",
+    "scenes": [
+      {
+        "meaning": "嫌う・大嫌いだ",
+        "example": "I hate rainy days.",
+        "exampleJa": "雨の日が大嫌いだ。",
+        "scene": "雨で外に出られずがっかりする場面"
+      },
+      {
+        "meaning": "〜するのが嫌だ",
+        "example": "He hates getting up early.",
+        "exampleJa": "彼は早起きが嫌いだ。",
+        "scene": "朝、目覚ましを止めたくない場面"
+      }
+    ]
+  },
+  {
+    "id": 107,
+    "word": "hope",
+    "pronunciation": "/hoʊp/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "望む",
+    "meaningEn": "to want something good to happen in the future",
+    "coreImage": "「良い結果を信じて待つ気持ち」",
+    "scenes": [
+      {
+        "meaning": "望む・願う",
+        "example": "I hope it will be sunny tomorrow.",
+        "exampleJa": "明日晴れるといいなあ。",
+        "scene": "週末のお出かけ前に天気を気にする場面"
+      },
+      {
+        "meaning": "期待する",
+        "example": "I hope you like this gift.",
+        "exampleJa": "このプレゼントを気に入ってくれるといいな。",
+        "scene": "プレゼントを渡すときの場面"
+      }
+    ]
+  },
+  {
+    "id": 108,
+    "word": "wish",
+    "pronunciation": "/wɪʃ/",
+    "level": 2,
+    "partOfSpeech": "動詞",
+    "meaningJa": "願う",
+    "meaningEn": "to want something that is not likely or not possible",
+    "coreImage": "「現実とは違うことを強く願う」",
+    "scenes": [
+      {
+        "meaning": "願う",
+        "example": "I wish I could fly.",
+        "exampleJa": "空を飛べたらいいのに。",
+        "scene": "鳥を見て空を飛びたいと思う場面"
+      },
+      {
+        "meaning": "祈る・祝う",
+        "example": "I wish you good luck.",
+        "exampleJa": "幸運を祈っています。",
+        "scene": "面接前の友達を応援する場面"
+      }
+    ]
+  },
+  {
+    "id": 109,
+    "word": "believe",
+    "pronunciation": "/bɪˈliːv/",
+    "level": 2,
+    "partOfSpeech": "動詞",
+    "meaningJa": "信じる",
+    "meaningEn": "to think that something is true or real",
+    "coreImage": "「心の中で本当だと受け入れる」",
+    "scenes": [
+      {
+        "meaning": "信じる",
+        "example": "I believe you.",
+        "exampleJa": "あなたを信じます。",
+        "scene": "友達の言葉を信じる場面"
+      },
+      {
+        "meaning": "〜だと思う",
+        "example": "I believe he is right.",
+        "exampleJa": "彼は正しいと思う。",
+        "scene": "意見について話し合う場面"
+      }
+    ]
+  },
+  {
+    "id": 110,
+    "word": "understand",
+    "pronunciation": "/ˌʌndərˈstænd/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "理解する",
+    "meaningEn": "to know the meaning of something or how it works",
+    "coreImage": "「意味や内容が頭の中でつながる」",
+    "scenes": [
+      {
+        "meaning": "理解する",
+        "example": "I understand the problem.",
+        "exampleJa": "その問題がわかる。",
+        "scene": "仕事の課題を把握する場面"
+      },
+      {
+        "meaning": "わかる・納得する",
+        "example": "I understand how you feel.",
+        "exampleJa": "あなたの気持ちはわかります。",
+        "scene": "悩んでいる友達の話を聞く場面"
+      }
+    ]
+  },
+  {
+    "id": 111,
+    "word": "remember",
+    "pronunciation": "/rɪˈmembər/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "覚えている",
+    "meaningEn": "to have something in your mind from the past",
+    "coreImage": "「過去の記憶が頭の中によみがえる」",
+    "scenes": [
+      {
+        "meaning": "覚えている",
+        "example": "I remember her smile.",
+        "exampleJa": "彼女の笑顔を覚えている。",
+        "scene": "昔の友達のことを思い出す場面"
+      },
+      {
+        "meaning": "忘れずに〜する",
+        "example": "Remember to lock the door.",
+        "exampleJa": "ドアの鍵をかけるのを忘れないで。",
+        "scene": "家を出る前に確認する場面"
+      }
+    ]
+  },
+  {
+    "id": 112,
+    "word": "forget",
+    "pronunciation": "/fərˈɡet/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "忘れる",
+    "meaningEn": "to not be able to remember something",
+    "coreImage": "「頭の中から記憶が消えてしまう」",
+    "scenes": [
+      {
+        "meaning": "忘れる",
+        "example": "I forgot his phone number.",
+        "exampleJa": "彼の電話番号を忘れた。",
+        "scene": "電話をかけようとして番号を思い出せない場面"
+      },
+      {
+        "meaning": "〜し忘れる",
+        "example": "I forgot to buy milk.",
+        "exampleJa": "牛乳を買うのを忘れた。",
+        "scene": "買い物から帰って気づく場面"
+      }
+    ]
+  },
+  {
+    "id": 113,
+    "word": "begin",
+    "pronunciation": "/bɪˈɡɪn/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "始まる",
+    "meaningEn": "to start doing something or to start happening",
+    "coreImage": "「物事の最初の一歩が踏み出される」",
+    "scenes": [
+      {
+        "meaning": "始まる",
+        "example": "The meeting begins at nine.",
+        "exampleJa": "会議は9時に始まる。",
+        "scene": "朝、オフィスで会議が始まる場面"
+      },
+      {
+        "meaning": "始める",
+        "example": "Let's begin the meeting.",
+        "exampleJa": "会議を始めましょう。",
+        "scene": "全員がそろって会議が始まる場面"
+      }
+    ]
+  },
+  {
+    "id": 114,
+    "word": "start",
+    "pronunciation": "/stɑːrt/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "始める",
+    "meaningEn": "to begin doing something or to make something begin",
+    "coreImage": "「動いていなかったものが動き出す」",
+    "scenes": [
+      {
+        "meaning": "始める",
+        "example": "I started reading a new book.",
+        "exampleJa": "新しい本を読み始めた。",
+        "scene": "寝る前に本を開く場面"
+      },
+      {
+        "meaning": "出発する",
+        "example": "We start at seven in the morning.",
+        "exampleJa": "朝7時に出発する。",
+        "scene": "旅行の日の朝に家を出る場面"
+      }
+    ]
+  },
+  {
+    "id": 115,
+    "word": "stop",
+    "pronunciation": "/stɑːp/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "止まる",
+    "meaningEn": "to not move anymore or to not do something anymore",
+    "coreImage": "「動いていたものがピタッと止まる」",
+    "scenes": [
+      {
+        "meaning": "止まる・やめる",
+        "example": "The bus stopped at the corner.",
+        "exampleJa": "バスが角で止まった。",
+        "scene": "バス停でバスが止まる場面"
+      },
+      {
+        "meaning": "〜するのをやめる",
+        "example": "Please stop talking.",
+        "exampleJa": "話すのをやめてください。",
+        "scene": "会議中に私語を注意する場面"
+      }
+    ]
+  },
+  {
+    "id": 116,
+    "word": "finish",
+    "pronunciation": "/ˈfɪnɪʃ/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "終える",
+    "meaningEn": "to complete something or come to the end of it",
+    "coreImage": "「最後まで完了する・終わりに達する」",
+    "scenes": [
+      {
+        "meaning": "終える",
+        "example": "I finished my report.",
+        "exampleJa": "レポートを終えた。",
+        "scene": "仕事のレポートを仕上げた場面"
+      },
+      {
+        "meaning": "終わる",
+        "example": "The game finished at five.",
+        "exampleJa": "試合は5時に終わった。",
+        "scene": "サッカーの試合が終了する場面"
+      }
+    ]
+  },
+  {
+    "id": 117,
+    "word": "change",
+    "pronunciation": "/tʃeɪndʒ/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "変える",
+    "meaningEn": "to become different or to make something different",
+    "coreImage": "「今までと違うものになる・入れ替わる」",
+    "scenes": [
+      {
+        "meaning": "変える・変わる",
+        "example": "The weather changed suddenly.",
+        "exampleJa": "天気が急に変わった。",
+        "scene": "晴れていた空が急に曇る場面"
+      },
+      {
+        "meaning": "着替える",
+        "example": "I need to change my clothes.",
+        "exampleJa": "服を着替える必要がある。",
+        "scene": "仕事の後に着替える場面"
+      }
+    ]
+  },
+  {
+    "id": 118,
+    "word": "choose",
+    "pronunciation": "/tʃuːz/",
+    "level": 2,
+    "partOfSpeech": "動詞",
+    "meaningJa": "選ぶ",
+    "meaningEn": "to pick one thing from two or more options",
+    "coreImage": "「いくつかの中から一つを決める」",
+    "scenes": [
+      {
+        "meaning": "選ぶ",
+        "example": "Please choose one color.",
+        "exampleJa": "色を一つ選んでください。",
+        "scene": "お店で商品の色を選ぶ場面"
+      },
+      {
+        "meaning": "選択する",
+        "example": "She chose the blue dress.",
+        "exampleJa": "彼女は青いドレスを選んだ。",
+        "scene": "お店で服を選んでいる場面"
+      }
+    ]
+  },
+  {
+    "id": 119,
+    "word": "decide",
+    "pronunciation": "/dɪˈsaɪd/",
+    "level": 2,
+    "partOfSpeech": "動詞",
+    "meaningJa": "決める",
+    "meaningEn": "to make a choice about something after thinking",
+    "coreImage": "「迷いを断ち切って一つに決める」",
+    "scenes": [
+      {
+        "meaning": "決める",
+        "example": "I decided to change jobs.",
+        "exampleJa": "転職することに決めた。",
+        "scene": "キャリアについて決断する場面"
+      },
+      {
+        "meaning": "決心する",
+        "example": "She decided to study abroad.",
+        "exampleJa": "彼女は留学することを決心した。",
+        "scene": "将来について考えて決断する場面"
+      }
+    ]
+  },
+  {
+    "id": 120,
+    "word": "agree",
+    "pronunciation": "/əˈɡriː/",
+    "level": 2,
+    "partOfSpeech": "動詞",
+    "meaningJa": "同意する",
+    "meaningEn": "to have the same opinion as someone else",
+    "coreImage": "「相手と同じ方向を向く・意見が一致する」",
+    "scenes": [
+      {
+        "meaning": "同意する・賛成する",
+        "example": "I agree with you.",
+        "exampleJa": "あなたに賛成です。",
+        "scene": "話し合いで意見が一致する場面"
+      },
+      {
+        "meaning": "承諾する",
+        "example": "He agreed to help us.",
+        "exampleJa": "彼は私たちを手伝うことに同意した。",
+        "scene": "同僚にお願いして引き受けてもらう場面"
+      }
+    ]
+  },
+  {
+    "id": 121,
+    "word": "win",
+    "pronunciation": "/wɪn/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "勝つ",
+    "meaningEn": "to be the best or first in a game or competition",
+    "coreImage": "「競争の中で一番になる・手に入れる」",
+    "scenes": [
+      {
+        "meaning": "勝つ",
+        "example": "Our team won the game.",
+        "exampleJa": "私たちのチームが試合に勝った。",
+        "scene": "スポーツの試合で勝利する場面"
+      },
+      {
+        "meaning": "獲得する",
+        "example": "She won first prize.",
+        "exampleJa": "彼女は一等賞を獲得した。",
+        "scene": "コンテストで賞をもらう場面"
+      }
+    ]
+  },
+  {
+    "id": 122,
+    "word": "lose",
+    "pronunciation": "/luːz/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "失う",
+    "meaningEn": "to not win, or to not have something anymore",
+    "coreImage": "「手の中にあったものが離れていく」",
+    "scenes": [
+      {
+        "meaning": "負ける",
+        "example": "We lost the game yesterday.",
+        "exampleJa": "昨日、試合に負けた。",
+        "scene": "試合に負けて悔しがる場面"
+      },
+      {
+        "meaning": "なくす",
+        "example": "I lost my key.",
+        "exampleJa": "鍵をなくした。",
+        "scene": "カバンの中を探しても鍵が見つからない場面"
+      }
+    ]
+  },
+  {
+    "id": 123,
+    "word": "fly",
+    "pronunciation": "/flaɪ/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "飛ぶ",
+    "meaningEn": "to move through the air, or to travel by plane",
+    "coreImage": "「空中を自由に移動する」",
+    "scenes": [
+      {
+        "meaning": "飛ぶ",
+        "example": "Birds fly in the sky.",
+        "exampleJa": "鳥が空を飛んでいる。",
+        "scene": "青空を鳥が飛んでいる場面"
+      },
+      {
+        "meaning": "飛行機で行く",
+        "example": "I fly to Tokyo every month.",
+        "exampleJa": "毎月東京に飛行機で行く。",
+        "scene": "出張で飛行機に乗る場面"
+      }
+    ]
+  },
+  {
+    "id": 124,
+    "word": "swim",
+    "pronunciation": "/swɪm/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "泳ぐ",
+    "meaningEn": "to move through water using your body",
+    "coreImage": "「水の中で体を動かして進む」",
+    "scenes": [
+      {
+        "meaning": "泳ぐ",
+        "example": "I swim every morning.",
+        "exampleJa": "毎朝泳いでいる。",
+        "scene": "ジムのプールで泳ぐ場面"
+      },
+      {
+        "meaning": "泳いで渡る",
+        "example": "He swam across the river.",
+        "exampleJa": "彼は川を泳いで渡った。",
+        "scene": "川の向こう岸まで泳ぐ場面"
+      }
+    ]
+  },
+  {
+    "id": 125,
+    "word": "sing",
+    "pronunciation": "/sɪŋ/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "歌う",
+    "meaningEn": "to make music with your voice",
+    "coreImage": "「声を出してメロディーにのせる」",
+    "scenes": [
+      {
+        "meaning": "歌う",
+        "example": "She sings very well.",
+        "exampleJa": "彼女はとても上手に歌う。",
+        "scene": "カラオケで歌っている場面"
+      },
+      {
+        "meaning": "歌を歌う",
+        "example": "We sang together at karaoke.",
+        "exampleJa": "カラオケで一緒に歌った。",
+        "scene": "友達とカラオケを楽しむ場面"
+      }
+    ]
+  },
+  {
+    "id": 126,
+    "word": "dance",
+    "pronunciation": "/dæns/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "踊る",
+    "meaningEn": "to move your body to music",
+    "coreImage": "「音楽に合わせて体を動かす」",
+    "scenes": [
+      {
+        "meaning": "踊る",
+        "example": "She dances every weekend.",
+        "exampleJa": "彼女は毎週末踊る。",
+        "scene": "趣味でダンスを楽しむ場面"
+      },
+      {
+        "meaning": "ダンスをする",
+        "example": "Let's dance together!",
+        "exampleJa": "一緒に踊ろう！",
+        "scene": "パーティーで音楽が流れている場面"
+      }
+    ]
+  },
+  {
+    "id": 127,
+    "word": "cry",
+    "pronunciation": "/kraɪ/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "泣く",
+    "meaningEn": "to have tears come from your eyes because of sadness or pain",
+    "coreImage": "「感情があふれて涙が出る・声を上げる」",
+    "scenes": [
+      {
+        "meaning": "泣く",
+        "example": "The baby is crying.",
+        "exampleJa": "赤ちゃんが泣いている。",
+        "scene": "赤ちゃんが泣き出す場面"
+      },
+      {
+        "meaning": "叫ぶ",
+        "example": "He cried for help.",
+        "exampleJa": "彼は助けを求めて叫んだ。",
+        "scene": "困っている人が助けを呼ぶ場面"
+      }
+    ]
+  },
+  {
+    "id": 128,
+    "word": "laugh",
+    "pronunciation": "/læf/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "笑う",
+    "meaningEn": "to make sounds because something is funny",
+    "coreImage": "「おかしくて声を出して笑う」",
+    "scenes": [
+      {
+        "meaning": "笑う",
+        "example": "Everyone laughed at his joke.",
+        "exampleJa": "みんなが彼の冗談に笑った。",
+        "scene": "面白い話を聞いてみんなで笑う場面"
+      },
+      {
+        "meaning": "笑い声を上げる",
+        "example": "She laughed happily.",
+        "exampleJa": "彼女は楽しそうに笑った。",
+        "scene": "友達と楽しく過ごしている場面"
+      }
+    ]
+  },
+  {
+    "id": 129,
+    "word": "die",
+    "pronunciation": "/daɪ/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "死ぬ",
+    "meaningEn": "to stop living or stop being alive",
+    "coreImage": "「命が尽きる・終わりを迎える」",
+    "scenes": [
+      {
+        "meaning": "死ぬ",
+        "example": "The flowers died in winter.",
+        "exampleJa": "花は冬に枯れた。",
+        "scene": "冬に庭の花がしおれる場面"
+      },
+      {
+        "meaning": "消える・なくなる",
+        "example": "My phone battery died.",
+        "exampleJa": "スマホの電池が切れた。",
+        "scene": "外出中にスマホの電池が切れる場面"
+      }
+    ]
+  },
+  {
+    "id": 130,
+    "word": "live",
+    "pronunciation": "/lɪv/",
+    "level": 1,
+    "partOfSpeech": "動詞",
+    "meaningJa": "住む",
+    "meaningEn": "to have your home in a place, or to be alive",
+    "coreImage": "「ある場所で生活する・命がある」",
+    "scenes": [
+      {
+        "meaning": "住む",
+        "example": "I live in Tokyo.",
+        "exampleJa": "私は東京に住んでいる。",
+        "scene": "自己紹介で住んでいる場所を言う場面"
+      },
+      {
+        "meaning": "生きる",
+        "example": "Fish live in water.",
+        "exampleJa": "魚は水の中で生きている。",
+        "scene": "水族館で魚を見ている場面"
+      }
+    ]
+  },
+  {
+    "id": 131,
+    "word": "beautiful",
+    "pronunciation": "/ˈbjuːtɪfl/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "美しい",
+    "meaningEn": "very pretty or pleasing to look at or hear",
+    "coreImage": "「目や心に強く訴えるほど美しい」",
+    "scenes": [
+      {
+        "meaning": "美しい",
+        "example": "The sunset is beautiful.",
+        "exampleJa": "夕焼けが美しい。",
+        "scene": "海辺で夕日を眺める場面"
+      },
+      {
+        "meaning": "きれいな",
+        "example": "She has a beautiful voice.",
+        "exampleJa": "彼女はきれいな声をしている。",
+        "scene": "歌を聴いて感動する場面"
+      }
+    ]
+  },
+  {
+    "id": 132,
+    "word": "wonderful",
+    "pronunciation": "/ˈwʌndərfl/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "素晴らしい",
+    "meaningEn": "extremely good or great; making you feel very happy",
+    "coreImage": "「驚くほど素晴らしい・感動的な」",
+    "scenes": [
+      {
+        "meaning": "素晴らしい",
+        "example": "We had a wonderful time.",
+        "exampleJa": "素晴らしい時間を過ごした。",
+        "scene": "旅行を楽しんだ後の場面"
+      },
+      {
+        "meaning": "見事な",
+        "example": "That is a wonderful idea!",
+        "exampleJa": "それは素晴らしいアイデアだ！",
+        "scene": "同僚の提案に感心する場面"
+      }
+    ]
+  },
+  {
+    "id": 133,
+    "word": "important",
+    "pronunciation": "/ɪmˈpɔːrtnt/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "重要な",
+    "meaningEn": "having great value or meaning; something you should care about",
+    "coreImage": "「大きな意味を持つ・なくてはならない」",
+    "scenes": [
+      {
+        "meaning": "重要な",
+        "example": "Health is very important.",
+        "exampleJa": "健康はとても重要だ。",
+        "scene": "健康診断の結果について話す場面"
+      },
+      {
+        "meaning": "大切な",
+        "example": "This is an important meeting.",
+        "exampleJa": "これは大切な会議だ。",
+        "scene": "大事な会議の前に緊張する場面"
+      }
+    ]
+  },
+  {
+    "id": 134,
+    "word": "different",
+    "pronunciation": "/ˈdɪfrənt/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "異なる",
+    "meaningEn": "not the same as something else",
+    "coreImage": "「他とは同じではない・別の」",
+    "scenes": [
+      {
+        "meaning": "異なる・違う",
+        "example": "We have different opinions.",
+        "exampleJa": "私たちは違う意見を持っている。",
+        "scene": "話し合いで意見が分かれる場面"
+      },
+      {
+        "meaning": "別の・さまざまな",
+        "example": "I tried many different foods.",
+        "exampleJa": "いろいろな食べ物を試した。",
+        "scene": "外国でさまざまな料理を食べる場面"
+      }
+    ]
+  },
+  {
+    "id": 135,
+    "word": "special",
+    "pronunciation": "/ˈspeʃl/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "特別な",
+    "meaningEn": "not ordinary; different from what is usual in a good way",
+    "coreImage": "「他とは違う特別な価値がある」",
+    "scenes": [
+      {
+        "meaning": "特別な",
+        "example": "Today is a special day.",
+        "exampleJa": "今日は特別な日だ。",
+        "scene": "記念日を祝う場面"
+      },
+      {
+        "meaning": "特別の",
+        "example": "She is a very special friend.",
+        "exampleJa": "彼女はとても特別な友達だ。",
+        "scene": "親友について話す場面"
+      }
+    ]
+  },
+  {
+    "id": 136,
+    "word": "popular",
+    "pronunciation": "/ˈpɑːpjələr/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "人気のある",
+    "meaningEn": "liked or enjoyed by many people",
+    "coreImage": "「多くの人に好かれている・広まっている」",
+    "scenes": [
+      {
+        "meaning": "人気のある",
+        "example": "This restaurant is very popular.",
+        "exampleJa": "このレストランはとても人気がある。",
+        "scene": "人気のレストランについて話す場面"
+      },
+      {
+        "meaning": "流行の",
+        "example": "That song is popular now.",
+        "exampleJa": "その曲は今流行っている。",
+        "scene": "最近流行りの曲について話す場面"
+      }
+    ]
+  },
+  {
+    "id": 137,
+    "word": "famous",
+    "pronunciation": "/ˈfeɪməs/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "有名な",
+    "meaningEn": "known by many people",
+    "coreImage": "「広く知られている・名前が通っている」",
+    "scenes": [
+      {
+        "meaning": "有名な",
+        "example": "Tokyo is famous for its food.",
+        "exampleJa": "東京は食べ物で有名だ。",
+        "scene": "外国人に日本の食べ物を紹介する場面"
+      },
+      {
+        "meaning": "名高い",
+        "example": "She is a famous writer.",
+        "exampleJa": "彼女は有名な作家だ。",
+        "scene": "好きな作家について話す場面"
+      }
+    ]
+  },
+  {
+    "id": 138,
+    "word": "dangerous",
+    "pronunciation": "/ˈdeɪndʒərəs/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "危険な",
+    "meaningEn": "able to hurt or harm you; not safe",
+    "coreImage": "「害を受ける可能性がある・身に危険がせまる」",
+    "scenes": [
+      {
+        "meaning": "危険な",
+        "example": "Swimming here is dangerous.",
+        "exampleJa": "ここで泳ぐのは危険だ。",
+        "scene": "川の流れが速い場所で注意する場面"
+      },
+      {
+        "meaning": "危ない",
+        "example": "Driving fast is dangerous.",
+        "exampleJa": "スピードを出して運転するのは危ない。",
+        "scene": "運転中に安全を注意する場面"
+      }
+    ]
+  },
+  {
+    "id": 139,
+    "word": "safe",
+    "pronunciation": "/seɪf/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "安全な",
+    "meaningEn": "not in danger; protected from harm",
+    "coreImage": "「危険がなく守られている」",
+    "scenes": [
+      {
+        "meaning": "安全な",
+        "example": "This town is very safe.",
+        "exampleJa": "この町はとても安全だ。",
+        "scene": "自分の住む町を紹介する場面"
+      },
+      {
+        "meaning": "無事な",
+        "example": "I am glad you are safe.",
+        "exampleJa": "あなたが無事でよかった。",
+        "scene": "台風の後に友達の安否を確認する場面"
+      }
+    ]
+  },
+  {
+    "id": 140,
+    "word": "clean",
+    "pronunciation": "/kliːn/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "きれいな",
+    "meaningEn": "not dirty; free from dirt or mess",
+    "coreImage": "「汚れがなくすっきりしている」",
+    "scenes": [
+      {
+        "meaning": "きれいな・清潔な",
+        "example": "Please keep your desk clean.",
+        "exampleJa": "デスクをきれいにしておいてね。",
+        "scene": "職場でデスクを片づける場面"
+      },
+      {
+        "meaning": "澄んだ",
+        "example": "The river water is very clean.",
+        "exampleJa": "川の水はとてもきれいだ。",
+        "scene": "山の中のきれいな川を見る場面"
+      }
+    ]
+  },
+  {
+    "id": 141,
+    "word": "dirty",
+    "pronunciation": "/ˈdɜːrti/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "汚い",
+    "meaningEn": "not clean; covered with dirt or marks",
+    "coreImage": "「汚れがついている・きたない状態」",
+    "scenes": [
+      {
+        "meaning": "汚い・汚れた",
+        "example": "My shoes are dirty.",
+        "exampleJa": "靴が汚れている。",
+        "scene": "雨の日に泥だらけになった靴を見る場面"
+      },
+      {
+        "meaning": "不潔な",
+        "example": "Don't touch that dirty cloth.",
+        "exampleJa": "その汚い布に触らないで。",
+        "scene": "汚れた雑巾を片づける場面"
+      }
+    ]
+  },
+  {
+    "id": 142,
+    "word": "quiet",
+    "pronunciation": "/ˈkwaɪət/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "静かな",
+    "meaningEn": "making little or no noise; calm and peaceful",
+    "coreImage": "「音がなく穏やかな状態」",
+    "scenes": [
+      {
+        "meaning": "静かな",
+        "example": "The library is very quiet.",
+        "exampleJa": "図書館はとても静かだ。",
+        "scene": "図書館で本を読んでいる場面"
+      },
+      {
+        "meaning": "おとなしい",
+        "example": "She is a quiet person.",
+        "exampleJa": "彼女はおとなしい人だ。",
+        "scene": "同僚の性格について話す場面"
+      }
+    ]
+  },
+  {
+    "id": 143,
+    "word": "loud",
+    "pronunciation": "/laʊd/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "うるさい",
+    "meaningEn": "making a lot of noise; not quiet",
+    "coreImage": "「音が大きく響いている」",
+    "scenes": [
+      {
+        "meaning": "うるさい・大きい音の",
+        "example": "The music is too loud.",
+        "exampleJa": "音楽がうるさすぎる。",
+        "scene": "隣の部屋から大音量の音楽が聞こえる場面"
+      },
+      {
+        "meaning": "声の大きい",
+        "example": "He has a very loud voice.",
+        "exampleJa": "彼はとても声が大きい。",
+        "scene": "レストランで声が大きい人がいる場面"
+      }
+    ]
+  },
+  {
+    "id": 144,
+    "word": "bright",
+    "pronunciation": "/braɪt/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "明るい",
+    "meaningEn": "full of light; shining strongly",
+    "coreImage": "「光があふれて輝いている」",
+    "scenes": [
+      {
+        "meaning": "明るい",
+        "example": "The room is very bright.",
+        "exampleJa": "部屋がとても明るい。",
+        "scene": "カーテンを開けて日差しが入る場面"
+      },
+      {
+        "meaning": "鮮やかな",
+        "example": "She wore a bright red dress.",
+        "exampleJa": "彼女は鮮やかな赤いドレスを着ていた。",
+        "scene": "パーティーで目立つ服を着ている場面"
+      }
+    ]
+  },
+  {
+    "id": 145,
+    "word": "dark",
+    "pronunciation": "/dɑːrk/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "暗い",
+    "meaningEn": "with little or no light; not bright",
+    "coreImage": "「光がなく見えにくい状態」",
+    "scenes": [
+      {
+        "meaning": "暗い",
+        "example": "It gets dark at five in winter.",
+        "exampleJa": "冬は5時に暗くなる。",
+        "scene": "冬の夕方、早く暗くなる場面"
+      },
+      {
+        "meaning": "濃い色の",
+        "example": "He wears a dark blue jacket.",
+        "exampleJa": "彼は濃い青のジャケットを着ている。",
+        "scene": "服装について話す場面"
+      }
+    ]
+  },
+  {
+    "id": 146,
+    "word": "deep",
+    "pronunciation": "/diːp/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "深い",
+    "meaningEn": "going far down from the top or surface",
+    "coreImage": "「表面から底まで距離がある」",
+    "scenes": [
+      {
+        "meaning": "深い",
+        "example": "This river is very deep.",
+        "exampleJa": "この川はとても深い。",
+        "scene": "川のそばで注意書きを見る場面"
+      },
+      {
+        "meaning": "深い・強い",
+        "example": "She fell into a deep sleep.",
+        "exampleJa": "彼女は深い眠りに落ちた。",
+        "scene": "疲れてぐっすり眠る場面"
+      }
+    ]
+  },
+  {
+    "id": 147,
+    "word": "wide",
+    "pronunciation": "/waɪd/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "広い",
+    "meaningEn": "having a large distance from one side to the other",
+    "coreImage": "「横に大きく広がっている」",
+    "scenes": [
+      {
+        "meaning": "広い・幅が広い",
+        "example": "The road is very wide.",
+        "exampleJa": "その道路はとても広い。",
+        "scene": "大きな道路を渡る場面"
+      },
+      {
+        "meaning": "幅広い",
+        "example": "She has a wide smile.",
+        "exampleJa": "彼女は満面の笑みを浮かべた。",
+        "scene": "嬉しいニュースを聞いて笑顔になる場面"
+      }
+    ]
+  },
+  {
+    "id": 148,
+    "word": "narrow",
+    "pronunciation": "/ˈnæroʊ/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "狭い",
+    "meaningEn": "small in width; not wide",
+    "coreImage": "「幅が小さくせまい」",
+    "scenes": [
+      {
+        "meaning": "狭い",
+        "example": "This street is very narrow.",
+        "exampleJa": "この通りはとても狭い。",
+        "scene": "細い路地を歩いている場面"
+      },
+      {
+        "meaning": "わずかな",
+        "example": "We won by a narrow margin.",
+        "exampleJa": "僅差で勝った。",
+        "scene": "接戦の試合でギリギリ勝つ場面"
+      }
+    ]
+  },
+  {
+    "id": 149,
+    "word": "heavy",
+    "pronunciation": "/ˈhevi/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "重い",
+    "meaningEn": "weighing a lot; difficult to lift or move",
+    "coreImage": "「持ち上げるのに力がいるほど重い」",
+    "scenes": [
+      {
+        "meaning": "重い",
+        "example": "This bag is too heavy.",
+        "exampleJa": "このバッグは重すぎる。",
+        "scene": "旅行の荷物が重くて持てない場面"
+      },
+      {
+        "meaning": "激しい",
+        "example": "There was heavy rain last night.",
+        "exampleJa": "昨夜、激しい雨が降った。",
+        "scene": "大雨が窓を打つ場面"
+      }
+    ]
+  },
+  {
+    "id": 150,
+    "word": "light",
+    "pronunciation": "/laɪt/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "軽い",
+    "meaningEn": "not heavy; easy to lift or carry",
+    "coreImage": "「重さが少なくふわっとしている」",
+    "scenes": [
+      {
+        "meaning": "軽い",
+        "example": "This box is very light.",
+        "exampleJa": "この箱はとても軽い。",
+        "scene": "荷物を持ってみたら軽かった場面"
+      },
+      {
+        "meaning": "淡い・薄い",
+        "example": "She likes light blue.",
+        "exampleJa": "彼女は水色が好きだ。",
+        "scene": "好きな色について話す場面"
+      }
+    ]
+  },
+  {
+    "id": 151,
+    "word": "thick",
+    "pronunciation": "/θɪk/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "厚い",
+    "meaningEn": "having a large distance between two sides; not thin",
+    "coreImage": "「層が分厚く詰まっている」",
+    "scenes": [
+      {
+        "meaning": "厚い",
+        "example": "This is a very thick book.",
+        "exampleJa": "これはとても分厚い本だ。",
+        "scene": "辞書のような厚い本を手に取る場面"
+      },
+      {
+        "meaning": "濃い",
+        "example": "The fog is very thick today.",
+        "exampleJa": "今日は霧がとても濃い。",
+        "scene": "朝、濃い霧で前が見えない場面"
+      }
+    ]
+  },
+  {
+    "id": 152,
+    "word": "thin",
+    "pronunciation": "/θɪn/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "薄い",
+    "meaningEn": "having a small distance between two sides; not thick or fat",
+    "coreImage": "「厚みが少なくペラペラしている」",
+    "scenes": [
+      {
+        "meaning": "薄い",
+        "example": "The ice is too thin to walk on.",
+        "exampleJa": "氷が薄すぎて歩けない。",
+        "scene": "冬の池の氷が薄い場面"
+      },
+      {
+        "meaning": "やせた",
+        "example": "He is tall and thin.",
+        "exampleJa": "彼は背が高くてやせている。",
+        "scene": "友達の外見を説明する場面"
+      }
+    ]
+  },
+  {
+    "id": 153,
+    "word": "soft",
+    "pronunciation": "/sɔːft/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "柔らかい",
+    "meaningEn": "nice to touch; not hard or rough",
+    "coreImage": "「触るとふわっとしている・やさしい」",
+    "scenes": [
+      {
+        "meaning": "柔らかい",
+        "example": "This pillow is very soft.",
+        "exampleJa": "この枕はとても柔らかい。",
+        "scene": "新しい枕を触ってみる場面"
+      },
+      {
+        "meaning": "穏やかな",
+        "example": "She speaks in a soft voice.",
+        "exampleJa": "彼女は穏やかな声で話す。",
+        "scene": "優しく話しかけてくれる人の場面"
+      }
+    ]
+  },
+  {
+    "id": 154,
+    "word": "hard",
+    "pronunciation": "/hɑːrd/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "硬い",
+    "meaningEn": "firm and solid; not soft, or difficult to do",
+    "coreImage": "「力を入れても変形しない・簡単ではない」",
+    "scenes": [
+      {
+        "meaning": "硬い",
+        "example": "This bread is very hard.",
+        "exampleJa": "このパンはとても硬い。",
+        "scene": "古くなったパンをかじる場面"
+      },
+      {
+        "meaning": "難しい",
+        "example": "This question is hard.",
+        "exampleJa": "この問題は難しい。",
+        "scene": "仕事で難しい課題に取り組む場面"
+      },
+      {
+        "meaning": "一生懸命に",
+        "example": "She works very hard.",
+        "exampleJa": "彼女はとても一生懸命働く。",
+        "scene": "夜遅くまでオフィスで働く場面"
+      }
+    ]
+  },
+  {
+    "id": 155,
+    "word": "warm",
+    "pronunciation": "/wɔːrm/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "暖かい",
+    "meaningEn": "having a nice heat that is not too hot; friendly and kind",
+    "coreImage": "「ほどよい温度で心地よい」",
+    "scenes": [
+      {
+        "meaning": "暖かい",
+        "example": "It is warm today.",
+        "exampleJa": "今日は暖かい。",
+        "scene": "春の穏やかな日の場面"
+      },
+      {
+        "meaning": "温かい",
+        "example": "She has a warm heart.",
+        "exampleJa": "彼女は温かい心を持っている。",
+        "scene": "困っている人を助ける優しい人の場面"
+      }
+    ]
+  },
+  {
+    "id": 156,
+    "word": "cool",
+    "pronunciation": "/kuːl/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "涼しい",
+    "meaningEn": "a little cold in a nice way, or very attractive and impressive",
+    "coreImage": "「ひんやりと心地よい・かっこいい」",
+    "scenes": [
+      {
+        "meaning": "涼しい",
+        "example": "The evening air is cool.",
+        "exampleJa": "夕方の空気は涼しい。",
+        "scene": "夏の夕方に外へ出て涼む場面"
+      },
+      {
+        "meaning": "かっこいい",
+        "example": "That car is really cool!",
+        "exampleJa": "あの車は本当にかっこいい！",
+        "scene": "スポーツカーを見て興奮する場面"
+      }
+    ]
+  },
+  {
+    "id": 157,
+    "word": "dry",
+    "pronunciation": "/draɪ/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "乾いた",
+    "meaningEn": "not wet; having no water or liquid",
+    "coreImage": "「水分がなくカラカラの状態」",
+    "scenes": [
+      {
+        "meaning": "乾いた",
+        "example": "The ground is very dry.",
+        "exampleJa": "地面がとても乾いている。",
+        "scene": "雨が降らず地面がひび割れている場面"
+      },
+      {
+        "meaning": "乾燥した",
+        "example": "My skin gets dry in winter.",
+        "exampleJa": "冬は肌が乾燥する。",
+        "scene": "冬に手がカサカサになる場面"
+      }
+    ]
+  },
+  {
+    "id": 158,
+    "word": "wet",
+    "pronunciation": "/wet/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "濡れた",
+    "meaningEn": "covered with water or another liquid",
+    "coreImage": "「水分を含んでびしょびしょの状態」",
+    "scenes": [
+      {
+        "meaning": "濡れた",
+        "example": "My clothes are all wet.",
+        "exampleJa": "服がびしょびしょだ。",
+        "scene": "傘を忘れて雨に濡れた場面"
+      },
+      {
+        "meaning": "雨の多い",
+        "example": "June is a wet month in Japan.",
+        "exampleJa": "日本では6月は雨が多い。",
+        "scene": "梅雨の時期について話す場面"
+      }
+    ]
+  },
+  {
+    "id": 159,
+    "word": "sweet",
+    "pronunciation": "/swiːt/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "甘い",
+    "meaningEn": "having a taste like sugar; kind and pleasant",
+    "coreImage": "「砂糖のような甘さ・心地よい」",
+    "scenes": [
+      {
+        "meaning": "甘い",
+        "example": "This cake is very sweet.",
+        "exampleJa": "このケーキはとても甘い。",
+        "scene": "ケーキを食べる場面"
+      },
+      {
+        "meaning": "優しい・かわいい",
+        "example": "That was sweet of you.",
+        "exampleJa": "それは優しいね。",
+        "scene": "誰かの親切に感謝する場面"
+      }
+    ]
+  },
+  {
+    "id": 160,
+    "word": "bitter",
+    "pronunciation": "/ˈbɪtər/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "苦い",
+    "meaningEn": "having a strong, sharp taste that is not sweet",
+    "coreImage": "「舌にピリッとくる不快な味・つらい」",
+    "scenes": [
+      {
+        "meaning": "苦い",
+        "example": "This coffee is bitter.",
+        "exampleJa": "このコーヒーは苦い。",
+        "scene": "砂糖なしのコーヒーを飲む場面"
+      },
+      {
+        "meaning": "つらい・悔しい",
+        "example": "It was a bitter loss.",
+        "exampleJa": "悔しい負けだった。",
+        "scene": "あと一歩で負けて悔しがる場面"
+      }
+    ]
+  },
+  {
+    "id": 161,
+    "word": "fresh",
+    "pronunciation": "/freʃ/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "新鮮な",
+    "meaningEn": "recently made or picked; clean and new",
+    "coreImage": "「できたて・とれたてで生き生きしている」",
+    "scenes": [
+      {
+        "meaning": "新鮮な",
+        "example": "These vegetables are fresh.",
+        "exampleJa": "これらの野菜は新鮮だ。",
+        "scene": "スーパーで野菜を買う場面"
+      },
+      {
+        "meaning": "さわやかな",
+        "example": "The morning air is fresh.",
+        "exampleJa": "朝の空気はさわやかだ。",
+        "scene": "朝早く起きて外の空気を吸う場面"
+      }
+    ]
+  },
+  {
+    "id": 162,
+    "word": "free",
+    "pronunciation": "/friː/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "自由な",
+    "meaningEn": "not controlled by others, or costing no money",
+    "coreImage": "「束縛がなく好きにできる・お金がかからない」",
+    "scenes": [
+      {
+        "meaning": "自由な・暇な",
+        "example": "Are you free this afternoon?",
+        "exampleJa": "今日の午後、暇ですか？",
+        "scene": "同僚をランチに誘う場面"
+      },
+      {
+        "meaning": "無料の",
+        "example": "This app is free.",
+        "exampleJa": "このアプリは無料だ。",
+        "scene": "スマホでアプリをダウンロードする場面"
+      }
+    ]
+  },
+  {
+    "id": 163,
+    "word": "busy",
+    "pronunciation": "/ˈbɪzi/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "忙しい",
+    "meaningEn": "having a lot of things to do; not free",
+    "coreImage": "「やることがたくさんあって手が離せない」",
+    "scenes": [
+      {
+        "meaning": "忙しい",
+        "example": "I am very busy today.",
+        "exampleJa": "今日はとても忙しい。",
+        "scene": "やることがたくさんある日の場面"
+      },
+      {
+        "meaning": "にぎやかな",
+        "example": "The street is always busy.",
+        "exampleJa": "その通りはいつもにぎやかだ。",
+        "scene": "人通りの多い商店街を歩く場面"
+      }
+    ]
+  },
+  {
+    "id": 164,
+    "word": "lazy",
+    "pronunciation": "/ˈleɪzi/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "怠けた",
+    "meaningEn": "not wanting to work or do anything active",
+    "coreImage": "「動きたくない・のんびりだらだらしている」",
+    "scenes": [
+      {
+        "meaning": "怠けた・なまけものの",
+        "example": "Don't be lazy!",
+        "exampleJa": "怠けないで！",
+        "scene": "ソファでゴロゴロしている人に言う場面"
+      },
+      {
+        "meaning": "のんびりした",
+        "example": "I spent a lazy Sunday at home.",
+        "exampleJa": "家でのんびり日曜日を過ごした。",
+        "scene": "休日に家でゆっくりする場面"
+      }
+    ]
+  },
+  {
+    "id": 165,
+    "word": "angry",
+    "pronunciation": "/ˈæŋɡri/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "怒った",
+    "meaningEn": "feeling strong displeasure about something unfair or bad",
+    "coreImage": "「心の中で怒りが燃えている」",
+    "scenes": [
+      {
+        "meaning": "怒った",
+        "example": "My boss was angry with me.",
+        "exampleJa": "上司が私に怒っていた。",
+        "scene": "仕事のミスで怒られる場面"
+      },
+      {
+        "meaning": "腹を立てた",
+        "example": "He got angry about the news.",
+        "exampleJa": "彼はそのニュースに腹を立てた。",
+        "scene": "ひどいニュースを聞いて怒る場面"
+      }
+    ]
+  },
+  {
+    "id": 166,
+    "word": "kind",
+    "pronunciation": "/kaɪnd/",
+    "level": 1,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "親切な",
+    "meaningEn": "friendly, caring, and wanting to help others",
+    "coreImage": "「相手を思いやる優しい気持ちがある」",
+    "scenes": [
+      {
+        "meaning": "親切な",
+        "example": "She is very kind to everyone.",
+        "exampleJa": "彼女はみんなにとても親切だ。",
+        "scene": "新しい同僚に優しく接する場面"
+      },
+      {
+        "meaning": "優しい",
+        "example": "That was very kind of you.",
+        "exampleJa": "それはとても優しいですね。",
+        "scene": "誰かに助けてもらってお礼を言う場面"
+      }
+    ]
+  },
+  {
+    "id": 167,
+    "word": "brave",
+    "pronunciation": "/breɪv/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "勇敢な",
+    "meaningEn": "not afraid to do something difficult or dangerous",
+    "coreImage": "「怖くても立ち向かう強い心」",
+    "scenes": [
+      {
+        "meaning": "勇敢な",
+        "example": "She is a brave woman.",
+        "exampleJa": "彼女は勇敢な女性だ。",
+        "scene": "困難に立ち向かう人を褒める場面"
+      },
+      {
+        "meaning": "勇気のある",
+        "example": "That was a brave decision.",
+        "exampleJa": "それは勇気ある決断だった。",
+        "scene": "難しい状況で決断を下す場面"
+      }
+    ]
+  },
+  {
+    "id": 168,
+    "word": "shy",
+    "pronunciation": "/ʃaɪ/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "恥ずかしがりの",
+    "meaningEn": "nervous or uncomfortable around other people",
+    "coreImage": "「人前に出ると緊張して引っ込む」",
+    "scenes": [
+      {
+        "meaning": "恥ずかしがりの",
+        "example": "He is too shy to speak up.",
+        "exampleJa": "彼は恥ずかしがりで発言できない。",
+        "scene": "会議で発言できない人の場面"
+      },
+      {
+        "meaning": "内気な",
+        "example": "She was shy at first.",
+        "exampleJa": "彼女は最初は内気だった。",
+        "scene": "新しい職場で最初はおとなしい場面"
+      }
+    ]
+  },
+  {
+    "id": 169,
+    "word": "proud",
+    "pronunciation": "/praʊd/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "誇りに思う",
+    "meaningEn": "feeling happy about something you or someone close did well",
+    "coreImage": "「胸を張って自信を持っている」",
+    "scenes": [
+      {
+        "meaning": "誇りに思う",
+        "example": "I am proud of my son.",
+        "exampleJa": "息子を誇りに思っている。",
+        "scene": "子供の活躍を見て喜ぶ親の場面"
+      },
+      {
+        "meaning": "誇らしい",
+        "example": "She felt proud of her work.",
+        "exampleJa": "彼女は自分の仕事を誇りに思った。",
+        "scene": "プロジェクトが成功して満足する場面"
+      }
+    ]
+  },
+  {
+    "id": 170,
+    "word": "careful",
+    "pronunciation": "/ˈkerfl/",
+    "level": 2,
+    "partOfSpeech": "形容詞",
+    "meaningJa": "注意深い",
+    "meaningEn": "paying attention to details so that nothing bad happens",
+    "coreImage": "「一つ一つ気を配って慎重に進む」",
+    "scenes": [
+      {
+        "meaning": "注意深い",
+        "example": "Be careful when you cross the street.",
+        "exampleJa": "道を渡るときは気をつけて。",
+        "scene": "交通量の多い道路を渡る場面"
+      },
+      {
+        "meaning": "慎重な",
+        "example": "She is a very careful driver.",
+        "exampleJa": "彼女はとても慎重な運転手だ。",
+        "scene": "安全運転をしている場面"
+      }
+    ]
+  },
+  {
+    "id": 171,
+    "word": "quickly",
+    "pronunciation": "/ˈkwɪkli/",
+    "level": 1,
+    "partOfSpeech": "副詞",
+    "meaningJa": "速く",
+    "meaningEn": "in a fast way; with speed",
+    "coreImage": "「スピードを上げてすばやく」",
+    "scenes": [
+      {
+        "meaning": "速く",
+        "example": "He ran quickly to the station.",
+        "exampleJa": "彼は駅まで速く走った。",
+        "scene": "電車に乗り遅れそうで走る場面"
+      },
+      {
+        "meaning": "すぐに",
+        "example": "She quickly replied to the email.",
+        "exampleJa": "彼女はすぐにメールに返信した。",
+        "scene": "仕事のメールにすばやく対応する場面"
+      }
+    ]
+  },
+  {
+    "id": 172,
+    "word": "slowly",
+    "pronunciation": "/ˈsloʊli/",
+    "level": 1,
+    "partOfSpeech": "副詞",
+    "meaningJa": "ゆっくり",
+    "meaningEn": "in a way that is not fast; taking a long time",
+    "coreImage": "「スピードを落として丁寧に」",
+    "scenes": [
+      {
+        "meaning": "ゆっくり",
+        "example": "Please speak slowly.",
+        "exampleJa": "ゆっくり話してください。",
+        "scene": "外国人にゆっくり話すようお願いする場面"
+      },
+      {
+        "meaning": "のろのろと",
+        "example": "The traffic moved slowly.",
+        "exampleJa": "車がのろのろ動いた。",
+        "scene": "渋滞で車が進まない場面"
+      }
+    ]
+  },
+  {
+    "id": 173,
+    "word": "carefully",
+    "pronunciation": "/ˈkerfəli/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "注意深く",
+    "meaningEn": "in a way that pays attention to details; with care",
+    "coreImage": "「一つ一つ気を配りながら丁寧に」",
+    "scenes": [
+      {
+        "meaning": "注意深く",
+        "example": "Please read this carefully.",
+        "exampleJa": "これを注意深く読んでください。",
+        "scene": "契約書を確認する場面"
+      },
+      {
+        "meaning": "慎重に",
+        "example": "He carefully opened the box.",
+        "exampleJa": "彼は慎重に箱を開けた。",
+        "scene": "壊れやすい荷物を開ける場面"
+      }
+    ]
+  },
+  {
+    "id": 174,
+    "word": "easily",
+    "pronunciation": "/ˈiːzəli/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "簡単に",
+    "meaningEn": "without difficulty; in a simple way",
+    "coreImage": "「苦労せずにすんなりと」",
+    "scenes": [
+      {
+        "meaning": "簡単に",
+        "example": "She easily solved the problem.",
+        "exampleJa": "彼女は簡単にその問題を解いた。",
+        "scene": "仕事の問題をすぐに解決する場面"
+      },
+      {
+        "meaning": "たやすく",
+        "example": "You can easily find the shop.",
+        "exampleJa": "そのお店は簡単に見つかるよ。",
+        "scene": "道案内をしている場面"
+      }
+    ]
+  },
+  {
+    "id": 175,
+    "word": "happily",
+    "pronunciation": "/ˈhæpɪli/",
+    "level": 1,
+    "partOfSpeech": "副詞",
+    "meaningJa": "幸せに",
+    "meaningEn": "in a happy way; with joy",
+    "coreImage": "「嬉しさや喜びに満ちた様子で」",
+    "scenes": [
+      {
+        "meaning": "幸せに",
+        "example": "They lived happily together.",
+        "exampleJa": "彼らは幸せに一緒に暮らした。",
+        "scene": "仲の良い夫婦について話す場面"
+      },
+      {
+        "meaning": "嬉しそうに",
+        "example": "The children played happily.",
+        "exampleJa": "子供たちは楽しそうに遊んだ。",
+        "scene": "公園で子供たちが遊んでいる場面"
+      }
+    ]
+  },
+  {
+    "id": 176,
+    "word": "suddenly",
+    "pronunciation": "/ˈsʌdnli/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "突然",
+    "meaningEn": "quickly and without warning; in an unexpected way",
+    "coreImage": "「予想していなかったことが急に起こる」",
+    "scenes": [
+      {
+        "meaning": "突然",
+        "example": "Suddenly, it started to rain.",
+        "exampleJa": "突然、雨が降り始めた。",
+        "scene": "晴れていたのに急に雨が降り出す場面"
+      },
+      {
+        "meaning": "いきなり",
+        "example": "The dog suddenly barked.",
+        "exampleJa": "犬がいきなり吠えた。",
+        "scene": "静かだったのに犬が急に吠える場面"
+      }
+    ]
+  },
+  {
+    "id": 177,
+    "word": "finally",
+    "pronunciation": "/ˈfaɪnəli/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "ついに",
+    "meaningEn": "after a long time or a lot of effort; at last",
+    "coreImage": "「長い時間の後にやっとたどり着く」",
+    "scenes": [
+      {
+        "meaning": "ついに・やっと",
+        "example": "I finally finished my project.",
+        "exampleJa": "ついにプロジェクトを終えた。",
+        "scene": "長い間取り組んでいた仕事が完成する場面"
+      },
+      {
+        "meaning": "最後に",
+        "example": "Finally, I want to say thank you.",
+        "exampleJa": "最後に、ありがとうと言いたいです。",
+        "scene": "スピーチの締めくくりの場面"
+      }
+    ]
+  },
+  {
+    "id": 178,
+    "word": "actually",
+    "pronunciation": "/ˈæktʃuəli/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "実は",
+    "meaningEn": "used to say what is true, especially when it is surprising",
+    "coreImage": "「見かけとは違う本当のことを言う」",
+    "scenes": [
+      {
+        "meaning": "実は",
+        "example": "Actually, I don't like fish.",
+        "exampleJa": "実は、魚が好きじゃないんだ。",
+        "scene": "本当のことを打ち明ける場面"
+      },
+      {
+        "meaning": "実際に",
+        "example": "It actually happened yesterday.",
+        "exampleJa": "それは実際に昨日起きたんだ。",
+        "scene": "本当にあったことを伝える場面"
+      }
+    ]
+  },
+  {
+    "id": 179,
+    "word": "probably",
+    "pronunciation": "/ˈprɑːbəbli/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "おそらく",
+    "meaningEn": "almost certainly; very likely to happen or be true",
+    "coreImage": "「高い確率でそうだろうと予想する」",
+    "scenes": [
+      {
+        "meaning": "おそらく",
+        "example": "It will probably rain tomorrow.",
+        "exampleJa": "明日はおそらく雨だろう。",
+        "scene": "天気予報を見て予想する場面"
+      },
+      {
+        "meaning": "たぶん",
+        "example": "She is probably at home now.",
+        "exampleJa": "彼女はたぶん今家にいるだろう。",
+        "scene": "友達の居場所を推測する場面"
+      }
+    ]
+  },
+  {
+    "id": 180,
+    "word": "certainly",
+    "pronunciation": "/ˈsɜːrtnli/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "確かに",
+    "meaningEn": "without any doubt; for sure",
+    "coreImage": "「疑いなく間違いなくそうだ」",
+    "scenes": [
+      {
+        "meaning": "確かに",
+        "example": "He is certainly the best player.",
+        "exampleJa": "彼は確かに最高の選手だ。",
+        "scene": "チームで一番上手な選手をほめる場面"
+      },
+      {
+        "meaning": "もちろん",
+        "example": "Certainly! I can help you.",
+        "exampleJa": "もちろん！手伝えますよ。",
+        "scene": "頼まれごとを快く引き受ける場面"
+      }
+    ]
+  },
+  {
+    "id": 181,
+    "word": "together",
+    "pronunciation": "/təˈɡeðər/",
+    "level": 1,
+    "partOfSpeech": "副詞",
+    "meaningJa": "一緒に",
+    "meaningEn": "with each other; as a group, not alone",
+    "coreImage": "「バラバラではなくひとまとまりになって」",
+    "scenes": [
+      {
+        "meaning": "一緒に",
+        "example": "Let's go together.",
+        "exampleJa": "一緒に行こう。",
+        "scene": "同僚をランチに誘う場面"
+      },
+      {
+        "meaning": "合わせて",
+        "example": "We worked on it together.",
+        "exampleJa": "一緒に取り組んだ。",
+        "scene": "チームで協力して仕事をする場面"
+      }
+    ]
+  },
+  {
+    "id": 182,
+    "word": "alone",
+    "pronunciation": "/əˈloʊn/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "一人で",
+    "meaningEn": "without any other people; by yourself",
+    "coreImage": "「誰もそばにいない・自分だけ」",
+    "scenes": [
+      {
+        "meaning": "一人で",
+        "example": "She lives alone.",
+        "exampleJa": "彼女は一人で暮らしている。",
+        "scene": "一人暮らしの生活について話す場面"
+      },
+      {
+        "meaning": "孤独に",
+        "example": "He ate lunch alone today.",
+        "exampleJa": "彼は今日一人でランチを食べた。",
+        "scene": "一人でランチを食べる場面"
+      }
+    ]
+  },
+  {
+    "id": 183,
+    "word": "again",
+    "pronunciation": "/əˈɡen/",
+    "level": 1,
+    "partOfSpeech": "副詞",
+    "meaningJa": "もう一度",
+    "meaningEn": "one more time; another time",
+    "coreImage": "「前と同じことをもう一回繰り返す」",
+    "scenes": [
+      {
+        "meaning": "もう一度",
+        "example": "Please say that again.",
+        "exampleJa": "もう一度言ってください。",
+        "scene": "聞き取れなかった言葉をもう一度頼む場面"
+      },
+      {
+        "meaning": "再び",
+        "example": "I want to visit Japan again.",
+        "exampleJa": "また日本を訪れたい。",
+        "scene": "旅行が楽しくてまた来たいと思う場面"
+      }
+    ]
+  },
+  {
+    "id": 184,
+    "word": "once",
+    "pronunciation": "/wʌns/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "一度",
+    "meaningEn": "one time; at some time in the past",
+    "coreImage": "「たった一回だけ・かつて」",
+    "scenes": [
+      {
+        "meaning": "一度",
+        "example": "I go to the gym once a week.",
+        "exampleJa": "週に一度ジムに行く。",
+        "scene": "運動の習慣について話す場面"
+      },
+      {
+        "meaning": "かつて",
+        "example": "I once lived in London.",
+        "exampleJa": "かつてロンドンに住んでいた。",
+        "scene": "昔の経験を話す場面"
+      }
+    ]
+  },
+  {
+    "id": 185,
+    "word": "twice",
+    "pronunciation": "/twaɪs/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "二度",
+    "meaningEn": "two times",
+    "coreImage": "「同じことを二回繰り返す」",
+    "scenes": [
+      {
+        "meaning": "二度・二回",
+        "example": "I brush my teeth twice a day.",
+        "exampleJa": "一日に二回歯を磨く。",
+        "scene": "毎日の習慣について話す場面"
+      },
+      {
+        "meaning": "二倍",
+        "example": "This is twice as expensive.",
+        "exampleJa": "これは二倍の値段だ。",
+        "scene": "値段を比べる場面"
+      }
+    ]
+  },
+  {
+    "id": 186,
+    "word": "even",
+    "pronunciation": "/ˈiːvn/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "〜でさえ",
+    "meaningEn": "used to show something is surprising or more than expected",
+    "coreImage": "「予想を超えて・まさかと思うほど」",
+    "scenes": [
+      {
+        "meaning": "〜でさえ",
+        "example": "Even a child can do it.",
+        "exampleJa": "子供でさえそれはできる。",
+        "scene": "とても簡単なことを説明する場面"
+      },
+      {
+        "meaning": "さらに",
+        "example": "Today is even colder than yesterday.",
+        "exampleJa": "今日は昨日よりさらに寒い。",
+        "scene": "寒さが増していることに気づく場面"
+      }
+    ]
+  },
+  {
+    "id": 187,
+    "word": "still",
+    "pronunciation": "/stɪl/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "まだ",
+    "meaningEn": "continuing to happen now; even now, without change",
+    "coreImage": "「状態が変わらずそのまま続いている」",
+    "scenes": [
+      {
+        "meaning": "まだ",
+        "example": "He is still sleeping.",
+        "exampleJa": "彼はまだ寝ている。",
+        "scene": "朝遅くまで寝ている人を起こす場面"
+      },
+      {
+        "meaning": "それでも",
+        "example": "It rained, but she still went out.",
+        "exampleJa": "雨が降ったが、それでも彼女は出かけた。",
+        "scene": "雨にもかかわらず外出する場面"
+      }
+    ]
+  },
+  {
+    "id": 188,
+    "word": "yet",
+    "pronunciation": "/jet/",
+    "level": 2,
+    "partOfSpeech": "副詞",
+    "meaningJa": "まだ",
+    "meaningEn": "until now; used in questions and negative sentences about expected actions",
+    "coreImage": "「期待されていることがまだ起きていない」",
+    "scenes": [
+      {
+        "meaning": "まだ（〜ない）",
+        "example": "I haven't finished yet.",
+        "exampleJa": "まだ終わっていない。",
+        "scene": "仕事がまだ終わっていない場面"
+      },
+      {
+        "meaning": "もう",
+        "example": "Have you eaten lunch yet?",
+        "exampleJa": "もうお昼は食べましたか？",
+        "scene": "同僚にお昼を食べたか聞く場面"
+      }
+    ]
+  },
+  {
+    "id": 189,
+    "word": "also",
+    "pronunciation": "/ˈɔːlsoʊ/",
+    "level": 1,
+    "partOfSpeech": "副詞",
+    "meaningJa": "〜もまた",
+    "meaningEn": "in addition; too; as well",
+    "coreImage": "「前に言ったことに加えてさらに」",
+    "scenes": [
+      {
+        "meaning": "〜もまた",
+        "example": "I also like music.",
+        "exampleJa": "私も音楽が好きだ。",
+        "scene": "趣味について話して共通点を見つける場面"
+      },
+      {
+        "meaning": "さらに",
+        "example": "She can also speak French.",
+        "exampleJa": "彼女はフランス語も話せる。",
+        "scene": "多言語を話す同僚を紹介する場面"
+      }
+    ]
+  },
+  {
+    "id": 190,
+    "word": "too",
+    "pronunciation": "/tuː/",
+    "level": 1,
+    "partOfSpeech": "副詞",
+    "meaningJa": "〜もまた",
+    "meaningEn": "also; in addition, or more than is good",
+    "coreImage": "「同じように・度を超えて」",
+    "scenes": [
+      {
+        "meaning": "〜もまた",
+        "example": "I like coffee, too.",
+        "exampleJa": "私もコーヒーが好きだ。",
+        "scene": "友達と同じ趣味があることに気づく場面"
+      },
+      {
+        "meaning": "〜すぎる",
+        "example": "This bag is too expensive.",
+        "exampleJa": "このバッグは高すぎる。",
+        "scene": "お店で値段を見て驚く場面"
+      }
+    ]
+  },
+  {
+    "id": 191,
+    "word": "heart",
+    "pronunciation": "/hɑːrt/",
+    "level": 2,
+    "partOfSpeech": "名詞",
+    "meaningJa": "心",
+    "meaningEn": "the organ in your chest that pumps blood, or your feelings and emotions",
+    "coreImage": "「体の中心で鼓動を打つ・気持ちの源」",
+    "scenes": [
+      {
+        "meaning": "心臓",
+        "example": "My heart is beating fast.",
+        "exampleJa": "心臓がドキドキしている。",
+        "scene": "緊張して心臓がバクバクする場面"
+      },
+      {
+        "meaning": "心",
+        "example": "She has a kind heart.",
+        "exampleJa": "彼女は優しい心を持っている。",
+        "scene": "思いやりのある人について話す場面"
+      }
+    ]
+  },
+  {
+    "id": 192,
+    "word": "dream",
+    "pronunciation": "/driːm/",
+    "level": 1,
+    "partOfSpeech": "名詞",
+    "meaningJa": "夢",
+    "meaningEn": "pictures and thoughts in your mind while you sleep, or something you hope for",
+    "coreImage": "「眠っている間に見る映像・将来の希望」",
+    "scenes": [
+      {
+        "meaning": "夢",
+        "example": "I had a strange dream last night.",
+        "exampleJa": "昨夜、不思議な夢を見た。",
+        "scene": "朝起きて見た夢を話す場面"
+      },
+      {
+        "meaning": "夢・将来の目標",
+        "example": "My dream is to travel the world.",
+        "exampleJa": "私の夢は世界を旅することだ。",
+        "scene": "将来の夢について話す場面"
+      }
+    ]
+  },
+  {
+    "id": 193,
+    "word": "idea",
+    "pronunciation": "/aɪˈdiːə/",
+    "level": 2,
+    "partOfSpeech": "名詞",
+    "meaningJa": "考え",
+    "meaningEn": "a thought or plan in your mind",
+    "coreImage": "「頭の中にひらめく思いつき・考え」",
+    "scenes": [
+      {
+        "meaning": "考え・アイデア",
+        "example": "That is a great idea!",
+        "exampleJa": "それはすごいアイデアだ！",
+        "scene": "同僚の提案に感心する場面"
+      },
+      {
+        "meaning": "見当・わかること",
+        "example": "I have no idea.",
+        "exampleJa": "全くわからない。",
+        "scene": "質問されたがわからない場面"
+      }
+    ]
+  },
+  {
+    "id": 194,
+    "word": "story",
+    "pronunciation": "/ˈstɔːri/",
+    "level": 1,
+    "partOfSpeech": "名詞",
+    "meaningJa": "物語",
+    "meaningEn": "a description of events that entertains people, real or imagined",
+    "coreImage": "「始まりから終わりまでつながった話」",
+    "scenes": [
+      {
+        "meaning": "物語",
+        "example": "I like this story very much.",
+        "exampleJa": "この物語がとても好きだ。",
+        "scene": "好きな本について話す場面"
+      },
+      {
+        "meaning": "話",
+        "example": "Tell me your story.",
+        "exampleJa": "あなたの話を聞かせて。",
+        "scene": "友達の体験談を聞く場面"
+      }
+    ]
+  },
+  {
+    "id": 195,
+    "word": "music",
+    "pronunciation": "/ˈmjuːzɪk/",
+    "level": 1,
+    "partOfSpeech": "名詞",
+    "meaningJa": "音楽",
+    "meaningEn": "sounds that are arranged in a way that is pleasant to listen to",
+    "coreImage": "「メロディーやリズムが組み合わさった音の芸術」",
+    "scenes": [
+      {
+        "meaning": "音楽",
+        "example": "I listen to music every day.",
+        "exampleJa": "毎日音楽を聴く。",
+        "scene": "通勤中にイヤホンで音楽を聴く場面"
+      },
+      {
+        "meaning": "音楽の",
+        "example": "She is taking music lessons.",
+        "exampleJa": "彼女は音楽のレッスンを受けている。",
+        "scene": "趣味で音楽を習っている場面"
+      }
+    ]
+  },
+  {
+    "id": 196,
+    "word": "food",
+    "pronunciation": "/fuːd/",
+    "level": 1,
+    "partOfSpeech": "名詞",
+    "meaningJa": "食べ物",
+    "meaningEn": "things that people eat to stay alive and healthy",
+    "coreImage": "「体に栄養を与えるために食べるもの」",
+    "scenes": [
+      {
+        "meaning": "食べ物",
+        "example": "Japanese food is delicious.",
+        "exampleJa": "日本の食べ物はおいしい。",
+        "scene": "外国人に和食を紹介する場面"
+      },
+      {
+        "meaning": "食料",
+        "example": "We need more food for the party.",
+        "exampleJa": "パーティーにもっと食べ物が必要だ。",
+        "scene": "パーティーの準備をしている場面"
+      }
+    ]
+  },
+  {
+    "id": 197,
+    "word": "home",
+    "pronunciation": "/hoʊm/",
+    "level": 1,
+    "partOfSpeech": "名詞",
+    "meaningJa": "家",
+    "meaningEn": "the place where you live; where you feel you belong",
+    "coreImage": "「安心して帰る場所・自分の居場所」",
+    "scenes": [
+      {
+        "meaning": "家・自宅",
+        "example": "I go home at six.",
+        "exampleJa": "6時に家に帰る。",
+        "scene": "仕事が終わって家に帰る場面"
+      },
+      {
+        "meaning": "故郷",
+        "example": "I miss my home.",
+        "exampleJa": "故郷が恋しい。",
+        "scene": "遠くにいて故郷を思い出す場面"
+      }
+    ]
+  },
+  {
+    "id": 198,
+    "word": "city",
+    "pronunciation": "/ˈsɪti/",
+    "level": 1,
+    "partOfSpeech": "名詞",
+    "meaningJa": "都市",
+    "meaningEn": "a large town where many people live and work",
+    "coreImage": "「たくさんの建物や人が集まる大きな町」",
+    "scenes": [
+      {
+        "meaning": "都市・市",
+        "example": "Tokyo is a big city.",
+        "exampleJa": "東京は大きな都市だ。",
+        "scene": "日本の都市について話す場面"
+      },
+      {
+        "meaning": "街",
+        "example": "I want to visit many cities.",
+        "exampleJa": "たくさんの街を訪れたい。",
+        "scene": "旅行の計画を立てる場面"
+      }
+    ]
+  },
+  {
+    "id": 199,
+    "word": "nature",
+    "pronunciation": "/ˈneɪtʃər/",
+    "level": 2,
+    "partOfSpeech": "名詞",
+    "meaningJa": "自然",
+    "meaningEn": "everything in the world that is not made by people, like trees, mountains, and rivers",
+    "coreImage": "「人の手が加わっていない山や川や森の世界」",
+    "scenes": [
+      {
+        "meaning": "自然",
+        "example": "I love nature.",
+        "exampleJa": "自然が大好きだ。",
+        "scene": "山や森でハイキングをする場面"
+      },
+      {
+        "meaning": "性質",
+        "example": "It is in his nature to be kind.",
+        "exampleJa": "親切なのは彼の性質だ。",
+        "scene": "人の性格について話す場面"
+      }
+    ]
+  },
+  {
+    "id": 200,
+    "word": "future",
+    "pronunciation": "/ˈfjuːtʃər/",
+    "level": 2,
+    "partOfSpeech": "名詞",
+    "meaningJa": "未来",
+    "meaningEn": "the time that has not happened yet; what comes after now",
+    "coreImage": "「今よりも先にやってくる時間」",
+    "scenes": [
+      {
+        "meaning": "未来・将来",
+        "example": "What do you want to do in the future?",
+        "exampleJa": "将来何をしたいですか？",
+        "scene": "将来について友達と話す場面"
+      },
+      {
+        "meaning": "今後",
+        "example": "We should plan for the future.",
+        "exampleJa": "私たちは将来の計画を立てるべきだ。",
+        "scene": "これからの計画について話し合う場面"
+      }
+    ]
+  }
+]
