@@ -3,7 +3,11 @@
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import words from "@/data/words.json";
+import words1 from "@/data/words.json";
+import words2 from "@/data/words_101_200.json";
+import words3 from "@/data/words_201_300.json";
+
+const words = [...words1, ...words2, ...words3];
 import { Word } from "@/types/word";
 import CoreImage from "@/components/CoreImage";
 import SceneExample from "@/components/SceneExample";
